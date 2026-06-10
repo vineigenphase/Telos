@@ -133,6 +133,11 @@ def init_db():
             created_at  TEXT DEFAULT CURRENT_TIMESTAMP
         );
         """)
+    # Ensure a shared default user exists for open-access mode
+    with get_db() as db:
+        db.execute(
+            "INSERT OR IGNORE INTO users (id, email, username, password_hash) VALUES (1,'guest@telos','Telos','')"
+        )
 
 # ── Auth model ────────────────────────────────────────────────────────────────
 
@@ -154,6 +159,17 @@ def load_user(uid):
     with get_db() as db:
         row = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
     return User(row) if row else None
+
+
+# Auto-login everyone as the shared default user (open-access mode).
+# Remove this block when you want per-user accounts / subscription gating.
+@app.before_request
+def auto_login():
+    if not current_user.is_authenticated:
+        with get_db() as db:
+            row = db.execute("SELECT * FROM users WHERE id=1").fetchone()
+        if row:
+            login_user(User(row), remember=True)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
