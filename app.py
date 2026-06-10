@@ -922,7 +922,9 @@ def api_template_info():
 
 # ── Boot ──────────────────────────────────────────────────────────────────────
 
+# Run at import time so gunicorn also initialises the DB
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     print(" * Telos running on http://127.0.0.1:5000")
     app.run(debug=True)
