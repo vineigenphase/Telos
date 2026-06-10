@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if mode == 'edit' else 'Log' }} Paper — Telos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ 'Edit Paper' if mode == 'edit' else 'Log Paper' }}</div>
+    <div class="page-subtitle">
+      {% if pre.get('paper_code') and pre.get('year') %}
+        {{ pre.board }} {{ pre.subject }} · {{ pre.paper_code }} {{ pre.year }}
+      {% else %}
+        Fill in your paper details below
+      {% endif %}
+    </div>
+  </div>
+  <a href="{{ url_for('papers') }}" class="btn btn-ghost">← Back</a>
+</div>
+
+<div class="page-body">
+<form method="POST">
+
+  <!-- ── Paper identity ── -->
+  <div class="entry-section">
+    <div class="entry-section-title">Paper Identity</div>
+    <div class="form-row form-row-4" style="margin-bottom:14px;">
+
+      <div class="form-group">
+        <label class="form-label">Exam Board *</label>
+        <select id="board" name="board" class="form-control" onchange="onBoardChange()" required>
+          <option value="">Board…</option>
+          {% for board_name in templates.keys() %}
+          <option value="{{ board_name }}" {{ 'selected' if pre.get('board') == board_name }}>{{ board_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Subject *</label>
+        <select id="subject" name="subject" class="form-control" onchange="onSubjectChange()" required>
+          <option value="">Subject…</option>
+          {% for board_name, subjects in templates.items() %}
+            {% for subj_name in subjects.keys() %}
+            <option value="{{ subj_name }}" {{ 'selected' if pre.get('subject') == subj_name }}>{{ subj_name }}</option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Paper *</label>
+        <select id="paper_code" name="paper_code" class="form-control" onchange="onCodeChange()" required>
+          <option value="">Paper…</option>
+          {% for board_name, subjects in templates.items() %}
+            {% for subj_name, data in subjects.items() %}
+              {% for p in data.papers %}
+              <option value="{{ p.code }}"
+                      data-board="{{ board_name }}" data-subject="{{ subj_name }}"
+                      {{ 'selected' if pre.get('paper_code') == p.code }}>
+                {{ p.code }}
+              </option>
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Year *</label>
+        <select name="year" id="year_sel" class="form-control" required>
+          <option value="">Year…</option>
+          <!-- Populated by JS or pre-filled -->
+          {% if pre.get('year') %}
+          <option value="{{ pre.year }}" selected>{{ pre.year }}</option>
+          {% endif %}
+          {% for board_name, subjects in templates.items() %}
+            {% for subj_name, data in subjects.items() %}
+              {% for yr in data.years %}
+              {% if not pre.get('year') or yr != pre.year %}
+              <option value="{{ yr }}" data-board="{{ board_name }}" data-subject="{{ subj_name }}">{{ yr }}</option>
+              {% endif %}
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row form-row-4">
+      <div class="form-group">
+        <label class="form-label">Max Marks *</label>
+        <input type="number" id="max_marks" name="max_marks" class="form-control"
+               value="{{ pre.get('max_marks', '') }}" step="0.5" min="1" required
+               oninput="this.dataset.userEdited='1'">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Series</label>
+        <select name="series" class="form-control">
+          <option value="June" {{ 'selected' if pre.get('series', 'June') == 'June' }}>June</option>
+          <option value="January" {{ 'selected' if pre.get('series') == 'January' }}>January</option>
+          <option value="October" {{ 'selected' if pre.get('series') == 'October' }}>October</option>
+          <option value="November" {{ 'selected' if pre.get('series') == 'November' }}>November</option>
+          <option value="Specimen" {{ 'selected' if pre.get('series') == 'Specimen' or pre.get('year') == 'SPEC' }}>Specimen</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date Completed</label>
+        <input type="date" name="date_completed" class="form-control"
+               value="{{ pre.get('date_completed', '') }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time Taken (min)</label>
+        <input type="number" name="time_taken" class="form-control"
+               value="{{ pre.get('time_taken', '') }}" placeholder="e.g. 90" min="1">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Per-question marks ── -->
+  <div class="entry-section">
+    <div class="entry-section-title" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>Question Marks — enter per question for the heatmap</span>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addQRow(null, null, null, null, window._currentTopics)">
+        + Add Question
+      </button>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 70px 1fr 14px 90px 1fr 28px; gap:8px; margin-bottom:8px; font-size:0.72rem; color:var(--muted); padding: 0 0 4px;">
+      <span>Q#</span><span>Marks got</span><span></span><span>Out of</span><span>Topic (opt)</span><span></span>
+    </div>
+
+    <div id="q-rows">
+      {% if qmarks %}
+        {% for q in qmarks %}
+        <div class="q-row">
+          <input class="form-control" name="q_num[]"     value="{{ q.q_num }}" style="text-align:center;">
+          <input class="form-control q-obtained" name="q_obtained[]" type="number"
+                 value="{{ q.obtained }}" step="0.5" min="0" oninput="recalcTotal()">
+          <span class="q-sep" style="color:var(--muted); text-align:center;">/</span>
+          <input class="form-control" name="q_max[]" type="number"
+                 value="{{ q.max_marks }}" step="0.5" min="0" oninput="recalcTotal()">
+          <select class="form-control q-topic" name="q_topic[]">
+            <option value="">Topic…</option>
+            {% for t in pre.get('topics', []) %}
+            <option value="{{ t }}" {{ 'selected' if t == q.topic }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeQRow(this)">×</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- Running total display -->
+    <div class="q-total">
+      <span class="q-total-label">Total:</span>
+      <span class="q-total-value" id="calc-score">—</span>
+      <span class="q-total-pct" id="calc-pct"></span>
+      <div id="calc-grade" class="grade-badge" style="margin-left:8px; min-width:32px;"></div>
+      <span class="q-total-label" style="margin-left:8px; font-size:0.72rem;">
+        or enter total score directly →
+      </span>
+      <input type="number" id="score_direct" name="score_direct" class="form-control"
+             style="width:100px;"
+             value="{{ pre.get('score', '') }}" step="0.5" placeholder="Total"
+             oninput="recalcTotal()">
+    </div>
+  </div>
+
+  <!-- ── Notes ── -->
+  <div class="entry-section">
+    <div class="entry-section-title">Notes</div>
+    <div class="form-row form-row-2">
+      <div class="form-group">
+        <label class="form-label">Weak Topics / Areas to Revisit</label>
+        <input type="text" name="weak_topics" class="form-control"
+               value="{{ pre.get('weak_topics', '') }}"
+               placeholder="e.g. Integration by parts, Newton's laws…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea name="notes" class="form-control" style="min-height:60px;">{{ pre.get('notes', '') }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Actions ── -->
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button type="submit" class="btn btn-primary btn-lg">
+      {{ 'Save Changes' if mode == 'edit' else 'Log Paper' }}
+    </button>
+    <a href="{{ url_for('papers') }}" class="btn btn-ghost btn-lg">Cancel</a>
+    {% if mode == 'edit' %}
+    <form method="POST" action="{{ url_for('delete_paper', pid=pid) }}" style="margin-left:auto;"
+          onsubmit="return confirm('Delete this paper permanently?')">
+      <button type="submit" class="btn btn-danger">Delete paper</button>
+    </form>
+    {% endif %}
+  </div>
+
+</form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Pre-load topics for existing paper
+window._currentTopics = {{ pre.get('topics', []) | tojson }};
+
+// Populate year dropdown filtered to selected board+subject
+document.addEventListener('DOMContentLoaded', () => {
+  const templates = {{ templates | tojson }};
+  const boardSel   = document.getElementById('board');
+  const subjectSel = document.getElementById('subject');
+  const codeSel    = document.getElementById('paper_code');
+  const yearSel    = document.getElementById('year_sel');
+
+  function refreshYears() {
+    const board   = boardSel?.value;
+    const subject = subjectSel?.value;
+    if (!board || !subject || !templates[board] || !templates[board][subject]) return;
+    const years   = templates[board][subject].years;
+    const current = yearSel.value;
+    yearSel.innerHTML = '<option value="">Year…</option>';
+    years.forEach(yr => {
+      const opt = document.createElement('option');
+      opt.value = yr;
+      opt.textContent = yr;
+      if (yr === current || yr === '{{ pre.get("year", "") }}') opt.selected = true;
+      yearSel.appendChild(opt);
+    });
+  }
+
+  function refreshPapers() {
+    const board   = boardSel?.value;
+    const subject = subjectSel?.value;
+    if (!board || !subject || !templates[board] || !templates[board][subject]) return;
+    const papers  = templates[board][subject].papers;
+    const current = codeSel.value;
+    codeSel.innerHTML = '<option value="">Paper…</option>';
+    papers.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.code;
+      opt.textContent = p.code + ' — ' + p.name;
+      if (p.code === current || p.code === '{{ pre.get("paper_code", "") }}') opt.selected = true;
+      codeSel.appendChild(opt);
+    });
+    if (codeSel.value) onCodeChange();
+  }
+
+  if (boardSel) {
+    boardSel.addEventListener('change', () => { refreshPapers(); refreshYears(); });
+    subjectSel.addEventListener('change', () => { refreshPapers(); refreshYears(); });
+    // Init on load if pre-filled
+    if (boardSel.value && subjectSel.value) { refreshPapers(); refreshYears(); }
+  }
+
+  // Pre-add some blank Q rows if no existing marks
+  {% if not qmarks %}
+  for (let i = 1; i <= 3; i++) addQRow(i, null, null, null, window._currentTopics);
+  {% else %}
+  recalcTotal();
+  {% endif %}
+});
+</script>
+{% endblock %}

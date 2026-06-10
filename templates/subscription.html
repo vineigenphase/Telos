@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Subscription — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div><div class="page-title">Subscription</div></div>
+</div>
+
+<div class="page-body" style="max-width:700px;">
+
+  {% if current_user.is_premium %}
+  <div class="card" style="margin-bottom:20px; border-color:var(--gold);">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="font-size:1.8rem;">✦</div>
+      <div>
+        <div style="font-size:1rem; font-weight:700; color:var(--gold);">Telos Pro — Active</div>
+        <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">Thank you for supporting Telos.</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+    <!-- Free -->
+    <div class="plan-card {{ '' if current_user.is_premium else '' }}">
+      <div class="plan-name" style="color:var(--muted);">Free</div>
+      <div class="plan-price" style="color:var(--muted);">£0</div>
+      <div class="plan-period">forever</div>
+      <div class="divider"></div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Paper tracking (unlimited)
+      </div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Per-question mark entry
+      </div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Heatmap & stats
+      </div>
+      <div class="plan-feature" style="color:var(--muted);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        File uploads (10 max)
+      </div>
+      <div class="plan-feature" style="color:var(--muted);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Pro badge
+      </div>
+    </div>
+
+    <!-- Pro -->
+    <div class="plan-card pro">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="plan-name" style="color:var(--accent-2);">Telos Pro</div>
+        <span style="background:var(--accent); color:#fff; font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:100px;">POPULAR</span>
+      </div>
+      <div class="plan-price">£2</div>
+      <div class="plan-period">per month</div>
+      <div class="divider"></div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Everything in Free
+      </div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Unlimited file uploads
+      </div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Priority support
+      </div>
+      <div class="plan-feature">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        ✦ Pro badge
+      </div>
+
+      {% if not current_user.is_premium %}
+        {% if stripe_enabled %}
+        <form method="POST" action="{{ url_for('create_checkout') }}" style="margin-top:20px;">
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;">
+            Upgrade — £2/month
+          </button>
+        </form>
+        {% else %}
+        <div style="margin-top:20px; padding:12px; background:rgba(139,92,246,0.1); border-radius:8px; font-size:0.78rem; color:var(--muted-2);">
+          Stripe not yet configured. Set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_PRICE_ID</code> environment variables to enable billing.
+        </div>
+        {% endif %}
+      {% else %}
+        <div style="margin-top:20px; text-align:center; font-size:0.85rem; color:var(--gold);">
+          ✦ You're on Pro
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Grade Boundaries — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div><div class="page-title">Grade Boundaries</div>
+  <div class="page-subtitle">Import A*/A/B/C raw mark boundaries per paper</div></div>
+</div>
+
+<div class="page-body">
+
+  <!-- Import form -->
+  <div class="card" style="max-width:700px; margin-bottom:24px;">
+    <div class="card-title" style="margin-bottom:14px;">Import JSON</div>
+    <form method="POST" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="form-group">
+        <label class="form-label">Paste JSON array</label>
+        <textarea name="json_data" class="form-control" rows="8"
+                  placeholder='[
+  {"subject":"Further Maths","board":"Edexcel","paper_code":"CP1","year":"2023","series":"June","a_star":68,"a":60,"b":52,"c":44},
+  ...
+]'></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Import Boundaries</button>
+    </form>
+    <div style="margin-top:14px; font-size:0.78rem; color:var(--muted);">
+      Fields: <code>subject</code>, <code>board</code>, <code>paper_code</code>, <code>year</code>, <code>series</code>, <code>a_star</code>, <code>a</code>, <code>b</code>, <code>c</code> (all raw marks out of paper total)
+    </div>
+  </div>
+
+  <!-- Existing boundaries -->
+  {% if boundaries %}
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          {% for h in ['Subject','Board','Paper','Year','Series','A*','A','B','C'] %}
+          <th style="padding:8px 10px; text-align:left; color:var(--muted); font-weight:500;">{{ h }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in boundaries %}
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 10px;">{{ b.subject }}</td>
+          <td style="padding:8px 10px; color:var(--muted);">{{ b.board }}</td>
+          <td style="padding:8px 10px; font-weight:600;">{{ b.paper_code }}</td>
+          <td style="padding:8px 10px; color:var(--muted);">{{ b.year }}</td>
+          <td style="padding:8px 10px; color:var(--muted);">{{ b.series }}</td>
+          <td style="padding:8px 10px; color:var(--gold); font-weight:600;">{{ b.a_star or '—' }}</td>
+          <td style="padding:8px 10px; color:var(--green); font-weight:600;">{{ b.a_boundary or '—' }}</td>
+          <td style="padding:8px 10px; color:var(--blue); font-weight:600;">{{ b.b_boundary or '—' }}</td>
+          <td style="padding:8px 10px; color:var(--accent-2); font-weight:600;">{{ b.c_boundary or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center; padding:40px; color:var(--muted); font-size:0.88rem;">
+    No boundaries imported yet. Paste your JSON above and click Import.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

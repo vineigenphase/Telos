@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Papers — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Papers</div>
+    <div class="page-subtitle">Click any cell to log or view a paper</div>
+  </div>
+  <a href="{{ url_for('add_paper') }}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Custom Paper
+  </a>
+</div>
+
+<div class="page-body">
+{% for section in matrix %}
+<div class="matrix-section">
+  <div class="matrix-header">
+    <div class="subject-dot" style="background: {{ section.color }};"></div>
+    <div class="matrix-title">{{ section.subject }}</div>
+    <div class="matrix-board">{{ section.board }}</div>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;"></th>
+          {% for yr in section.years %}
+          <th>{{ yr }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in section.rows %}
+        <tr>
+          <td style="font-size:0.8rem; font-weight:600; color:var(--muted-2); padding-right:12px; white-space:nowrap;">
+            {{ row.paper.code }}
+            <div style="font-size:0.68rem; color:var(--muted); font-weight:400;">{{ row.paper.max_marks }}mk</div>
+          </td>
+          {% for cell in row.cells %}
+          <td style="padding: 2px;">
+            {% if cell.done %}
+              <a class="matrix-cell done"
+                 href="{{ url_for('edit_paper', pid=cell.id) }}"
+                 style="background: {{ cell.color ~ '22' if cell.color else 'var(--card-2)' }}; border-color: {{ cell.color ~ '55' if cell.color else 'var(--border)' }};"
+                 data-tip="{{ cell.pct }}% — click to edit">
+                {% if cell.pct is not none %}
+                <div class="cell-pct" style="color: {{ cell.color or 'var(--text)' }}">{{ cell.pct }}%</div>
+                {% if cell.grade %}
+                <div class="cell-grade" style="color: {{ cell.color }}">{{ cell.grade }}</div>
+                {% endif %}
+                {% else %}
+                <div class="cell-pct" style="color: var(--muted)">Done</div>
+                {% endif %}
+              </a>
+            {% else %}
+              <a class="matrix-cell"
+                 href="{{ url_for('add_paper', board=section.board, subject=section.subject, paper_code=row.paper.code, year=cell.year) }}"
+                 data-tip="Log {{ cell.year }} {{ row.paper.code }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </a>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top: 8px; font-size: 0.72rem; color: var(--muted); display:flex; gap:14px; align-items:center;">
+    <span style="display:flex;align-items:center;gap:4px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block;"></span> A*
+    </span>
+    <span style="display:flex;align-items:center;gap:4px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:#22c55e;display:inline-block;"></span> A
+    </span>
+    <span style="display:flex;align-items:center;gap:4px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:#3b82f6;display:inline-block;"></span> B
+    </span>
+    <span style="display:flex;align-items:center;gap:4px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:#a78bfa;display:inline-block;"></span> C
+    </span>
+    <span style="display:flex;align-items:center;gap:4px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;"></span> D/E
+    </span>
+  </div>
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}

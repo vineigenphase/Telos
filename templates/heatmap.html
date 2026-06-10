@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Heatmap — Telos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Heatmap</div>
+    <div class="page-subtitle">Per-question mark breakdown across all papers</div>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- Filters -->
+  <div class="card card-sm" style="margin-bottom: 20px;">
+    <form method="GET" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+      <div class="form-group" style="min-width:160px;">
+        <label class="form-label">Subject</label>
+        <select name="subject" class="form-control" onchange="this.form.submit()">
+          <option value="">All subjects</option>
+          {% for board, subs in templates.items() %}
+            {% for subj in subs.keys() %}
+            <option value="{{ subj }}"
+                    data-board="{{ board }}"
+                    {{ 'selected' if subject_filter == subj }}>
+              {{ board }} {{ subj }}
+            </option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+      </div>
+      {% if subject_filter %}
+      <div class="form-group" style="min-width:140px;">
+        <label class="form-label">Paper Code</label>
+        <select name="code" class="form-control" onchange="this.form.submit()">
+          <option value="">All papers</option>
+          {% for c in all_codes %}
+          <option value="{{ c }}" {{ 'selected' if code_filter == c }}>{{ c }}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" name="board" value="{{ board_filter }}">
+      </div>
+      {% endif %}
+      {% if subject_filter or code_filter %}
+      <a href="{{ url_for('heatmap') }}" class="btn btn-ghost btn-sm">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Colour legend -->
+  <div style="display:flex; gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; font-size:0.75rem; color:var(--muted);">
+    <span style="font-weight:600;">Score %:</span>
+    {% for cls, label in [('pct-90','≥90%'),('pct-80','80–89%'),('pct-70','70–79%'),('pct-60','60–69%'),('pct-50','50–59%'),('pct-0','<50%')] %}
+    <span style="display:flex;align-items:center;gap:5px;">
+      <span class="hm-cell {{ cls }}" style="width:22px;height:16px;display:inline-block;border-radius:3px;"></span>{{ label }}
+    </span>
+    {% endfor %}
+    <span style="display:flex;align-items:center;gap:5px;">
+      <span class="hm-cell empty" style="width:22px;height:16px;display:inline-block;border-radius:3px;"></span>Not logged
+    </span>
+  </div>
+
+  {% if sections %}
+    {% for sec in sections %}
+    <div class="card" style="margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:{{ sec.color }};"></div>
+        <div style="font-weight:600; font-size:0.95rem;">{{ sec.board }} {{ sec.subject }} — {{ sec.code }}</div>
+        <div style="font-size:0.78rem; color:var(--muted); margin-left:auto;">{{ sec.rows | length }} attempt{{ 's' if sec.rows | length != 1 }}</div>
+      </div>
+
+      {% if sec.q_nums %}
+      <div class="heatmap-container">
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th style="text-align:left; min-width:120px;">Paper</th>
+              <th style="min-width:50px;">Total</th>
+              {% for qn in sec.q_nums %}
+              <th>Q{{ qn }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in sec.rows %}
+            <tr>
+              <td class="row-label">{{ row.label }}</td>
+              <td>
+                {% if row.pct is not none %}
+                {% set tcls = 'pct-90' if row.pct >= 90 else ('pct-80' if row.pct >= 80 else ('pct-70' if row.pct >= 70 else ('pct-60' if row.pct >= 60 else ('pct-50' if row.pct >= 50 else 'pct-0')))) %}
+                <div class="hm-cell {{ tcls }}" style="width:46px;" data-tip="{{ row.pct }}%">
+                  {{ row.pct }}%
+                </div>
+                {% else %}
+                <div class="hm-cell empty" style="width:46px;">—</div>
+                {% endif %}
+              </td>
+              {% for qn in sec.q_nums %}
+                {% set qd = row.qmap.get(qn) %}
+                {% if qd %}
+                  {% set pct = qd.pct %}
+                  {% set cls = 'pct-90' if pct >= 90 else ('pct-80' if pct >= 80 else ('pct-70' if pct >= 70 else ('pct-60' if pct >= 60 else ('pct-50' if pct >= 50 else 'pct-0')))) %}
+                  <td><div class="hm-cell {{ cls }}" data-tip="Q{{ qn }}: {{ qd.obtained }}/{{ qd.max }}">{{ pct | int }}%</div></td>
+                {% else %}
+                  <td><div class="hm-cell empty">—</div></td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="text-align:center; padding:24px; color:var(--muted); font-size:0.85rem;">
+        No per-question marks logged for these papers yet.<br>
+        <a href="{{ url_for('papers') }}" class="auth-link" style="margin-top:8px;display:inline-block;">Go to Papers → click a paper → enter question marks</a>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center; padding:60px 20px; color:var(--muted);">
+      <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
+      <div style="font-size:0.92rem; margin-bottom:8px;">No heatmap data yet.</div>
+      <div style="font-size:0.8rem;">Log a paper and fill in per-question marks to see your breakdown here.</div>
+      <a href="{{ url_for('papers') }}" class="btn btn-primary" style="margin-top:16px;">View Papers</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

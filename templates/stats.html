@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Stats — Telos{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><div class="page-title">Stats</div><div class="page-subtitle">Your performance analytics</div></div>
+</div>
+
+<div class="page-body">
+
+{% set colors = {"Further Maths": "#8b5cf6", "Maths": "#3b82f6", "Physics": "#10b981"} %}
+
+{% if by_subject %}
+  {% for (subject, board), papers in by_subject.items() %}
+  {% set color = colors.get(subject, '#8b5cf6') %}
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:{{ color }};"></div>
+        <div class="card-title">{{ board }} {{ subject }}</div>
+      </div>
+      <div style="display:flex; gap:16px; font-size:0.8rem; color:var(--muted);">
+        {% set pcts = papers | map(attribute='pct') | list %}
+        {% set avg = (pcts | sum) / (pcts | length) %}
+        <span>Avg: <strong style="color:var(--text);">{{ avg | round(1) }}%</strong></span>
+        <span>Best: <strong style="color:var(--green);">{{ pcts | max }}%</strong></span>
+        <span>{{ papers | length }} paper{{ 's' if papers | length != 1 }}</span>
+      </div>
+    </div>
+
+    <!-- Per-code averages -->
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+      {% for (subj, brd, code), cs in code_stats.items() %}
+        {% if subj == subject and brd == board %}
+        <div class="card card-sm" style="min-width:130px;">
+          <div style="font-size:0.72rem; color:var(--muted); margin-bottom:4px;">{{ code }}</div>
+          <div style="font-size:1.4rem; font-weight:700;">{{ cs.avg }}%</div>
+          <div style="font-size:0.7rem; color:var(--muted);">{{ cs.n }} paper{{ 's' if cs.n != 1 }}</div>
+          <div class="progress-bar-track" style="margin-top:6px;">
+            <div class="progress-bar-fill" style="width:{{ cs.avg }}%; background:{{ color }};"></div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Trend chart if more than 1 paper -->
+    {% if papers | length > 1 %}
+    <canvas id="chart-{{ loop.index }}" height="80" style="margin-bottom:16px;"></canvas>
+    {% endif %}
+
+    <!-- Papers table -->
+    <div style="overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            {% for h in ['Paper', 'Year', 'Score', '%', 'Grade', 'Date'] %}
+            <th style="padding:6px 10px; text-align:left; color:var(--muted); font-weight:500;">{{ h }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in papers %}
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 10px; font-weight:500;">{{ p.paper_code }}</td>
+            <td style="padding:8px 10px; color:var(--muted);">{{ p.year }}</td>
+            <td style="padding:8px 10px;">{{ p.score | int }}/{{ p.max_marks | int }}</td>
+            <td style="padding:8px 10px; font-weight:600; color:{{ p.grade_color or 'var(--text)' }};">{{ p.pct }}%</td>
+            <td style="padding:8px 10px;">
+              {% if p.grade %}
+              <span class="grade-badge" style="background:{{ p.grade_color }}22; color:{{ p.grade_color }}; border:1px solid {{ p.grade_color }}44; padding:2px 8px; border-radius:5px; font-size:0.75rem; font-weight:700;">{{ p.grade }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td style="padding:8px 10px; color:var(--muted);">{{ p.date_completed or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if papers | length > 1 %}
+  <script>
+  (function(){
+    var ctx = document.getElementById('chart-{{ loop.index }}');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ papers | map(attribute='paper_code') | list | tojson }},
+        datasets: [{
+          data: {{ papers | map(attribute='pct') | list | tojson }},
+          borderColor: '{{ color }}',
+          backgroundColor: '{{ color }}18',
+          tension: 0.3, fill: true,
+          pointRadius: 5, pointHoverRadius: 7,
+          pointBackgroundColor: '{{ color }}',
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 100,
+               ticks: { callback: v => v + '%', color: '#7070a0', font:{size:11} },
+               grid: { color: '#2a2a45' } },
+          x: { ticks: { color: '#7070a0', font:{size:11} }, grid: { color: '#2a2a45' } }
+        }
+      }
+    });
+  })();
+  </script>
+  {% endif %}
+
+  {% endfor %}
+
+{% else %}
+  <div style="text-align:center; padding:60px 20px; color:var(--muted);">
+    <div style="font-size:2.5rem; margin-bottom:12px;">📈</div>
+    <div>Log some papers to see your stats.</div>
+    <a href="{{ url_for('papers') }}" class="btn btn-primary" style="margin-top:16px;">Go to Papers</a>
+  </div>
+{% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+telos.db
+papers.db
+uploads/
+__pycache__/
+*.pyc
+.env
+*.env
+.venv/
+venv/

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Upload File — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div><div class="page-title">Upload File</div></div>
+  <a href="{{ url_for('bank') }}" class="btn btn-ghost">← Back</a>
+</div>
+
+<div class="page-body">
+<div style="max-width: 560px;">
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:16px;">
+
+      <div class="form-group">
+        <label class="form-label">File (PDF, PNG, JPG — max 50 MB) *</label>
+        <input type="file" name="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <select name="subject" class="form-control">
+            <option value="">Choose…</option>
+            {% for board, subs in templates.items() %}
+              {% for subj in subs.keys() %}
+              <option value="{{ subj }}">{{ subj }}</option>
+              {% endfor %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Board</label>
+          <select name="board" class="form-control">
+            <option value="">Choose…</option>
+            {% for board in templates.keys() %}
+            <option value="{{ board }}">{{ board }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row form-row-3">
+        <div class="form-group">
+          <label class="form-label">Paper Code</label>
+          <input type="text" name="paper_code" class="form-control" placeholder="CP1, Pure 1…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Year</label>
+          <input type="text" name="year" class="form-control" placeholder="2023">
+        </div>
+        <div class="form-group">
+          <label class="form-label">File Type</label>
+          <select name="file_type" class="form-control">
+            <option value="question_paper">Question Paper</option>
+            <option value="mark_scheme">Mark Scheme</option>
+            <option value="examiner_report">Examiner Report</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg">
+        Upload & Tag Questions →
+      </button>
+    </form>
+  </div>
+</div>
+</div>
+{% endblock %}

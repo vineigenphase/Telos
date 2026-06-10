@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Telos{% endblock %}
+{% block content %}
+
+{% set subject_meta = {
+  ("Further Maths", "Edexcel"): {"short": "FM",   "color": "#8b5cf6", "cls": "fm"},
+  ("Maths",         "Edexcel"): {"short": "Math", "color": "#3b82f6", "cls": "math"},
+  ("Physics",       "OCR A"):   {"short": "Phys", "color": "#10b981", "cls": "phys"},
+} %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Dashboard</div>
+    <div class="page-subtitle">{{ now if now else "Welcome back, " ~ current_user.username }}</div>
+  </div>
+  <a href="{{ url_for('add_paper') }}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Log Paper
+  </a>
+</div>
+
+<div class="page-body">
+
+  <!-- Stat cards -->
+  <div class="stat-grid" style="margin-bottom: 24px;">
+    <div class="stat-card total">
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Papers completed</div>
+    </div>
+    {% for board, subjects in templates.items() %}
+      {% for subject, data in subjects.items() %}
+        {% set key = (subject, board) %}
+        {% set s = stats.get(key, {"n": 0, "avg": 0}) %}
+        {% set meta = {"Further Maths": "fm", "Maths": "math", "Physics": "phys"} %}
+        <div class="stat-card {{ meta.get(subject, 'fm') }}">
+          <div class="stat-value">{{ s.n }}</div>
+          <div class="stat-label">{{ subject }} papers</div>
+          {% if s.n > 0 %}
+          <div style="margin-top: 8px;">
+            <div style="font-size: 0.78rem; color: var(--muted);">Avg score</div>
+            <div style="font-size: 1rem; font-weight: 700; color: var(--text);">{{ s.avg }}%</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width:{{ s.avg }}%; background:{{ data.color }};"></div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <!-- Recent papers -->
+  <div class="card-header">
+    <div class="card-title">Recent papers</div>
+    <a href="{{ url_for('papers') }}" class="btn btn-ghost btn-sm">View all →</a>
+  </div>
+
+  {% if recent %}
+    {% for p in recent %}
+    {% set colors = {"Further Maths": "#8b5cf6", "Maths": "#3b82f6", "Physics": "#10b981"} %}
+    <a class="paper-row" href="{{ url_for('edit_paper', pid=p.id) }}">
+      <div class="paper-subject-bar" style="background: {{ colors.get(p.subject, '#8b5cf6') }};"></div>
+      <div class="paper-info">
+        <div class="paper-name">{{ p.board }} {{ p.subject }} — {{ p.paper_code }}</div>
+        <div class="paper-meta">{{ p.year }}{% if p.series and p.series != 'June' %} {{ p.series }}{% endif %}
+          {% if p.date_completed %} · {{ p.date_completed }}{% endif %}
+          {% if p.time_taken %} · {{ p.time_taken }} min{% endif %}
+        </div>
+        {% if p.weak_topics %}
+        <div style="font-size: 0.72rem; color: var(--orange); margin-top: 3px;">⚠ {{ p.weak_topics }}</div>
+        {% endif %}
+      </div>
+      {% if p.pct is not none %}
+      <div class="paper-score">
+        <div class="paper-pct" style="color: {{ p.grade_color or 'var(--text)' }}">{{ p.pct }}%</div>
+        <div class="paper-raw">{{ p.score | int }}/{{ p.max_marks | int }}</div>
+        {% if p.grade %}
+        <div style="font-size: 0.72rem; font-weight: 700; color: {{ p.grade_color }}">{{ p.grade }}</div>
+        {% endif %}
+      </div>
+      {% else %}
+      <div style="font-size: 0.76rem; color: var(--muted);">No score</div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center; padding: 40px 20px; color: var(--muted);">
+      <div style="font-size: 2rem; margin-bottom: 10px;">📖</div>
+      <div style="font-size: 0.9rem; margin-bottom: 12px;">No papers logged yet.</div>
+      <a href="{{ url_for('papers') }}" class="btn btn-primary">Start tracking →</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
