@@ -11,6 +11,7 @@ import sqlite3
 import stripe
 
 from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
+from seed_boundaries import seed_boundaries
 
 import json as _json
 
@@ -138,6 +139,9 @@ def init_db():
         db.execute(
             "INSERT OR IGNORE INTO users (id, email, username, password_hash) VALUES (1,'guest@telos','Telos','')"
         )
+    # Seed permanent grade boundary data (INSERT OR IGNORE — never overwrites)
+    with get_db() as db:
+        seed_boundaries(db)
 
 # ── Auth model ────────────────────────────────────────────────────────────────
 
@@ -824,8 +828,18 @@ def boundaries():
             flash(f"Import error: {e}", "error")
 
     with get_db() as db:
-        all_bounds = db.execute("SELECT * FROM grade_boundaries ORDER BY subject, year").fetchall()
-    return render_template("boundaries.html", boundaries=all_bounds)
+        all_bounds = db.execute(
+            "SELECT * FROM grade_boundaries ORDER BY board, subject, paper_code, year DESC"
+        ).fetchall()
+
+    groups = {}
+    for b in all_bounds:
+        key = (b["board"], b["subject"])
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(b)
+
+    return render_template("boundaries.html", groups=groups)
 
 # ── Subscription ──────────────────────────────────────────────────────────────
 

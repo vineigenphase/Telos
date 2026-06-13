@@ -3,64 +3,107 @@
 {% block content %}
 
 <div class="page-header">
-  <div><div class="page-title">Grade Boundaries</div>
-  <div class="page-subtitle">Import A*/A/B/C raw mark boundaries per paper</div></div>
+  <div>
+    <div class="page-title">Grade Boundaries</div>
+    <div class="page-subtitle">Raw mark boundaries by board and qualification</div>
+  </div>
 </div>
 
 <div class="page-body">
 
-  <!-- Import form -->
-  <div class="card" style="max-width:700px; margin-bottom:24px;">
-    <div class="card-title" style="margin-bottom:14px;">Import JSON</div>
-    <form method="POST" style="display:flex; flex-direction:column; gap:14px;">
-      <div class="form-group">
-        <label class="form-label">Paste JSON array</label>
-        <textarea name="json_data" class="form-control" rows="8"
-                  placeholder='[
-  {"subject":"Further Maths","board":"Edexcel","paper_code":"CP1","year":"2023","series":"June","a_star":68,"a":60,"b":52,"c":44},
-  ...
-]'></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Import Boundaries</button>
-    </form>
-    <div style="margin-top:14px; font-size:0.78rem; color:var(--muted);">
-      Fields: <code>subject</code>, <code>board</code>, <code>paper_code</code>, <code>year</code>, <code>series</code>, <code>a_star</code>, <code>a</code>, <code>b</code>, <code>c</code> (all raw marks out of paper total)
-    </div>
-  </div>
+{% set board_colors = {
+  "Edexcel": "#3b82f6",
+  "OCR A":   "#10b981",
+  "OCR":     "#06b6d4"
+} %}
 
-  <!-- Existing boundaries -->
-  {% if boundaries %}
-  <div style="overflow-x:auto;">
-    <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
-      <thead>
-        <tr style="border-bottom:1px solid var(--border);">
-          {% for h in ['Subject','Board','Paper','Year','Series','A*','A','B','C'] %}
-          <th style="padding:8px 10px; text-align:left; color:var(--muted); font-weight:500;">{{ h }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for b in boundaries %}
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 10px;">{{ b.subject }}</td>
-          <td style="padding:8px 10px; color:var(--muted);">{{ b.board }}</td>
-          <td style="padding:8px 10px; font-weight:600;">{{ b.paper_code }}</td>
-          <td style="padding:8px 10px; color:var(--muted);">{{ b.year }}</td>
-          <td style="padding:8px 10px; color:var(--muted);">{{ b.series }}</td>
-          <td style="padding:8px 10px; color:var(--gold); font-weight:600;">{{ b.a_star or '—' }}</td>
-          <td style="padding:8px 10px; color:var(--green); font-weight:600;">{{ b.a_boundary or '—' }}</td>
-          <td style="padding:8px 10px; color:var(--blue); font-weight:600;">{{ b.b_boundary or '—' }}</td>
-          <td style="padding:8px 10px; color:var(--accent-2); font-weight:600;">{{ b.c_boundary or '—' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+{% set subject_labels = {
+  ("Edexcel", "Maths"):         "Edexcel A Level Mathematics",
+  ("Edexcel", "Further Maths"): "Edexcel A Level Further Mathematics",
+  ("OCR A",   "Physics"):       "OCR A Level Physics A",
+  ("OCR",     "Physics B"):     "OCR A Level Physics B — Advancing Physics"
+} %}
+
+{% if groups %}
+  {% for (board, subject), rows in groups.items() %}
+  {% set color = board_colors.get(board, '#8b5cf6') %}
+  {% set label = subject_labels.get((board, subject), board ~ ' ' ~ subject) %}
+
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header" style="margin-bottom:18px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:{{ color }};"></div>
+        <div class="card-title">{{ label }}</div>
+      </div>
+      <div style="font-size:0.78rem; color:var(--muted);">{{ rows | length }} record{{ 's' if rows | length != 1 }}</div>
+    </div>
+
+    {% set paper_codes = rows | map(attribute='paper_code') | list | unique | list %}
+    {% for code in paper_codes %}
+    {% set code_rows = rows | selectattr('paper_code', 'equalto', code) | list %}
+
+    <div style="margin-bottom:20px;">
+      <div style="font-size:0.75rem; font-weight:600; color:{{ color }}; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">
+        {{ code }}
+        {% if board == 'Edexcel' and subject == 'Maths' %}
+          {% if code == 'Pure 1' %}— Paper 1 (Pure)
+          {% elif code == 'Pure 2' %}— Paper 2 (Pure)
+          {% elif code == 'Stats&Mech' %}— Paper 3 (Statistics & Mechanics)
+          {% endif %}
+        {% elif board == 'Edexcel' and subject == 'Further Maths' %}
+          {% if code == 'CP1' %}— Core Pure 1
+          {% elif code == 'CP2' %}— Core Pure 2
+          {% elif code == 'FP1' %}— Further Pure 1
+          {% elif code == 'FP2' %}— Further Pure 2
+          {% elif code == 'FM1' %}— Further Mechanics 1
+          {% elif code == 'FM2' %}— Further Mechanics 2
+          {% elif code == 'FS1' %}— Further Statistics 1
+          {% elif code == 'FS2' %}— Further Statistics 2
+          {% elif code == 'D1' %}— Decision 1
+          {% elif code == 'D2' %}— Decision 2
+          {% endif %}
+        {% elif code == 'Overall' %}
+          — Total qualification score (out of 270)
+        {% endif %}
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="padding:6px 10px; text-align:left; color:var(--muted); font-weight:500;">Year</th>
+              <th style="padding:6px 10px; text-align:left; color:var(--muted); font-weight:500;">Series</th>
+              <th style="padding:6px 10px; text-align:left; color:#f59e0b; font-weight:500;">A*</th>
+              <th style="padding:6px 10px; text-align:left; color:#22c55e; font-weight:500;">A</th>
+              <th style="padding:6px 10px; text-align:left; color:#3b82f6; font-weight:500;">B</th>
+              <th style="padding:6px 10px; text-align:left; color:#a78bfa; font-weight:500;">C</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in code_rows %}
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:7px 10px; font-weight:600;">{{ b.year }}</td>
+              <td style="padding:7px 10px; color:var(--muted);">{{ b.series }}</td>
+              <td style="padding:7px 10px; color:#f59e0b; font-weight:700;">{{ b.a_star if b.a_star is not none else '—' }}</td>
+              <td style="padding:7px 10px; color:#22c55e; font-weight:700;">{{ b.a_boundary if b.a_boundary is not none else '—' }}</td>
+              <td style="padding:7px 10px; color:#3b82f6; font-weight:700;">{{ b.b_boundary if b.b_boundary is not none else '—' }}</td>
+              <td style="padding:7px 10px; color:#a78bfa; font-weight:700;">{{ b.c_boundary if b.c_boundary is not none else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% endfor %}
   </div>
-  {% else %}
-  <div style="text-align:center; padding:40px; color:var(--muted); font-size:0.88rem;">
-    No boundaries imported yet. Paste your JSON above and click Import.
+  {% endfor %}
+
+{% else %}
+  <div style="text-align:center; padding:60px 20px; color:var(--muted);">
+    <div style="font-size:2rem; margin-bottom:12px;">📊</div>
+    <div>No boundaries loaded yet.</div>
   </div>
-  {% endif %}
+{% endif %}
 
 </div>
 {% endblock %}
