@@ -135,10 +135,11 @@ BOUNDARY_ROWS = [
 
 
 def seed_boundaries(db):
-    """Insert all boundary rows; existing records are skipped (INSERT OR IGNORE)."""
+    """Insert all boundary rows; existing records are skipped (ON CONFLICT DO NOTHING)."""
     db.executemany(
-        """INSERT OR IGNORE INTO grade_boundaries
+        """INSERT INTO grade_boundaries
            (subject, board, paper_code, year, series, a_star, a_boundary, b_boundary, c_boundary)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
+           VALUES (?,?,?,?,?,?,?,?,?)
+           ON CONFLICT DO NOTHING""",
         BOUNDARY_ROWS,
     )

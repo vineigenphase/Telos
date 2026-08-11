@@ -7,7 +7,7 @@ from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import sqlite3
+import psycopg
 import stripe
 
 from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
@@ -46,100 +46,20 @@ def from_json_filter(s):
 
 # ── Database ──────────────────────────────────────────────────────────────────
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+from db import get_db
 
 
 def init_db():
-    with get_db() as db:
-        db.executescript("""
-        CREATE TABLE IF NOT EXISTS users (
-            id                  INTEGER PRIMARY KEY,
-            email               TEXT UNIQUE NOT NULL,
-            username            TEXT NOT NULL,
-            password_hash       TEXT NOT NULL,
-            subscription_status TEXT NOT NULL DEFAULT 'free',
-            stripe_customer_id  TEXT,
-            created_at          TEXT DEFAULT CURRENT_TIMESTAMP
-        );
+    # Schema is created by migrate_to_postgres.py now — run it once against
+    # Neon before the first boot. init_db() keeps only the idempotent bootstrap.
 
-        CREATE TABLE IF NOT EXISTS papers (
-            id            INTEGER PRIMARY KEY,
-            user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            subject       TEXT NOT NULL,
-            board         TEXT NOT NULL,
-            paper_code    TEXT NOT NULL,
-            year          TEXT NOT NULL,
-            series        TEXT NOT NULL DEFAULT 'June',
-            score         REAL,
-            max_marks     REAL NOT NULL,
-            date_completed TEXT,
-            time_taken    INTEGER,
-            weak_topics   TEXT,
-            notes         TEXT,
-            created_at    TEXT DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS question_marks (
-            id          INTEGER PRIMARY KEY,
-            paper_id    INTEGER NOT NULL REFERENCES papers(id) ON DELETE CASCADE,
-            q_num       TEXT NOT NULL,
-            obtained    REAL NOT NULL,
-            max_marks   REAL NOT NULL,
-            topic       TEXT,
-            notes       TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS grade_boundaries (
-            id          INTEGER PRIMARY KEY,
-            subject     TEXT NOT NULL,
-            board       TEXT NOT NULL,
-            paper_code  TEXT NOT NULL,
-            year        TEXT NOT NULL,
-            series      TEXT NOT NULL DEFAULT 'June',
-            a_star      INTEGER,
-            a_boundary  INTEGER,
-            b_boundary  INTEGER,
-            c_boundary  INTEGER,
-            UNIQUE(subject, board, paper_code, year, series)
-        );
-
-        CREATE TABLE IF NOT EXISTS uploads (
-            id          INTEGER PRIMARY KEY,
-            user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            filename    TEXT NOT NULL,
-            orig_name   TEXT NOT NULL,
-            subject     TEXT,
-            board       TEXT,
-            paper_code  TEXT,
-            year        TEXT,
-            file_type   TEXT,
-            upload_date TEXT DEFAULT CURRENT_TIMESTAMP,
-            file_size   INTEGER
-        );
-
-        CREATE TABLE IF NOT EXISTS question_bank (
-            id          INTEGER PRIMARY KEY,
-            upload_id   INTEGER NOT NULL REFERENCES uploads(id) ON DELETE CASCADE,
-            user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            q_num       TEXT NOT NULL,
-            page_num    INTEGER,
-            topics      TEXT,
-            keywords    TEXT,
-            max_marks   INTEGER,
-            notes       TEXT,
-            created_at  TEXT DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
     # Ensure a shared default user exists for open-access mode
     with get_db() as db:
         db.execute(
-            "INSERT OR IGNORE INTO users (id, email, username, password_hash) VALUES (1,'guest@telos','Telos','')"
+            "INSERT INTO users (id, email, username, password_hash) "
+            "VALUES (1,'guest@telos','Telos','') ON CONFLICT (id) DO NOTHING"
         )
-    # Seed permanent grade boundary data (INSERT OR IGNORE — never overwrites)
+    # Seed permanent grade boundary data (ON CONFLICT DO NOTHING — never overwrites)
     with get_db() as db:
         seed_boundaries(db)
 
@@ -292,7 +212,7 @@ def register():
                 )
             flash("Account created — log in to get started.", "success")
             return redirect(url_for("login"))
-        except sqlite3.IntegrityError:
+        except psycopg.errors.UniqueViolation:
             flash("That email is already registered.", "error")
     return render_template("register.html")
 
@@ -539,7 +459,7 @@ def heatmap():
 
     with get_db() as db:
         papers_raw = db.execute(
-            "SELECT p.*, GROUP_CONCAT(q.q_num||':'||q.obtained||'/'||q.max_marks, '|') as qdata "
+            "SELECT p.*, STRING_AGG(q.q_num||':'||q.obtained||'/'||q.max_marks, '|') as qdata "
             "FROM papers p LEFT JOIN question_marks q ON q.paper_id=p.id "
             "WHERE p.user_id=? GROUP BY p.id ORDER BY p.year, p.series, p.paper_code",
             (current_user.id,)
@@ -815,10 +735,15 @@ def boundaries():
             with get_db() as db:
                 for row in data:
                     db.execute(
-                        """INSERT OR REPLACE INTO grade_boundaries
+                        """INSERT INTO grade_boundaries
                            (subject, board, paper_code, year, series,
                             a_star, a_boundary, b_boundary, c_boundary)
-                           VALUES (?,?,?,?,?,?,?,?,?)""",
+                           VALUES (?,?,?,?,?,?,?,?,?)
+                           ON CONFLICT (subject, board, paper_code, year, series)
+                           DO UPDATE SET a_star=EXCLUDED.a_star,
+                                         a_boundary=EXCLUDED.a_boundary,
+                                         b_boundary=EXCLUDED.b_boundary,
+                                         c_boundary=EXCLUDED.c_boundary""",
                         (row["subject"], row["board"], row["paper_code"],
                          row["year"], row.get("series", "June"),
                          row.get("a_star"), row.get("a"), row.get("b"), row.get("c"))
