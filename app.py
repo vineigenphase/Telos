@@ -28,6 +28,7 @@ STRIPE_ENABLED = bool(stripe.api_key)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 ALLOWED_EXT   = {"pdf", "png", "jpg", "jpeg"}
 MAX_UPLOAD_MB = 50
+FREE_UPLOAD_LIMIT = 10   # free plan upload cap; Pro is unlimited
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
@@ -50,16 +51,8 @@ from db import get_db
 
 
 def init_db():
-    # Schema is created by migrate_to_postgres.py now — run it once against
-    # Neon before the first boot. init_db() keeps only the idempotent bootstrap.
-
-    # Ensure a shared default user exists for open-access mode
-    with get_db() as db:
-        db.execute(
-            "INSERT INTO users (id, email, username, password_hash) "
-            "VALUES (1,'guest@telos','Telos','') ON CONFLICT (id) DO NOTHING"
-        )
-    # Seed permanent grade boundary data (ON CONFLICT DO NOTHING — never overwrites)
+    # Schema is owned by migrate_to_postgres.py; init_db only seeds the
+    # permanent grade-boundary reference data (idempotent, never overwrites).
     with get_db() as db:
         seed_boundaries(db)
 
@@ -84,16 +77,6 @@ def load_user(uid):
         row = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
     return User(row) if row else None
 
-
-# Auto-login everyone as the shared default user (open-access mode).
-# Remove this block when you want per-user accounts / subscription gating.
-@app.before_request
-def auto_login():
-    if not current_user.is_authenticated:
-        with get_db() as db:
-            row = db.execute("SELECT * FROM users WHERE id=1").fetchone()
-        if row:
-            login_user(User(row), remember=True)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -583,6 +566,16 @@ def bank():
 @login_required
 def upload_file():
     if request.method == "POST":
+        if not current_user.is_premium:
+            with get_db() as db:
+                used = db.execute(
+                    "SELECT COUNT(*) AS n FROM uploads WHERE user_id=?",
+                    (current_user.id,)
+                ).fetchone()["n"]
+            if used >= FREE_UPLOAD_LIMIT:
+                flash(f"Free plan is capped at {FREE_UPLOAD_LIMIT} uploads — "
+                      "upgrade to Pro for unlimited.", "error")
+                return redirect(url_for("subscription"))
         f = request.files.get("file")
         if not f or not f.filename:
             flash("No file selected.", "error")
