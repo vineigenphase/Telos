@@ -802,6 +802,25 @@ def create_checkout():
 @app.route("/subscription/success")
 @login_required
 def sub_success():
+    # Never trust a bare visit to this URL. Verify with Stripe that the Checkout
+    # Session actually completed and belongs to this user before granting Pro.
+    session_id = request.args.get("session_id")
+    if not (STRIPE_ENABLED and session_id):
+        flash("Couldn't confirm your subscription.", "error")
+        return redirect(url_for("subscription"))
+    try:
+        sess = stripe.checkout.Session.retrieve(session_id)
+    except Exception:
+        flash("Couldn't confirm your subscription.", "error")
+        return redirect(url_for("subscription"))
+
+    completed = (sess["status"] == "complete"
+                 and sess["payment_status"] in ("paid", "no_payment_required"))
+    belongs = bool(sess["customer"]) and sess["customer"] == current_user.stripe_customer_id
+    if not (completed and belongs):
+        flash("We couldn't verify that payment. If you just paid, give it a moment and refresh.", "error")
+        return redirect(url_for("subscription"))
+
     with get_db() as db:
         db.execute("UPDATE users SET subscription_status='active' WHERE id=?",
                    (current_user.id,))
