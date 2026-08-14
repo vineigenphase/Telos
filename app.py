@@ -65,6 +65,7 @@ class User(UserMixin):
         self.username = row["username"]
         self.subscription_status = row["subscription_status"]
         self.stripe_customer_id  = row["stripe_customer_id"]
+        self.is_admin = bool(row["is_admin"])
 
     @property
     def is_premium(self):
@@ -76,6 +77,29 @@ def load_user(uid):
     with get_db() as db:
         row = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
     return User(row) if row else None
+
+
+# ── Access control ────────────────────────────────────────────────────────────
+
+def requires_pro(view):
+    """Gate a route behind an active Pro subscription."""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not current_user.is_premium:
+            flash("That's a Telos Pro feature — upgrade to unlock it.", "error")
+            return redirect(url_for("subscription"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def requires_admin(view):
+    """Gate a route behind the admin flag (content management)."""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not getattr(current_user, "is_admin", False):
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapped
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -721,6 +745,7 @@ def stats():
 
 @app.route("/admin/boundaries", methods=["GET", "POST"])
 @login_required
+@requires_admin
 def boundaries():
     if request.method == "POST":
         try:
@@ -758,6 +783,83 @@ def boundaries():
         groups[key].append(b)
 
     return render_template("boundaries.html", groups=groups)
+
+# ── Pro content hub ───────────────────────────────────────────────────────────
+
+@app.route("/pro")
+@login_required
+@requires_pro
+def pro_zone():
+    with get_db() as db:
+        resources = db.execute(
+            "SELECT * FROM resources ORDER BY category, title"
+        ).fetchall()
+        tips = db.execute(
+            "SELECT * FROM pro_posts WHERE kind='tip' ORDER BY created_at DESC, id DESC"
+        ).fetchall()
+        notes = db.execute(
+            "SELECT * FROM pro_posts WHERE kind='note' ORDER BY created_at DESC, id DESC"
+        ).fetchall()
+    res_by_cat = {}
+    for r in resources:
+        res_by_cat.setdefault(r["category"], []).append(r)
+    return render_template("pro.html", res_by_cat=res_by_cat, tips=tips, notes=notes)
+
+
+@app.route("/admin/content", methods=["GET", "POST"])
+@login_required
+@requires_admin
+def admin_content():
+    if request.method == "POST":
+        form_type = request.form.get("form_type")
+        try:
+            with get_db() as db:
+                if form_type == "resource":
+                    db.execute(
+                        "INSERT INTO resources (category, title, url, description) VALUES (?,?,?,?)",
+                        (request.form["category"].strip(), request.form["title"].strip(),
+                         request.form["url"].strip(),
+                         request.form.get("description", "").strip() or None),
+                    )
+                elif form_type in ("tip", "note"):
+                    db.execute(
+                        "INSERT INTO pro_posts (kind, subject, title, body, period) VALUES (?,?,?,?,?)",
+                        (form_type, request.form.get("subject", "").strip() or None,
+                         request.form["title"].strip(), request.form["body"].strip(),
+                         request.form.get("period", "").strip() or None),
+                    )
+                else:
+                    flash("Unknown content type.", "error")
+                    return redirect(url_for("admin_content"))
+            flash("Content added.", "success")
+        except Exception as e:
+            flash(f"Couldn't save: {e}", "error")
+        return redirect(url_for("admin_content"))
+
+    with get_db() as db:
+        resources = db.execute("SELECT * FROM resources ORDER BY category, title").fetchall()
+        posts = db.execute("SELECT * FROM pro_posts ORDER BY kind, created_at DESC, id DESC").fetchall()
+    return render_template("admin_content.html", resources=resources, posts=posts)
+
+
+@app.route("/admin/content/resource/<int:rid>/delete", methods=["POST"])
+@login_required
+@requires_admin
+def delete_resource(rid):
+    with get_db() as db:
+        db.execute("DELETE FROM resources WHERE id=?", (rid,))
+    flash("Resource deleted.", "success")
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/content/post/<int:pid>/delete", methods=["POST"])
+@login_required
+@requires_admin
+def delete_post(pid):
+    with get_db() as db:
+        db.execute("DELETE FROM pro_posts WHERE id=?", (pid,))
+    flash("Deleted.", "success")
+    return redirect(url_for("admin_content"))
 
 # ── Subscription ──────────────────────────────────────────────────────────────
 

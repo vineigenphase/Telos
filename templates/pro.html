@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Pro Zone — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">✦ Pro Zone</div>
+    <div style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Exclusive resources, tips and monthly notes for Telos Pro members.</div>
+  </div>
+</div>
+
+<div class="page-body" style="max-width:900px;">
+
+  <div class="card" style="margin-bottom:20px;">
+    <h2 style="font-size:1rem;margin:0 0 6px;">🏆 Golden Tips</h2>
+    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">Advice from someone who got A* across the board.</div>
+    {% for t in tips %}
+    <div style="padding:12px 0;">
+      <div style="font-weight:600;">{{ t.title }}{% if t.subject %} <span style="color:var(--muted);font-weight:400;font-size:0.8rem;">· {{ t.subject }}</span>{% endif %}</div>
+      <div style="color:var(--muted-2);font-size:0.88rem;margin-top:4px;white-space:pre-wrap;">{{ t.body }}</div>
+      {% if not loop.last %}<div class="divider"></div>{% endif %}
+    </div>
+    {% else %}
+    <div style="color:var(--muted);font-size:0.85rem;">No tips yet — check back soon.</div>
+    {% endfor %}
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h2 style="font-size:1rem;margin:0 0 6px;">🗓️ Monthly Notes</h2>
+    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">Topic notes in the run-up to your exams.</div>
+    {% for n in notes %}
+    <div style="padding:12px 0;">
+      <div style="font-weight:600;">{{ n.title }}
+        {% if n.period %}<span style="color:var(--accent-2);font-size:0.75rem;">· {{ n.period }}</span>{% endif %}
+        {% if n.subject %}<span style="color:var(--muted);font-weight:400;font-size:0.8rem;">· {{ n.subject }}</span>{% endif %}
+      </div>
+      <div style="color:var(--muted-2);font-size:0.88rem;margin-top:4px;white-space:pre-wrap;">{{ n.body }}</div>
+      {% if not loop.last %}<div class="divider"></div>{% endif %}
+    </div>
+    {% else %}
+    <div style="color:var(--muted);font-size:0.85rem;">No notes published yet.</div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;margin:0 0 8px;">🔗 Resources</h2>
+    {% for cat, items in res_by_cat.items() %}
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:6px;">{{ cat }}</div>
+      {% for r in items %}
+      <div style="padding:5px 0;">
+        <a href="{{ r.url }}" target="_blank" rel="noopener" class="auth-link" style="font-weight:600;">{{ r.title }} ↗</a>
+        {% if r.description %}<div style="color:var(--muted-2);font-size:0.82rem;">{{ r.description }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="color:var(--muted);font-size:0.85rem;">No resources yet.</div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

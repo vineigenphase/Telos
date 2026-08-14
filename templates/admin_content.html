@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Manage Content — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div><div class="page-title">Manage Pro Content</div>
+  <div style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Admin only. Anything you add here appears in the Pro Zone.</div></div>
+</div>
+
+<div class="page-body" style="max-width:820px;">
+
+  <div class="card" style="margin-bottom:18px;">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">🔗 Add a resource link</h2>
+    <form method="POST" style="display:flex;flex-direction:column;gap:10px;">
+      <input type="hidden" name="form_type" value="resource">
+      <div class="form-group"><label class="form-label">Category</label><input class="form-control" name="category" placeholder="e.g. Maths, Physics, General" required></div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" required></div>
+      <div class="form-group"><label class="form-label">URL</label><input class="form-control" name="url" type="url" placeholder="https://..." required></div>
+      <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-control" name="description"></div>
+      <button class="btn btn-primary" type="submit">Add resource</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">🏆 Add a golden tip</h2>
+    <form method="POST" style="display:flex;flex-direction:column;gap:10px;">
+      <input type="hidden" name="form_type" value="tip">
+      <div class="form-group"><label class="form-label">Subject (optional)</label><input class="form-control" name="subject"></div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" required></div>
+      <div class="form-group"><label class="form-label">Body</label><textarea class="form-control" name="body" rows="4" required></textarea></div>
+      <button class="btn btn-primary" type="submit">Add tip</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">🗓️ Add a monthly note</h2>
+    <form method="POST" style="display:flex;flex-direction:column;gap:10px;">
+      <input type="hidden" name="form_type" value="note">
+      <div class="form-group"><label class="form-label">Period (e.g. June 2026)</label><input class="form-control" name="period"></div>
+      <div class="form-group"><label class="form-label">Subject (optional)</label><input class="form-control" name="subject"></div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" required></div>
+      <div class="form-group"><label class="form-label">Body</label><textarea class="form-control" name="body" rows="5" required></textarea></div>
+      <button class="btn btn-primary" type="submit">Add note</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">Published content</h2>
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:8px 0 4px;">Resources ({{ resources|length }})</div>
+    {% for r in resources %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;gap:10px;">
+      <div style="font-size:0.85rem;">{{ r.category }} — <a class="auth-link" href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title }}</a></div>
+      <form method="POST" action="{{ url_for('delete_resource', rid=r.id) }}" style="margin:0;"><button class="btn" style="font-size:0.7rem;color:#ef4444;" type="submit">Delete</button></form>
+    </div>
+    {% else %}<div style="color:var(--muted);font-size:0.82rem;">None yet.</div>{% endfor %}
+
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:14px 0 4px;">Tips &amp; Notes ({{ posts|length }})</div>
+    {% for p in posts %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;gap:10px;">
+      <div style="font-size:0.85rem;"><span style="color:var(--accent-2);">{{ p.kind }}</span> — {{ p.title }}{% if p.period %} <span style="color:var(--muted);">({{ p.period }})</span>{% endif %}</div>
+      <form method="POST" action="{{ url_for('delete_post', pid=p.id) }}" style="margin:0;"><button class="btn" style="font-size:0.7rem;color:#ef4444;" type="submit">Delete</button></form>
+    </div>
+    {% else %}<div style="color:var(--muted);font-size:0.82rem;">None yet.</div>{% endfor %}
+  </div>
+
+</div>
+{% endblock %}
