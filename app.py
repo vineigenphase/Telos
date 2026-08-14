@@ -25,11 +25,14 @@ STRIPE_PRICE_ID    = os.environ.get("STRIPE_PRICE_ID", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_ENABLED = bool(stripe.api_key)
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
+STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
+UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
+MOCK_FOLDER   = os.path.join(STORAGE_DIR, "mocks")     # purchasable mock papers
 ALLOWED_EXT   = {"pdf", "png", "jpg", "jpeg"}
 MAX_UPLOAD_MB = 50
 FREE_UPLOAD_LIMIT = 10   # free plan upload cap; Pro is unlimited
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(MOCK_FOLDER, exist_ok=True)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
 
@@ -940,20 +943,189 @@ def stripe_webhook():
         return "", 400
 
     obj = event["data"]["object"]
+    customer = obj["customer"] if "customer" in obj else None
     if event["type"] in ("customer.subscription.deleted", "customer.subscription.paused"):
         with get_db() as db:
             db.execute(
                 "UPDATE users SET subscription_status='free' WHERE stripe_customer_id=?",
-                (obj.get("customer"),)
+                (customer,)
             )
     elif event["type"] == "customer.subscription.updated":
-        status = "active" if obj.get("status") == "active" else "free"
+        new_status = "active" if ("status" in obj and obj["status"] == "active") else "free"
         with get_db() as db:
             db.execute(
                 "UPDATE users SET subscription_status=? WHERE stripe_customer_id=?",
-                (status, obj.get("customer"))
+                (new_status, customer)
             )
     return "", 200
+
+# ── Mock paper marketplace (one-off £ purchases) ──────────────────────────────
+
+@app.route("/mocks")
+@login_required
+def mocks():
+    with get_db() as db:
+        papers = db.execute("SELECT * FROM mock_papers ORDER BY subject, title").fetchall()
+        owned = {
+            r["mock_paper_id"]
+            for r in db.execute(
+                "SELECT mock_paper_id FROM purchases WHERE user_id=?", (current_user.id,)
+            ).fetchall()
+        }
+    return render_template("mocks.html", papers=papers, owned=owned)
+
+
+@app.route("/mocks/<int:mid>/checkout", methods=["POST"])
+@login_required
+def mock_checkout(mid):
+    if not STRIPE_ENABLED:
+        flash("Payments aren't configured yet.", "error")
+        return redirect(url_for("mocks"))
+    with get_db() as db:
+        m = db.execute("SELECT * FROM mock_papers WHERE id=?", (mid,)).fetchone()
+        already = db.execute(
+            "SELECT 1 FROM purchases WHERE user_id=? AND mock_paper_id=?",
+            (current_user.id, mid),
+        ).fetchone()
+    if not m:
+        abort(404)
+    if already:
+        flash("You already own that set.", "success")
+        return redirect(url_for("mocks"))
+    try:
+        customer_id = current_user.stripe_customer_id
+        if not customer_id:
+            cust = stripe.Customer.create(email=current_user.email,
+                                          metadata={"user_id": current_user.id})
+            customer_id = cust.id
+            with get_db() as db:
+                db.execute("UPDATE users SET stripe_customer_id=? WHERE id=?",
+                           (customer_id, current_user.id))
+        sess = stripe.checkout.Session.create(
+            mode="payment",
+            customer=customer_id,
+            line_items=[{
+                "price_data": {
+                    "currency": "gbp",
+                    "product_data": {"name": m["title"]},
+                    "unit_amount": m["price_pence"],
+                },
+                "quantity": 1,
+            }],
+            metadata={"user_id": current_user.id, "mock_paper_id": mid},
+            success_url=url_for("mock_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=url_for("mocks", _external=True),
+        )
+        return redirect(sess.url)
+    except Exception as e:
+        flash(str(e), "error")
+        return redirect(url_for("mocks"))
+
+
+@app.route("/mocks/success")
+@login_required
+def mock_success():
+    # Verify the one-time Checkout Session with Stripe before recording the sale.
+    session_id = request.args.get("session_id")
+    if not (STRIPE_ENABLED and session_id):
+        flash("Couldn't confirm your purchase.", "error")
+        return redirect(url_for("mocks"))
+    try:
+        sess = stripe.checkout.Session.retrieve(session_id)
+    except Exception:
+        flash("Couldn't confirm your purchase.", "error")
+        return redirect(url_for("mocks"))
+
+    meta = sess["metadata"] or {}
+    paid = sess["status"] == "complete" and sess["payment_status"] == "paid"
+    owns = ("user_id" in meta) and str(meta["user_id"]) == str(current_user.id)
+    mid = meta["mock_paper_id"] if "mock_paper_id" in meta else None
+    if paid and owns and mid:
+        with get_db() as db:
+            db.execute(
+                "INSERT INTO purchases (user_id, mock_paper_id, stripe_session_id) "
+                "VALUES (?,?,?) ON CONFLICT (user_id, mock_paper_id) DO NOTHING",
+                (current_user.id, int(mid), session_id),
+            )
+        flash("Purchase complete — it's yours to download.", "success")
+    else:
+        flash("We couldn't verify that purchase. If you just paid, give it a moment and refresh.", "error")
+    return redirect(url_for("mocks"))
+
+
+@app.route("/mocks/<int:mid>/download")
+@login_required
+def mock_download(mid):
+    with get_db() as db:
+        owned = db.execute(
+            "SELECT 1 FROM purchases WHERE user_id=? AND mock_paper_id=?",
+            (current_user.id, mid),
+        ).fetchone()
+        m = db.execute("SELECT * FROM mock_papers WHERE id=?", (mid,)).fetchone()
+    if not m or not m["filename"]:
+        abort(404)
+    if not owned:
+        flash("Buy this set to download it.", "error")
+        return redirect(url_for("mocks"))
+    return send_from_directory(MOCK_FOLDER, m["filename"],
+                               as_attachment=True,
+                               download_name=m["orig_name"] or m["filename"])
+
+
+@app.route("/admin/mocks", methods=["GET", "POST"])
+@login_required
+@requires_admin
+def admin_mocks():
+    if request.method == "POST":
+        f = request.files.get("file")
+        title = request.form.get("title", "").strip()
+        if not title or not f or not f.filename:
+            flash("Title and a file are required.", "error")
+            return redirect(url_for("admin_mocks"))
+        if not allowed_file(f.filename):
+            flash("Only PDF, PNG or JPG files allowed.", "error")
+            return redirect(url_for("admin_mocks"))
+        try:
+            pounds = float(request.form.get("price", "1") or "1")
+        except ValueError:
+            pounds = 1.0
+        price_pence = max(30, int(round(pounds * 100)))   # Stripe GBP minimum ~30p
+        stored = f"{secrets.token_hex(8)}_{secure_filename(f.filename)}"
+        f.save(os.path.join(MOCK_FOLDER, stored))
+        with get_db() as db:
+            db.execute(
+                "INSERT INTO mock_papers (title, subject, board, description, price_pence, filename, orig_name) "
+                "VALUES (?,?,?,?,?,?,?)",
+                (title, request.form.get("subject", "").strip() or None,
+                 request.form.get("board", "").strip() or None,
+                 request.form.get("description", "").strip() or None,
+                 price_pence, stored, f.filename),
+            )
+        flash("Mock paper set added.", "success")
+        return redirect(url_for("admin_mocks"))
+
+    with get_db() as db:
+        papers = db.execute(
+            "SELECT m.*, (SELECT COUNT(*) FROM purchases p WHERE p.mock_paper_id=m.id) AS sales "
+            "FROM mock_papers m ORDER BY m.created_at DESC, m.id DESC"
+        ).fetchall()
+    return render_template("admin_mocks.html", papers=papers)
+
+
+@app.route("/admin/mocks/<int:mid>/delete", methods=["POST"])
+@login_required
+@requires_admin
+def delete_mock(mid):
+    with get_db() as db:
+        m = db.execute("SELECT * FROM mock_papers WHERE id=?", (mid,)).fetchone()
+        db.execute("DELETE FROM mock_papers WHERE id=?", (mid,))
+    if m and m["filename"]:
+        try:
+            os.remove(os.path.join(MOCK_FOLDER, m["filename"]))
+        except OSError:
+            pass
+    flash("Mock paper deleted.", "success")
+    return redirect(url_for("admin_mocks"))
 
 # ── API ───────────────────────────────────────────────────────────────────────
 

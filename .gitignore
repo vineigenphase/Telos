@@ -1,6 +1,7 @@
 telos.db
 papers.db
 uploads/
+storage/
 __pycache__/
 *.pyc
 .env

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Manage Mocks — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div><div class="page-title">Manage Mock Papers</div>
+  <div style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Admin only. Upload paper sets and set a price.</div></div>
+</div>
+
+<div class="page-body" style="max-width:760px;">
+  <div class="card" style="margin-bottom:18px;">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">Upload a mock paper set</h2>
+    <form method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:10px;">
+      <div class="form-group"><label class="form-label">Title</label><input class="form-control" name="title" required></div>
+      <div class="form-group"><label class="form-label">Subject (optional)</label><input class="form-control" name="subject"></div>
+      <div class="form-group"><label class="form-label">Board (optional)</label><input class="form-control" name="board"></div>
+      <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-control" name="description"></div>
+      <div class="form-group"><label class="form-label">Price (£)</label><input class="form-control" name="price" type="number" step="0.01" min="0.30" value="1.00"></div>
+      <div class="form-group"><label class="form-label">File (PDF / PNG / JPG)</label><input class="form-control" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg" required></div>
+      <button class="btn btn-primary" type="submit">Add mock paper</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:0.95rem;margin:0 0 12px;">Published ({{ papers|length }})</h2>
+    {% for m in papers %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;gap:10px;">
+      <div style="font-size:0.85rem;">
+        <span style="font-weight:600;">{{ m.title }}</span>
+        <span style="color:var(--muted);">— £{{ '%.2f'|format(m.price_pence / 100) }} · {{ m.sales }} sold</span>
+      </div>
+      <form method="POST" action="{{ url_for('delete_mock', mid=m.id) }}" style="margin:0;"><button class="btn" style="font-size:0.7rem;color:#ef4444;" type="submit">Delete</button></form>
+    </div>
+    {% else %}<div style="color:var(--muted);font-size:0.82rem;">None yet.</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}
