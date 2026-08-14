@@ -34,6 +34,30 @@ FREE_UPLOAD_LIMIT = 10   # free plan upload cap; Pro is unlimited
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(MOCK_FOLDER, exist_ok=True)
 
+# ── Pricing table (data-driven; later phases flip coming_soon -> live) ─────────
+# NB: prices themselves are handled in Phase 5. This only drives the feature
+# columns so no feature ever appears in both Free and Pro.
+PRICING_FEATURES = {
+    "free": [
+        {"label": "Paper tracking (unlimited)"},
+        {"label": "Per-question mark entry"},
+        {"label": "Basic heatmap"},
+        {"label": "File uploads (10 max)"},
+    ],
+    "pro": [
+        {"label": "Everything in Free"},
+        {"label": "Predicted grade + marks to next boundary", "coming_soon": True},
+        {"label": "Your next 3 questions", "coming_soon": True},
+        {"label": "Spaced repetition queue", "coming_soon": True},
+        {"label": "Full stats & topic analytics", "coming_soon": True},
+        {"label": "Pro Zone — resources, golden tips, monthly notes"},
+        {"label": "Original mock papers"},
+        {"label": "Weekly parent report", "coming_soon": True},
+        {"label": "Unlimited file uploads"},
+        {"label": "Pro badge"},
+    ],
+}
+
 DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
 
 login_manager = LoginManager(app)
@@ -871,7 +895,8 @@ def delete_post(pid):
 def subscription():
     return render_template("subscription.html",
                            stripe_enabled=STRIPE_ENABLED,
-                           stripe_pk=os.environ.get("STRIPE_PUBLISHABLE_KEY", ""))
+                           stripe_pk=os.environ.get("STRIPE_PUBLISHABLE_KEY", ""),
+                           pricing_features=PRICING_FEATURES)
 
 
 @app.route("/subscription/checkout", methods=["POST"])

@@ -28,30 +28,12 @@
       <div class="plan-price" style="color:var(--muted);">£0</div>
       <div class="plan-period">forever</div>
       <div class="divider"></div>
+      {% for f in pricing_features.free %}
       <div class="plan-feature">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Paper tracking (unlimited)
+        {{ f.label }}
       </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Per-question mark entry
-      </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Heatmap & stats
-      </div>
-      <div class="plan-feature" style="color:var(--muted);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Pro Zone content
-      </div>
-      <div class="plan-feature" style="color:var(--muted);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        File uploads (10 max)
-      </div>
-      <div class="plan-feature" style="color:var(--muted);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Pro badge
-      </div>
+      {% endfor %}
     </div>
 
     <!-- Pro -->
@@ -63,26 +45,17 @@
       <div class="plan-price">£2</div>
       <div class="plan-period">per month</div>
       <div class="divider"></div>
-      <div class="plan-feature">
+      {% for f in pricing_features.pro %}
+      <div class="plan-feature"{% if f.coming_soon %} style="color:var(--muted);"{% endif %}>
+        {% if f.coming_soon %}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        {% else %}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Everything in Free
+        {% endif %}
+        {{ f.label }}
+        {% if f.coming_soon %}<span style="margin-left:auto; font-size:0.58rem; font-weight:700; letter-spacing:0.03em; color:var(--accent-2); border:1px solid var(--accent-2); border-radius:100px; padding:1px 6px;">SOON</span>{% endif %}
       </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Pro Zone — resources, golden tips &amp; monthly notes
-      </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Unlimited file uploads
-      </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Priority support
-      </div>
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        ✦ Pro badge
-      </div>
+      {% endfor %}
 
       {% if not current_user.is_premium %}
         {% if stripe_enabled %}
