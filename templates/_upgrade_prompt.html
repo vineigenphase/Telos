@@ -1,0 +1,14 @@
+{# Reusable Pro teaser. Set `feature` and optionally `blurb` before including:
+     {% with feature="Predicted grade", blurb="See your grade and marks to the next boundary." %}
+       {% include "_upgrade_prompt.html" %}
+     {% endwith %}
+   Wrap your own blurred teaser content around it for the strongest conversion —
+   a locked feature the user can see the shape of converts; an error page does not. #}
+<div class="card" style="text-align:center; border:1px dashed var(--accent-2);">
+  <div style="font-size:1.6rem; line-height:1;">🔒</div>
+  <div style="font-weight:700; color:var(--text); margin-top:6px;">{{ feature|default("This feature") }} — Telos Pro</div>
+  {% if blurb %}<div style="color:var(--muted); font-size:0.85rem; margin-top:4px;">{{ blurb }}</div>{% endif %}
+  <a class="btn btn-primary"
+     href="{{ url_for('subscription') }}?from={{ feature|default('feature')|lower|replace(' ', '-') }}"
+     style="margin-top:14px; justify-content:center;">Unlock with Pro</a>
+</div>

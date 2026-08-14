@@ -12,6 +12,7 @@ import stripe
 
 from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
 from seed_boundaries import seed_boundaries
+from auth import requires_pro, user_is_pro
 
 import json as _json
 
@@ -93,10 +94,13 @@ class User(UserMixin):
         self.subscription_status = row["subscription_status"]
         self.stripe_customer_id  = row["stripe_customer_id"]
         self.is_admin = bool(row["is_admin"])
+        self.plan = row["plan"]
+        self.grandfathered = bool(row["grandfathered"])
+        self.current_period_end = row["current_period_end"]
 
     @property
     def is_premium(self):
-        return self.subscription_status == "active"
+        return user_is_pro(self)
 
 
 @login_manager.user_loader
@@ -106,18 +110,14 @@ def load_user(uid):
     return User(row) if row else None
 
 
+@app.context_processor
+def inject_globals():
+    """Expose is_pro to every template so they can render locked states."""
+    return {"is_pro": user_is_pro(current_user)}
+
+
 # ── Access control ────────────────────────────────────────────────────────────
-
-def requires_pro(view):
-    """Gate a route behind an active Pro subscription."""
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not current_user.is_premium:
-            flash("That's a Telos Pro feature — upgrade to unlock it.", "error")
-            return redirect(url_for("subscription"))
-        return view(*args, **kwargs)
-    return wrapped
-
+# requires_pro + user_is_pro now live in auth.py (single source of truth).
 
 def requires_admin(view):
     """Gate a route behind the admin flag (content management)."""
@@ -815,7 +815,7 @@ def boundaries():
 
 @app.route("/pro")
 @login_required
-@requires_pro
+@requires_pro("Pro Zone")
 def pro_zone():
     with get_db() as db:
         resources = db.execute(
