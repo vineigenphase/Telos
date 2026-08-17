@@ -445,6 +445,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 /* ── Heatmap ─────────────────────────────────────────────────────────────── */
 .heatmap-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .heatmap-grid { display: none; }        /* phones get the topic list instead */
+.heatmap-legend { display: none; }      /* it describes the grid, so it goes too */
 
 .heatmap-table { border-collapse: separate; border-spacing: 3px; font-size: 0.75rem; }
 .heatmap-table th { color: var(--muted); font-weight: 500; padding: 4px 6px; text-align: center; }
@@ -859,6 +860,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .q-row .q-topic { grid-column: auto; }
 
   .heatmap-grid { display: block; }
+  .heatmap-legend { display: flex; }
   .topic-list.mobile-only { display: none; }
 
   .entry-flow { max-width: 480px; margin: 0 auto; min-height: 0; }

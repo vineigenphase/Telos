@@ -47,8 +47,8 @@
     </form>
   </div>
 
-  <!-- Colour legend -->
-  <div style="display:flex; gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; font-size:0.75rem; color:var(--muted);">
+  <!-- Colour legend — describes the grid, so it hides with the grid on phones -->
+  <div class="heatmap-legend" style="gap:12px; align-items:center; margin-bottom:20px; flex-wrap:wrap; font-size:0.75rem; color:var(--muted);">
     <span style="font-weight:600;">Score %:</span>
     {% for cls, label in [('pct-90','≥90%'),('pct-80','80–89%'),('pct-70','70–79%'),('pct-60','60–69%'),('pct-50','50–59%'),('pct-0','<50%')] %}
     <span style="display:flex;align-items:center;gap:5px;">
