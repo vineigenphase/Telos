@@ -31,7 +31,7 @@
   <div class="entry-card" id="q-card" hidden>
     <div class="entry-qnum" id="q-label">Q1</div>
     <button type="button" class="entry-qmax" id="q-max-btn"
-            style="background:none;border:none;font-family:inherit;cursor:pointer;color:var(--muted);text-decoration:underline dotted;min-height:32px;"
+            style="background:none;border:none;font-family:inherit;cursor:pointer;color:var(--muted);text-decoration:underline dotted;min-height:var(--tap-min);padding:0 12px;"
             aria-label="Change marks available for this question">out of —</button>
     <div class="entry-value empty" id="q-value" aria-live="polite">—</div>
     <div class="entry-status" id="q-status"></div>
@@ -105,7 +105,10 @@
       b.className = 'entry-dot'
         + (q.obtained !== null && q.obtained !== undefined ? ' filled' : ' skipped')
         + (i === idx ? ' current' : '');
-      b.textContent = q.n;
+      const face = document.createElement('span');
+      face.className = 'dot-face';
+      face.textContent = q.n;
+      b.appendChild(face);
       b.setAttribute('aria-label', `Question ${q.n}`);
       b.addEventListener('click', () => { commit(); idx = i; buffer = ''; editingMax = false; render(); });
       els.dots.appendChild(b);
