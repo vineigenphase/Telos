@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080f">
+  <title>Set a new password — Telos</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-mark" style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#6d28d9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;">T</div>
+      <div class="logo-name" style="font-size:1.1rem;font-weight:700;">Tel<span style="color:var(--accent-2);font-style:italic;">os</span></div>
+    </div>
+
+    <div class="auth-title">Set a new password</div>
+    <div class="auth-subtitle" style="margin-bottom:20px;">At least 8 characters.</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" for="password">New password</label>
+        <input class="form-control" type="password" id="password" name="password"
+               autocomplete="new-password" minlength="8" required autofocus>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label" for="confirm">Confirm new password</label>
+        <input class="form-control" type="password" id="confirm" name="confirm"
+               autocomplete="new-password" minlength="8" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Update password</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

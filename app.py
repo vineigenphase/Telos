@@ -1,5 +1,5 @@
-import os, json, secrets
-from datetime import datetime, timezone
+import os, json, secrets, hashlib
+from datetime import datetime, timezone, timedelta
 from functools import wraps
 from flask import (Flask, render_template, request, redirect, url_for,
                    flash, jsonify, session, send_from_directory, abort)
@@ -14,6 +14,7 @@ import stripe
 
 from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
 from seed_boundaries import seed_boundaries
+from mailer import send_email, MAIL_ENABLED
 from auth import requires_pro, user_is_pro
 
 import json as _json
@@ -398,6 +399,103 @@ def register():
         except psycopg.errors.UniqueViolation:
             flash("That email is already registered.", "error")
     return render_template("register.html")
+
+
+# ── Password reset ────────────────────────────────────────────────────────────
+
+RESET_TTL_MINUTES = 60
+
+
+def _hash_token(raw: str) -> str:
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def _issue_reset(db, user_id, ip=None):
+    """Create a single-use reset token. Returns the RAW token (emailed once)."""
+    raw = secrets.token_urlsafe(32)
+    expires = datetime.now(timezone.utc) + timedelta(minutes=RESET_TTL_MINUTES)
+    # Any earlier unused link becomes dead the moment a new one is asked for.
+    db.execute("UPDATE password_resets SET used_at=NOW() "
+               "WHERE user_id=? AND used_at IS NULL", (user_id,))
+    db.execute("INSERT INTO password_resets (user_id, token_hash, expires_at, requested_ip) "
+               "VALUES (?,?,?,?)", (user_id, _hash_token(raw), expires, ip))
+    return raw
+
+
+@app.route("/forgot", methods=["GET", "POST"])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        with get_db() as db:
+            row = db.execute("SELECT id, email, username FROM users WHERE email=?",
+                             (email,)).fetchone()
+            if row:
+                raw = _issue_reset(db, row["id"], request.remote_addr)
+                link = canonical_url(url_for("reset_password", token=raw))
+                send_email(
+                    row["email"],
+                    "Reset your Telos password",
+                    f"Hi {row['username']},\n\n"
+                    f"Use this link to set a new password. It works once and "
+                    f"expires in {RESET_TTL_MINUTES} minutes:\n\n{link}\n\n"
+                    "If you didn't ask for this, you can ignore this email — "
+                    "your password hasn't changed.\n",
+                )
+        # Deliberately identical whether or not the account exists, and whether
+        # or not mail is configured. Anything else turns this into a way to
+        # test which emails have Telos accounts.
+        flash("If that email has an account, a reset link is on its way.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("forgot.html")
+
+
+@app.route("/reset/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    with get_db() as db:
+        row = db.execute(
+            "SELECT pr.id, pr.user_id FROM password_resets pr "
+            "WHERE pr.token_hash=? AND pr.used_at IS NULL AND pr.expires_at > NOW()",
+            (_hash_token(token),)
+        ).fetchone()
+
+    if not row:
+        flash("That reset link has expired or already been used.", "error")
+        return redirect(url_for("forgot_password"))
+
+    if request.method == "POST":
+        pw = request.form.get("password", "")
+        if len(pw) < 8:
+            flash("Password must be at least 8 characters.", "error")
+            return render_template("reset.html", token=token)
+        if pw != request.form.get("confirm", ""):
+            flash("Those passwords don't match.", "error")
+            return render_template("reset.html", token=token)
+
+        with get_db() as db:
+            # Re-check inside the write: the link may have been used since the
+            # page was rendered.
+            still = db.execute(
+                "SELECT id FROM password_resets WHERE id=? AND used_at IS NULL "
+                "AND expires_at > NOW()", (row["id"],)
+            ).fetchone()
+            if not still:
+                flash("That reset link has expired or already been used.", "error")
+                return redirect(url_for("forgot_password"))
+            db.execute("UPDATE users SET password_hash=? WHERE id=?",
+                       (generate_password_hash(pw), row["user_id"]))
+            db.execute("UPDATE password_resets SET used_at=NOW() WHERE id=?", (row["id"],))
+
+        flash("Password updated — you can log in now.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("reset.html", token=token)
 
 
 @app.route("/logout", methods=["GET", "POST"])
