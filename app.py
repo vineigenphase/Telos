@@ -7,6 +7,8 @@ from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
+from urllib.parse import urlunsplit
 import psycopg
 import stripe
 
@@ -19,6 +21,23 @@ import json as _json
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+
+# ── Canonical host & HTTPS ───────────────────────────────────────────────────
+# Railway terminates TLS at its edge and forwards plain HTTP, so without
+# ProxyFix every _external url_for() (Stripe success/cancel URLs included)
+# comes out as http:// and request.scheme lies about the real connection.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+# Unset locally -> canonical redirect and secure cookies are both off, so
+# http://127.0.0.1:5000 still works. Set on Railway to "telosapp.co.uk".
+CANONICAL_HOST = os.environ.get("CANONICAL_HOST", "").strip()
+
+app.config.update(
+    PREFERRED_URL_SCHEME="https",
+    SESSION_COOKIE_SECURE=bool(CANONICAL_HOST),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_PRICE_ID    = os.environ.get("STRIPE_PRICE_ID", "")
@@ -63,6 +82,72 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Please log in to continue."
+
+
+def canonical_url(path=None):
+    """Absolute URL for `path` (default: the current request) on the canonical
+    host. Falls back to the request's own host when CANONICAL_HOST is unset."""
+    path = path if path is not None else request.path
+    if not CANONICAL_HOST:
+        return request.url_root.rstrip("/") + path
+    return urlunsplit(("https", CANONICAL_HOST, path, "", ""))
+
+
+app.jinja_env.globals["canonical_url"] = canonical_url
+
+
+@app.before_request
+def _force_canonical_host():
+    """301 to one hostname over https — www and the old *.up.railway.app host
+    both fold into CANONICAL_HOST. Two hostnames serving the same content
+    splits SEO and breaks the PWA scope in Phase 2.5.
+
+    Only GET/HEAD are redirected: a 301 on POST makes clients drop the body and
+    re-issue as GET, which would silently break the Stripe webhook if its
+    endpoint URL is ever stale. Those are answered on whatever host they hit.
+    """
+    if not CANONICAL_HOST or app.debug:
+        return
+    if request.method not in ("GET", "HEAD"):
+        return
+    if request.host.split(":")[0] == CANONICAL_HOST and request.scheme == "https":
+        return
+    return redirect(
+        urlunsplit(("https", CANONICAL_HOST, request.path,
+                    request.query_string.decode(), "")),
+        301,
+    )
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    body = "\n".join([
+        "User-agent: *",
+        "Disallow: /admin",
+        "Disallow: /subscription/success",
+        "Disallow: /subscription/webhook",
+        "Disallow: /mocks/success",
+        "Disallow: /papers",
+        "Disallow: /heatmap",
+        "Disallow: /stats",
+        "Disallow: /bank",
+        "",
+        f"Sitemap: {canonical_url('/sitemap.xml')}",
+        "",
+    ])
+    return app.response_class(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    # Public pages only — everything else is behind @login_required, so listing
+    # it would just feed crawlers a wall of redirects.
+    pages = ["/", "/login", "/register", "/subscription"]
+    urls = "".join(f"<url><loc>{canonical_url(p)}</loc></url>" for p in pages)
+    body = ('<?xml version="1.0" encoding="UTF-8"?>'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            f"{urls}</urlset>")
+    return app.response_class(body, mimetype="application/xml")
 
 # Jinja2 filter so templates can parse stored JSON strings
 @app.template_filter("from_json")
