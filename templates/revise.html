@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Revise — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Revise</div>
+    <div class="page-subtitle">Your spaced repetition queue</div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="card" style="text-align:center; padding:32px 20px;">
+    <div style="font-size:2rem; margin-bottom:10px;">🗓️</div>
+    <div style="font-size:1rem; font-weight:600; margin-bottom:8px;">Not switched on yet</div>
+    <p style="font-size:0.86rem; color:var(--muted); max-width:36ch; margin:0 auto 18px;">
+      Questions you score under 60% on will land here automatically, spaced out
+      so they come back just before you'd forget them. Keep logging papers —
+      the queue builds itself from those marks.
+    </p>
+    <a href="{{ url_for('papers') }}" class="btn btn-primary">Log a paper</a>
+  </div>
+</div>
+
+{% endblock %}

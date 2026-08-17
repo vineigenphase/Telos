@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Enter marks — Telos{% endblock %}
+
+{% block content %}
+<div class="entry-flow" id="entry-flow">
+
+  <div class="entry-topbar">
+    <div>
+      <div style="font-size:0.95rem;font-weight:700;">{{ paper.paper_code }} {{ paper.year }}</div>
+      <div class="entry-paper">{{ paper.board }} {{ paper.subject }}</div>
+    </div>
+    <div class="entry-running">
+      <span>Total</span>
+      <strong id="run-total">0</strong>
+      <span id="run-pct"></span>
+    </div>
+  </div>
+
+  <!-- Progress dots — tappable, so jumping back to a question is one tap -->
+  <div class="entry-dots" id="dots" role="tablist" aria-label="Questions"></div>
+
+  <!-- Setup card: only shown when the paper has no questions yet -->
+  <div class="entry-card" id="setup-card" hidden>
+    <div class="entry-qnum">How many questions?</div>
+    <div class="entry-qmax">You can add or skip more later</div>
+    <div class="entry-value empty" id="setup-value">—</div>
+    <div class="entry-status">Paper total: {{ paper.max_marks }} marks</div>
+  </div>
+
+  <!-- Question card -->
+  <div class="entry-card" id="q-card" hidden>
+    <div class="entry-qnum" id="q-label">Q1</div>
+    <button type="button" class="entry-qmax" id="q-max-btn"
+            style="background:none;border:none;font-family:inherit;cursor:pointer;color:var(--muted);text-decoration:underline dotted;min-height:32px;"
+            aria-label="Change marks available for this question">out of —</button>
+    <div class="entry-value empty" id="q-value" aria-live="polite">—</div>
+    <div class="entry-status" id="q-status"></div>
+  </div>
+
+  <!-- Custom keypad: the native iOS keyboard covers half the screen and
+       animates in and out on every field, which kills the 60-second target -->
+  <div class="keypad" id="keypad" role="group" aria-label="Number keypad">
+    <button type="button" class="key" data-k="1" aria-label="1">1</button>
+    <button type="button" class="key" data-k="2" aria-label="2">2</button>
+    <button type="button" class="key" data-k="3" aria-label="3">3</button>
+    <button type="button" class="key" data-k="4" aria-label="4">4</button>
+    <button type="button" class="key" data-k="5" aria-label="5">5</button>
+    <button type="button" class="key" data-k="6" aria-label="6">6</button>
+    <button type="button" class="key" data-k="7" aria-label="7">7</button>
+    <button type="button" class="key" data-k="8" aria-label="8">8</button>
+    <button type="button" class="key" data-k="9" aria-label="9">9</button>
+    <button type="button" class="key key-sm" data-k=".5" aria-label="Half mark">.5</button>
+    <button type="button" class="key" data-k="0" aria-label="0">0</button>
+    <button type="button" class="key key-sm" data-k="del" aria-label="Delete">⌫</button>
+  </div>
+
+  <div class="entry-actions">
+    <button type="button" class="btn btn-ghost btn-block" id="btn-skip">Skip</button>
+    <button type="button" class="btn btn-ghost btn-block" id="btn-undo">Undo</button>
+    <button type="button" class="btn btn-primary btn-block" id="btn-next">Next</button>
+  </div>
+
+  <div style="padding-bottom:24px;">
+    <a href="{{ url_for('papers') }}" class="btn btn-ghost btn-block" id="btn-done">Done — back to papers</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const PID       = {{ paper.id }};
+  const PAPER_MAX = {{ paper.max_marks or 0 }};
+  const SAVE_URL  = n => `/papers/${PID}/questions/${encodeURIComponent(n)}`;
+
+  // questions: [{n, obtained, max, topic, dirty, saved}]
+  let questions = {{ questions | tojson }}.map(q => ({
+    n: String(q.n), obtained: q.obtained, max: q.max, topic: q.topic, saved: true
+  }));
+
+  let idx = 0;
+  let buffer = '';            // what the keypad is currently composing
+  let editingMax = false;     // keypad targets "out of" instead of the mark
+  let setupMode = questions.length === 0;
+  let lastAction = null;      // for Undo
+  let saveTimer = null;
+
+  const $ = id => document.getElementById(id);
+  const els = {
+    dots: $('dots'), setup: $('setup-card'), card: $('q-card'),
+    label: $('q-label'), maxBtn: $('q-max-btn'), value: $('q-value'),
+    status: $('q-status'), setupValue: $('setup-value'),
+    runTotal: $('run-total'), runPct: $('run-pct'),
+    skip: $('btn-skip'), undo: $('btn-undo'), next: $('btn-next')
+  };
+
+  // ── rendering ────────────────────────────────────────────────────────────
+  function current() { return questions[idx]; }
+
+  function renderDots() {
+    els.dots.innerHTML = '';
+    questions.forEach((q, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'entry-dot'
+        + (q.obtained !== null && q.obtained !== undefined ? ' filled' : ' skipped')
+        + (i === idx ? ' current' : '');
+      b.textContent = q.n;
+      b.setAttribute('aria-label', `Question ${q.n}`);
+      b.addEventListener('click', () => { commit(); idx = i; buffer = ''; editingMax = false; render(); });
+      els.dots.appendChild(b);
+    });
+  }
+
+  function renderTotals() {
+    let got = 0, mx = 0;
+    questions.forEach(q => {
+      if (q.obtained !== null && q.obtained !== undefined) { got += q.obtained; mx += (q.max || 0); }
+    });
+    els.runTotal.textContent = round(got);
+    const denom = PAPER_MAX || mx;
+    els.runPct.textContent = denom ? `/ ${round(denom)}` : '';
+  }
+
+  function render() {
+    if (setupMode) {
+      els.setup.hidden = false;
+      els.card.hidden = true;
+      els.setupValue.textContent = buffer || '—';
+      els.setupValue.classList.toggle('empty', !buffer);
+      els.skip.hidden = true; els.undo.hidden = true;
+      els.next.textContent = 'Start';
+      renderDots();
+      return;
+    }
+    els.setup.hidden = true;
+    els.card.hidden = false;
+    els.skip.hidden = false; els.undo.hidden = false;
+    els.next.textContent = idx >= questions.length - 1 ? 'Finish' : 'Next';
+
+    const q = current();
+    els.label.textContent = 'Q' + q.n;
+    els.maxBtn.textContent = 'out of ' + (q.max ? round(q.max) : '—');
+    els.maxBtn.style.color = editingMax ? 'var(--accent-2)' : 'var(--muted)';
+
+    const shown = editingMax
+      ? (buffer !== '' ? buffer : (q.max ?? ''))
+      : (buffer !== '' ? buffer : (q.obtained ?? ''));
+    els.value.textContent = shown === '' ? '—' : shown;
+    els.value.classList.toggle('empty', shown === '');
+
+    setStatus(q.saved === false ? 'unsaved' : (q.saved === true && q.obtained != null ? 'saved' : ''));
+    renderDots();
+    renderTotals();
+  }
+
+  function setStatus(state) {
+    els.status.className = 'entry-status ' + (state || '');
+    els.status.textContent = state === 'saving' ? 'Saving…'
+      : state === 'saved' ? 'Saved'
+      : state === 'unsaved' ? 'Not saved yet — will retry'
+      : '';
+  }
+
+  function round(v) { return Math.round(v * 10) / 10; }
+
+  // ── saving ───────────────────────────────────────────────────────────────
+  function scheduleSave(q) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => save(q), 400);   // debounce
+  }
+
+  function save(q) {
+    if (q.obtained === null || q.obtained === undefined || !q.max) return;
+    setStatus('saving');
+    fetch(SAVE_URL(q.n), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ obtained: q.obtained, max_marks: q.max, topic: q.topic || null })
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(() => { q.saved = true; if (questions[idx] === q) setStatus('saved'); })
+      .catch(() => {
+        q.saved = false;
+        if (questions[idx] === q) setStatus('unsaved');
+        setTimeout(() => save(q), 4000);          // retry on reconnect
+      });
+  }
+
+  function commit() {
+    if (setupMode || buffer === '') return;
+    const q = current();
+    const v = parseFloat(buffer);
+    buffer = '';
+    if (isNaN(v)) return;
+    if (editingMax) {
+      q.max = v; editingMax = false;
+    } else {
+      if (q.max && v > q.max) return;             // can't score above the max
+      lastAction = { q, prev: q.obtained };
+      q.obtained = v;
+    }
+    q.saved = false;
+    scheduleSave(q);
+  }
+
+  // ── keypad ───────────────────────────────────────────────────────────────
+  function press(k) {
+    if (k === 'del') {
+      buffer = buffer.slice(0, -1);
+      render();
+      return;
+    }
+    buffer += k;
+    if (setupMode) { render(); return; }
+
+    const q = current();
+    const limit = editingMax ? 999 : (q.max || 999);
+    const v = parseFloat(buffer);
+
+    if (!isNaN(v) && v > limit) {                 // overshoot: start again
+      buffer = k;
+      render();
+      return;
+    }
+    render();
+
+    // Auto-advance the moment the value can't be extended — e.g. max 8 and
+    // they tap 8, or max 12 and they tap 1 then 2.
+    if (!editingMax && !isNaN(v) && !buffer.includes('.')) {
+      if (v * 10 > limit) { commit(); advance(); }
+    }
+  }
+
+  function advance() {
+    commit();
+    if (idx < questions.length - 1) { idx++; buffer = ''; editingMax = false; render(); }
+    else { render(); }
+  }
+
+  // ── actions ──────────────────────────────────────────────────────────────
+  els.next.addEventListener('click', () => {
+    if (setupMode) {
+      const count = parseInt(buffer, 10);
+      if (!count || count < 1 || count > 60) return;
+      questions = Array.from({ length: count }, (_, i) => ({
+        n: String(i + 1), obtained: null, max: null, topic: null, saved: null
+      }));
+      setupMode = false; buffer = ''; idx = 0;
+      render();
+      return;
+    }
+    if (idx >= questions.length - 1) { commit(); render(); }
+    else advance();
+  });
+
+  els.skip.addEventListener('click', () => {
+    const q = current();
+    lastAction = { q, prev: q.obtained };
+    q.obtained = null; buffer = ''; editingMax = false;
+    fetch(SAVE_URL(q.n), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skip: true })
+    }).catch(() => {});
+    if (idx < questions.length - 1) idx++;
+    render();
+  });
+
+  els.undo.addEventListener('click', () => {
+    if (!lastAction) return;
+    lastAction.q.obtained = lastAction.prev;
+    lastAction.q.saved = false;
+    buffer = '';
+    idx = questions.indexOf(lastAction.q);
+    if (lastAction.prev === null || lastAction.prev === undefined) {
+      fetch(SAVE_URL(lastAction.q.n), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skip: true })
+      }).catch(() => {});
+    } else {
+      save(lastAction.q);
+    }
+    lastAction = null;
+    render();
+  });
+
+  els.maxBtn.addEventListener('click', () => {
+    editingMax = !editingMax; buffer = ''; render();
+  });
+
+  document.getElementById('keypad').addEventListener('click', e => {
+    const btn = e.target.closest('.key');
+    if (btn) press(btn.dataset.k);
+  });
+
+  // ── swipe between questions ──────────────────────────────────────────────
+  let touchX = null, touchY = null;
+  els.card.addEventListener('touchstart', e => {
+    touchX = e.changedTouches[0].clientX;
+    touchY = e.changedTouches[0].clientY;
+  }, { passive: true });
+
+  els.card.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    const dy = e.changedTouches[0].clientY - touchY;
+    touchX = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;   // vertical scroll wins
+    commit();
+    buffer = ''; editingMax = false;
+    if (dx < 0 && idx < questions.length - 1) idx++;
+    if (dx > 0 && idx > 0) idx--;
+    render();
+  }, { passive: true });
+
+  // ── external keyboard (iPad keyboard cases) ──────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') { press(e.key); e.preventDefault(); }
+    else if (e.key === '.') { press('.5'); e.preventDefault(); }
+    else if (e.key === 'Backspace') { press('del'); e.preventDefault(); }
+    else if (e.key === 'Enter' || e.key === 'ArrowRight') { els.next.click(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft') { commit(); if (idx > 0) { idx--; buffer = ''; render(); } e.preventDefault(); }
+  });
+
+  // Don't lose an in-flight mark if they navigate away mid-entry
+  window.addEventListener('pagehide', () => { commit(); clearTimeout(saveTimer); questions.forEach(q => { if (q.saved === false) save(q); }); });
+
+  render();
+})();
+</script>
+{% endblock %}

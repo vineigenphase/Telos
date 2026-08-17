@@ -137,6 +137,46 @@ function updateTopics() {
   onCodeChange();
 }
 
+// ── Mobile "More" sheet ─────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tab      = document.getElementById('more-tab');
+  const sheet    = document.getElementById('more-sheet');
+  const backdrop = document.getElementById('sheet-backdrop');
+  if (!tab || !sheet || !backdrop) return;
+
+  const isOpen = () => sheet.classList.contains('open');
+
+  function open() {
+    sheet.hidden = false; backdrop.hidden = false;
+    requestAnimationFrame(() => { sheet.classList.add('open'); backdrop.classList.add('open'); });
+    tab.setAttribute('aria-expanded', 'true');
+  }
+
+  function close() {
+    sheet.classList.remove('open'); backdrop.classList.remove('open');
+    tab.setAttribute('aria-expanded', 'false');
+    setTimeout(() => { sheet.hidden = true; backdrop.hidden = true; }, 220);
+  }
+
+  tab.addEventListener('click', () => isOpen() ? close() : open());
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen()) close(); });
+});
+
+// ── Tap-to-reveal tooltips ──────────────────────────────────────────────────
+// Touch has no hover, so anything that only appeared on :hover was invisible
+// on a phone. On touch devices a tap reveals it instead.
+
+document.addEventListener('click', e => {
+  if (!window.matchMedia('(hover: none)').matches) return;
+  const el = e.target.closest('[data-tip]');
+  document.querySelectorAll('[data-tip].tip-open').forEach(t => {
+    if (t !== el) t.classList.remove('tip-open');
+  });
+  if (el) el.classList.add('tip-open');
+});
+
 // ── Flash auto-dismiss ──────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -60,7 +60,42 @@
     </span>
   </div>
 
+  <div class="heatmap-split">
+  <!-- Phones: per-topic list, weakest first. Same data as the grid below,
+       different renderer — a 7x8 grid is illegible at 390px. At ≥1024px it
+       returns as the left column beside the grid. -->
+  {% if topics_ranked %}
+  <div class="topic-list mobile-only" style="margin-bottom:24px;">
+    {% for t in topics_ranked %}
+      {% set colour = '#22c55e' if t.pct >= 80 else ('#84cc16' if t.pct >= 70 else ('#eab308' if t.pct >= 60 else ('#f97316' if t.pct >= 50 else '#ef4444'))) %}
+      <details class="topic-item">
+        <summary style="list-style:none; cursor:pointer;">
+          <div class="topic-item-head">
+            <span class="topic-item-name">{{ t.topic }}</span>
+            <span class="topic-item-pct" style="color:{{ colour }};">{{ t.pct }}%</span>
+          </div>
+          <div class="topic-bar-track">
+            <div class="topic-bar-fill" style="width:{{ t.pct }}%; background:{{ colour }};"></div>
+          </div>
+          <div class="topic-item-meta">
+            {{ t.lost }} mark{{ 's' if t.lost != 1 }} lost across {{ t.n }} question{{ 's' if t.n != 1 }}
+          </div>
+        </summary>
+        <div style="margin-top:12px; border-top:1px solid var(--border); padding-top:10px;">
+          {% for d in t.detail %}
+          <div style="display:flex; justify-content:space-between; gap:10px; font-size:0.78rem; padding:5px 0;">
+            <span style="color:var(--muted-2);">{{ d.label }} · Q{{ d.q_num }}</span>
+            <span style="color:var(--muted);">{{ d.obtained }}/{{ d.max }} · {{ d.pct }}%</span>
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if sections %}
+    <div class="heatmap-grid">
     {% for sec in sections %}
     <div class="card" style="margin-bottom: 24px;">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
@@ -118,6 +153,7 @@
       {% endif %}
     </div>
     {% endfor %}
+    </div>
   {% else %}
     <div style="text-align:center; padding:60px 20px; color:var(--muted);">
       <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
@@ -126,6 +162,7 @@
       <a href="{{ url_for('papers') }}" class="btn btn-primary" style="margin-top:16px;">View Papers</a>
     </div>
   {% endif %}
+  </div>
 
 </div>
 {% endblock %}

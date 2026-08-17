@@ -77,7 +77,71 @@ PRICING_FEATURES = {
     ],
 }
 
+# ── Navigation ───────────────────────────────────────────────────────────────
+# One structure drives BOTH layouts — the phone's bottom tab bar (primary
+# items) and the sidebar (everything) — so the two can't drift apart.
+#   primary : shows in the mobile tab bar. Exactly 4, because the 5th slot is
+#             the "More" sheet holding the rest.
+#   match   : endpoints that light this item up as active.
+NAV_ITEMS = [
+    {"endpoint": "dashboard",     "label": "Dashboard",      "short": "Today",
+     "icon": "grid",     "primary": True,  "section": "Main",
+     "match": ("dashboard",)},
+    {"endpoint": "papers",        "label": "Papers",         "short": "Papers",
+     "icon": "book",     "primary": True,  "section": "Main",
+     "match": ("papers", "add_paper", "edit_paper", "enter_marks")},
+    {"endpoint": "heatmap",       "label": "Heatmap",        "short": "Heatmap",
+     "icon": "cells",    "primary": True,  "section": "Main",
+     "match": ("heatmap",)},
+    {"endpoint": "revise",        "label": "Revise",         "short": "Revise",
+     "icon": "repeat",   "primary": True,  "section": "Main",
+     "match": ("revise",)},
+    {"endpoint": "bank",          "label": "Question Bank",  "short": "Bank",
+     "icon": "database", "primary": False, "section": "Main",
+     "match": ("bank", "upload_file", "tag_upload")},
+    {"endpoint": "stats",         "label": "Stats",          "short": "Stats",
+     "icon": "bars",     "primary": False, "section": "Main",
+     "match": ("stats",)},
+    {"endpoint": "pro_zone",      "label": "Pro Zone",       "short": "Pro",
+     "icon": "star",     "primary": False, "section": "Main",
+     "match": ("pro_zone",)},
+    {"endpoint": "mocks",         "label": "Mock Papers",    "short": "Mocks",
+     "icon": "file",     "primary": False, "section": "Main",
+     "match": ("mocks",)},
+    {"endpoint": "subscription",  "label": "Subscription",   "short": "Plan",
+     "icon": "card",     "primary": False, "section": "Account",
+     "match": ("subscription",)},
+    {"endpoint": "admin_content", "label": "Manage Content", "short": "Content",
+     "icon": "pencil",   "primary": False, "section": "Account", "admin": True,
+     "match": ("admin_content",)},
+    {"endpoint": "admin_mocks",   "label": "Manage Mocks",   "short": "Mocks",
+     "icon": "tag",      "primary": False, "section": "Account", "admin": True,
+     "match": ("admin_mocks",)},
+    {"endpoint": "boundaries",    "label": "Boundaries",     "short": "Bounds",
+     "icon": "pulse",    "primary": False, "section": "Account", "admin": True,
+     "match": ("boundaries",)},
+]
+
+app.jinja_env.globals["NAV_ITEMS"] = NAV_ITEMS
+
 DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
+
+
+@app.context_processor
+def nav_context():
+    """Admin-filtered nav for both layouts, plus the Pro flag the templates use.
+
+    `is_pro_user` deliberately reads current_user.is_premium rather than the
+    Phase 2 `is_pro` Jinja global — Phase 2 is parked on its own branch, and
+    the nav must not depend on it to render.
+    """
+    if not current_user.is_authenticated:
+        return {"nav_visible": [], "is_pro_user": False}
+    is_admin = bool(getattr(current_user, "is_admin", False))
+    return {
+        "nav_visible": [i for i in NAV_ITEMS if not i.get("admin") or is_admin],
+        "is_pro_user": bool(getattr(current_user, "is_premium", False)),
+    }
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -569,6 +633,106 @@ def delete_paper(pid):
 
 # ── Heatmap ───────────────────────────────────────────────────────────────────
 
+# ── Mobile mark entry ─────────────────────────────────────────────────────────
+
+def _own_paper(pid):
+    with get_db() as db:
+        paper = db.execute("SELECT * FROM papers WHERE id=? AND user_id=?",
+                           (pid, current_user.id)).fetchone()
+    if not paper:
+        abort(404)
+    return paper
+
+
+def _paper_totals(db, pid):
+    row = db.execute(
+        "SELECT COALESCE(SUM(obtained),0) AS got, COALESCE(SUM(max_marks),0) AS mx, "
+        "COUNT(*) AS n FROM question_marks WHERE paper_id=?", (pid,)
+    ).fetchone()
+    return float(row["got"]), float(row["mx"]), int(row["n"])
+
+
+@app.route("/papers/<int:pid>/enter")
+@login_required
+def enter_marks(pid):
+    """One-question-per-screen entry. Deliberately a separate flow from the
+    desktop table in papers_entry.html rather than a shrunk version of it."""
+    paper = _own_paper(pid)
+    with get_db() as db:
+        rows = db.execute(
+            "SELECT q_num, obtained, max_marks, topic FROM question_marks "
+            "WHERE paper_id=? ORDER BY id", (pid,)
+        ).fetchall()
+    questions = [{"n": r["q_num"], "obtained": r["obtained"],
+                  "max": r["max_marks"], "topic": r["topic"]} for r in rows]
+    topics = get_topics(paper["board"], paper["subject"], paper["paper_code"]) or []
+    return render_template("papers_enter.html", paper=paper,
+                           questions=questions, topics=topics)
+
+
+@app.route("/papers/<int:pid>/questions/<q_num>", methods=["POST"])
+@login_required
+def save_question(pid, q_num):
+    """Save ONE question, debounced from the client.
+
+    Saving per paper instead would mean a dropped connection costs a student
+    every mark they just entered, and they don't come back. `skip` deletes the
+    row: question_marks.obtained is NOT NULL, so "unanswered" is the absence
+    of a row, not a null in one.
+    """
+    _own_paper(pid)
+    data = request.get_json(silent=True) or {}
+    q_num = str(q_num).strip()[:16]
+    if not q_num:
+        return jsonify({"ok": False, "error": "bad question number"}), 400
+
+    with get_db() as db:
+        if data.get("skip"):
+            db.execute("DELETE FROM question_marks WHERE paper_id=? AND q_num=?",
+                       (pid, q_num))
+        else:
+            try:
+                obtained = float(data.get("obtained"))
+                max_marks = float(data.get("max_marks"))
+            except (TypeError, ValueError):
+                return jsonify({"ok": False, "error": "obtained and max_marks must be numbers"}), 400
+            if max_marks <= 0 or obtained < 0 or obtained > max_marks:
+                return jsonify({"ok": False, "error": "marks out of range"}), 400
+
+            topic = (data.get("topic") or "").strip() or None
+            existing = db.execute(
+                "SELECT id FROM question_marks WHERE paper_id=? AND q_num=?",
+                (pid, q_num)
+            ).fetchone()
+            if existing:
+                db.execute(
+                    "UPDATE question_marks SET obtained=?, max_marks=?, topic=? WHERE id=?",
+                    (obtained, max_marks, topic, existing["id"])
+                )
+            else:
+                db.execute(
+                    "INSERT INTO question_marks (paper_id, q_num, obtained, max_marks, topic) "
+                    "VALUES (?,?,?,?,?)",
+                    (pid, q_num, obtained, max_marks, topic)
+                )
+
+        got, mx, n = _paper_totals(db, pid)
+        # Keep the paper's headline score in step with its questions.
+        db.execute("UPDATE papers SET score=? WHERE id=?",
+                   (got if n else None, pid))
+
+    return jsonify({"ok": True, "total": got, "max_total": mx, "answered": n,
+                    "pct": round(got / mx * 100, 1) if mx else None})
+
+
+@app.route("/revise")
+@login_required
+def revise():
+    """Placeholder so the Revise tab isn't a dead link. The real spaced
+    repetition queue is Phase 6."""
+    return render_template("revise.html")
+
+
 @app.route("/heatmap")
 @login_required
 def heatmap():
@@ -644,6 +808,48 @@ def heatmap():
             "q_nums": q_nums, "rows": rows,
         })
 
+    # Per-topic rollup — the mobile rendering of the same data. A 7-year x
+    # 8-question grid is illegible at 390px, so phones get topics ranked
+    # worst-first instead of a shrunken table.
+    with get_db() as db:
+        topic_rows = db.execute(
+            "SELECT q.topic, q.q_num, q.obtained, q.max_marks, "
+            "       p.year, p.paper_code, p.board, p.subject "
+            "FROM question_marks q JOIN papers p ON p.id = q.paper_id "
+            "WHERE p.user_id=? AND q.topic IS NOT NULL AND q.topic <> '' "
+            "ORDER BY p.year DESC, q.id",
+            (current_user.id,)
+        ).fetchall()
+
+    topic_agg = {}
+    for r in topic_rows:
+        if subject_filter and r["subject"] != subject_filter:
+            continue
+        if board_filter and r["board"] != board_filter:
+            continue
+        if code_filter and r["paper_code"] != code_filter:
+            continue
+        t = topic_agg.setdefault(r["topic"], {"topic": r["topic"], "got": 0.0,
+                                              "max": 0.0, "n": 0, "detail": []})
+        t["got"] += float(r["obtained"])
+        t["max"] += float(r["max_marks"])
+        t["n"] += 1
+        t["detail"].append({
+            "label": f"{r['year']} {r['paper_code']}",
+            "q_num": r["q_num"],
+            "obtained": float(r["obtained"]),
+            "max": float(r["max_marks"]),
+            "pct": round(float(r["obtained"]) / float(r["max_marks"]) * 100)
+                   if float(r["max_marks"]) else 0,
+        })
+
+    topics_ranked = []
+    for t in topic_agg.values():
+        t["pct"] = round(t["got"] / t["max"] * 100, 1) if t["max"] else 0.0
+        t["lost"] = round(t["max"] - t["got"], 1)
+        topics_ranked.append(t)
+    topics_ranked.sort(key=lambda t: (t["pct"], -t["lost"]))   # weakest first
+
     # Dropdowns
     all_subjects = [(board, subj) for board, s in TEMPLATES.items() for subj in s]
     all_codes = []
@@ -654,6 +860,7 @@ def heatmap():
             pass
 
     return render_template("heatmap.html", sections=sections,
+                           topics_ranked=topics_ranked,
                            subject_filter=subject_filter, board_filter=board_filter,
                            code_filter=code_filter,
                            all_subjects=all_subjects, all_codes=all_codes,

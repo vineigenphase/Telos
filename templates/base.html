@@ -1,8 +1,11 @@
+{% import "_icons.html" as icons %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- viewport-fit=cover is required or env(safe-area-inset-*) returns 0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080f">
   <title>{% block title %}Telos{% endblock %}</title>
   <link rel="canonical" href="{{ canonical_url() }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
@@ -10,129 +13,41 @@
 </head>
 <body>
 
-<!-- ── Sidebar ── -->
+<!-- ── Sidebar (≥640px) ── -->
 <aside class="sidebar">
   <a class="sidebar-logo" href="{{ url_for('dashboard') }}">
     <div class="logo-mark">T</div>
     <div class="logo-name">Tel<span>os</span></div>
   </a>
 
-  <nav class="sidebar-nav">
-    <div class="nav-section">Main</div>
-
-    <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
-       href="{{ url_for('dashboard') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-      </svg>
-      Dashboard
-    </a>
-
-    <a class="nav-link {% if request.endpoint in ('papers','add_paper','edit_paper') %}active{% endif %}"
-       href="{{ url_for('papers') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-      Papers
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'heatmap' %}active{% endif %}"
-       href="{{ url_for('heatmap') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/>
-        <rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/>
-        <rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/>
-        <rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/>
-        <rect x="17" y="17" width="4" height="4" rx="1"/>
-      </svg>
-      Heatmap
-    </a>
-
-    <a class="nav-link {% if 'bank' in request.endpoint %}active{% endif %}"
-       href="{{ url_for('bank') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-      </svg>
-      Question Bank
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'stats' %}active{% endif %}"
-       href="{{ url_for('stats') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-      </svg>
-      Stats
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'pro_zone' %}active{% endif %}"
-       href="{{ url_for('pro_zone') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-      Pro Zone
-      {% if not current_user.is_premium %}<span style="margin-left:auto;font-size:0.72rem;">🔒</span>{% endif %}
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'mocks' %}active{% endif %}"
-       href="{{ url_for('mocks') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-      </svg>
-      Mock Papers
-    </a>
-
-    <div class="nav-section" style="margin-top:8px;">Account</div>
-
-    <a class="nav-link {% if request.endpoint == 'subscription' %}active{% endif %}"
-       href="{{ url_for('subscription') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-      </svg>
-      Subscription
-    </a>
-
-    {% if current_user.is_admin %}
-    <a class="nav-link {% if request.endpoint == 'admin_content' %}active{% endif %}"
-       href="{{ url_for('admin_content') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-      </svg>
-      Manage Content
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'admin_mocks' %}active{% endif %}"
-       href="{{ url_for('admin_mocks') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-        <line x1="7" y1="7" x2="7.01" y2="7"/>
-      </svg>
-      Manage Mocks
-    </a>
-
-    <a class="nav-link {% if request.endpoint == 'boundaries' %}active{% endif %}"
-       href="{{ url_for('boundaries') }}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-      Boundaries
-    </a>
-    {% endif %}
+  <nav class="sidebar-nav" aria-label="Main">
+    {% set ns = namespace(section=None) %}
+    {% for item in nav_visible %}
+      {% if item.section != ns.section %}
+        {% set ns.section = item.section %}
+        <div class="nav-section"{% if not loop.first %} style="margin-top:8px;"{% endif %}>{{ item.section }}</div>
+      {% endif %}
+      <a class="nav-link {% if request.endpoint in item.match %}active{% endif %}"
+         href="{{ url_for(item.endpoint) }}">
+        {{ icons.icon(item.icon) }}
+        {{ item.label }}
+        {% if item.endpoint == 'pro_zone' and not is_pro_user %}
+        <span style="margin-left:auto;font-size:0.72rem;" aria-label="Pro only">🔒</span>
+        {% endif %}
+      </a>
+    {% endfor %}
   </nav>
 
   <div class="sidebar-user">
     <div class="user-avatar">{{ current_user.username[:2].upper() }}</div>
     <div class="user-info">
       <div class="user-name">{{ current_user.username }}</div>
-      <div class="user-plan {% if current_user.is_premium %}pro{% endif %}">
-        {% if current_user.is_premium %}✦ Pro{% else %}Free plan{% endif %}
+      <div class="user-plan {% if is_pro_user %}pro{% endif %}">
+        {% if is_pro_user %}✦ Pro{% else %}Free plan{% endif %}
       </div>
     </div>
     <form method="POST" action="{{ url_for('logout') }}" style="margin:0">
-      <button type="submit" class="btn-logout" title="Log out">
+      <button type="submit" class="btn-logout" title="Log out" aria-label="Log out">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -160,6 +75,52 @@
   </div>
 
   {% block content %}{% endblock %}
+</div>
+
+<!-- ── Bottom tab bar (<640px) ── -->
+<nav class="tabbar" aria-label="Primary">
+  {% for item in nav_visible if item.primary %}
+  <a class="tab {% if request.endpoint in item.match %}active{% endif %}"
+     href="{{ url_for(item.endpoint) }}"
+     {% if request.endpoint in item.match %}aria-current="page"{% endif %}>
+    {{ icons.icon(item.icon) }}
+    <span>{{ item.short }}</span>
+  </a>
+  {% endfor %}
+  <button class="tab" type="button" id="more-tab" aria-expanded="false" aria-controls="more-sheet">
+    {{ icons.icon('more') }}
+    <span>More</span>
+  </button>
+</nav>
+
+<div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+<div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>
+  <div class="sheet-handle"></div>
+  {% set ns2 = namespace(section=None) %}
+  {% for item in nav_visible if not item.primary %}
+    {% if item.section != ns2.section %}
+      {% set ns2.section = item.section %}
+      <div class="sheet-title">{{ item.section }}</div>
+    {% endif %}
+    <a class="nav-link {% if request.endpoint in item.match %}active{% endif %}"
+       href="{{ url_for(item.endpoint) }}">
+      {{ icons.icon(item.icon) }}
+      {{ item.label }}
+      {% if item.endpoint == 'pro_zone' and not is_pro_user %}
+      <span style="margin-left:auto;font-size:0.72rem;" aria-label="Pro only">🔒</span>
+      {% endif %}
+    </a>
+  {% endfor %}
+  <div class="sheet-title">Account</div>
+  <form method="POST" action="{{ url_for('logout') }}" style="margin:0">
+    <button type="submit" class="nav-link" style="width:100%;background:none;border:none;font-family:inherit;cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Log out
+    </button>
+  </form>
 </div>
 
 <script src="{{ url_for('static', filename='js/telos.js') }}"></script>

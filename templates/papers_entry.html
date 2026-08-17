@@ -13,7 +13,14 @@
       {% endif %}
     </div>
   </div>
-  <a href="{{ url_for('papers') }}" class="btn btn-ghost">← Back</a>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    {% if mode == 'edit' %}
+    <a href="{{ url_for('enter_marks', pid=pid) }}" class="btn btn-primary" data-tip="One question per screen — built for a phone">
+      ⚡ Quick entry
+    </a>
+    {% endif %}
+    <a href="{{ url_for('papers') }}" class="btn btn-ghost">← Back</a>
+  </div>
 </div>
 
 <div class="page-body">
