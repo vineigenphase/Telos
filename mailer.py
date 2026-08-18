@@ -40,8 +40,15 @@ def send_email(to: str, subject: str, text: str, html: str | None = None) -> boo
     req = urllib.request.Request(
         "https://api.resend.com/emails",
         data=json.dumps(payload).encode(),
-        headers={"Authorization": f"Bearer {RESEND_API_KEY}",
-                 "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            # Cloudflare fronts api.resend.com and blocks the default
+            # "Python-urllib/3.x" agent with a 403 / "error code: 1010"
+            # that looks exactly like an auth failure. Identify properly.
+            "User-Agent": "Telos/1.0 (+https://telosapp.co.uk)",
+        },
         method="POST",
     )
     try:
