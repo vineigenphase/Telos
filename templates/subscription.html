@@ -8,13 +8,23 @@
 
 <div class="page-body" style="max-width:700px;">
 
-  {% if current_user.is_premium %}
+  {% if is_pro_user %}
   <div class="card" style="margin-bottom:20px; border-color:var(--gold);">
     <div style="display:flex; align-items:center; gap:12px;">
       <div style="font-size:1.8rem;">✦</div>
       <div>
         <div style="font-size:1rem; font-weight:700; color:var(--gold);">Telos Pro — Active</div>
-        <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">Thank you for supporting Telos.</div>
+        <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">
+          {% if current_user.grandfathered %}
+            Founder account — Pro access, permanently, at no charge.
+          {% elif current_user.plan_interval == 'year' %}
+            Billed yearly. Thank you for supporting Telos.
+          {% elif current_user.plan_interval == 'month' %}
+            Billed monthly. Thank you for supporting Telos.
+          {% else %}
+            Thank you for supporting Telos.
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
@@ -42,8 +52,10 @@
         <div class="plan-name" style="color:var(--accent-2);">Telos Pro</div>
         <span style="background:var(--accent); color:#fff; font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:100px;">POPULAR</span>
       </div>
-      <div class="plan-price">£2</div>
-      <div class="plan-period">per month</div>
+      {% set default_plan = pricing[default_interval] %}
+      <div class="plan-price">{{ default_plan.label }}</div>
+      <div class="plan-period">{{ default_plan.period }}</div>
+      <div style="font-size:0.78rem; color:var(--green); margin-top:4px;">{{ default_plan.sub }}</div>
       <div class="divider"></div>
       {% for f in pricing_features.pro %}
       <div class="plan-feature"{% if f.coming_soon %} style="color:var(--muted);"{% endif %}>
@@ -57,22 +69,56 @@
       </div>
       {% endfor %}
 
-      {% if not current_user.is_premium %}
+      {% if not is_pro_user %}
         {% if stripe_enabled %}
         <form method="POST" action="{{ url_for('create_checkout') }}" style="margin-top:20px;">
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;">
-            Upgrade — £2/month
-          </button>
+          <input type="hidden" name="from" value="{{ came_from }}">
+
+          <!-- Annual is preselected: A-level revision collapses in June, so
+               monthly billing gets ~7 payments then permanent churn. -->
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+            {% for plan in plans %}
+            <label style="display:flex; align-items:center; gap:10px; padding:12px;
+                          border:1px solid {{ 'var(--accent)' if plan.key == default_interval else 'var(--border)' }};
+                          border-radius:8px; cursor:pointer; min-height:var(--tap-min);
+                          background:{{ 'rgba(139,92,246,0.08)' if plan.key == default_interval else 'transparent' }};">
+              <input type="radio" name="interval" value="{{ plan.key }}"
+                     {% if plan.key == default_interval %}checked{% endif %}
+                     style="width:18px; height:18px; accent-color:var(--accent); flex-shrink:0;">
+              <span style="flex:1; text-align:left;">
+                <span style="font-weight:600;">{{ plan.label }}</span>
+                <span style="color:var(--muted); font-size:0.82rem;"> {{ plan.period }}</span>
+                <span style="display:block; font-size:0.74rem; color:{{ 'var(--green)' if plan.recommended else 'var(--muted)' }}; margin-top:2px;">
+                  {{ plan.sub }}
+                </span>
+              </span>
+              {% if plan.recommended %}
+              <span style="background:var(--green); color:#04231a; font-size:0.6rem; font-weight:700; padding:2px 7px; border-radius:100px;">BEST VALUE</span>
+              {% endif %}
+            </label>
+            {% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block">Upgrade to Pro</button>
+          <div style="font-size:0.7rem; color:var(--muted); margin-top:8px;">
+            Cancel any time from this page. No card details are stored by Telos.
+          </div>
         </form>
         {% else %}
         <div style="margin-top:20px; padding:12px; background:rgba(139,92,246,0.1); border-radius:8px; font-size:0.78rem; color:var(--muted-2);">
-          Stripe not yet configured. Set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_PRICE_ID</code> environment variables to enable billing.
+          Stripe not yet configured. Set <code>STRIPE_SECRET_KEY</code>,
+          <code>STRIPE_PRICE_MONTHLY</code> and <code>STRIPE_PRICE_ANNUAL</code> to enable billing.
         </div>
         {% endif %}
       {% else %}
         <div style="margin-top:20px; text-align:center; font-size:0.85rem; color:var(--gold);">
           ✦ You're on Pro
         </div>
+        {% if stripe_enabled and current_user.stripe_customer_id %}
+        <form method="POST" action="{{ url_for('billing_portal') }}" style="margin-top:12px;">
+          <button type="submit" class="btn btn-ghost btn-block">Manage billing</button>
+        </form>
+        {% endif %}
       {% endif %}
     </div>
 

@@ -43,9 +43,52 @@ app.config.update(
 )
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
-STRIPE_PRICE_ID    = os.environ.get("STRIPE_PRICE_ID", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_ENABLED = bool(stripe.api_key)
+
+# Legacy £2/month. Kept active forever for the handful of people already on it —
+# nobody is migrated or cancelled. STRIPE_PRICE_ID is the old variable name.
+STRIPE_PRICE_LEGACY  = os.environ.get("STRIPE_PRICE_LEGACY") or os.environ.get("STRIPE_PRICE_ID", "")
+STRIPE_PRICE_MONTHLY = os.environ.get("STRIPE_PRICE_MONTHLY", "")
+STRIPE_PRICE_ANNUAL  = os.environ.get("STRIPE_PRICE_ANNUAL", "")
+
+# ── Pricing ───────────────────────────────────────────────────────────────────
+# One source of truth. Templates read from here — never hardcode a price in a
+# template, or the day you change it you'll miss one.
+#
+# Why £29 annual is pushed: A-level revision collapses in June when Year 13
+# finish, so monthly billing gets ~7 payments then permanent churn. Annual
+# captures the whole cycle up front. And the 20p fixed Stripe fee is why £2
+# never worked — it ate ~14% of every payment; at £29/year you keep ~98%.
+PRICING = {
+    "month": {
+        "key": "month",
+        "price_id": STRIPE_PRICE_MONTHLY,
+        "amount_pence": 499,
+        "label": "£4.99",
+        "period": "per month",
+        "sub": "Billed monthly. Cancel any time.",
+    },
+    "year": {
+        "key": "year",
+        "price_id": STRIPE_PRICE_ANNUAL,
+        "amount_pence": 2900,
+        "label": "£29",
+        "period": "per year",
+        "sub": "That's £2.42/month — save £31 vs monthly.",
+        "recommended": True,
+    },
+    "legacy": {
+        "key": "legacy",
+        "price_id": STRIPE_PRICE_LEGACY,
+        "amount_pence": 200,
+        "label": "£2",
+        "period": "per month",
+        "sub": "Legacy price — kept for existing subscribers.",
+        "hidden": True,
+    },
+}
+DEFAULT_INTERVAL = "year"     # annual is preselected on purpose
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
@@ -246,6 +289,7 @@ class User(UserMixin):
         self.stripe_customer_id  = row["stripe_customer_id"]
         self.is_admin = bool(row["is_admin"])
         self.plan = row["plan"]
+        self.plan_interval = row["plan_interval"]
         self.grandfathered = bool(row["grandfathered"])
         self.current_period_end = row["current_period_end"]
 
@@ -738,6 +782,24 @@ def delete_paper(pid):
     return redirect(url_for("papers"))
 
 # ── Heatmap ───────────────────────────────────────────────────────────────────
+
+# ── Analytics ─────────────────────────────────────────────────────────────────
+
+def log_event(event, user_id=None, detail=None):
+    """Server-side only, no third-party tracker.
+
+    Never allowed to break a request: if the insert fails, the user's checkout
+    still goes through and we lose one analytics row.
+    """
+    try:
+        with get_db() as db:
+            db.execute(
+                "INSERT INTO analytics_events (event, user_id, detail) VALUES (?,?,?)",
+                (event, user_id, detail)
+            )
+    except Exception:
+        app.logger.warning("analytics insert failed for %s", event, exc_info=True)
+
 
 # ── Predicted grade ───────────────────────────────────────────────────────────
 
@@ -1356,10 +1418,22 @@ def delete_post(pid):
 @app.route("/subscription")
 @login_required
 def subscription():
+    # Which plan a legacy subscriber is actually on, so the page doesn't tell
+    # someone paying £2 that they're on the £4.99 tier.
+    plans = [PRICING["year"], PRICING["month"]]      # annual first, deliberately
+    came = request.args.get("from", "")
+    if came:
+        # Which locked feature actually drove someone here — the only way to
+        # tell what's selling.
+        log_event("upgrade_prompt_landed", user_id=current_user.id, detail=came)
     return render_template("subscription.html",
                            stripe_enabled=STRIPE_ENABLED,
                            stripe_pk=os.environ.get("STRIPE_PUBLISHABLE_KEY", ""),
-                           pricing_features=PRICING_FEATURES)
+                           pricing_features=PRICING_FEATURES,
+                           plans=plans,
+                           default_interval=DEFAULT_INTERVAL,
+                           pricing=PRICING,
+                           came_from=request.args.get("from", ""))
 
 
 @app.route("/subscription/checkout", methods=["POST"])
@@ -1368,6 +1442,15 @@ def create_checkout():
     if not STRIPE_ENABLED:
         flash("Stripe not configured.", "error")
         return redirect(url_for("subscription"))
+
+    interval = request.form.get("interval", DEFAULT_INTERVAL)
+    plan = PRICING.get(interval)
+    # Only the two purchasable plans — nobody can pick their way onto the
+    # legacy £2 price through a crafted form post.
+    if interval not in ("month", "year") or not plan or not plan["price_id"]:
+        flash("That plan isn't available.", "error")
+        return redirect(url_for("subscription"))
+
     try:
         customer_id = current_user.stripe_customer_id
         if not customer_id:
@@ -1380,13 +1463,36 @@ def create_checkout():
 
         sess = stripe.checkout.Session.create(
             customer=customer_id,
+            client_reference_id=str(current_user.id),
             payment_method_types=["card"],
-            line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+            line_items=[{"price": plan["price_id"], "quantity": 1}],
             mode="subscription",
+            metadata={"user_id": str(current_user.id), "interval": interval},
             success_url=url_for("sub_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=url_for("subscription", _external=True),
         )
+        log_event("checkout_started", user_id=current_user.id,
+                  detail=f"{interval}:{request.form.get('from', '')}")
         return redirect(sess.url)
+    except Exception as e:
+        flash(str(e), "error")
+        return redirect(url_for("subscription"))
+
+
+@app.route("/subscription/portal", methods=["POST"])
+@login_required
+def billing_portal():
+    """Stripe's own billing portal — cancellation, card updates, invoices.
+    Deliberately not a custom cancel flow."""
+    if not (STRIPE_ENABLED and current_user.stripe_customer_id):
+        flash("No billing account to manage yet.", "error")
+        return redirect(url_for("subscription"))
+    try:
+        portal = stripe.billing_portal.Session.create(
+            customer=current_user.stripe_customer_id,
+            return_url=url_for("subscription", _external=True),
+        )
+        return redirect(portal.url)
     except Exception as e:
         flash(str(e), "error")
         return redirect(url_for("subscription"))
@@ -1395,8 +1501,13 @@ def create_checkout():
 @app.route("/subscription/success")
 @login_required
 def sub_success():
-    # Never trust a bare visit to this URL. Verify with Stripe that the Checkout
-    # Session actually completed and belongs to this user before granting Pro.
+    """Confirmation page only.
+
+    This route does NOT grant Pro. The redirect URL can be typed by hand, so
+    entitlements are written by the webhook and nowhere else. The worst case
+    here is a few seconds of "payment received, activating" before the webhook
+    lands.
+    """
     session_id = request.args.get("session_id")
     if not (STRIPE_ENABLED and session_id):
         flash("Couldn't confirm your subscription.", "error")
@@ -1414,11 +1525,55 @@ def sub_success():
         flash("We couldn't verify that payment. If you just paid, give it a moment and refresh.", "error")
         return redirect(url_for("subscription"))
 
-    with get_db() as db:
-        db.execute("UPDATE users SET subscription_status='active' WHERE id=?",
-                   (current_user.id,))
-    flash("You're now a Telos Pro member!", "success")
+    log_event("checkout_completed", user_id=current_user.id)
+    if user_is_pro(current_user):
+        flash("You're now a Telos Pro member!", "success")
+    else:
+        flash("Payment received — activating your Pro access. Refresh in a few seconds.", "success")
     return redirect(url_for("dashboard"))
+
+
+# ── Stripe webhook — the ONLY place entitlements are written ──────────────────
+
+def _sget(obj, key, default=None):
+    """Safe key read for Stripe objects.
+
+    StripeObject subclasses dict but routes attribute access through
+    __getattr__, so `obj.get(...)` raises AttributeError instead of returning
+    a default. Everything touching a webhook payload must go through this.
+    """
+    try:
+        return obj[key]
+    except (KeyError, TypeError):
+        return default
+
+
+def _apply_subscription(db, customer_id, sub):
+    """Write entitlement state from a Stripe subscription object."""
+    status = _sget(sub, "status")
+    # past_due deliberately keeps access: a failed card should not lock a
+    # student out mid-revision. Stripe retries for ~2 weeks.
+    active = status in ("active", "trialing", "past_due")
+    interval = None
+    try:
+        interval = sub["items"]["data"][0]["price"]["recurring"]["interval"]
+    except (KeyError, IndexError, TypeError):
+        pass
+
+    period_end = _sget(sub, "current_period_end")
+    period_end_dt = (datetime.fromtimestamp(period_end, tz=timezone.utc)
+                     if period_end else None)
+
+    db.execute(
+        "UPDATE users SET subscription_status=?, plan=?, plan_interval=?, "
+        "stripe_subscription_id=?, current_period_end=? WHERE stripe_customer_id=?",
+        (status if active else "free",
+         "pro" if active else "free",
+         interval,
+         _sget(sub, "id"),
+         period_end_dt,
+         customer_id)
+    )
 
 
 @app.route("/subscription/webhook", methods=["POST"])
@@ -1427,24 +1582,59 @@ def stripe_webhook():
     sig     = request.headers.get("Stripe-Signature", "")
     try:
         event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except stripe.error.SignatureVerificationError:
+        return "", 400
     except Exception:
+        # Malformed body etc. Distinguished from a processing failure below so
+        # Stripe isn't told "don't retry" when the fault is ours.
         return "", 400
 
+    event_id = _sget(event, "id")
+    etype    = _sget(event, "type")
+
+    # Idempotency: claim the event id first. A duplicate delivery collides on
+    # the primary key and is acknowledged without being processed twice.
+    try:
+        with get_db() as db:
+            db.execute("INSERT INTO stripe_events (event_id, event_type) VALUES (?,?)",
+                       (event_id, etype))
+    except psycopg.errors.UniqueViolation:
+        return "", 200
+
     obj = event["data"]["object"]
-    customer = obj["customer"] if "customer" in obj else None
-    if event["type"] in ("customer.subscription.deleted", "customer.subscription.paused"):
+    customer = _sget(obj, "customer")
+
+    try:
         with get_db() as db:
-            db.execute(
-                "UPDATE users SET subscription_status='free' WHERE stripe_customer_id=?",
-                (customer,)
-            )
-    elif event["type"] == "customer.subscription.updated":
-        new_status = "active" if ("status" in obj and obj["status"] == "active") else "free"
+            if etype == "checkout.session.completed":
+                sub_id = _sget(obj, "subscription")
+                if sub_id:
+                    sub = stripe.Subscription.retrieve(sub_id)
+                    _apply_subscription(db, customer, sub)
+            elif etype in ("customer.subscription.updated",
+                           "customer.subscription.created"):
+                _apply_subscription(db, customer, obj)
+            elif etype in ("customer.subscription.deleted",
+                           "customer.subscription.paused"):
+                db.execute(
+                    "UPDATE users SET subscription_status='free', plan='free', "
+                    "current_period_end=NULL WHERE stripe_customer_id=?", (customer,))
+                log_event("subscription_cancelled", detail=str(customer))
+            elif etype == "invoice.payment_succeeded":
+                sub_id = _sget(obj, "subscription")
+                if sub_id:
+                    _apply_subscription(db, customer, stripe.Subscription.retrieve(sub_id))
+            elif etype == "invoice.payment_failed":
+                # No downgrade here — Stripe moves the subscription to past_due
+                # and retries. user_is_pro() keeps access during that window.
+                log_event("payment_failed", detail=str(customer))
+    except Exception:
+        # Un-claim so Stripe's retry can have another go at it.
         with get_db() as db:
-            db.execute(
-                "UPDATE users SET subscription_status=? WHERE stripe_customer_id=?",
-                (new_status, customer)
-            )
+            db.execute("DELETE FROM stripe_events WHERE event_id=?", (event_id,))
+        app.logger.exception("webhook %s (%s) failed", event_id, etype)
+        return "", 500
+
     return "", 200
 
 # ── Mock paper marketplace (one-off £ purchases) ──────────────────────────────
