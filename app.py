@@ -15,6 +15,7 @@ import stripe
 from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
+from prediction import predict as predict_grade
 from auth import requires_pro, user_is_pro
 
 import json as _json
@@ -546,8 +547,12 @@ def dashboard():
         pct = round(p["score"] / p["max_marks"] * 100, 1) if p["score"] else None
         recent_enriched.append({**dict(p), "grade": grade, "grade_color": color, "pct": pct})
 
+    # Read from the cache — predictions are recomputed on write, never here.
+    predictions = get_predictions(current_user.id) if user_is_pro(current_user) else []
+
     return render_template("dashboard.html", recent=recent_enriched,
-                           stats=stats, total=total, templates=TEMPLATES)
+                           stats=stats, total=total, templates=TEMPLATES,
+                           predictions=predictions, papers_logged=total)
 
 # ── Papers matrix ─────────────────────────────────────────────────────────────
 
@@ -634,6 +639,7 @@ def add_paper():
                     (paper_id, qn, got, mx, tp or None)
                 )
 
+        recompute_predictions(current_user.id)
         flash("Paper logged.", "success")
         return redirect(url_for("papers"))
 
@@ -709,6 +715,7 @@ def edit_paper(pid):
                     (pid, qn, got, mx, tp or None)
                 )
 
+        recompute_predictions(current_user.id)
         flash("Paper updated.", "success")
         return redirect(url_for("papers"))
 
@@ -726,10 +733,73 @@ def delete_paper(pid):
     with get_db() as db:
         db.execute("DELETE FROM papers WHERE id=? AND user_id=?",
                    (pid, current_user.id))
+    recompute_predictions(current_user.id)
     flash("Paper deleted.", "success")
     return redirect(url_for("papers"))
 
 # ── Heatmap ───────────────────────────────────────────────────────────────────
+
+# ── Predicted grade ───────────────────────────────────────────────────────────
+
+def recompute_predictions(user_id):
+    """Recompute and cache this user's predictions. Called on every change to
+    their papers or question marks — never on page load, so the dashboard costs
+    a fixed number of queries no matter how many papers exist."""
+    with get_db() as db:
+        papers = db.execute(
+            "SELECT board, subject, paper_code, year, score, max_marks FROM papers "
+            "WHERE user_id=? ORDER BY date_completed DESC, id DESC", (user_id,)
+        ).fetchall()
+        bounds = db.execute(
+            "SELECT board, subject, paper_code, year, a_star, a_boundary, "
+            "b_boundary, c_boundary FROM grade_boundaries"
+        ).fetchall()
+
+    boundary_rows = [dict(b) for b in bounds]
+    groups = {}
+    for p in papers:
+        groups.setdefault((p["board"], p["subject"]), []).append(dict(p))
+
+    with get_db() as db:
+        for (board, subject), attempts in groups.items():
+            result = predict_grade(attempts, boundary_rows)
+            if not result.get("ready"):
+                # Not enough data is a state, not a stale prediction to keep.
+                db.execute("DELETE FROM grade_predictions WHERE user_id=? AND board=? "
+                           "AND subject=?", (user_id, board, subject))
+                continue
+            db.execute(
+                "INSERT INTO grade_predictions "
+                "(user_id, board, subject, grade_score, predicted_grade, next_grade, "
+                " marks_to_next, confidence, sample_size, computed_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,NOW()) "
+                "ON CONFLICT (user_id, board, subject) DO UPDATE SET "
+                " grade_score=EXCLUDED.grade_score, predicted_grade=EXCLUDED.predicted_grade, "
+                " next_grade=EXCLUDED.next_grade, marks_to_next=EXCLUDED.marks_to_next, "
+                " confidence=EXCLUDED.confidence, sample_size=EXCLUDED.sample_size, "
+                " computed_at=NOW()",
+                (user_id, board, subject, result["grade_score"], result["predicted_grade"],
+                 result["next_grade"], result["marks_to_next"], result["confidence"],
+                 result["sample_size"])
+            )
+        # Subjects the user no longer has papers for shouldn't linger.
+        keep = list(groups.keys())
+        if keep:
+            placeholders = " OR ".join(["(board=? AND subject=?)"] * len(keep))
+            params = [user_id] + [v for pair in keep for v in pair]
+            db.execute(f"DELETE FROM grade_predictions WHERE user_id=? "
+                       f"AND NOT ({placeholders})", tuple(params))
+        else:
+            db.execute("DELETE FROM grade_predictions WHERE user_id=?", (user_id,))
+
+
+def get_predictions(user_id):
+    with get_db() as db:
+        return db.execute(
+            "SELECT * FROM grade_predictions WHERE user_id=? ORDER BY subject",
+            (user_id,)
+        ).fetchall()
+
 
 # ── Mobile mark entry ─────────────────────────────────────────────────────────
 
@@ -818,6 +888,9 @@ def save_question(pid, q_num):
         # Keep the paper's headline score in step with its questions.
         db.execute("UPDATE papers SET score=? WHERE id=?",
                    (got if n else None, pid))
+
+    # The paper's score just moved, so the cached prediction is stale.
+    recompute_predictions(current_user.id)
 
     return jsonify({"ok": True, "total": got, "max_total": mx, "answered": n,
                     "pct": round(got / mx * 100, 1) if mx else None})

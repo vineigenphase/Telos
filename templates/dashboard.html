@@ -21,6 +21,66 @@
 
 <div class="page-body">
 
+  <!-- ── Predicted grade ──────────────────────────────────────────────────
+       Never a bare grade: every prediction is shown with the marks that would
+       move it. A number without a next step is just anxiety. -->
+  {% if is_pro_user %}
+    {% if predictions %}
+    <div style="display:grid; gap:10px; margin-bottom:24px;">
+      {% for p in predictions %}
+      {% set colour = '#f59e0b' if p.predicted_grade == 'A*' else ('#22c55e' if p.predicted_grade == 'A' else ('#3b82f6' if p.predicted_grade == 'B' else '#a78bfa')) %}
+      <div class="card" style="border-left:3px solid {{ colour }};">
+        <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;">
+          <div style="font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">
+            {{ p.subject }} — predicted
+          </div>
+          {% if p.confidence == 'low' %}
+          <span style="font-size:0.68rem; color:var(--gold); border:1px solid var(--gold); border-radius:100px; padding:1px 8px;">provisional</span>
+          {% endif %}
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap;">
+          <div style="font-size:2.4rem; font-weight:700; line-height:1; color:{{ colour }};">
+            {{ p.predicted_grade }}
+          </div>
+          <div style="font-size:0.9rem; color:var(--muted-2);">
+            {% if p.next_grade and p.marks_to_next is not none %}
+              You're <strong style="color:var(--text);">{{ p.marks_to_next|int }} mark{{ 's' if p.marks_to_next|int != 1 }}</strong>
+              off {{ 'an' if p.next_grade in ['A','A*'] else 'a' }} {{ p.next_grade }}.
+              <a href="{{ url_for('heatmap') }}" class="auth-link">See where they are →</a>
+            {% else %}
+              Top of the scale — keep it there.
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="font-size:0.72rem; color:var(--muted); margin-top:10px;">
+          {% if p.confidence == 'low' %}
+            Provisional — based on {{ p.sample_size }} papers. Log more for a sharper estimate.
+          {% else %}
+            Based on {{ p.sample_size }} papers · {{ p.confidence }} confidence
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% elif papers_logged is defined and papers_logged < 3 %}
+    <div class="card" style="margin-bottom:24px; border:1px dashed var(--border-2);">
+      <div style="font-weight:600;">Predicted grade</div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
+        Log {{ 3 - papers_logged }} more paper{{ 's' if (3 - papers_logged) != 1 }} to unlock your predicted grade.
+        Three is the minimum for an estimate worth trusting.
+      </div>
+    </div>
+    {% endif %}
+  {% else %}
+    <div style="margin-bottom:24px;">
+      {% with feature="Predicted grade", blurb="Your grade from real boundaries, and exactly how many marks to the next one." %}
+        {% include "_upgrade_prompt.html" %}
+      {% endwith %}
+    </div>
+  {% endif %}
+
   <!-- Stat cards -->
   <div class="stat-grid" style="margin-bottom: 24px;">
     <div class="stat-card total">
