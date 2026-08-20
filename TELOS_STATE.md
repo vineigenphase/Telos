@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-19.** Living handoff document. Read this first, then
+**Last updated: 2026-08-20.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -17,7 +17,8 @@ Pro tier = prediction and prescription.
 
 - **Live:** https://telosapp.co.uk
 - **Repo:** github.com/vineigenphase/Telos (auto-deploys `main`)
-- **Local:** `C:\Users\User\Telos`
+- **Local:** path varies by machine — `C:\Users\User\Telos` on one,
+  `C:\Users\svinu\past_paper_tracker` on another. Same repo either way.
 
 ---
 
@@ -59,8 +60,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 3 | Predicted grade engine | `36cdb62` | **live** |
 | 5 | £4.99/mo + £29/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** |
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
-| 2.5 | PWA — manifest, service worker, install prompt | — | **next** |
-| 4 | Prescriptions — "your next 3 questions" | — | not started |
+| 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
+| 4 | Prescriptions — "your next 3 questions" | — | **next** |
 | 9, 6, 8, 7, 10 | Share cards, spaced repetition, parent report, percentile, simulator | — | not started |
 
 ---
@@ -77,15 +78,23 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 3. **Cancel → period-end → access-lost** path via Stripe clock simulation.
 4. **Live-mode Stripe swap** when ready for real money: recreate product,
    both prices and the webhook endpoint in live mode, update the four env vars.
+5. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
+   install to home screen on a real iPhone and a real iPad and confirm it
+   opens without browser chrome, correct icon/splash; confirm an
+   already-installed copy picks up a new deploy within one refresh
+   (the "Update available" toast).
+6. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+   `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
+   which is what happened.
 
 **Decisions waiting on the owner:**
 
-5. **`db.py` connection check.** The first request after Neon idles returns a
+7. **`db.py` connection check.** The first request after Neon idles returns a
    500 (`AdminShutdown: terminating connection due to administrator command`);
    the retry works. Fix is one argument — `check=ConnectionPool.check_connection`
    on the pool. Not applied because spec working-rule 7 says don't touch
    `db.py` without asking.
-6. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
+8. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
    `prediction.infer_de()` extrapolates D and E from the mean gap of the known
    boundaries. Owner approved keeping this (2026-08-19); revisit if real D/E
    data is ever sourced. Delete that one function if so.
@@ -143,6 +152,18 @@ user; use a Neon branch once there are real students.
   display width. Load the page in a same-origin iframe at the target width
   instead, and strip the `(hover:hover)` media rule before measuring tap
   targets or you measure mouse-sized controls.
+- **`railway run tests\run_all.py` used to fail 5 of 6 suites** on any
+  machine, because `railway run` injects the real production `CANONICAL_HOST`
+  into every subprocess, and the Flask test client's default Host header
+  ("localhost") then gets 301'd by the canonical-redirect hook — which
+  Werkzeug's test client refuses to follow. Fixed in `run_all.py`: it strips
+  `CANONICAL_HOST` from each suite's env except `test_canonical_host.py`,
+  which wants the real thing. If a suite is ever run standalone
+  (`python tests\test_x.py` directly, not via `run_all.py`) under
+  `railway run`, this will resurface.
+- **PWA icons are generated, not hand-drawn.** `scripts\generate_icons.py`
+  builds them from CSS values (the sidebar gradient, the heatmap's
+  `pct-0..90` colors) — re-run it after changing either, don't edit the PNGs.
 
 ---
 
