@@ -766,6 +766,59 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .plan-feature { font-size: 0.85rem; color: var(--muted-2); padding: 5px 0; display: flex; align-items: center; gap: 8px; text-align: left; }
 .plan-feature svg { color: var(--green); flex-shrink: 0; }
 
+/* ── PWA install banner + update toast ──────────────────────────────────── */
+.pwa-banner {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 10px);
+  z-index: 180;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.pwa-banner-row { display: flex; align-items: center; gap: 10px; }
+.pwa-banner-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), #6d28d9);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff;
+}
+.pwa-banner-text { flex: 1; min-width: 0; }
+.pwa-banner-title { font-size: 0.85rem; font-weight: 600; }
+.pwa-banner-sub { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+.pwa-banner-close {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  width: var(--tap-min); height: var(--tap-min); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.pwa-ios-help {
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: var(--muted-2);
+}
+.pwa-ios-help svg { color: var(--accent-2); flex-shrink: 0; }
+
+.pwa-toast {
+  position: fixed;
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 10px);
+  z-index: 180;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 8px 8px 16px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.pwa-toast button {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 100px; padding: 6px 14px;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+}
+
 /* ── Auth pages ──────────────────────────────────────────────────────────── */
 .auth-wrap {
   min-height: 100dvh;
@@ -825,6 +878,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   body { display: flex; padding-bottom: 0; }
 
   .tabbar, .sheet, .sheet-backdrop { display: none; }
+
+  /* Install prompt is mobile-only, per Phase 2.5c: "never on desktop". */
+  .pwa-banner, .pwa-toast { display: none !important; }
 
   .sidebar {
     display: flex;

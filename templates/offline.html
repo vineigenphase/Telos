@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080f">
+  <title>Offline — Telos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <style>
+    .offline-wrap {
+      min-height: 100dvh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 24px; gap: 12px;
+    }
+    .offline-mark {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.6rem; color: #fff;
+    }
+  </style>
+</head>
+<body style="background:var(--bg);">
+  <div class="offline-wrap">
+    <div class="offline-mark">T</div>
+    <div style="font-size:1.05rem; font-weight:700;">You're offline</div>
+    <div style="color:var(--muted); font-size:0.85rem; max-width:320px;">
+      Telos can't reach the network right now. Anything you last viewed is
+      still available — reconnect to keep tracking papers.
+    </div>
+    <button type="button" class="btn btn-primary" style="margin-top:8px;"
+            onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>

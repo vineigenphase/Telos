@@ -9,9 +9,14 @@
   <title>{% block title %}Telos{% endblock %}</title>
   <link rel="canonical" href="{{ canonical_url() }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
+  <meta name="apple-mobile-web-app-title" content="Telos">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   {% block head %}{% endblock %}
 </head>
-<body>
+<body data-papers-count="{{ papers_count }}">
 
 <!-- ── Sidebar (≥640px) ── -->
 <aside class="sidebar">
@@ -92,6 +97,31 @@
     <span>More</span>
   </button>
 </nav>
+
+<!-- ── PWA install banner (Android beforeinstallprompt + iOS how-to) ── -->
+<div class="pwa-banner" id="pwa-install-banner" hidden>
+  <div class="pwa-banner-row">
+    <div class="pwa-banner-icon">T</div>
+    <div class="pwa-banner-text">
+      <div class="pwa-banner-title">Add Telos to your home screen</div>
+      <div class="pwa-banner-sub" id="pwa-banner-sub">Quick access, works offline.</div>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="pwa-install-btn">Add</button>
+    <button type="button" class="pwa-banner-close" id="pwa-install-dismiss" aria-label="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="pwa-ios-help" id="pwa-ios-help" hidden>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4"/><path d="M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+    Tap the Share icon in Safari's toolbar, then "Add to Home Screen".
+  </div>
+</div>
+
+<!-- ── PWA update toast — a new version installed in the background ── -->
+<div class="pwa-toast" id="pwa-update-toast" hidden>
+  <span>Update available</span>
+  <button type="button" id="pwa-update-btn">Refresh</button>
+</div>
 
 <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
 <div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>

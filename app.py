@@ -35,6 +35,11 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 # http://127.0.0.1:5000 still works. Set on Railway to "telosapp.co.uk".
 CANONICAL_HOST = os.environ.get("CANONICAL_HOST", "").strip()
 
+# Railway sets this automatically on every deploy. Drives the service worker
+# cache name (Phase 2.5b) so a deploy always evicts the previous cache instead
+# of relying on someone to bump a version by hand.
+SW_CACHE_VERSION = os.environ.get("RAILWAY_GIT_COMMIT_SHA", "dev")[:12]
+
 app.config.update(
     PREFERRED_URL_SCHEME="https",
     SESSION_COOKIE_SECURE=bool(CANONICAL_HOST),
@@ -182,11 +187,17 @@ def nav_context():
     the nav must not depend on it to render.
     """
     if not current_user.is_authenticated:
-        return {"nav_visible": [], "is_pro_user": False}
+        return {"nav_visible": [], "is_pro_user": False, "papers_count": 0}
     is_admin = bool(getattr(current_user, "is_admin", False))
+    with get_db() as db:
+        n = db.execute("SELECT COUNT(*) AS n FROM papers WHERE user_id=?",
+                       (current_user.id,)).fetchone()["n"]
     return {
         "nav_visible": [i for i in NAV_ITEMS if not i.get("admin") or is_admin],
         "is_pro_user": bool(getattr(current_user, "is_premium", False)),
+        # Drives the Phase 2.5c install-prompt trigger — show it right after
+        # the third paper, once they've seen the value.
+        "papers_count": n,
     }
 
 login_manager = LoginManager(app)
@@ -258,6 +269,35 @@ def sitemap_xml():
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
             f"{urls}</urlset>")
     return app.response_class(body, mimetype="application/xml")
+
+
+@app.route("/offline")
+def offline():
+    """Cached shell fallback the service worker serves for failed navigations.
+    Public and content-free by design — see TELOS_V2_ADDENDUM.md Phase 2.5b."""
+    return render_template("offline.html")
+
+
+@app.route("/sw.js")
+def service_worker():
+    # Served from a Flask route (not /static/) so its default scope is "/",
+    # matching manifest.webmanifest's scope. CACHE_VERSION is templated in
+    # here rather than hand-bumped, so every deploy busts the old cache.
+    resp = app.response_class(
+        render_template("sw.js", cache_version=SW_CACHE_VERSION),
+        mimetype="application/javascript",
+    )
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+@app.after_request
+def _no_store_authenticated_html(resp):
+    # A student's marks must never be served from a shared/cached copy on a
+    # different session on the same device (e.g. a shared school iPad).
+    if current_user.is_authenticated and resp.mimetype == "text/html":
+        resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 # Jinja2 filter so templates can parse stored JSON strings
 @app.template_filter("from_json")
