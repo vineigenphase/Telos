@@ -78,6 +78,50 @@
     n: String(q.n), obtained: q.obtained, max: q.max, topic: q.topic, saved: true
   }));
 
+  // ── offline queue ────────────────────────────────────────────────────────
+  // A save that fails (offline, dropped connection) is retried in-memory
+  // already, but that's lost if the tab or app is killed before reconnect.
+  // Mirror any unsaved mark into IndexedDB so it survives that, and replay
+  // it on load. Deliberately minimal — see Phase 2.5d, "not worth full
+  // offline write sync at this stage."
+  const Pending = {
+    _dbp: null,
+    db() {
+      if (this._dbp) return this._dbp;
+      this._dbp = new Promise((resolve, reject) => {
+        if (!window.indexedDB) return reject();
+        const req = indexedDB.open('telos-offline', 1);
+        req.onupgradeneeded = () => req.result.createObjectStore('pending_marks', { keyPath: 'key' });
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      return this._dbp;
+    },
+    async put(q) {
+      try {
+        const db = await this.db();
+        db.transaction('pending_marks', 'readwrite').objectStore('pending_marks')
+          .put({ key: `${PID}:${q.n}`, pid: PID, n: q.n, obtained: q.obtained, max: q.max, topic: q.topic });
+      } catch (_) { /* IndexedDB unavailable — in-memory retry still covers this tab's session */ }
+    },
+    async remove(n) {
+      try {
+        const db = await this.db();
+        db.transaction('pending_marks', 'readwrite').objectStore('pending_marks').delete(`${PID}:${n}`);
+      } catch (_) {}
+    },
+    async allForPaper() {
+      try {
+        const db = await this.db();
+        return await new Promise((resolve, reject) => {
+          const req = db.transaction('pending_marks', 'readonly').objectStore('pending_marks').getAll();
+          req.onsuccess = () => resolve(req.result.filter(r => r.pid === PID));
+          req.onerror = () => reject(req.error);
+        });
+      } catch (_) { return []; }
+    }
+  };
+
   let idx = 0;
   let buffer = '';            // what the keypad is currently composing
   let editingMax = false;     // keypad targets "out of" instead of the mark
@@ -182,13 +226,33 @@
       body: JSON.stringify({ obtained: q.obtained, max_marks: q.max, topic: q.topic || null })
     })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(() => { q.saved = true; if (questions[idx] === q) setStatus('saved'); })
+      .then(() => { q.saved = true; Pending.remove(q.n); if (questions[idx] === q) setStatus('saved'); })
       .catch(() => {
         q.saved = false;
+        Pending.put(q);
         if (questions[idx] === q) setStatus('unsaved');
-        setTimeout(() => save(q), 4000);          // retry on reconnect
+        setTimeout(() => save(q), 4000);          // retry on a timer regardless
       });
   }
+
+  // A dropped wifi connection fires 'online' the moment it's back — don't
+  // make the student wait out the 4s backoff to see "Saved" again.
+  window.addEventListener('online', () => {
+    questions.forEach(q => { if (q.saved === false) save(q); });
+  });
+
+  // Replay anything that didn't make it to the server before this tab/app
+  // was last closed (e.g. offline, then killed before reconnecting).
+  Pending.allForPaper().then(pending => {
+    if (!pending.length) return;
+    pending.forEach(p => {
+      const q = questions.find(x => x.n === p.n);
+      if (!q) return;
+      q.obtained = p.obtained; q.max = p.max; q.topic = p.topic; q.saved = false;
+      save(q);
+    });
+    render();
+  });
 
   function commit() {
     if (setupMode || buffer === '') return;

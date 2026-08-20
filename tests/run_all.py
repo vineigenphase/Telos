@@ -8,6 +8,13 @@ and delete them in a finally block — no suite leaves anything behind.
 
 test_canonical_host.py sets CANONICAL_HOST itself, so it must run in its own
 process; that's why each suite is a subprocess rather than an import.
+
+Every other suite assumes CANONICAL_HOST is empty (the Flask test client's
+default Host header is "localhost", so a real value like "telosapp.co.uk"
+makes the canonical-redirect hook 301 every request, which the test client
+then refuses to follow). `railway run` injects the real production value
+into this whole process tree, so it's stripped back out here for every
+suite except the one that wants it.
 """
 import os
 import subprocess
@@ -22,6 +29,7 @@ SUITES = [
     ("mobile-first + mark entry", "test_mobile_first.py"),
     ("password reset",           "test_password_reset.py"),
     ("pricing + Stripe webhook", "test_pricing.py"),
+    ("PWA — manifest, sw, offline", "test_pwa.py"),
 ]
 
 
@@ -32,7 +40,10 @@ def main():
         if not os.path.exists(path):
             results.append((label, "MISSING"))
             continue
-        proc = subprocess.run([sys.executable, path], capture_output=True, text=True)
+        env = os.environ.copy()
+        if filename != "test_canonical_host.py":
+            env.pop("CANONICAL_HOST", None)
+        proc = subprocess.run([sys.executable, path], capture_output=True, text=True, env=env)
         ok = proc.returncode == 0
         results.append((label, "PASS" if ok else "FAIL"))
         if not ok:
