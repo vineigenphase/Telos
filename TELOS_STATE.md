@@ -61,7 +61,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 5 | £4.99/mo + £29/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** |
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
-| 4 | Prescriptions — "your next 3 questions" | — | **next** |
+| 4 | Prescriptions — "your next 3 questions", Today panel | — | **built, awaiting sign-off** on `feat/prescriptions` |
 | 9, 6, 8, 7, 10 | Share cards, spaced repetition, parent report, percentile, simulator | — | not started |
 
 ---
@@ -88,6 +88,21 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    which is what happened.
 
 **Decisions waiting on the owner:**
+
+0. **Phase 4 sign-off.** Built on `feat/prescriptions`, all 9 suites pass, not
+   merged. Two things to look at before it goes live:
+   - The spec says questions come from `bank_questions`. That table does not
+     exist — the real one is **`question_bank`**, it is per-user, and it is
+     empty for everyone. A spec-literal Phase 4 would render an empty panel for
+     every user on day one. It was built with two sources instead: unattempted
+     `question_bank` questions first, then re-doing sub-60% questions from
+     `question_marks`. The spec's own rule ("preferring unattempted questions,
+     then ones scored below 60%") already assumes attempt data, which only the
+     marks table has.
+   - Prescriptions are computed on read, not cached like predictions. They
+     depend on the question bank as well as the marks, so a cache would need
+     invalidating from the `/bank` tag and delete routes too. See the docstring
+     on `build_prescriptions()`.
 
 7. **`db.py` connection check.** The first request after Neon idles returns a
    500 (`AdminShutdown: terminating connection due to administrator command`);
@@ -161,6 +176,10 @@ user; use a Neon branch once there are real students.
   which wants the real thing. If a suite is ever run standalone
   (`python tests\test_x.py` directly, not via `run_all.py`) under
   `railway run`, this will resurface.
+- **The spec's `bank_questions` is really `question_bank`.** Per-user, filled
+  only by that user's own upload-and-tag flow, and its `topics` column is a
+  JSON array — `question_marks.topic` is a single string. Phase 4 matches the
+  two case- and whitespace-insensitively.
 - **PWA icons are generated, not hand-drawn.** `scripts\generate_icons.py`
   builds them from CSS values (the sidebar gradient, the heatmap's
   `pct-0..90` colors) — re-run it after changing either, don't edit the PNGs.

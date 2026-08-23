@@ -16,6 +16,7 @@ from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
+from prescription import prescribe, RECENCY_WINDOW as PRESCRIPTION_RECENCY_WINDOW
 from auth import requires_pro, user_is_pro
 
 import json as _json
@@ -632,11 +633,18 @@ def dashboard():
         recent_enriched.append({**dict(p), "grade": grade, "grade_color": color, "pct": pct})
 
     # Read from the cache — predictions are recomputed on write, never here.
-    predictions = get_predictions(current_user.id) if user_is_pro(current_user) else []
+    is_pro = user_is_pro(current_user)
+    predictions = get_predictions(current_user.id) if is_pro else []
+
+    # Today panel (Phase 4). Pro only: free gets diagnosis, Pro gets prediction
+    # and prescription.
+    prescriptions = build_prescriptions(current_user.id) if is_pro else None
+    due_count = revision_due_count(current_user.id) if is_pro else 0
 
     return render_template("dashboard.html", recent=recent_enriched,
                            stats=stats, total=total, templates=TEMPLATES,
-                           predictions=predictions, papers_logged=total)
+                           predictions=predictions, papers_logged=total,
+                           prescriptions=prescriptions, due_count=due_count)
 
 # ── Papers matrix ─────────────────────────────────────────────────────────────
 
@@ -901,6 +909,73 @@ def get_predictions(user_id):
             "SELECT * FROM grade_predictions WHERE user_id=? ORDER BY subject",
             (user_id,)
         ).fetchall()
+
+
+# ── Prescriptions — "your next 3 questions" (Phase 4) ────────────────────────
+
+def build_prescriptions(user_id, limit=3):
+    """Fetch this user's marks and question bank, then hand them to the engine.
+
+    Unlike predictions this is computed on read rather than cached. Two reasons:
+    it is bounded by one user's own tagged questions (tens of rows, not
+    thousands), and it depends on the question bank as well as the marks, so a
+    cache would need invalidating from the /bank tag and delete routes too —
+    more places to forget than the work is worth. If the dashboard ever gets
+    slow, cache it the way recompute_predictions() does.
+    """
+    with get_db() as db:
+        marks = db.execute(
+            "SELECT q.topic, q.q_num, q.obtained, q.max_marks, q.paper_id, "
+            "       p.year, p.paper_code, p.board, p.subject "
+            "FROM question_marks q JOIN papers p ON p.id = q.paper_id "
+            "WHERE p.user_id=? AND q.topic IS NOT NULL AND q.topic <> ''",
+            (user_id,)
+        ).fetchall()
+        # Recency is measured in papers, newest first — same ordering as
+        # recompute_predictions so the two engines agree on what "recent" means.
+        recent = db.execute(
+            "SELECT id FROM papers WHERE user_id=? "
+            "ORDER BY date_completed DESC, id DESC LIMIT ?",
+            (user_id, PRESCRIPTION_RECENCY_WINDOW)
+        ).fetchall()
+        bank = db.execute(
+            "SELECT q.id, q.q_num, q.topics, q.max_marks, q.upload_id, "
+            "       u.year, u.paper_code, u.board, u.subject "
+            "FROM question_bank q JOIN uploads u ON u.id = q.upload_id "
+            "WHERE q.user_id=?",
+            (user_id,)
+        ).fetchall()
+
+    bank_rows = []
+    for q in bank:
+        row = dict(q)
+        # question_bank.topics is a JSON array written by /bank/<id>/tag.
+        # Anything unparseable is treated as untagged rather than crashing the
+        # dashboard.
+        try:
+            row["topics"] = json.loads(row["topics"]) if row["topics"] else []
+        except (ValueError, TypeError):
+            row["topics"] = []
+        bank_rows.append(row)
+
+    return prescribe(
+        [dict(m) for m in marks],
+        bank=bank_rows,
+        recent_paper_ids=[r["id"] for r in recent],
+        limit=limit,
+    )
+
+
+def revision_due_count(user_id):
+    """Due items in the spaced-repetition queue. The table exists from the
+    Phase 1 migration but nothing writes to it until Phase 6, so this reads 0
+    today and lights up on its own when that ships."""
+    with get_db() as db:
+        row = db.execute(
+            "SELECT COUNT(*) AS n FROM revision_queue "
+            "WHERE user_id=? AND due_at <= NOW()", (user_id,)
+        ).fetchone()
+    return int(row["n"]) if row else 0
 
 
 # ── Mobile mark entry ─────────────────────────────────────────────────────────

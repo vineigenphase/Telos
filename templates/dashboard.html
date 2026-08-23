@@ -21,12 +21,25 @@
 
 <div class="page-body">
 
-  <!-- ── Predicted grade ──────────────────────────────────────────────────
+  <!-- ── Today ────────────────────────────────────────────────────────────
+       Predicted grade, the next three questions, and anything due. This panel
+       is meant to be the reason someone opens Telos on a Tuesday evening, so
+       it leads with the action, not the number.
+
        Never a bare grade: every prediction is shown with the marks that would
        move it. A number without a next step is just anxiety. -->
   {% if is_pro_user %}
+  <div class="today">
+    <div class="today-head">
+      <div class="today-title">Today</div>
+      <div class="today-sub">
+        {% if due_count %}{{ due_count }} due{% else %}Your next moves{% endif %}
+      </div>
+    </div>
+
+    <div class="today-section">
     {% if predictions %}
-    <div style="display:grid; gap:10px; margin-bottom:24px;">
+    <div style="display:grid; gap:10px;">
       {% for p in predictions %}
       {% set colour = '#f59e0b' if p.predicted_grade == 'A*' else ('#22c55e' if p.predicted_grade == 'A' else ('#3b82f6' if p.predicted_grade == 'B' else '#a78bfa')) %}
       <div class="card" style="border-left:3px solid {{ colour }};">
@@ -64,18 +77,80 @@
       </div>
       {% endfor %}
     </div>
-    {% elif papers_logged is defined and papers_logged < 3 %}
-    <div class="card" style="margin-bottom:24px; border:1px dashed var(--border-2);">
-      <div style="font-weight:600;">Predicted grade</div>
-      <div style="font-size:0.85rem; color:var(--muted); margin-top:4px;">
+    {% else %}
+    <div class="today-label">Predicted grade</div>
+    <div class="today-empty">
+      {% if papers_logged is defined and papers_logged < 3 %}
         Log {{ 3 - papers_logged }} more paper{{ 's' if (3 - papers_logged) != 1 }} to unlock your predicted grade.
         Three is the minimum for an estimate worth trusting.
-      </div>
+      {% else %}
+        No prediction yet — add grade boundaries for your papers to unlock it.
+      {% endif %}
     </div>
     {% endif %}
+    </div>
+
+    <!-- ── Your next 3 questions ────────────────────────────────────────────
+         Every pick carries its "why". An unexplained recommendation gets
+         ignored, so the topic accuracy and the marks it costs per paper are
+         part of the row, not a tooltip. -->
+    <div class="today-section">
+      <div class="today-label">
+        {% if prescriptions and prescriptions.ready %}
+          Your next {{ prescriptions.picks|length }} question{{ 's' if prescriptions.picks|length != 1 }}
+        {% else %}
+          Your next questions
+        {% endif %}
+      </div>
+
+      {% if prescriptions and prescriptions.ready %}
+      <div class="rx-list">
+        {% for q in prescriptions.picks %}
+        {% set href = url_for('enter_marks', pid=q.paper_id) if q.kind == 'redo'
+                      else url_for('bank', topic=q.topic) %}
+        <a class="rx-item" href="{{ href }}">
+          <span class="rx-rank">{{ loop.index }}</span>
+          <span class="rx-body">
+            <span class="rx-head">
+              <span class="rx-source">{{ q.source }}</span>
+              <span class="rx-tag {{ q.kind }}">{{ 'redo' if q.kind == 'redo' else 'new' }}</span>
+            </span>
+            <span class="rx-why">{{ q.why }}</span>
+            <span class="rx-meta">
+              {% if q.kind == 'redo' %}
+                You scored {{ q.scored }} ({{ q.pct }}%) · {{ q.action }} →
+              {% else %}
+                {% if q.max_marks %}{{ q.max_marks }} marks · {% endif %}{{ q.action }} →
+              {% endif %}
+            </span>
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="today-empty">
+        {{ prescriptions.message if prescriptions else
+           "Log a paper and tag its questions by topic to get recommendations." }}
+      </div>
+      {% endif %}
+    </div>
+
+    {% if due_count %}
+    <div class="today-section">
+      <div class="today-label">Revision due</div>
+      <a class="rx-item" href="{{ url_for('revise') }}">
+        <span class="rx-rank">{{ due_count }}</span>
+        <span class="rx-body">
+          <span class="rx-source">{{ due_count }} question{{ 's' if due_count != 1 }} due for review</span>
+          <span class="rx-meta">Review them →</span>
+        </span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
   {% else %}
     <div style="margin-bottom:24px;">
-      {% with feature="Predicted grade", blurb="Your grade from real boundaries, and exactly how many marks to the next one." %}
+      {% with feature="Predicted grade", blurb="Your grade from real boundaries, exactly how many marks to the next one, and the three questions to do next." %}
         {% include "_upgrade_prompt.html" %}
       {% endwith %}
     </div>
