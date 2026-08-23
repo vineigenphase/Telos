@@ -10,19 +10,26 @@
 
 :root {
   /* Surfaces — neutral dark. Roughly 92% of any screen lives in this group.
-     If a thing is not communicating a state or a click target, it is neutral. */
-  --bg:        #0A0C10;
-  --surface:   #0D1015;                             /* sidebar / chrome */
-  --card:      #10131A;
-  --card-2:    #12151C;                             /* elevated surface */
-  --card-hover:#14181F;
-  --border:    #1C212B;
-  --border-sub:#171B23;
-  --border-2:  #2B333F;                             /* active / hover */
+     If a thing is not communicating a state or a click target, it is neutral.
+
+     Two rules keep this legible rather than muddy. First, the steps are wide
+     enough to actually read as separate planes: the old ramp moved ~6 points
+     per level, which at this brightness is invisible, so everything mushed
+     into one grey. Second, the neutrals are genuinely neutral — the previous
+     values carried a blue-green cast (blue channel six points above red)
+     which fought the accent and made the whole UI look faintly teal. */
+  --bg:        #08090B;                             /* near-black, page ground */
+  --surface:   #0C0D10;                             /* sidebar / chrome */
+  --card:      #121317;                             /* clear step above bg */
+  --card-2:    #16181D;                             /* elevated surface */
+  --card-hover:#1A1C22;
+  --border:    #212329;                             /* visible but quiet */
+  --border-sub:#191B20;                             /* dividers inside a panel */
+  --border-2:  #31343C;                             /* active / hover */
 
   --text:      #EDEFF2;
   --muted-2:   #9AA1AC;                             /* secondary text */
-  --muted:     #666E7A;                             /* muted text */
+  --muted:     #6B7280;                             /* muted text */
   --disabled:  #454B54;
 
   /* Accent. Active nav indicator, links, primary buttons, progress fill —
@@ -918,7 +925,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 /* ── Today panel — predicted grade, next 3 questions, due count ──────────── */
 .today {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--card);
   overflow: hidden;
   margin-bottom: 24px;
@@ -931,7 +938,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.08), transparent);
+  background: var(--card-2);
 }
 
 .today-title { font-size: 0.95rem; font-weight: 700; }
@@ -949,15 +956,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 /* One prescribed question */
-.rx-list { display: flex; flex-direction: column; gap: 8px; }
+.rx-list { display: flex; flex-direction: column; gap: 2px; }
+.rx-item + .rx-item { border-top: 1px solid var(--border-sub); border-radius: 0; }
 
 .rx-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   text-decoration: none;
   color: inherit;
