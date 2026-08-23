@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-20.** Living handoff document. Read this first, then
+**Last updated: 2026-08-23.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -61,8 +61,9 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 5 | £4.99/mo + £29/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** |
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
-| 4 | Prescriptions — "your next 3 questions", Today panel | — | **built, awaiting sign-off** on `feat/prescriptions` |
-| 9, 6, 8, 7, 10 | Share cards, spaced repetition, parent report, percentile, simulator | — | not started |
+| 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
+| 9 | Shareable card export — the growth engine | — | **next** |
+| 6, 8, 7, 10 | Spaced repetition, parent report, percentile, simulator | — | not started |
 
 ---
 
@@ -83,33 +84,44 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    opens without browser chrome, correct icon/splash; confirm an
    already-installed copy picks up a new deploy within one refresh
    (the "Update available" toast).
-6. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+6. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
+   iframe (no horizontal overflow, 76px question rows, the due row exactly at
+   the 44px floor) but never opened on actual hardware. Also worth confirming
+   the picks feel right against your own logged papers rather than seeded ones.
+7. **The Today panel's "Revision due" section is wired but unexercised.** It
+   only rendered during review because three synthetic `revision_queue` rows
+   were inserted by hand. Nothing writes to that table until Phase 6, so in
+   production the count is 0 and the section is hidden. Ready, not working.
+8. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
 
+**Settled — don't re-litigate:**
+
+**Phase 4 shipped 2026-08-23**, signed off by the owner after a visual review.
+Two deliberate departures from the spec are baked in:
+
+- The spec sources questions from `bank_questions`. That table does not exist —
+  the real one is **`question_bank`**, it is per-user, and it was empty for
+  every user at launch. A spec-literal Phase 4 would have rendered an empty
+  panel on day one. It ships with two sources instead: unattempted
+  `question_bank` questions first, then re-doing sub-60% questions from
+  `question_marks`. The spec's own rule ("preferring unattempted questions,
+  then ones scored below 60%") already assumes attempt data, which only the
+  marks table has.
+- Prescriptions are computed on read, not cached like predictions. They depend
+  on the question bank as well as the marks, so a cache would need invalidating
+  from the `/bank` tag and delete routes too. See the docstring on
+  `build_prescriptions()`. Revisit only if the dashboard gets slow.
+
 **Decisions waiting on the owner:**
 
-0. **Phase 4 sign-off.** Built on `feat/prescriptions`, all 9 suites pass, not
-   merged. Two things to look at before it goes live:
-   - The spec says questions come from `bank_questions`. That table does not
-     exist — the real one is **`question_bank`**, it is per-user, and it is
-     empty for everyone. A spec-literal Phase 4 would render an empty panel for
-     every user on day one. It was built with two sources instead: unattempted
-     `question_bank` questions first, then re-doing sub-60% questions from
-     `question_marks`. The spec's own rule ("preferring unattempted questions,
-     then ones scored below 60%") already assumes attempt data, which only the
-     marks table has.
-   - Prescriptions are computed on read, not cached like predictions. They
-     depend on the question bank as well as the marks, so a cache would need
-     invalidating from the `/bank` tag and delete routes too. See the docstring
-     on `build_prescriptions()`.
-
-7. **`db.py` connection check.** The first request after Neon idles returns a
+9. **`db.py` connection check.** The first request after Neon idles returns a
    500 (`AdminShutdown: terminating connection due to administrator command`);
    the retry works. Fix is one argument — `check=ConnectionPool.check_connection`
    on the pool. Not applied because spec working-rule 7 says don't touch
    `db.py` without asking.
-8. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
+10. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
    `prediction.infer_de()` extrapolates D and E from the mean gap of the known
    boundaries. Owner approved keeping this (2026-08-19); revisit if real D/E
    data is ever sourced. Delete that one function if so.
