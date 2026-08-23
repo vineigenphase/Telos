@@ -878,6 +878,27 @@ def recompute_predictions(user_id):
                 db.execute("DELETE FROM grade_predictions WHERE user_id=? AND board=? "
                            "AND subject=?", (user_id, board, subject))
                 continue
+            # Snapshot before overwriting, but only when the number actually
+            # moved. This fires on every mark save, so recording an identical
+            # row each time would bury the real movements the dashboard wants
+            # to diff against.
+            prev = db.execute(
+                "SELECT grade_score FROM grade_prediction_history "
+                "WHERE user_id=? AND board=? AND subject=? "
+                "ORDER BY recorded_at DESC LIMIT 1",
+                (user_id, board, subject)
+            ).fetchone()
+            if prev is None or round(float(prev["grade_score"]), 3) != round(
+                    float(result["grade_score"]), 3):
+                db.execute(
+                    "INSERT INTO grade_prediction_history "
+                    "(user_id, board, subject, grade_score, predicted_grade, "
+                    " confidence, sample_size) VALUES (?,?,?,?,?,?,?)",
+                    (user_id, board, subject, result["grade_score"],
+                     result["predicted_grade"], result["confidence"],
+                     result["sample_size"])
+                )
+
             db.execute(
                 "INSERT INTO grade_predictions "
                 "(user_id, board, subject, grade_score, predicted_grade, next_grade, "
@@ -964,6 +985,124 @@ def build_prescriptions(user_id, limit=3):
         recent_paper_ids=[r["id"] for r in recent],
         limit=limit,
     )
+
+
+# ── Dashboard stat row (UI overhaul) ─────────────────────────────────────────
+
+TREND_WINDOW_DAYS = 7
+
+
+def dashboard_stats(user_id):
+    """The four headline numbers, each with a weekly delta where the data
+    supports one.
+
+    A delta is None, not 0, when there is nothing to compare against. A new
+    account has not "gained 0 papers this week" — it has no trend yet, and the
+    template renders those two states differently.
+
+    Nothing here is backfillable. `question_marks.created_at` and
+    `grade_prediction_history` both begin at migration 005, so every delta
+    reads None until a week of real activity accumulates after that ships.
+    That is expected, not a bug.
+    """
+    w = int(TREND_WINDOW_DAYS)
+    cutoff_date = (datetime.now(timezone.utc) - timedelta(days=w)).date().isoformat()
+
+    with get_db() as db:
+        papers_total = db.execute(
+            "SELECT COUNT(*) AS n FROM papers WHERE user_id=?", (user_id,)
+        ).fetchone()["n"]
+        # date_completed is TEXT holding an ISO date (written by an
+        # <input type="date">), so a lexicographic compare is a date compare.
+        papers_recent = db.execute(
+            "SELECT COUNT(*) AS n FROM papers WHERE user_id=? "
+            "AND date_completed IS NOT NULL AND date_completed >= ?",
+            (user_id, cutoff_date)
+        ).fetchone()["n"]
+
+        totals = db.execute(
+            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
+            "       COALESCE(SUM(q.max_marks),0) AS mx "
+            "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
+            "WHERE p.user_id=?", (user_id,)
+        ).fetchone()
+        this_week = db.execute(
+            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
+            "       COALESCE(SUM(q.max_marks),0) AS mx "
+            "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
+            f"WHERE p.user_id=? AND q.created_at >= NOW() - INTERVAL '{w} days'",
+            (user_id,)
+        ).fetchone()
+        last_week = db.execute(
+            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
+            "       COALESCE(SUM(q.max_marks),0) AS mx "
+            "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
+            f"WHERE p.user_id=? AND q.created_at >= NOW() - INTERVAL '{w * 2} days' "
+            f"AND q.created_at < NOW() - INTERVAL '{w} days'",
+            (user_id,)
+        ).fetchone()
+
+        # One stat, but a student may have several subjects. Show the one they
+        # have the most evidence for rather than an average across subjects,
+        # which would be a number describing nobody.
+        head = db.execute(
+            "SELECT board, subject, grade_score, predicted_grade, confidence, sample_size "
+            "FROM grade_predictions WHERE user_id=? "
+            "ORDER BY sample_size DESC, subject LIMIT 1",
+            (user_id,)
+        ).fetchone()
+
+        past = None
+        if head:
+            past = db.execute(
+                "SELECT grade_score, predicted_grade FROM grade_prediction_history "
+                "WHERE user_id=? AND board=? AND subject=? "
+                f"AND recorded_at < NOW() - INTERVAL '{w} days' "
+                "ORDER BY recorded_at DESC LIMIT 1",
+                (user_id, head["board"], head["subject"])
+            ).fetchone()
+
+    def _acc(row):
+        mx = float(row["mx"] or 0)
+        return (float(row["got"]) / mx * 100) if mx > 0 else None
+
+    accuracy = _acc(totals)
+    acc_now, acc_prev = _acc(this_week), _acc(last_week)
+    # Only a real week-on-week comparison counts. One empty window means no
+    # trend, not a 100-point swing.
+    acc_delta = round(acc_now - acc_prev, 1) if (acc_now is not None
+                                                 and acc_prev is not None) else None
+
+    grade_delta_letters = grade_delta_points = None
+    if head and past:
+        cur_s, old_s = float(head["grade_score"]), float(past["grade_score"])
+        grade_delta_points = round(cur_s - old_s, 2)
+        # Grades floor to a letter, so a move from 4.9 to 5.1 is one grade even
+        # though the score only moved 0.2.
+        grade_delta_letters = int(cur_s) - int(old_s)
+
+    return {
+        "grade": {
+            "value": head["predicted_grade"] if head else None,
+            "subject": head["subject"] if head else None,
+            "confidence": head["confidence"] if head else None,
+            "delta_letters": grade_delta_letters,
+            "delta_points": grade_delta_points,
+        },
+        "papers": {
+            "value": int(papers_total),
+            # This one needs no migration — date_completed always existed.
+            "delta": int(papers_recent) if papers_total else None,
+        },
+        "questions": {
+            "value": int(totals["n"]),
+            "delta": int(this_week["n"]) if int(this_week["n"]) else None,
+        },
+        "accuracy": {
+            "value": round(accuracy, 1) if accuracy is not None else None,
+            "delta": acc_delta,
+        },
+    }
 
 
 def revision_due_count(user_id):

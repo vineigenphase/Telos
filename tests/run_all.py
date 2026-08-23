@@ -32,6 +32,7 @@ SUITES = [
     ("PWA — manifest, sw, offline", "test_pwa.py"),
     ("prescription engine (pure)", "test_prescription.py"),
     ("prescription integration",   "test_prescription_integration.py"),
+    ("trend deltas + history",     "test_trend_deltas.py"),
 ]
 
 
