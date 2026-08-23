@@ -1,7 +1,7 @@
 import os
 """Phase 2.5 checks: manifest, service worker, offline shell, install-prompt
 wiring, and the no-store guarantee on authenticated HTML."""
-import json, sys
+import json, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
@@ -33,7 +33,17 @@ check("manifest name", manifest["name"], "Telos — Past Paper Tracker")
 check("manifest scope is site-wide", manifest["scope"], "/")
 check("manifest has a maskable icon",
       any(i.get("purpose") == "maskable" for i in manifest["icons"]), True)
-check("manifest theme matches --bg", manifest["theme_color"], "#08080f")
+# Read --bg out of the stylesheet rather than restating it here. The splash
+# screen and the page background have to agree, and hardcoding the hex in two
+# places means a palette change silently breaks that agreement.
+_css = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "static", "css", "telos.css")
+with open(_css, encoding="utf-8") as _fh:
+    _bg = re.search(r"--bg:\s*(#[0-9A-Fa-f]{3,8})", _fh.read()).group(1)
+check("manifest theme matches --bg",
+      manifest["theme_color"].lower(), _bg.lower())
+check("manifest background matches --bg",
+      manifest["background_color"].lower(), _bg.lower())
 
 # ── service worker ───────────────────────────────────────────────────────────
 r = anon.get("/sw.js")

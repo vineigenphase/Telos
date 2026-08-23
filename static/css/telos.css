@@ -9,25 +9,52 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --bg:        #08080f;
-  --surface:   #10101a;
-  --card:      #17172a;
-  --card-2:    #1e1e32;
-  --border:    #2a2a45;
-  --border-2:  #3a3a55;
-  --text:      #f0f0ff;
-  --muted:     #7070a0;
-  --muted-2:   #9090bb;
-  --accent:    #8b5cf6;
-  --accent-2:  #a78bfa;
-  --blue:      #3b82f6;
-  --green:     #10b981;
-  --gold:      #f59e0b;
-  --orange:    #f97316;
-  --red:       #ef4444;
+  /* Surfaces — neutral dark. Roughly 92% of any screen lives in this group.
+     If a thing is not communicating a state or a click target, it is neutral. */
+  --bg:        #0A0C10;
+  --surface:   #0D1015;                             /* sidebar / chrome */
+  --card:      #10131A;
+  --card-2:    #12151C;                             /* elevated surface */
+  --card-hover:#14181F;
+  --border:    #1C212B;
+  --border-sub:#171B23;
+  --border-2:  #2B333F;                             /* active / hover */
+
+  --text:      #EDEFF2;
+  --muted-2:   #9AA1AC;                             /* secondary text */
+  --muted:     #666E7A;                             /* muted text */
+  --disabled:  #454B54;
+
+  /* Accent. Active nav indicator, links, primary buttons, progress fill —
+     nothing else. Target is 3-4% of a screen; if a page reads blue at a
+     glance, something here is being over-used. --accent-rgb exists so tinted
+     backgrounds stay tokenised instead of hardcoding the channel values. */
+  --accent:      #4C7EF3;
+  --accent-rgb:  76,126,243;
+  --accent-hover:#3B67D6;
+  --accent-2:    #7FA3F7;                           /* accent text on dark */
+  --cyan:        #22B8CF;
+
+  /* Status. Meaning only — never decoration. */
+  --green:     #22C55E;
+  --gold:      #EAB308;
+  --orange:    #EAB308;                             /* alias: one warning hue */
+  --red:       #EF4444;
+
+  /* Subject identity — a tag/icon colour each, never a full-card tint.
+     Further Maths is deliberately desaturated slate so it cannot drift back
+     into being a second purple theme. */
+  --subj-maths:   #4C7EF3;
+  --subj-fm:      #6B7280;
+  --subj-fm-hint: #5B6EF5;
+  --subj-physics: #22B8CF;
+
   --sidebar-w: 220px;
-  --radius:    10px;
-  --transition: 150ms ease;
+  --radius:    10px;                                /* cards */
+  --radius-lg: 12px;                                /* panels */
+  --radius-sm: 6px;                                 /* buttons, inputs */
+  --radius-xs: 5px;                                 /* tags */
+  --transition: 150ms ease-out;
 
   --tap-min: 44px;                                  /* minimum touch target */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -59,8 +86,7 @@ body {
   z-index: 200;
   height: var(--nav-height);
   padding-bottom: var(--safe-bottom);  /* keeps the home indicator off the tabs */
-  background: rgba(16,16,26,0.96);
-  backdrop-filter: blur(12px);
+  background: var(--surface);          /* solid, not frosted — no glassmorphism */
   border-top: 1px solid var(--border);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -90,7 +116,7 @@ body {
 
 /* Active state is fill + colour, never colour alone */
 .tab.active { color: var(--accent-2); }
-.tab.active svg { fill: rgba(139,92,246,0.22); stroke-width: 2.4; }
+.tab.active svg { fill: rgba(var(--accent-rgb),0.22); stroke-width: 2.4; }
 
 /* ── "More" sheet ────────────────────────────────────────────────────────── */
 .sheet-backdrop {
@@ -149,7 +175,7 @@ body {
 
 .sidebar-logo .logo-mark {
   width: 32px; height: 32px;
-  background: linear-gradient(135deg, var(--accent), #6d28d9);
+  background: var(--accent);
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 1rem; color: #fff;
@@ -199,8 +225,18 @@ body {
 }
 
 .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
-.nav-link.active { background: rgba(139,92,246,0.15); color: var(--accent-2); }
-.nav-link.active svg { color: var(--accent); }
+.nav-link { position: relative; }
+.nav-link.active { background: #161C26; color: var(--text); }
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 2px; height: 18px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+}
+.nav-link.active svg { color: var(--text); }
 
 .sidebar-user {
   padding: 14px 16px;
@@ -213,7 +249,8 @@ body {
 .user-avatar {
   width: 30px; height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--blue));
+  background: var(--card-hover);
+  border: 1px solid var(--border-2);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.7rem; font-weight: 700; color: #fff;
   flex-shrink: 0;
@@ -265,6 +302,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
+  transition: background var(--transition), border-color var(--transition);
 }
 
 .card-sm { padding: 14px 16px; }
@@ -287,7 +325,7 @@ body {
   gap: 6px;
   min-height: var(--tap-min);          /* 44px floor on touch */
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   font-size: 0.88rem;
   font-weight: 500;
@@ -302,9 +340,10 @@ body {
 
 .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 .btn-ghost   { background: transparent; color: var(--muted-2); border-color: var(--border-2); }
+.btn-ghost:hover  { border-color: var(--accent); }
 .btn-danger  { background: transparent; color: var(--red); border-color: var(--border); }
 
-.btn-sm { padding: 8px 12px; font-size: 0.8rem; border-radius: 6px; }
+.btn-sm { padding: 8px 12px; font-size: 0.8rem; border-radius: var(--radius-sm); }
 .btn-lg { padding: 13px 22px; font-size: 0.95rem; }
 
 .btn-block { width: 100%; }
@@ -332,7 +371,7 @@ body {
 .form-control:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.12);
 }
 
 .form-control::placeholder { color: var(--muted); }
@@ -352,8 +391,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   align-items: center;
   gap: 8px;
 }
-.flash-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
-.flash-error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; }
+.flash-success { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.30); color: var(--green); }
+.flash-error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: var(--red); }
 
 /* ── Stat cards ──────────────────────────────────────────────────────────── */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -375,12 +414,21 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
-.stat-card.fm::before    { background: #8b5cf6; }
-.stat-card.math::before  { background: #3b82f6; }
-.stat-card.phys::before  { background: #10b981; }
-.stat-card.total::before { background: linear-gradient(90deg, #8b5cf6, #3b82f6, #10b981); }
+.stat-card.fm::before    { background: var(--subj-fm); }
+.stat-card.math::before  { background: var(--subj-maths); }
+.stat-card.phys::before  { background: var(--subj-physics); }
+/* The aggregate card gets a neutral rule, not a three-colour gradient — it
+   isn't one subject, so it shouldn't wear all three. */
+.stat-card.total::before { background: var(--border-2); }
 
-.stat-value { font-size: 1.7rem; font-weight: 700; line-height: 1; color: var(--text); margin-bottom: 4px; }
+/* Stat numbers are tabular so columns of figures line up rather than shifting
+   width as the digits change. */
+.stat-value {
+  font-size: 1.7rem; font-weight: 700; line-height: 1;
+  color: var(--text); margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
 .stat-label { font-size: 0.74rem; color: var(--muted); font-weight: 500; }
 
 /* ── Paper matrix ────────────────────────────────────────────────────────── */
@@ -474,12 +522,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 .hm-cell.empty { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
-.hm-cell.pct-90 { background: #14b8a6; color: #fff; }
-.hm-cell.pct-80 { background: #22c55e; color: #fff; }
-.hm-cell.pct-70 { background: #84cc16; color: #1a2e05; }
-.hm-cell.pct-60 { background: #eab308; color: #1a1a00; }
-.hm-cell.pct-50 { background: #f97316; color: #fff; }
-.hm-cell.pct-0  { background: #ef4444; color: #fff; }
+.hm-cell.pct-90 { background: #15A46E; color: #fff; }
+.hm-cell.pct-80 { background: #22C55E; color: #fff; }
+.hm-cell.pct-70 { background: #7FB524; color: #1a2e05; }
+.hm-cell.pct-60 { background: #EAB308; color: #1a1a00; }
+.hm-cell.pct-50 { background: #E8792B; color: #fff; }
+.hm-cell.pct-0  { background: #EF4444; color: #fff; }
 
 /* Per-topic list — the mobile rendering of the same data, worst first */
 .topic-list { display: flex; flex-direction: column; gap: 8px; }
@@ -623,7 +671,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   display: flex; align-items: center; justify-content: center;
 }
 
-.entry-dot.filled  .dot-face { background: rgba(139,92,246,0.25); border-color: var(--accent); color: var(--accent-2); }
+.entry-dot.filled  .dot-face { background: rgba(var(--accent-rgb),0.22); border-color: var(--accent); color: var(--accent-2); }
 .entry-dot.skipped .dot-face { border-style: dashed; }
 .entry-dot.current .dot-face { outline: 2px solid var(--accent); outline-offset: 1px; color: var(--text); }
 
@@ -707,8 +755,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .paper-raw { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
-.progress-bar-track { height: 6px; background: var(--card-2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
-.progress-bar-fill  { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+/* Thin by design — a progress bar is a reading, not a feature. */
+.progress-bar-track { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.progress-bar-fill  { height: 100%; border-radius: 4px; background: var(--accent); transition: width 180ms ease-out; }
 
 /* ── Bank cards ──────────────────────────────────────────────────────────── */
 .upload-card {
@@ -741,15 +790,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   border-radius: 100px;
   font-size: 0.76rem;
   font-weight: 500;
-  background: rgba(139,92,246,0.15);
+  background: rgba(var(--accent-rgb),0.12);
   color: var(--accent-2);
-  border: 1px solid rgba(139,92,246,0.25);
+  border: 1px solid rgba(var(--accent-rgb),0.22);
   margin: 3px;
   cursor: pointer;
   text-decoration: none;
   touch-action: manipulation;
 }
-.topic-pill.active { background: rgba(139,92,246,0.3); color: #fff; }
+.topic-pill.active { background: rgba(var(--accent-rgb),0.26); color: #fff; }
 
 /* ── Subscription ────────────────────────────────────────────────────────── */
 .plan-card {
@@ -759,7 +808,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   text-align: center;
 }
 
-.plan-card.pro { border-color: var(--accent); background: rgba(139,92,246,0.05); }
+.plan-card.pro { border-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
 .plan-price { font-size: 2.4rem; font-weight: 700; color: var(--text); line-height: 1; }
 .plan-period { font-size: 0.85rem; color: var(--muted); }
 .plan-name { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
@@ -781,7 +830,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .pwa-banner-row { display: flex; align-items: center; gap: 10px; }
 .pwa-banner-icon {
   width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--accent), #6d28d9);
+  background: var(--accent);
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; color: #fff;
 }
@@ -882,7 +931,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(139,92,246,0.10), transparent);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.08), transparent);
 }
 
 .today-title { font-size: 0.95rem; font-weight: 700; }
@@ -924,7 +973,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   justify-content: center;
   font-size: 0.72rem;
   font-weight: 700;
-  background: rgba(139,92,246,0.18);
+  background: rgba(var(--accent-rgb),0.16);
   color: var(--accent-2);
 }
 
@@ -1048,14 +1097,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .entry-dot  { width: 30px; height: 30px; }
 
   .nav-link:hover     { background: var(--card); color: var(--text); }
-  .btn-primary:hover  { background: #7c3aed; border-color: #7c3aed; }
+  .btn-primary:hover  { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-ghost:hover    { background: var(--card-2); color: var(--text); }
   .btn-danger:hover   { background: rgba(239,68,68,0.1); }
   .btn-logout:hover   { color: var(--red); }
   .matrix-cell:hover  { border-color: var(--accent); background: var(--card-2); color: var(--text); }
   .paper-row:hover    { background: var(--card-2); }
   .upload-card:hover  { background: var(--card-2); }
-  .topic-pill:hover   { background: rgba(139,92,246,0.3); color: #fff; }
+  .topic-pill:hover   { background: rgba(var(--accent-rgb),0.26); color: #fff; }
   .auth-link:hover    { text-decoration: underline; }
   .hm-cell:hover      { transform: scale(1.15); z-index: 10; position: relative; }
   [data-tip]:hover::after {

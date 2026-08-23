@@ -135,31 +135,42 @@ PRICING_FEATURES = {
 #   primary : shows in the mobile tab bar. Exactly 4, because the 5th slot is
 #             the "More" sheet holding the rest.
 #   match   : endpoints that light this item up as active.
+# Order matters twice over: the sidebar emits a section heading whenever the
+# section changes, so items must stay contiguous by section, and `primary`
+# picks the four phone tabs (the fifth is "More"). Grouping follows the UI
+# brief — Learn / Analyse / Exam / Account.
 NAV_ITEMS = [
+    # ── Learn ──
     {"endpoint": "dashboard",     "label": "Dashboard",      "short": "Today",
-     "icon": "grid",     "primary": True,  "section": "Main",
+     "icon": "grid",     "primary": True,  "section": "Learn",
      "match": ("dashboard",)},
     {"endpoint": "papers",        "label": "Papers",         "short": "Papers",
-     "icon": "book",     "primary": True,  "section": "Main",
+     "icon": "book",     "primary": True,  "section": "Learn",
      "match": ("papers", "add_paper", "edit_paper", "enter_marks")},
-    {"endpoint": "heatmap",       "label": "Heatmap",        "short": "Heatmap",
-     "icon": "cells",    "primary": True,  "section": "Main",
-     "match": ("heatmap",)},
-    {"endpoint": "revise",        "label": "Revise",         "short": "Revise",
-     "icon": "repeat",   "primary": True,  "section": "Main",
-     "match": ("revise",)},
     {"endpoint": "bank",          "label": "Question Bank",  "short": "Bank",
-     "icon": "database", "primary": False, "section": "Main",
+     "icon": "database", "primary": False, "section": "Learn",
      "match": ("bank", "upload_file", "tag_upload")},
+    {"endpoint": "revise",        "label": "Revise",         "short": "Revise",
+     "icon": "repeat",   "primary": True,  "section": "Learn",
+     "match": ("revise",)},
+    # ── Analyse ──
+    {"endpoint": "heatmap",       "label": "Heatmap",        "short": "Heatmap",
+     "icon": "cells",    "primary": True,  "section": "Analyse",
+     "match": ("heatmap",)},
     {"endpoint": "stats",         "label": "Stats",          "short": "Stats",
-     "icon": "bars",     "primary": False, "section": "Main",
+     "icon": "bars",     "primary": False, "section": "Analyse",
      "match": ("stats",)},
-    {"endpoint": "pro_zone",      "label": "Pro Zone",       "short": "Pro",
-     "icon": "star",     "primary": False, "section": "Main",
-     "match": ("pro_zone",)},
+    {"endpoint": "boundaries",    "label": "Boundaries",     "short": "Bounds",
+     "icon": "pulse",    "primary": False, "section": "Analyse", "admin": True,
+     "match": ("boundaries",)},
+    # ── Exam ──
     {"endpoint": "mocks",         "label": "Mock Papers",    "short": "Mocks",
-     "icon": "file",     "primary": False, "section": "Main",
+     "icon": "file",     "primary": False, "section": "Exam",
      "match": ("mocks",)},
+    {"endpoint": "pro_zone",      "label": "Pro Zone",       "short": "Pro",
+     "icon": "star",     "primary": False, "section": "Exam",
+     "match": ("pro_zone",)},
+    # ── Account ──
     {"endpoint": "subscription",  "label": "Subscription",   "short": "Plan",
      "icon": "card",     "primary": False, "section": "Account",
      "match": ("subscription",)},
@@ -169,9 +180,6 @@ NAV_ITEMS = [
     {"endpoint": "admin_mocks",   "label": "Manage Mocks",   "short": "Mocks",
      "icon": "tag",      "primary": False, "section": "Account", "admin": True,
      "match": ("admin_mocks",)},
-    {"endpoint": "boundaries",    "label": "Boundaries",     "short": "Bounds",
-     "icon": "pulse",    "primary": False, "section": "Account", "admin": True,
-     "match": ("boundaries",)},
 ]
 
 app.jinja_env.globals["NAV_ITEMS"] = NAV_ITEMS
