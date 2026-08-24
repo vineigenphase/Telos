@@ -954,45 +954,98 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .code-bar .progress-bar-track { margin-top: 0; }
 
 /* ── Bank cards ──────────────────────────────────────────────────────────── */
+/* ── Question bank ───────────────────────────────────────────────────────── */
+.bank-split { display: grid; grid-template-columns: 1fr; gap: 8px; }
+
+.q-list { border-top: 1px solid var(--border-sub); }
+
+.q-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--border-sub);
+}
+
+/* The question number is the anchor for the row, set in the serif like every
+   other figure. No tinted tile behind it. */
+.q-num {
+  flex-shrink: 0;
+  min-width: 34px;
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  padding-top: 1px;
+}
+
+.q-body   { flex: 1; min-width: 0; }
+.q-source { font-size: 13.5px; font-weight: 500; }
+.q-meta   { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.q-topics { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+.q-actions {
+  display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+}
+
 .upload-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-sub);
+  border-radius: 0;
+  padding: 11px 2px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-decoration: none;
   color: inherit;
-  margin-bottom: 8px;
+  min-height: var(--tap-min);
   touch-action: manipulation;
 }
 
+.upload-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.upload-name {
+  font-size: 13px; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.upload-meta { font-size: 11.5px; color: var(--muted); }
+
 .file-icon {
-  width: 38px; height: 38px;
-  background: var(--card-2);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--accent); font-size: 1rem; flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--muted-2); flex-shrink: 0;
+}
+
+.pill-row { margin-bottom: 22px; }
+.pill-row-label {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 9px;
 }
 
 .topic-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  padding: 4px 12px;
-  border-radius: 100px;
+  min-height: var(--tap-min);        /* a filter pill is a real tap target */
+  padding: 3px 10px;
+  border-radius: var(--radius-xs);
   font-size: 0.76rem;
-  font-weight: 500;
-  background: rgba(var(--accent-rgb),0.12);
-  color: var(--accent-2);
-  border: 1px solid rgba(var(--accent-rgb),0.22);
-  margin: 3px;
+  font-weight: 400;
+  background: transparent;
+  color: var(--muted-2);
+  border: 1px solid var(--border);
+  margin: 0 4px 4px 0;
   cursor: pointer;
   text-decoration: none;
   touch-action: manipulation;
 }
-.topic-pill.active { background: rgba(var(--accent-rgb),0.26); color: #fff; }
+.topic-pill.active { color: var(--accent); border-color: var(--accent); }
+/* Inline tags on a question row stay small on purpose. They are links, but
+   every one of them duplicates a destination already reachable from the
+   full-size filter row at the top of the page, so there is always a 44px path
+   to the same place. Sizing these to the touch floor would break the row. */
+.topic-pill-sm { min-height: 0; padding: 1px 7px; font-size: 0.7rem; }
 
 /* ── Subscription ────────────────────────────────────────────────────────── */
 .plan-card {
@@ -1498,6 +1551,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
      this they stack, re-flowed rather than shrunk. */
   .two-col { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
 
+  /* Question list beside the file list. This was a hardcoded 1fr/320px grid
+     with no breakpoint at all, so it overflowed every phone. */
+  .bank-split { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 28px; align-items: start; }
+
   /* Two-column: weakest-topics list on the left, the full grid on the right.
      iPad is where students actually revise, so it gets a real layout rather
      than a stretched phone one. */
@@ -1534,7 +1591,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .timeline-row:hover { background: var(--card-hover); }
   .section-link:hover { color: var(--text); }
   .upload-card:hover  { background: var(--card-2); }
-  .topic-pill:hover   { background: rgba(var(--accent-rgb),0.26); color: #fff; }
+  .topic-pill         { min-height: 28px; }
+  .topic-pill:hover   { border-color: var(--border-2); color: var(--text); }
+  .upload-card:hover  { background: var(--card-hover); }
+  .q-row:hover        { background: var(--card-hover); }
   .auth-link:hover    { text-decoration: underline; }
   .hm-cell:hover      { transform: scale(1.15); z-index: 10; position: relative; }
   [data-tip]:hover::after {
