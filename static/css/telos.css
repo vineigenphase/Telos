@@ -708,14 +708,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .topic-item-pct { background: none !important; }
 
 /* Per-topic list — the mobile rendering of the same data, worst first */
-.topic-list { display: flex; flex-direction: column; gap: 8px; }
+.topic-list { display: flex; flex-direction: column; gap: 0; }
 
 .topic-item {
   display: block;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-sub);
+  border-radius: 0;
+  padding: 12px 2px;
   text-decoration: none;
   color: inherit;
   touch-action: manipulation;
@@ -730,7 +731,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 .topic-item-name { font-size: 0.88rem; font-weight: 600; }
-.topic-item-pct  { font-size: 0.95rem; font-weight: 700; flex-shrink: 0; }
+.topic-item-pct  {
+  font-family: var(--serif);
+  font-size: 1.15rem; font-weight: 400; flex-shrink: 0;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
 .topic-item-meta { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
 
 .topic-bar-track { height: 8px; background: var(--card-2); border-radius: 4px; overflow: hidden; }
@@ -934,8 +940,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
 /* Thin by design — a progress bar is a reading, not a feature. */
-.progress-bar-track { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 6px; }
-.progress-bar-fill  { height: 100%; border-radius: 4px; background: var(--accent); transition: width 180ms ease-out; }
+.progress-bar-track {
+  display: block;                      /* also used as a <span> in table-ish rows */
+  height: 4px; background: var(--border); border-radius: 4px;
+  overflow: hidden; margin-top: 6px;
+}
+.progress-bar-fill {
+  display: block;
+  height: 100%; border-radius: 4px; background: var(--accent);
+  transition: width 180ms ease-out;
+}
+/* In a single-line row the bar sits on the baseline, not below it. */
+.code-bar .progress-bar-track { margin-top: 0; }
 
 /* ── Bank cards ──────────────────────────────────────────────────────────── */
 .upload-card {
