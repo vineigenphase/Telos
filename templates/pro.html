@@ -4,60 +4,75 @@
 
 <div class="page-header">
   <div>
-    <div class="page-title">✦ Pro Zone</div>
-    <div style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Exclusive resources, tips and monthly notes for Telos Pro members.</div>
+    <div class="page-title">Pro Zone</div>
+    <div class="page-subtitle">Resources, tips and monthly notes for Telos Pro members.</div>
   </div>
 </div>
 
-<div class="page-body" style="max-width:900px;">
+<div class="page-body page-wide">
 
-  <div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:1rem;margin:0 0 6px;">🏆 Golden Tips</h2>
-    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">Advice from someone who got A* across the board.</div>
+  <div class="section-head">
+    <h2 class="section-title">Golden tips</h2>
+  </div>
+  <div class="prose-note">Advice from someone who got A* across the board.</div>
+  {% if tips %}
+  <div class="post-list">
     {% for t in tips %}
-    <div style="padding:12px 0;">
-      <div style="font-weight:600;">{{ t.title }}{% if t.subject %} <span style="color:var(--muted);font-weight:400;font-size:0.8rem;">· {{ t.subject }}</span>{% endif %}</div>
-      <div style="color:var(--muted-2);font-size:0.88rem;margin-top:4px;white-space:pre-wrap;">{{ t.body }}</div>
-      {% if not loop.last %}<div class="divider"></div>{% endif %}
+    <div class="post">
+      <div class="post-title">
+        {{ t.title }}
+        {% if t.subject %}<span class="post-tag">{{ t.subject }}</span>{% endif %}
+      </div>
+      <div class="post-body">{{ t.body }}</div>
     </div>
-    {% else %}
-    <div style="color:var(--muted);font-size:0.85rem;">No tips yet — check back soon.</div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="empty-inline">No tips published yet.</div>
+  {% endif %}
 
-  <div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:1rem;margin:0 0 6px;">🗓️ Monthly Notes</h2>
-    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">Topic notes in the run-up to your exams.</div>
+  <div class="section-head">
+    <h2 class="section-title">Monthly notes</h2>
+  </div>
+  <div class="prose-note">Topic notes in the run-up to your exams.</div>
+  {% if notes %}
+  <div class="post-list">
     {% for n in notes %}
-    <div style="padding:12px 0;">
-      <div style="font-weight:600;">{{ n.title }}
-        {% if n.period %}<span style="color:var(--accent-2);font-size:0.75rem;">· {{ n.period }}</span>{% endif %}
-        {% if n.subject %}<span style="color:var(--muted);font-weight:400;font-size:0.8rem;">· {{ n.subject }}</span>{% endif %}
+    <div class="post">
+      <div class="post-title">
+        {{ n.title }}
+        {% if n.period %}<span class="post-tag accent">{{ n.period }}</span>{% endif %}
+        {% if n.subject %}<span class="post-tag">{{ n.subject }}</span>{% endif %}
       </div>
-      <div style="color:var(--muted-2);font-size:0.88rem;margin-top:4px;white-space:pre-wrap;">{{ n.body }}</div>
-      {% if not loop.last %}<div class="divider"></div>{% endif %}
+      <div class="post-body">{{ n.body }}</div>
     </div>
-    {% else %}
-    <div style="color:var(--muted);font-size:0.85rem;">No notes published yet.</div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="empty-inline">No notes published yet.</div>
+  {% endif %}
 
-  <div class="card">
-    <h2 style="font-size:1rem;margin:0 0 8px;">🔗 Resources</h2>
+  <div class="section-head">
+    <h2 class="section-title">Resources</h2>
+  </div>
+  {% if res_by_cat %}
     {% for cat, items in res_by_cat.items() %}
-    <div style="margin-bottom:14px;">
-      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:6px;">{{ cat }}</div>
+    <div class="res-group">
+      <div class="res-cat">{{ cat }}</div>
       {% for r in items %}
-      <div style="padding:5px 0;">
-        <a href="{{ r.url }}" target="_blank" rel="noopener" class="auth-link" style="font-weight:600;">{{ r.title }} ↗</a>
-        {% if r.description %}<div style="color:var(--muted-2);font-size:0.82rem;">{{ r.description }}</div>{% endif %}
-      </div>
+      <a class="res-row" href="{{ r.url }}" target="_blank" rel="noopener">
+        <span class="res-body">
+          <span class="res-title">{{ r.title }}</span>
+          {% if r.description %}<span class="res-desc">{{ r.description }}</span>{% endif %}
+        </span>
+        <span class="res-arrow" aria-hidden="true">↗</span>
+      </a>
       {% endfor %}
     </div>
-    {% else %}
-    <div style="color:var(--muted);font-size:0.85rem;">No resources yet.</div>
     {% endfor %}
-  </div>
+  {% else %}
+  <div class="empty-inline">No resources yet.</div>
+  {% endif %}
 
 </div>
 {% endblock %}
