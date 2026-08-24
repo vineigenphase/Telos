@@ -2,128 +2,163 @@
 {% block title %}Stats — Telos{% endblock %}
 
 {% block head %}
+{# Chart.js is loaded from a CDN. Pre-existing, and left alone by the UI pass,
+   but note it is a third-party render-blocking request that the service worker
+   cannot precache — this page's charts will not draw offline. #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-  <div><div class="page-title">Stats</div><div class="page-subtitle">Your performance analytics</div></div>
+  <div>
+    <div class="page-title">Stats</div>
+    <div class="page-subtitle">Score and trend for every paper you have logged</div>
+  </div>
 </div>
 
 <div class="page-body">
 
-{% set colors = {"Further Maths": "#8b5cf6", "Maths": "#3b82f6", "Physics": "#10b981"} %}
-
 {% if by_subject %}
   {% for (subject, board), papers in by_subject.items() %}
-  {% set color = colors.get(subject, '#8b5cf6') %}
-  <div class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:12px;height:12px;border-radius:50%;background:{{ color }};"></div>
-        <div class="card-title">{{ board }} {{ subject }}</div>
+  {# Subject colour comes from the paper templates, the same source the papers
+     matrix and heatmap read. This page used to carry its own third copy of the
+     map, and it still held the original purple values. #}
+  {% set color = templates.get(board, {}).get(subject, {}).get('color', 'var(--muted-2)') %}
+  {% set pcts = papers | map(attribute='pct') | list %}
+  {% set avg = (pcts | sum) / (pcts | length) %}
+
+  <div class="matrix-section">
+    <div class="matrix-header">
+      <span class="subject-dot" style="background: {{ color }};"></span>
+      <span class="matrix-title">{{ subject }}</span>
+      <span class="matrix-board">{{ board }}</span>
+      <span class="matrix-count">{{ papers | length }} paper{{ 's' if papers | length != 1 }}</span>
+    </div>
+
+    {# Headline figures for the subject, on rules rather than in boxes. #}
+    <div class="statrow statrow-compact">
+      <div class="statrow-item">
+        <div class="statrow-label">Average</div>
+        <div class="statrow-value">{{ avg | round(1) }}%</div>
       </div>
-      <div style="display:flex; gap:16px; font-size:0.8rem; color:var(--muted);">
-        {% set pcts = papers | map(attribute='pct') | list %}
-        {% set avg = (pcts | sum) / (pcts | length) %}
-        <span>Avg: <strong style="color:var(--text);">{{ avg | round(1) }}%</strong></span>
-        <span>Best: <strong style="color:var(--green);">{{ pcts | max }}%</strong></span>
-        <span>{{ papers | length }} paper{{ 's' if papers | length != 1 }}</span>
+      <div class="statrow-item">
+        <div class="statrow-label">Best</div>
+        <div class="statrow-value">{{ pcts | max }}%</div>
       </div>
     </div>
 
-    <!-- Per-code averages -->
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+    {# Per-paper-code averages. Plain rows with a thin bar — these were cards
+       nested inside the subject card, which the brief rules out. #}
+    <div class="code-list">
       {% for (subj, brd, code), cs in code_stats.items() %}
         {% if subj == subject and brd == board %}
-        <div class="card card-sm" style="min-width:130px;">
-          <div style="font-size:0.72rem; color:var(--muted); margin-bottom:4px;">{{ code }}</div>
-          <div style="font-size:1.4rem; font-weight:700;">{{ cs.avg }}%</div>
-          <div style="font-size:0.7rem; color:var(--muted);">{{ cs.n }} paper{{ 's' if cs.n != 1 }}</div>
-          <div class="progress-bar-track" style="margin-top:6px;">
-            <div class="progress-bar-fill" style="width:{{ cs.avg }}%; background:{{ color }};"></div>
-          </div>
+        <div class="code-row">
+          <span class="code-name">{{ code }}</span>
+          <span class="code-bar">
+            <span class="progress-bar-track">
+              <span class="progress-bar-fill" style="width:{{ cs.avg }}%; background:{{ color }};"></span>
+            </span>
+          </span>
+          <span class="code-avg">{{ cs.avg }}%</span>
+          <span class="code-n">{{ cs.n }} paper{{ 's' if cs.n != 1 }}</span>
         </div>
         {% endif %}
       {% endfor %}
     </div>
 
-    <!-- Trend chart if more than 1 paper -->
     {% if papers | length > 1 %}
-    <canvas id="chart-{{ loop.index }}" height="80" style="margin-bottom:16px;"></canvas>
+    <canvas id="chart-{{ loop.index }}" height="80" class="trend-chart"
+            data-color="{{ color }}"
+            data-labels='{{ papers | map(attribute="paper_code") | list | tojson }}'
+            data-values='{{ papers | map(attribute="pct") | list | tojson }}'></canvas>
     {% endif %}
 
-    <!-- Papers table -->
-    <div style="overflow-x:auto;">
-      <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+    <div class="table-scroll">
+      <table class="data-table">
         <thead>
-          <tr style="border-bottom:1px solid var(--border);">
+          <tr>
             {% for h in ['Paper', 'Year', 'Score', '%', 'Grade', 'Date'] %}
-            <th style="padding:6px 10px; text-align:left; color:var(--muted); font-weight:500;">{{ h }}</th>
+            <th{{ ' class=num' | safe if h in ['Score', '%'] }}>{{ h }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
           {% for p in papers %}
-          <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:8px 10px; font-weight:500;">{{ p.paper_code }}</td>
-            <td style="padding:8px 10px; color:var(--muted);">{{ p.year }}</td>
-            <td style="padding:8px 10px;">{{ p.score | int }}/{{ p.max_marks | int }}</td>
-            <td style="padding:8px 10px; font-weight:600; color:{{ p.grade_color or 'var(--text)' }};">{{ p.pct }}%</td>
-            <td style="padding:8px 10px;">
+          <tr>
+            <td class="strong">{{ p.paper_code }}</td>
+            <td class="dim">{{ p.year }}</td>
+            <td class="num">{{ p.score | int }}/{{ p.max_marks | int }}</td>
+            <td class="num figure" style="color: {{ p.grade_color or 'var(--text)' }};">{{ p.pct }}%</td>
+            <td>
               {% if p.grade %}
-              <span class="grade-badge" style="background:{{ p.grade_color }}22; color:{{ p.grade_color }}; border:1px solid {{ p.grade_color }}44; padding:2px 8px; border-radius:5px; font-size:0.75rem; font-weight:700;">{{ p.grade }}</span>
-              {% else %}—{% endif %}
+              <span class="grade-chip" style="--g: {{ p.grade_color }};">{{ p.grade }}</span>
+              {% else %}<span class="dim">—</span>{% endif %}
             </td>
-            <td style="padding:8px 10px; color:var(--muted);">{{ p.date_completed or '—' }}</td>
+            <td class="dim">{{ p.date_completed or '—' }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-
-  {% if papers | length > 1 %}
-  <script>
-  (function(){
-    var ctx = document.getElementById('chart-{{ loop.index }}');
-    if (!ctx) return;
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: {{ papers | map(attribute='paper_code') | list | tojson }},
-        datasets: [{
-          data: {{ papers | map(attribute='pct') | list | tojson }},
-          borderColor: '{{ color }}',
-          backgroundColor: '{{ color }}18',
-          tension: 0.3, fill: true,
-          pointRadius: 5, pointHoverRadius: 7,
-          pointBackgroundColor: '{{ color }}',
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { min: 0, max: 100,
-               ticks: { callback: v => v + '%', color: '#7070a0', font:{size:11} },
-               grid: { color: '#2a2a45' } },
-          x: { ticks: { color: '#7070a0', font:{size:11} }, grid: { color: '#2a2a45' } }
-        }
-      }
-    });
-  })();
-  </script>
-  {% endif %}
-
   {% endfor %}
 
 {% else %}
-  <div style="text-align:center; padding:60px 20px; color:var(--muted);">
-    <div style="font-size:2.5rem; margin-bottom:12px;">📈</div>
-    <div>Log some papers to see your stats.</div>
-    <a href="{{ url_for('papers') }}" class="btn btn-primary" style="margin-top:16px;">Go to Papers</a>
+  <div class="empty-state">
+    <div class="empty-title">Nothing to chart yet</div>
+    <div class="empty-body">Log a paper with a score and its trend will appear here.</div>
+    <a href="{{ url_for('papers') }}" class="btn btn-primary">Go to papers</a>
   </div>
 {% endif %}
 
 </div>
+
+{# One initialiser for every chart on the page, reading its data off the
+   canvas. Axis and grid colours are pulled from the CSS custom properties at
+   runtime, so the charts follow the palette instead of restating it — they
+   were still drawing the pre-overhaul greys. #}
+<script>
+(function () {
+  if (typeof Chart === 'undefined') return;
+  var cs   = getComputedStyle(document.documentElement);
+  var axis = cs.getPropertyValue('--muted').trim();
+  var grid = cs.getPropertyValue('--border').trim();
+
+  document.querySelectorAll('canvas.trend-chart').forEach(function (el) {
+    var color = el.dataset.color;
+    new Chart(el, {
+      type: 'line',
+      data: {
+        labels: JSON.parse(el.dataset.labels),
+        datasets: [{
+          data: JSON.parse(el.dataset.values),
+          borderColor: color,
+          backgroundColor: 'transparent',   /* no filled gradient under the line */
+          borderWidth: 1.5,
+          tension: 0.25,
+          fill: false,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: color,
+          pointBorderWidth: 0
+        }]
+      },
+      options: {
+        animation: { duration: 180 },
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 100,
+               ticks: { callback: function (v) { return v + '%'; },
+                        color: axis, font: { size: 10 } },
+               grid: { color: grid, drawTicks: false },
+               border: { display: false } },
+          x: { ticks: { color: axis, font: { size: 10 } },
+               grid: { display: false },
+               border: { color: grid } }
+        }
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}

@@ -561,6 +561,74 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   font-variant-numeric: tabular-nums; order: 4;
 }
 
+/* ── Stats ───────────────────────────────────────────────────────────────── */
+/* A two-up variant of the dashboard stat row, for per-subject headline figures. */
+.statrow-compact { margin-bottom: 18px; }
+.statrow-compact .statrow-value { font-size: 27px; }
+
+.code-list { margin-bottom: 20px; }
+
+.code-row {
+  display: grid;
+  grid-template-columns: minmax(64px, auto) 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-sub);
+  font-size: 13px;
+}
+.code-name { font-weight: 500; }
+.code-bar  { min-width: 0; }
+.code-avg  {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.code-n { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+.trend-chart { margin: 4px 0 20px; }
+
+/* ── Data tables ─────────────────────────────────────────────────────────── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+.data-table th {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 9px 12px 9px 0;
+  border-bottom: 1px solid var(--border-sub);
+}
+.data-table .strong { font-weight: 500; }
+.data-table .dim    { color: var(--muted); }
+.data-table .num    { font-variant-numeric: tabular-nums; }
+.data-table .figure {
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+/* Grade chip. Takes its hue from --g so the caller passes one value rather
+   than three, and colour still comes from GRADE_COLOURS. */
+.grade-chip {
+  display: inline-block;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: var(--radius-xs);
+  color: var(--g, var(--text));
+  border: 1px solid var(--g, var(--border));
+  background: transparent;
+}
+
 /* ── Empty states ────────────────────────────────────────────────────────── */
 /* Stated plainly. No decorative glyph and no encouragement — an empty screen
    should tell you what is missing and how to fill it. */
