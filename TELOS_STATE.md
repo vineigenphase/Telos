@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-23.** Living handoff document. Read this first, then
+**Last updated: 2026-08-24.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -62,6 +62,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
 | 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
+| — | UI overhaul — Editorial treatment across all twelve screens, new stroke logo | `7df213d` | **live** |
 | 9 | Shareable card export — the growth engine | — | **next** |
 | 6, 8, 7, 10 | Spaced repetition, parent report, percentile, simulator | — | not started |
 
@@ -95,6 +96,11 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 8. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
+9. **The UI overhaul on real hardware.** Every screen was reviewed in the
+   browser (and at 390px in a same-origin iframe, per the auditing gotcha
+   below), but none of it has been opened on an actual phone or tablet. Worth
+   a pass over the dashboard, the phone mark-entry flow and the three admin
+   screens, since those were the last built and got the least eyes.
 
 **Settled — don't re-litigate:**
 
@@ -114,14 +120,33 @@ Two deliberate departures from the spec are baked in:
   from the `/bank` tag and delete routes too. See the docstring on
   `build_prescriptions()`. Revisit only if the dashboard gets slow.
 
+**UI overhaul shipped 2026-08-24** (`7df213d`, merged straight to `main` after
+the owner reviewed the branch on GitHub). All twelve screens from the brief are
+on the Editorial treatment, plus the new stroke logo. Three things to know:
+
+- **The trend deltas read blank for the first week, on purpose.** Migration 005
+  added `question_marks.created_at` and `grade_prediction_history` because three
+  of the four headline deltas were not computable before it — there was no
+  timestamp on a mark, and `grade_predictions` was upserted in place so the
+  previous prediction was overwritten every recompute. Neither is backfillable.
+  The dashboard shows a bare stat rather than inventing a delta. Don't "fix"
+  the empty deltas; wait for the data.
+- **Five templates were never restructured** — `_upgrade_prompt`, `bank_tag`,
+  `bank_upload`, `papers_enter`, `papers_entry`. They carry no hardcoded hexes,
+  only CSS variables, so they picked up the new palette for free and nothing
+  renders the old purple. They do still lay out via inline styles if anyone
+  wants to finish the job.
+- **Pro Zone posts use `.post-*`, not `.entry-*`.** That namespace already
+  belongs to the phone mark-entry flow — fourteen classes of it.
+
 **Decisions waiting on the owner:**
 
-9. **`db.py` connection check.** The first request after Neon idles returns a
+10. **`db.py` connection check.** The first request after Neon idles returns a
    500 (`AdminShutdown: terminating connection due to administrator command`);
    the retry works. Fix is one argument — `check=ConnectionPool.check_connection`
    on the pool. Not applied because spec working-rule 7 says don't touch
    `db.py` without asking.
-10. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
+11. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
    `prediction.infer_de()` extrapolates D and E from the mean gap of the known
    boundaries. Owner approved keeping this (2026-08-19); revisit if real D/E
    data is ever sourced. Delete that one function if so.
@@ -192,6 +217,21 @@ user; use a Neon branch once there are real students.
   only by that user's own upload-and-tag flow, and its `topics` column is a
   JSON array — `question_marks.topic` is a single string. Phase 4 matches the
   two case- and whitespace-insensitively.
+- **Migrations do not run on deploy.** `Procfile` is bare gunicorn and nothing
+  in `app.py` calls the runner, so pushing `main` deploys code against whatever
+  schema production already has. Run
+  `railway run .venv\Scripts\python.exe migrations\run_migrations.py` **before**
+  the push, never after — the window between the two is a live 500 for every
+  user if the new code reads a column that isn't there yet. Migrations are
+  additive and idempotent by convention, so applying one against the old
+  running code is always safe.
+- **`railway run` needs quoted backslash paths.** `railway run .venv/Scripts/...`
+  fails — the command is handed to `cmd.exe`, which won't take a forward-slash
+  executable path. Unquoted backslashes get eaten as escapes by the shell.
+  Quote both arguments: `railway run ".venv\Scripts\python.exe" "path\to.py"`.
+- **`db.Row` subclasses `dict`, so `tuple(row)` gives you the column names,**
+  not the values. Index by key. The entry point is `db.get_db()`; there is no
+  `get_conn()`.
 - **PWA icons are generated, not hand-drawn.** `scripts\generate_icons.py`
   builds them from CSS values (the sidebar gradient, the heatmap's
   `pct-0..90` colors) — re-run it after changing either, don't edit the PNGs.
