@@ -3,119 +3,107 @@
 {% block content %}
 
 <div class="page-header">
-  <div><div class="page-title">Subscription</div></div>
+  <div>
+    <div class="page-title">Subscription</div>
+    <div class="page-subtitle">Free covers diagnosis. Pro adds prediction and prescription.</div>
+  </div>
 </div>
 
-<div class="page-body" style="max-width:700px;">
+<div class="page-body page-narrow">
 
   {% if is_pro_user %}
-  <div class="card" style="margin-bottom:20px; border-color:var(--gold);">
-    <div style="display:flex; align-items:center; gap:12px;">
-      <div style="font-size:1.8rem;">✦</div>
-      <div>
-        <div style="font-size:1rem; font-weight:700; color:var(--gold);">Telos Pro — Active</div>
-        <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">
-          {% if current_user.grandfathered %}
-            Founder account — Pro access, permanently, at no charge.
-          {% elif current_user.plan_interval == 'year' %}
-            Billed yearly. Thank you for supporting Telos.
-          {% elif current_user.plan_interval == 'month' %}
-            Billed monthly. Thank you for supporting Telos.
-          {% else %}
-            Thank you for supporting Telos.
-          {% endif %}
-        </div>
-      </div>
+  <div class="pro-status">
+    <div class="pro-status-title">Telos Pro — active</div>
+    <div class="pro-status-note">
+      {% if current_user.grandfathered %}
+        Founder account. Pro access, permanently, at no charge.
+      {% elif current_user.plan_interval == 'year' %}
+        Billed yearly.
+      {% elif current_user.plan_interval == 'month' %}
+        Billed monthly.
+      {% endif %}
     </div>
   </div>
   {% endif %}
 
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+  {# Two columns on desktop, stacked below — this was a fixed 1fr 1fr grid with
+     no breakpoint, so both plans were squeezed side by side on a phone. #}
+  <div class="plan-grid">
 
-    <!-- Free -->
-    <div class="plan-card {{ '' if current_user.is_premium else '' }}">
-      <div class="plan-name" style="color:var(--muted);">Free</div>
-      <div class="plan-price" style="color:var(--muted);">£0</div>
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price muted">£0</div>
       <div class="plan-period">forever</div>
-      <div class="divider"></div>
-      {% for f in pricing_features.free %}
-      <div class="plan-feature">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ f.label }}
+      <div class="plan-features">
+        {% for f in pricing_features.free %}
+        <div class="plan-feature">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ f.label }}
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
 
-    <!-- Pro -->
     <div class="plan-card pro">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div class="plan-name" style="color:var(--accent-2);">Telos Pro</div>
-        <span style="background:var(--accent); color:#fff; font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:100px;">POPULAR</span>
-      </div>
+      <div class="plan-name">Telos Pro</div>
       {% set default_plan = pricing[default_interval] %}
       <div class="plan-price">{{ default_plan.label }}</div>
       <div class="plan-period">{{ default_plan.period }}</div>
-      <div style="font-size:0.78rem; color:var(--green); margin-top:4px;">{{ default_plan.sub }}</div>
-      <div class="divider"></div>
-      {% for f in pricing_features.pro %}
-      <div class="plan-feature"{% if f.coming_soon %} style="color:var(--muted);"{% endif %}>
-        {% if f.coming_soon %}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        {% else %}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {% endif %}
-        {{ f.label }}
-        {% if f.coming_soon %}<span style="margin-left:auto; font-size:0.58rem; font-weight:700; letter-spacing:0.03em; color:var(--accent-2); border:1px solid var(--accent-2); border-radius:100px; padding:1px 6px;">SOON</span>{% endif %}
+      {# The saving is stated as a number rather than badged "BEST VALUE" —
+         it is a fact the reader can check, which a badge is not. #}
+      <div class="plan-sub">{{ default_plan.sub }}</div>
+
+      <div class="plan-features">
+        {% for f in pricing_features.pro %}
+        <div class="plan-feature{{ ' soon' if f.coming_soon }}">
+          {% if f.coming_soon %}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {% else %}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+          {% endif %}
+          {{ f.label }}
+          {% if f.coming_soon %}<span class="soon-tag">soon</span>{% endif %}
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
 
       {% if not is_pro_user %}
         {% if stripe_enabled %}
-        <form method="POST" action="{{ url_for('create_checkout') }}" style="margin-top:20px;">
+        <form method="POST" action="{{ url_for('create_checkout') }}" class="plan-form">
           <input type="hidden" name="from" value="{{ came_from }}">
 
-          <!-- Annual is preselected: A-level revision collapses in June, so
-               monthly billing gets ~7 payments then permanent churn. -->
-          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+          {# Annual is preselected on purpose: A-level revision collapses in
+             June, so monthly billing gets ~7 payments then permanent churn. #}
+          <div class="interval-list">
             {% for plan in plans %}
-            <label style="display:flex; align-items:center; gap:10px; padding:12px;
-                          border:1px solid {{ 'var(--accent)' if plan.key == default_interval else 'var(--border)' }};
-                          border-radius:8px; cursor:pointer; min-height:var(--tap-min);
-                          background:{{ 'rgba(139,92,246,0.08)' if plan.key == default_interval else 'transparent' }};">
+            <label class="interval{{ ' selected' if plan.key == default_interval }}">
               <input type="radio" name="interval" value="{{ plan.key }}"
-                     {% if plan.key == default_interval %}checked{% endif %}
-                     style="width:18px; height:18px; accent-color:var(--accent); flex-shrink:0;">
-              <span style="flex:1; text-align:left;">
-                <span style="font-weight:600;">{{ plan.label }}</span>
-                <span style="color:var(--muted); font-size:0.82rem;"> {{ plan.period }}</span>
-                <span style="display:block; font-size:0.74rem; color:{{ 'var(--green)' if plan.recommended else 'var(--muted)' }}; margin-top:2px;">
-                  {{ plan.sub }}
+                     {% if plan.key == default_interval %}checked{% endif %}>
+              <span class="interval-body">
+                <span class="interval-head">
+                  <span class="interval-label">{{ plan.label }}</span>
+                  <span class="interval-period">{{ plan.period }}</span>
                 </span>
+                <span class="interval-sub">{{ plan.sub }}</span>
               </span>
-              {% if plan.recommended %}
-              <span style="background:var(--green); color:#04231a; font-size:0.6rem; font-weight:700; padding:2px 7px; border-radius:100px;">BEST VALUE</span>
-              {% endif %}
             </label>
             {% endfor %}
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-block">Upgrade to Pro</button>
-          <div style="font-size:0.7rem; color:var(--muted); margin-top:8px;">
-            Cancel any time from this page. No card details are stored by Telos.
+          <div class="plan-smallprint">
+            Cancel any time from this page. Telos never stores your card details.
           </div>
         </form>
         {% else %}
-        <div style="margin-top:20px; padding:12px; background:rgba(139,92,246,0.1); border-radius:8px; font-size:0.78rem; color:var(--muted-2);">
-          Stripe not yet configured. Set <code>STRIPE_SECRET_KEY</code>,
+        <div class="plan-notice">
+          Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code>,
           <code>STRIPE_PRICE_MONTHLY</code> and <code>STRIPE_PRICE_ANNUAL</code> to enable billing.
         </div>
         {% endif %}
       {% else %}
-        <div style="margin-top:20px; text-align:center; font-size:0.85rem; color:var(--gold);">
-          ✦ You're on Pro
-        </div>
         {% if stripe_enabled and current_user.stripe_customer_id %}
-        <form method="POST" action="{{ url_for('billing_portal') }}" style="margin-top:12px;">
+        <form method="POST" action="{{ url_for('billing_portal') }}" class="plan-form">
           <button type="submit" class="btn btn-ghost btn-block">Manage billing</button>
         </form>
         {% endif %}

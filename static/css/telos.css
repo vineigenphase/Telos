@@ -1051,19 +1051,99 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .topic-pill-sm { min-height: 0; padding: 1px 7px; font-size: 0.7rem; }
 
 /* ── Subscription ────────────────────────────────────────────────────────── */
+.page-narrow { max-width: 760px; }
+
+/* Pro status, stated on a rule rather than in a gold-bordered card. */
+.pro-status {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 26px;
+}
+.pro-status-title {
+  font-family: var(--serif);
+  font-size: 19px; font-weight: 400; color: var(--accent);
+}
+.pro-status-note { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+/* Stacked by default; side by side once there is room. Previously a fixed
+   1fr 1fr grid with no breakpoint, so both plans were squeezed onto a phone. */
+.plan-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+
 .plan-card {
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  text-align: left;
+}
+/* The paid plan is marked by its border alone — no tinted panel behind it. */
+.plan-card.pro { border-color: var(--border-2); }
+
+.plan-name {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.plan-price {
+  font-family: var(--serif);
+  font-size: 42px; font-weight: 400; line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.plan-price.muted { color: var(--muted); }
+.plan-period { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+.plan-sub    { font-size: 12.5px; color: var(--accent); margin-top: 6px; }
+
+.plan-features {
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--border-sub);
+}
+.plan-feature {
+  font-size: 13px; color: var(--muted-2);
+  padding: 5px 0; display: flex; align-items: center; gap: 9px;
+}
+.plan-feature svg { color: var(--muted); flex-shrink: 0; }
+.plan-feature.soon { color: var(--muted); }
+.soon-tag {
+  margin-left: auto;
+  font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); padding: 1px 6px;
 }
 
-.plan-card.pro { border-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
-.plan-price { font-size: 2.4rem; font-weight: 700; color: var(--text); line-height: 1; }
-.plan-period { font-size: 0.85rem; color: var(--muted); }
-.plan-name { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
-.plan-feature { font-size: 0.85rem; color: var(--muted-2); padding: 5px 0; display: flex; align-items: center; gap: 8px; text-align: left; }
-.plan-feature svg { color: var(--green); flex-shrink: 0; }
+.plan-form { margin-top: 20px; }
+
+.interval-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+
+.interval {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px;
+  min-height: var(--tap-min);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.interval.selected { border-color: var(--accent); }
+.interval input { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.interval-body   { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.interval-head   { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.interval-label  { font-weight: 500; }
+.interval-period { font-size: 12.5px; color: var(--muted); }
+.interval-sub    { font-size: 12px; color: var(--muted); }
+
+.plan-smallprint { font-size: 11px; color: var(--muted); margin-top: 9px; line-height: 1.5; }
+
+.plan-notice {
+  margin-top: 20px; padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px; color: var(--muted-2); line-height: 1.6;
+}
+.plan-notice code {
+  font-size: 11.5px; color: var(--text);
+  background: var(--card-2); padding: 1px 5px; border-radius: var(--radius-xs);
+}
 
 /* ── PWA install banner + update toast ──────────────────────────────────── */
 .pwa-banner {
@@ -1608,6 +1688,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   /* Question list beside the file list. This was a hardcoded 1fr/320px grid
      with no breakpoint at all, so it overflowed every phone. */
   .bank-split { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 28px; align-items: start; }
+  .plan-grid  { grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 
   /* Two-column: weakest-topics list on the left, the full grid on the right.
      iPad is where students actually revise, so it gets a real layout rather

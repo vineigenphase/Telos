@@ -115,10 +115,15 @@ PRICING_FEATURES = {
         {"label": "Basic heatmap"},
         {"label": "File uploads (10 max)"},
     ],
+    # `coming_soon` must track what has actually shipped. Two of these were
+    # still flagged after the features went live — the pricing page was telling
+    # prospective subscribers that the two headline Pro features did not exist
+    # yet. Predicted grade shipped in Phase 3, the next-three-questions
+    # prescription in Phase 4; both are Pro-gated and both are live.
     "pro": [
         {"label": "Everything in Free"},
-        {"label": "Predicted grade + marks to next boundary", "coming_soon": True},
-        {"label": "Your next 3 questions", "coming_soon": True},
+        {"label": "Predicted grade + marks to next boundary"},
+        {"label": "Your next 3 questions"},
         {"label": "Spaced repetition queue", "coming_soon": True},
         {"label": "Full stats & topic analytics", "coming_soon": True},
         {"label": "Pro Zone — resources, golden tips, monthly notes"},
