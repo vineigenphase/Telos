@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-24.** Living handoff document. Read this first, then
+**Last updated: 2026-08-25.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -63,7 +63,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
 | 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
 | — | UI overhaul — Editorial treatment across all twelve screens, new stroke logo | `7df213d` | **live** |
-| 9 | Shareable card export — the growth engine | — | **next** |
+| 9 | Shareable card export — the growth engine | `feat/share-cards` | **built, awaiting sign-off** |
 | 6, 8, 7, 10 | Spaced repetition, parent report, percentile, simulator | — | not started |
 
 ---
@@ -138,6 +138,32 @@ on the Editorial treatment, plus the new stroke logo. Three things to know:
   wants to finish the job.
 - **Pro Zone posts use `.post-*`, not `.entry-*`.** That namespace already
   belongs to the phone mark-entry flow — fourteen classes of it.
+
+**Phase 9 is built but not merged.** Five commits on `feat/share-cards`, all
+tests green (12 suites). Migration 006 is already applied to production — it is
+additive and nothing in `main` reads it. Two departures from the spec, both
+agreed with the owner before building:
+
+- **The card page is `noindex`.** A student chose to show a result to the people
+  they sent it to, which is not the same as agreeing to surface in a search for
+  their name. `/s/` is deliberately NOT disallowed in robots.txt: a crawler has
+  to be able to fetch the page to read the noindex.
+- **Cards can be revoked**, which the spec doesn't mention. A permanent public
+  page of your own grades that you can't take down is the wrong default.
+  Revoking deletes the row, so the link 404s rather than going blank.
+
+**The spec's "streak" card has no data behind it.** Phase 9's card types are
+listed as "predicted grade / heatmap snapshot / streak or papers-completed
+milestone". Nothing in Telos tracks consecutive days — there is no streak
+field anywhere in the schema — so the milestone card ships as papers-completed.
+`render_milestone` already takes `unit="days"` and will render a day streak the
+moment something computes one; per the UI brief's rule, this is flagged rather
+than faked with a placeholder number.
+
+**A free account cannot make the grade card**, and that is correct rather than
+a bug. Prediction is the Pro half of the free/Pro split, so a free user has
+accuracy and papers-logged to share but no predicted grade. The dashboard
+offers only the cards the data supports.
 
 **Decisions waiting on the owner:**
 
