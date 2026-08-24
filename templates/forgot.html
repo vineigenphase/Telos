@@ -1,3 +1,4 @@
+{% import "_icons.html" as icons %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
 <div class="auth-wrap">
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="logo-mark" style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#6d28d9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;">T</div>
+      <span class="logo-mark auth-mark">{{ icons.logo(32) }}</span>
       <div class="logo-name" style="font-size:1.1rem;font-weight:700;">Tel<span style="color:var(--accent-2);font-style:italic;">os</span></div>
     </div>
 

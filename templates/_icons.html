@@ -1,3 +1,21 @@
+{# The Telos mark: a T drawn as one continuous stroked outline — the parallel
+   stem lines close into the crossbar rather than floating free — sheared 9° to
+   share an angle with the italic "os" in the wordmark.
+
+   Defined once here and used by the sidebar and all four auth pages, which
+   carry their own <head> and would otherwise drift. scripts/generate_icons.py
+   redraws the same geometry for the PWA icons; change one, change both. #}
+{% macro logo(size=32) %}
+<svg class="logo-svg" width="{{ size }}" height="{{ size }}" viewBox="0 0 32 32"
+     fill="none" stroke="currentColor" stroke-width="2.1"
+     stroke-linejoin="round" stroke-linecap="round"
+     role="img" aria-label="Telos">
+  <g transform="skewX(-9) translate(2.6 0)">
+    <path d="M4 6 H28 V11 H18.6 V27 H13.4 V11 H4 Z"/>
+  </g>
+</svg>
+{% endmacro %}
+
 {# Single icon set, keyed by the `icon` field in NAV_ITEMS, so the sidebar and
    the mobile tab bar can never show different glyphs for the same thing. #}
 {% macro icon(name) %}
