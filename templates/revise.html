@@ -5,19 +5,21 @@
 <div class="page-header">
   <div>
     <div class="page-title">Revise</div>
-    <div class="page-subtitle">Your spaced repetition queue</div>
+    <div class="page-subtitle">Spaced repetition queue</div>
   </div>
 </div>
 
 <div class="page-body">
-  <div class="card" style="text-align:center; padding:32px 20px;">
-    <div style="font-size:2rem; margin-bottom:10px;">🗓️</div>
-    <div style="font-size:1rem; font-weight:600; margin-bottom:8px;">Not switched on yet</div>
-    <p style="font-size:0.86rem; color:var(--muted); max-width:36ch; margin:0 auto 18px;">
-      Questions you score under 60% on will land here automatically, spaced out
-      so they come back just before you'd forget them. Keep logging papers —
-      the queue builds itself from those marks.
-    </p>
+  {# Deliberately still a placeholder. Phase 6 builds the queue; nothing writes
+     to revision_queue yet, and this page says so rather than showing an empty
+     list that looks broken. #}
+  <div class="empty-state">
+    <div class="empty-title">Not switched on yet</div>
+    <div class="empty-body">
+      Questions you score under 60% on will land here automatically, spaced so
+      they come back just before you would forget them. The queue builds itself
+      from marks you have already logged — nothing extra to set up.
+    </div>
     <a href="{{ url_for('papers') }}" class="btn btn-primary">Log a paper</a>
   </div>
 </div>
