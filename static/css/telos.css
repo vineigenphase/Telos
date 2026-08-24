@@ -420,6 +420,37 @@ select.form-control option { background: var(--card); }
 textarea.form-control { resize: vertical; min-height: 80px; }
 
 .form-row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+/* Same behaviour as .form-row — single column, widened by the 640px query. */
+.form-row-2, .form-row-4 { display: grid; gap: 12px; grid-template-columns: 1fr; }
+
+/* ── Admin forms and lists ───────────────────────────────────────────────── */
+.admin-form {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 8px;
+  max-width: 560px;
+}
+.admin-form .btn { align-self: flex-start; }
+
+.admin-list { border-top: 1px solid var(--border-sub); }
+
+.admin-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--border-sub);
+  font-size: 13px;
+}
+.admin-row-body { min-width: 0; }
+.admin-row .dim { color: var(--muted); }
+
+/* ── Grade boundaries ────────────────────────────────────────────────────── */
+.bnd-block { margin-bottom: 22px; }
+.bnd-code {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 
 /* ── Flash messages ──────────────────────────────────────────────────────── */
 .flash-container { padding: 0 16px; }

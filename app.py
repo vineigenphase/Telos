@@ -1710,7 +1710,10 @@ def boundaries():
             groups[key] = []
         groups[key].append(b)
 
-    return render_template("boundaries.html", groups=groups)
+    # Paper display names live in paper_templates; the template used to carry
+    # its own 25-line if/elif chain restating them.
+    return render_template("boundaries.html", groups=groups,
+                           paper_info=get_paper_info, templates=TEMPLATES)
 
 # ── Pro content hub ───────────────────────────────────────────────────────────
 
