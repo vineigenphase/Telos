@@ -91,6 +91,47 @@ check("anonymous page is not forced no-store", r.headers.get("Cache-Control") ==
 r = anon.get("/static/manifest.webmanifest")
 check("manifest itself is not forced no-store", r.headers.get("Cache-Control") == "no-store", False)
 
+
+# ── the mark agrees across every surface that draws it ───────────────────────
+#
+# The T exists twice: brand.py draws it for the PWA icons and the Phase 9 share
+# cards, and the `logo` macro in _icons.html draws it for the web. Two
+# definitions is the floor — the web needs real markup, not a PNG — but until
+# now nothing checked they still agreed, and brand.py's own docstring said so.
+# A silent drift here means the icon on a home screen stops matching the logo
+# in the sidebar, which nobody would notice for months.
+import brand  # noqa: E402
+
+_macro = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "templates", "_icons.html"), encoding="utf-8").read()
+
+_path = re.search(r'<path d="(M4 6[^"]*)"', _macro)
+check("the web logo still declares a path", bool(_path), True)
+if _path:
+    # Rebuild the point list from the SVG path and compare it to the geometry
+    # brand.py renders from. The path is a moveto followed by H/V commands, so
+    # walking it with a pen position reproduces the corner list exactly.
+    d = _path.group(1)
+    m = re.match(r"M\s*([\d.]+)\s+([\d.]+)", d)
+    x, y = float(m.group(1)), float(m.group(2))
+    pts = [(x, y)]
+    for cmd, val in re.findall(r"([HV])\s*([\d.]+)", d):
+        if cmd == "H":
+            x = float(val)
+        else:
+            y = float(val)
+        pts.append((x, y))
+    check("the web logo's geometry matches brand.T_POINTS",
+          pts, [(float(a), float(b)) for a, b in brand.T_POINTS])
+
+_shear = re.search(r"skewX\((-?[\d.]+)\)", _macro)
+check("the web logo's shear matches brand.SHEAR_DEG",
+      float(_shear.group(1)) if _shear else None, -brand.SHEAR_DEG)
+
+_sw = re.search(r'stroke-width="([\d.]+)"', _macro)
+check("the web logo's stroke width matches brand.STROKE_W",
+      float(_sw.group(1)) if _sw else None, float(brand.STROKE_W))
+
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
 sys.exit(1 if fails else 0)
