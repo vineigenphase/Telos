@@ -1,0 +1,64 @@
+{% extends "auth_base.html" %}
+
+{# The public landing page for a shared card. No login: this is where someone
+   who saw a screenshot in a feed ends up, so the whole job of the page is to
+   show the card and offer a way in.
+
+   Extends the signed-out shell rather than base.html for the same reason the
+   auth pages do — the sidebar and tab bar are application chrome and mean
+   nothing to a visitor without an account.
+
+   noindex is deliberate. A card is a student's own result on a public URL;
+   they chose to share it with the people they sent it to, which is not the
+   same as choosing to have it turn up in a search for their name. Note that
+   /s/ is NOT disallowed in robots.txt — a crawler has to be able to fetch the
+   page to read the noindex. #}
+
+{% block title %}{{ card_title }} — Telos{% endblock %}
+
+{% block auth_head %}
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="{{ card_title }}">
+  <meta property="og:image" content="{{ canonical_url('/s/' ~ token ~ '.png?size=post') }}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
+{% block auth_title %}{{ card_title }}{% endblock %}
+
+{% block auth_subtitle %}
+  <p class="auth-subtitle">Tracked on Telos.</p>
+{% endblock %}
+
+{% block auth_body %}
+  <img class="share-img"
+       src="{{ url_for('share_card_png', token=token) }}?size=post"
+       alt="{{ card_title }}"
+       width="1080" height="1080">
+
+  <a class="btn btn-primary share-cta" href="{{ url_for('register') }}">
+    Track your own papers
+  </a>
+  <p class="share-note">
+    Free. Log past papers, mark them by question, see which topics are costing
+    you marks.
+  </p>
+{% endblock %}
+
+{% block auth_footer %}
+  {% if owned %}
+    {# Only the owner sees these, and only they can act on them. #}
+    <div class="share-owner">
+      <p class="share-note">This is your card. Anyone with the link can see it.</p>
+      <div class="share-owner-actions">
+        <a class="btn btn-secondary"
+           href="{{ url_for('share_card_png', token=token) }}?size=story"
+           download>Download story size</a>
+        <form method="post" action="{{ url_for('delete_share_card', token=token) }}"
+              onsubmit="return confirm('Revoke this card? The link will stop working for everyone you sent it to.');">
+          <button class="btn btn-danger" type="submit">Revoke</button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

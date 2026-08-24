@@ -34,6 +34,7 @@ SUITES = [
     ("prescription integration",   "test_prescription_integration.py"),
     ("trend deltas + history",     "test_trend_deltas.py"),
     ("share cards (pure)",         "test_share_cards.py"),
+    ("share cards integration",    "test_share_integration.py"),
 ]
 
 

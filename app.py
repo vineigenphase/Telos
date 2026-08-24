@@ -1,8 +1,9 @@
-import os, json, secrets, hashlib
+import os, io, json, secrets, hashlib
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 from flask import (Flask, render_template, request, redirect, url_for,
-                   flash, jsonify, session, send_from_directory, abort)
+                   flash, jsonify, session, send_from_directory, send_file,
+                   abort)
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,8 +17,10 @@ from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
-from prescription import prescribe, RECENCY_WINDOW as PRESCRIPTION_RECENCY_WINDOW
+from prescription import (prescribe, topic_stats,
+                          RECENCY_WINDOW as PRESCRIPTION_RECENCY_WINDOW)
 from auth import requires_pro, user_is_pro
+import sharecards
 
 import json as _json
 
@@ -680,7 +683,9 @@ def dashboard():
                            prescriptions=prescriptions, due_count=due_count,
                            headline=headline, is_pro=is_pro,
                            subjects=subject_progress(current_user.id),
-                           activity=recent_activity(current_user.id))
+                           activity=recent_activity(current_user.id),
+                           shareable=share_options(current_user.id,
+                                                   predictions, total))
 
 # ── Papers matrix ─────────────────────────────────────────────────────────────
 
@@ -2201,6 +2206,194 @@ def api_template_info():
     info    = get_paper_info(board, subject, code)
     topics  = get_topics(board, subject, code)
     return jsonify({"info": dict(info) if info else None, "topics": topics})
+
+
+# ── Phase 9 — share cards ────────────────────────────────────────────────────
+#
+# Free on purpose: these are marketing, not a feature. A card is a snapshot —
+# the payload is written once at export and never re-read from live data, so a
+# card shared in March keeps showing the March number instead of silently
+# rewriting itself as the student's grade moves, and an old link cannot leak
+# their current position.
+#
+# Note which cards a free account can actually make. Prediction is the Pro half
+# of the split, so the grade card needs Pro data to exist at all; accuracy and
+# papers-logged come from diagnosis, which is free. That falls out of the tier
+# split rather than being a policy here.
+
+SHARE_TOKEN_BYTES = 16          # ~22 chars of urlsafe base64
+
+
+def build_share_payload(user_id, card_type, subject=None, board=None):
+    """Snapshot the facts a card shows. Returns (payload, error).
+
+    Everything here is the user's own data, and nothing personal is copied in
+    — see the privacy test in tests/test_share_cards.py, which proves a payload
+    carrying an email cannot change the render.
+    """
+    if card_type == "grade":
+        rows = [r for r in get_predictions(user_id)
+                if (not subject or r["subject"] == subject)
+                and (not board or r["board"] == board)]
+        if not rows:
+            return None, "no prediction to share yet"
+        r = rows[0]
+        return {
+            "grade": r["predicted_grade"],
+            # No range_label: grade_predictions stores a single grade, not the
+            # "A–A*" band predict() computes in memory. The renderer falls back
+            # to the grade, and setting range_label to the same string would
+            # only imply a range we don't persist.
+            "subject": r["subject"],
+            "board": r["board"],
+            "marks_to_next": r["marks_to_next"],
+            "next_grade": r["next_grade"],
+            "confidence": r["confidence"],
+            "sample_size": r["sample_size"],
+        }, None
+
+    if card_type == "heatmap":
+        with get_db() as db:
+            marks = db.execute(
+                "SELECT q.topic, q.obtained, q.max_marks, q.paper_id, p.subject "
+                "FROM question_marks q JOIN papers p ON p.id = q.paper_id "
+                "WHERE p.user_id=? AND q.topic IS NOT NULL AND q.topic <> '' "
+                + ("AND p.subject=? " if subject else ""),
+                (user_id, subject) if subject else (user_id,)
+            ).fetchall()
+        agg = topic_stats([dict(m) for m in marks])
+        if not agg:
+            return None, "no tagged questions to chart yet"
+        scored = sorted(
+            ({"topic": t["topic"], "pct": round(t["got"] / t["max"] * 100, 1)}
+             for t in agg.values() if t["max"]),
+            key=lambda c: c["pct"], reverse=True)
+        got = sum(t["got"] for t in agg.values())
+        mx = sum(t["max"] for t in agg.values())
+        return {
+            "accuracy": round(got / mx * 100, 1) if mx else 0,
+            "subject": subject or (marks[0]["subject"] if marks else None),
+            # Strongest first so the grid reads as a gradient rather than noise.
+            "cells": scored,
+            "strongest": scored[0]["topic"],
+            "weakest": scored[-1]["topic"],
+        }, None
+
+    if card_type == "milestone":
+        with get_db() as db:
+            n = db.execute("SELECT COUNT(*) AS n FROM papers WHERE user_id=?",
+                           (user_id,)).fetchone()["n"]
+        if not n:
+            return None, "no papers logged yet"
+        return {"value": n, "unit": "papers", "detail": None}, None
+
+    return None, "unknown card type"
+
+
+def share_options(user_id, predictions, papers_total):
+    """Which cards this user has the data to make, cheapest checks first.
+
+    Deliberately not build_share_payload() three times — that would put two
+    extra queries (one of them over every tagged question) on every dashboard
+    render to decide whether to show three buttons. The dashboard already knows
+    two of the three answers.
+    """
+    opts = []
+    if predictions:
+        opts.append({"type": "grade", "label": "Predicted grade"})
+    with get_db() as db:
+        tagged = db.execute(
+            "SELECT 1 FROM question_marks q JOIN papers p ON p.id = q.paper_id "
+            "WHERE p.user_id=? AND q.topic IS NOT NULL AND q.topic <> '' LIMIT 1",
+            (user_id,)).fetchone()
+    if tagged:
+        opts.append({"type": "heatmap", "label": "Accuracy"})
+    if papers_total:
+        opts.append({"type": "milestone", "label": "Papers logged"})
+    return opts
+
+
+@app.route("/share/<card_type>", methods=["POST"])
+@login_required
+def create_share_card(card_type):
+    if card_type not in sharecards.RENDERERS:
+        abort(404)
+    payload, err = build_share_payload(
+        current_user.id, card_type,
+        subject=request.form.get("subject") or None,
+        board=request.form.get("board") or None)
+    if err:
+        flash(err)
+        return redirect(request.referrer or url_for("dashboard"))
+
+    token = secrets.token_urlsafe(SHARE_TOKEN_BYTES)
+    with get_db() as db:
+        db.execute(
+            "INSERT INTO share_cards (token, user_id, card_type, payload) "
+            "VALUES (?,?,?,?)",
+            (token, current_user.id, card_type, _json.dumps(payload)))
+    log_event("share_card_created", current_user.id, card_type)
+    return redirect(url_for("share_card", token=token))
+
+
+def _load_card(token):
+    with get_db() as db:
+        row = db.execute("SELECT * FROM share_cards WHERE token=?",
+                         (token,)).fetchone()
+    if not row:
+        abort(404)
+    return row
+
+
+@app.route("/s/<token>")
+def share_card(token):
+    """The public landing page. No login — this is where a screenshot leads."""
+    row = _load_card(token)
+    payload = row["payload"]
+    if isinstance(payload, str):
+        payload = _json.loads(payload)
+    owned = current_user.is_authenticated and current_user.id == row["user_id"]
+    if not owned:
+        log_event("share_card_viewed", None, row["card_type"])
+    return render_template("share.html", card=row, payload=payload, owned=owned,
+                           token=token,
+                           card_title=sharecards.card_title(row["card_type"], payload))
+
+
+@app.route("/s/<token>.png")
+def share_card_png(token):
+    row = _load_card(token)
+    payload = row["payload"]
+    if isinstance(payload, str):
+        payload = _json.loads(payload)
+    size = request.args.get("size", "story")
+    if size not in sharecards.SIZES:
+        size = "story"
+    buf = io.BytesIO()
+    sharecards.render(row["card_type"], payload, size).save(buf)
+    buf.seek(0)
+    resp = send_file(buf, mimetype="image/png",
+                     download_name=f"telos-{row['card_type']}-{size}.png")
+    # The payload is immutable once written, so the PNG is too. Public because
+    # the whole point is that it renders in someone else's feed.
+    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return resp
+
+
+@app.route("/share/<token>/delete", methods=["POST"])
+@login_required
+def delete_share_card(token):
+    """Revoke a card. Not in the spec, but a public page of your own grades
+    that you cannot take down again is the wrong default."""
+    row = _load_card(token)
+    if row["user_id"] != current_user.id:
+        abort(403)
+    with get_db() as db:
+        db.execute("DELETE FROM share_cards WHERE token=?", (token,))
+    log_event("share_card_revoked", current_user.id, row["card_type"])
+    flash("Card revoked. The link no longer works.")
+    return redirect(url_for("dashboard"))
+
 
 # ── Boot ──────────────────────────────────────────────────────────────────────
 

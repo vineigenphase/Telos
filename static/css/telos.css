@@ -54,6 +54,7 @@
   --gold:      #C9A227;
   --orange:    #C08A3E;
   --red:       #B4574C;
+  --red-rgb:   180,87,76;                           /* tinted danger states */
 
   /* Subject identity — a tag colour each, never a full-card tint. Three hues
      that separate cleanly but stay inside the warm-neutral world. */
@@ -1812,7 +1813,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .nav-link:hover     { background: var(--card); color: var(--text); }
   .btn-primary:hover  { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-ghost:hover    { background: var(--card-2); color: var(--text); }
-  .btn-danger:hover   { background: rgba(239,68,68,0.1); }
+  .btn-danger:hover   { background: rgba(var(--red-rgb),0.10); }
   .btn-logout:hover   { color: var(--red); }
   .matrix-cell:hover  { border-color: var(--accent); background: var(--card-2); color: var(--text); }
   .paper-row:hover    { background: var(--card-2); }
@@ -1852,3 +1853,71 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* ── Share card landing page (Phase 9) ───────────────────────────────────────
+   The public page a shared card resolves to. It reuses the signed-out shell,
+   so everything here is additive to .auth-card rather than a second layout.
+   The square render is used on the page: at the shell's 360px measure a
+   1080x1920 story card would be over 600px tall and push the call to action
+   off the fold, which on the one page whose entire job is that call to action
+   would be a strange trade. */
+.share-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.share-cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.share-note {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.share-owner {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-sub);
+}
+
+.share-owner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.share-owner-actions form { margin: 0; }
+
+/* The dashboard's share row. A rule and a label, not a card — creating a
+   share card is an action, and the stat row above it is what the page is
+   actually for. */
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 26px 0 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-sub);
+}
+
+.share-row-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.share-row form { margin: 0; }

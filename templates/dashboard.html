@@ -100,6 +100,23 @@
     </div>
   </div>
 
+  {# ── Share ──────────────────────────────────────────────────────────────
+     A ruled row rather than a card: this is an action, not a result, and the
+     stat row above it is the thing worth looking at. Only the cards the user
+     actually has data for are offered — a "Predicted grade" button that
+     flashes "no prediction to share yet" would be a worse answer than not
+     showing it. Each is a POST because it creates something. #}
+  {% if shareable %}
+  <div class="share-row">
+    <span class="share-row-label">Share</span>
+    {% for opt in shareable %}
+    <form method="post" action="{{ url_for('create_share_card', card_type=opt.type) }}">
+      <button class="btn btn-secondary btn-sm" type="submit">{{ opt.label }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {# ── Next up ────────────────────────────────────────────────────────────
      The top prescription gets the prominent card; picks 2 and 3 follow as
      compact rows. Three picks span three topics on purpose — a student who

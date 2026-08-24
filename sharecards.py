@@ -396,6 +396,31 @@ def render_milestone(payload, size_name="story"):
     return c
 
 
+def card_title(card_type, payload):
+    """One factual line naming what the card shows.
+
+    Used for the landing page's heading, its <title> and its og:title, so a
+    link pasted into a chat previews as the result rather than as "Telos".
+    Deliberately the same facts the PNG already carries — nothing here may
+    reach for anything the card itself doesn't show.
+    """
+    if card_type == "grade":
+        where = payload.get("subject") or payload.get("board")
+        grade = payload.get("range_label") or payload.get("grade")
+        return f"{grade} predicted in {where}" if where else f"{grade} predicted"
+    if card_type == "heatmap":
+        pct = int(round(payload.get("accuracy") or 0))
+        subject = payload.get("subject")
+        return f"{pct}% accuracy in {subject}" if subject else f"{pct}% accuracy"
+    if card_type == "milestone":
+        n = payload.get("value") or 0
+        unit = payload.get("unit", "papers")
+        if unit == "papers":
+            return f"{n} past paper{'s' if n != 1 else ''} logged"
+        return f"{n} day{'s' if n != 1 else ''} in a row"
+    return "Telos"
+
+
 RENDERERS = {
     "grade": render_grade,
     "heatmap": render_heatmap,
