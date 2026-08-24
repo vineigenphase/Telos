@@ -5,11 +5,11 @@
 <div class="page-header">
   <div>
     <div class="page-title">Papers</div>
-    <div class="page-subtitle">Click any cell to log or view a paper</div>
+    <div class="page-subtitle">Every paper in your specs. Select a cell to log or open one.</div>
   </div>
   <a href="{{ url_for('add_paper') }}" class="btn btn-primary">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Custom Paper
+    Custom paper
   </a>
 </div>
 
@@ -72,22 +72,14 @@
     </table>
   </div>
 
-  <div style="margin-top: 8px; font-size: 0.72rem; color: var(--muted); display:flex; gap:14px; align-items:center;">
-    <span style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block;"></span> A*
+  {# Rendered from GRADE_COLOURS so the legend and the cells can never
+     disagree — this list used to restate the hexes by hand. #}
+  <div class="matrix-legend">
+    {% for g in ["A*", "A", "B", "C", "D", "E"] %}
+    <span class="legend-item">
+      <span class="legend-swatch" style="background: {{ GRADE_COLOURS[g] }};"></span>{{ g }}
     </span>
-    <span style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:2px;background:#22c55e;display:inline-block;"></span> A
-    </span>
-    <span style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:2px;background:#3b82f6;display:inline-block;"></span> B
-    </span>
-    <span style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:2px;background:#a78bfa;display:inline-block;"></span> C
-    </span>
-    <span style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;"></span> D/E
-    </span>
+    {% endfor %}
   </div>
 </div>
 {% endfor %}

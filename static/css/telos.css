@@ -455,24 +455,42 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .stat-label { font-size: 0.74rem; color: var(--muted); font-weight: 500; }
 
 /* ── Paper matrix ────────────────────────────────────────────────────────── */
-.matrix-section { margin-bottom: 28px; }
+.matrix-section { margin-bottom: 34px; }
 
-.matrix-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.matrix-header {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px;
+}
+.matrix-header .subject-dot { align-self: center; }
 
-.subject-dot { width: 10px; height: 10px; border-radius: 50%; }
-.matrix-title { font-size: 0.95rem; font-weight: 600; }
-.matrix-board { font-size: 0.78rem; color: var(--muted); margin-left: 2px; }
+.subject-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.matrix-title {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 400; letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.matrix-board {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap;
+}
+/* Rule to the edge, as on every other section heading. */
+.matrix-header::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+  align-self: center;
+}
 
 .matrix-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .matrix-table { border-collapse: separate; border-spacing: 4px; }
 
 .matrix-table th {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   color: var(--muted);
   text-align: center;
   padding: 4px 6px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Sticky first column so the paper code stays visible while scrolling years */
@@ -492,13 +510,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .matrix-cell {
   width: 60px;
   height: var(--tap-min);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
   text-decoration: none;
   border: 1px solid var(--border);
@@ -510,8 +529,27 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 .matrix-cell.done { border-color: transparent; color: #fff; }
-.matrix-cell .cell-pct   { font-size: 0.78rem; font-weight: 700; line-height: 1; }
-.matrix-cell .cell-grade { font-size: 0.6rem; opacity: 0.85; margin-top: 1px; }
+/* Serif figures here too — the matrix is the densest field of numbers in the
+   app, and it is where the typeface change earns most. */
+.matrix-cell .cell-pct {
+  font-family: var(--serif);
+  font-size: 0.95rem; font-weight: 400; line-height: 1;
+  letter-spacing: -0.01em;
+}
+.matrix-cell .cell-grade {
+  font-size: 0.58rem; letter-spacing: 0.08em; opacity: 0.8; margin-top: 2px;
+}
+
+.matrix-legend {
+  margin-top: 10px;
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch {
+  width: 8px; height: 8px; border-radius: var(--radius-xs);
+  display: inline-block; flex-shrink: 0;
+}
 
 /* ── Heatmap ─────────────────────────────────────────────────────────────── */
 .heatmap-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }

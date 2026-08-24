@@ -379,25 +379,44 @@ def allowed_file(fname):
     return "." in fname and fname.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 
+# Grade colours, warm-neutral palette. Kept in step with the --subj-* and
+# status tokens in telos.css; templates read these rather than restating hexes.
+# The ramp runs brass (top) through neutral to a muted rust, so a low grade is
+# stated rather than alarmed — nothing here should look like a red error.
+GRADE_COLOURS = {
+    "A*": "#C9A227",   # brass, the accent itself
+    "A":  "#A9932F",
+    "B":  "#7F8A6E",
+    "C":  "#7A7973",
+    "D":  "#9C7A55",
+    "E":  "#B4574C",
+}
+
+
 def get_grade(score, max_marks, a_star=None, a=None, b=None, c=None):
     if not score or not max_marks:
         return None, None
     pct = score / max_marks * 100
     if a_star is not None and score >= a_star:
-        return "A*", "#f59e0b"
+        return "A*", GRADE_COLOURS["A*"]
     if a is not None and score >= a:
-        return "A", "#22c55e"
+        return "A", GRADE_COLOURS["A"]
     if b is not None and score >= b:
-        return "B", "#3b82f6"
+        return "B", GRADE_COLOURS["B"]
     if c is not None and score >= c:
-        return "C", "#a78bfa"
+        return "C", GRADE_COLOURS["C"]
     # percentage fallback
-    if pct >= 90: return "A*", "#f59e0b"
-    if pct >= 80: return "A",  "#22c55e"
-    if pct >= 70: return "B",  "#3b82f6"
-    if pct >= 60: return "C",  "#a78bfa"
-    if pct >= 50: return "D",  "#f97316"
-    return "E", "#ef4444"
+    if pct >= 90: return "A*", GRADE_COLOURS["A*"]
+    if pct >= 80: return "A",  GRADE_COLOURS["A"]
+    if pct >= 70: return "B",  GRADE_COLOURS["B"]
+    if pct >= 60: return "C",  GRADE_COLOURS["C"]
+    if pct >= 50: return "D",  GRADE_COLOURS["D"]
+    return "E", GRADE_COLOURS["E"]
+
+
+# Exposed so the papers legend renders from the same source the cells do —
+# previously the legend restated the hexes and could drift silently.
+app.jinja_env.globals["GRADE_COLOURS"] = GRADE_COLOURS
 
 
 def paper_matrix(user_id):

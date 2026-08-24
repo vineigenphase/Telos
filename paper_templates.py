@@ -1,7 +1,7 @@
 TEMPLATES = {
     "Edexcel": {
         "Further Maths": {
-            "color": "#6B7280",
+            "color": "#7A7973",
             "papers": [
                 {"code": "CP1", "name": "Core Pure 1",          "max_marks": 75},
                 {"code": "CP2", "name": "Core Pure 2",          "max_marks": 75},
@@ -22,7 +22,7 @@ TEMPLATES = {
             },
         },
         "Maths": {
-            "color": "#4C7EF3",
+            "color": "#C9A227",
             "papers": [
                 {"code": "Pure 1",      "name": "Pure Mathematics 1",    "max_marks": 100},
                 {"code": "Pure 2",      "name": "Pure Mathematics 2",    "max_marks": 100},
@@ -46,7 +46,7 @@ TEMPLATES = {
     },
     "OCR A": {
         "Physics": {
-            "color": "#22B8CF",
+            "color": "#5E8B7E",
             "papers": [
                 {"code": "Paper 1", "name": "Breadth in Physics", "max_marks": 100},
                 {"code": "Paper 2", "name": "Depth in Physics",   "max_marks": 100},
