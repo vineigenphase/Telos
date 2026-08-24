@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{# Imports are not inherited from the parent template — base.html's own import
+   is not visible in this block, so the icon set is imported again here. #}
+{% import "_icons.html" as icons %}
 {% block title %}Dashboard — Telos{% endblock %}
 {% block content %}
 
@@ -168,20 +171,26 @@
   {# ── Your subjects ──────────────────────────────────────────────────────
      Coverage against the papers that exist, not mastery. A subject can read
      100% here and still be weak — that is what the heatmap is for. #}
-  <div class="section-head"><h2 class="section-title">Your subjects</h2></div>
+  <div class="section-head">
+    <h2 class="section-title">Your subjects</h2>
+    <a class="section-link" href="{{ url_for('papers') }}">All subjects →</a>
+  </div>
   <div class="subject-grid">
     {% for s in subjects %}
+    {% set glyph = {'Maths': 'pi', 'Further Maths': 'sigma', 'Physics': 'atom'}.get(s.subject, 'pi') %}
     <a class="subject-card" href="{{ url_for('papers') }}">
-      <div class="subject-head">
-        <span class="subject-dot" style="background: {{ s.colour }};"></span>
-        <span class="subject-name">{{ s.subject }}</span>
-      </div>
+      {# Decoration is confined to these cards and sits behind the content at
+         low opacity — see the subject_art macro. #}
+      <span class="subject-art-wrap" style="color: {{ s.colour }};">{{ icons.subject_art(s.subject) }}</span>
+      <span class="subject-icon" style="color: {{ s.colour }};">{{ icons.icon(glyph) }}</span>
+      <div class="subject-name">{{ s.subject }}</div>
       <div class="subject-meta">{{ s.board }}{% if s.areas %} · {{ s.areas }} spec areas{% endif %}</div>
       <div class="progress-bar-track"><div class="progress-bar-fill" style="width:{{ s.pct }}%;"></div></div>
       <div class="subject-foot">
         <span>{{ s.logged }} of {{ s.available }} papers</span>
         <span class="subject-pct">{{ s.pct }}%</span>
       </div>
+      <span class="subject-cta">Browse papers →</span>
     </a>
     {% endfor %}
   </div>
@@ -214,12 +223,13 @@
       <div class="section-head"><h2 class="section-title">Quick access</h2></div>
       <div class="quick-list">
         {% for q in [
-          {"href": url_for('bank'),    "label": "Question bank", "desc": "Upload and tag questions by topic"},
-          {"href": url_for('heatmap'), "label": "Heatmap",       "desc": "Per-question accuracy across papers"},
-          {"href": url_for('revise'),  "label": "Revise",        "desc": "Questions due for review"},
-          {"href": url_for('mocks'),   "label": "Mock papers",   "desc": "Full papers under exam conditions"},
+          {"href": url_for('bank'),    "icon": "database", "label": "Question bank", "desc": "Upload and tag questions by topic"},
+          {"href": url_for('heatmap'), "icon": "cells",    "label": "Heatmap",       "desc": "Per-question accuracy across papers"},
+          {"href": url_for('revise'),  "icon": "repeat",   "label": "Revise",        "desc": "Questions due for review"},
+          {"href": url_for('mocks'),   "icon": "file",     "label": "Mock papers",   "desc": "Full papers under exam conditions"},
         ] %}
         <a class="quick-row" href="{{ q.href }}">
+          <span class="quick-icon">{{ icons.icon(q.icon) }}</span>
           <span class="quick-body">
             <span class="quick-label">{{ q.label }}</span>
             <span class="quick-desc">{{ q.desc }}</span>

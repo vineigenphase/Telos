@@ -1024,6 +1024,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 .subject-card {
   display: block;
+  position: relative;
+  overflow: hidden;                    /* clips the decoration */
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1033,10 +1035,39 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   transition: background var(--transition), border-color var(--transition);
 }
 
-.subject-head { display: flex; align-items: center; gap: 8px; }
-.subject-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* Decoration only. Sits behind the content, is drawn in the subject's own
+   colour, and is capped at 6% — high enough to notice, low enough that it
+   never competes with a number. Hidden from assistive tech via aria-hidden
+   on the SVG itself. */
+.subject-art-wrap {
+  position: absolute;
+  top: -6px; right: -10px;
+  width: 160px; height: 90px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.subject-art { width: 100%; height: 100%; }
+
+.subject-icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.subject-icon svg { width: 18px; height: 18px; }
+
 .subject-name { font-size: 15px; font-weight: 600; }
 .subject-meta { font-size: 12px; color: var(--muted); margin: 3px 0 10px; }
+
+.subject-cta {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--accent);
+}
 
 .subject-foot {
   display: flex; align-items: baseline; justify-content: space-between;
@@ -1094,7 +1125,19 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   transition: background var(--transition);
 }
 .quick-row + .quick-row { border-top: 1px solid var(--border-sub); }
-.quick-body  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.quick-icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  color: var(--muted-2);
+}
+.quick-icon svg { width: 15px; height: 15px; }
+
+.quick-body  { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .quick-label { font-size: 13px; font-weight: 500; color: var(--text); }
 .quick-desc  { font-size: 12px; color: var(--muted); }
 .quick-arrow { color: var(--muted); flex-shrink: 0; }
