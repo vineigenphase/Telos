@@ -644,15 +644,19 @@ def dashboard():
     is_pro = user_is_pro(current_user)
     predictions = get_predictions(current_user.id) if is_pro else []
 
-    # Today panel (Phase 4). Pro only: free gets diagnosis, Pro gets prediction
-    # and prescription.
+    # Prediction and prescription are the Pro half of the split: free gets
+    # diagnosis, Pro gets prediction and prescription.
     prescriptions = build_prescriptions(current_user.id) if is_pro else None
     due_count = revision_due_count(current_user.id) if is_pro else 0
+    headline = dashboard_stats(current_user.id)
 
     return render_template("dashboard.html", recent=recent_enriched,
                            stats=stats, total=total, templates=TEMPLATES,
                            predictions=predictions, papers_logged=total,
-                           prescriptions=prescriptions, due_count=due_count)
+                           prescriptions=prescriptions, due_count=due_count,
+                           headline=headline, is_pro=is_pro,
+                           subjects=subject_progress(current_user.id),
+                           activity=recent_activity(current_user.id))
 
 # ── Papers matrix ─────────────────────────────────────────────────────────────
 
@@ -1054,7 +1058,8 @@ def dashboard_stats(user_id):
         # have the most evidence for rather than an average across subjects,
         # which would be a number describing nobody.
         head = db.execute(
-            "SELECT board, subject, grade_score, predicted_grade, confidence, sample_size "
+            "SELECT board, subject, grade_score, predicted_grade, confidence, "
+            "       sample_size, next_grade, marks_to_next "
             "FROM grade_predictions WHERE user_id=? "
             "ORDER BY sample_size DESC, subject LIMIT 1",
             (user_id,)
@@ -1096,6 +1101,12 @@ def dashboard_stats(user_id):
             "confidence": head["confidence"] if head else None,
             "delta_letters": grade_delta_letters,
             "delta_points": grade_delta_points,
+            # Carried so the tile can pair the grade with the action. Phase 3
+            # is explicit that a bare grade must never be shown — a prediction
+            # with no next step is just anxiety — so this is not optional
+            # decoration, it is the reason the number is allowed on screen.
+            "next_grade": head["next_grade"] if head else None,
+            "marks_to_next": head["marks_to_next"] if head else None,
         },
         "papers": {
             "value": int(papers_total),
@@ -1111,6 +1122,85 @@ def dashboard_stats(user_id):
             "delta": acc_delta,
         },
     }
+
+
+def subject_progress(user_id):
+    """Per-subject coverage for the 'Your subjects' row.
+
+    "Complete" means papers logged against papers that exist in the template
+    (every paper code x every year), which is the only completeness this app
+    can actually measure. It is coverage, not mastery — a student can be 100%
+    covered and still weak, which is what the heatmap is for.
+    """
+    with get_db() as db:
+        rows = db.execute(
+            "SELECT subject, board, COUNT(*) AS n FROM papers "
+            "WHERE user_id=? GROUP BY subject, board", (user_id,)
+        ).fetchall()
+    logged = {(r["subject"], r["board"]): int(r["n"]) for r in rows}
+
+    out = []
+    for board, subjects in TEMPLATES.items():
+        for subject, data in subjects.items():
+            available = len(data["papers"]) * len(data["years"])
+            done = logged.get((subject, board), 0)
+            # Spec areas = distinct topics across this subject's papers.
+            areas = {t for topics in data.get("topics", {}).values() for t in topics}
+            out.append({
+                "subject": subject,
+                "board": board,
+                "colour": data["color"],
+                "logged": done,
+                "available": available,
+                "pct": round(done / available * 100) if available else 0,
+                "areas": len(areas),
+            })
+    return out
+
+
+def recent_activity(user_id, limit=6):
+    """Recent papers as a compact timeline, grouped by day.
+
+    Deliberately papers only. question_marks has carried a timestamp since
+    migration 005, but nothing before that date has one, so a per-question
+    feed would show a cliff rather than a history.
+    """
+    with get_db() as db:
+        rows = db.execute(
+            "SELECT id, subject, board, paper_code, year, score, max_marks, "
+            "       date_completed FROM papers WHERE user_id=? "
+            "ORDER BY date_completed DESC NULLS LAST, id DESC LIMIT ?",
+            (user_id, limit)
+        ).fetchall()
+
+    today = datetime.now(timezone.utc).date()
+    groups = []
+    for r in rows:
+        raw = r["date_completed"]
+        try:
+            d = datetime.strptime(str(raw), "%Y-%m-%d").date() if raw else None
+        except ValueError:
+            d = None
+        if d == today:
+            label = "Today"
+        elif d and (today - d).days == 1:
+            label = "Yesterday"
+        elif d:
+            label = d.strftime("%-d %b") if os.name != "nt" else d.strftime("%d %b").lstrip("0")
+        else:
+            label = "Undated"
+
+        pct = (round(float(r["score"]) / float(r["max_marks"]) * 100)
+               if r["score"] is not None and r["max_marks"] else None)
+        item = {
+            "id": r["id"], "subject": r["subject"], "board": r["board"],
+            "paper_code": r["paper_code"], "year": r["year"], "pct": pct,
+        }
+        if groups and groups[-1]["label"] == label:
+            groups[-1]["items"].append(item)
+        else:
+            groups.append({"label": label, "items": [item]})
+    return groups
 
 
 def revision_due_count(user_id):

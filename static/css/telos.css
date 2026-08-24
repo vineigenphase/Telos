@@ -922,6 +922,183 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   z-index: 50;
 }
 
+/* ── Dashboard: section headings ─────────────────────────────────────────── */
+/* Sentence case, not caps. Uppercase is reserved for the sidebar's four nav
+   groups, where it separates navigation from content. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 0 12px;
+}
+.section-title { font-size: 18px; font-weight: 600; color: var(--text); }
+.section-link  { font-size: 13px; color: var(--muted-2); text-decoration: none; }
+
+/* ── Dashboard: performance overview ─────────────────────────────────────── */
+.statrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;                /* 2x2 on phones */
+  gap: 1px;
+  background: var(--border-sub);                 /* hairlines between cells */
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.statrow-item { background: var(--card); padding: 14px 16px; }
+
+.statrow-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--muted-2);
+  margin-bottom: 6px;
+}
+
+.statrow-value {
+  font-size: 28px; font-weight: 700; line-height: 1.1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+.statrow-value .muted { color: var(--muted); }
+
+.badge-provisional {
+  font-size: 10px; font-weight: 600;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 100px;
+  padding: 0 6px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.statrow-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.statrow-sub a { color: var(--accent); text-decoration: none; }
+
+.delta {
+  font-size: 12px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.delta.up   { color: var(--green); }
+.delta.down { color: var(--muted-2); }   /* a fall is stated, never alarmed */
+
+/* ── Dashboard: Next up ──────────────────────────────────────────────────── */
+/* The one place a larger card is justified. */
+.nextup {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.nextup-main { min-width: 0; flex: 1 1 260px; }
+.nextup-topic { font-size: 15px; font-weight: 600; color: var(--text); }
+
+.nextup-meta {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; margin-top: 5px;
+}
+
+.subject-tag {
+  font-size: 12px;
+  color: var(--muted-2);
+}
+
+.nextup-why  { font-size: 13px; color: var(--muted-2); margin: 8px 0 10px; }
+.nextup-foot { font-size: 12px; color: var(--muted); margin-top: 6px;
+               font-variant-numeric: tabular-nums; }
+.nextup-cta  { flex: 0 0 auto; }
+
+/* ── Dashboard: subject cards ────────────────────────────────────────────── */
+.subject-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+.subject-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.subject-head { display: flex; align-items: center; gap: 8px; }
+.subject-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.subject-name { font-size: 15px; font-weight: 600; }
+.subject-meta { font-size: 12px; color: var(--muted); margin: 3px 0 10px; }
+
+.subject-foot {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-top: 8px;
+  font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.subject-pct { font-weight: 600; color: var(--muted-2); }
+
+/* ── Dashboard: activity timeline + quick access ─────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr; gap: 4px; }
+
+.timeline {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.timeline-day {
+  font-size: 12px; font-weight: 500;
+  color: var(--muted);
+  padding: 10px 14px 6px;
+}
+
+.timeline-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  min-height: var(--tap-min);
+  text-decoration: none; color: inherit;
+  border-top: 1px solid var(--border-sub);
+  touch-action: manipulation;
+}
+.timeline-day + .timeline-row { border-top: none; }
+.timeline-what   { font-size: 13px; color: var(--text); }
+.timeline-result { font-size: 13px; color: var(--muted-2); flex-shrink: 0;
+                   font-variant-numeric: tabular-nums; }
+
+/* Plain rows, not tiles. */
+.quick-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.quick-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  min-height: var(--tap-min);
+  text-decoration: none; color: inherit;
+  touch-action: manipulation;
+  transition: background var(--transition);
+}
+.quick-row + .quick-row { border-top: 1px solid var(--border-sub); }
+.quick-body  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.quick-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.quick-desc  { font-size: 12px; color: var(--muted); }
+.quick-arrow { color: var(--muted); flex-shrink: 0; }
+
 /* ── Today panel — predicted grade, next 3 questions, due count ──────────── */
 .today {
   border: 1px solid var(--border);
@@ -1025,6 +1202,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (min-width: 640px) {
   body { display: flex; padding-bottom: 0; }
 
+  /* Four across on one line — the 2x2 phone grid is a fallback, not the
+     intended reading. */
+  .statrow { grid-template-columns: repeat(4, 1fr); }
+  .subject-grid { grid-template-columns: repeat(3, 1fr); }
+
   .tabbar, .sheet, .sheet-backdrop { display: none; }
 
   /* Install prompt is mobile-only, per Phase 2.5c: "never on desktop". */
@@ -1082,6 +1264,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
   .form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
+  /* Activity and quick access sit side by side once there is room; below
+     this they stack, re-flowed rather than shrunk. */
+  .two-col { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
+
   /* Two-column: weakest-topics list on the left, the full grid on the right.
      iPad is where students actually revise, so it gets a real layout rather
      than a stretched phone one. */
@@ -1111,6 +1297,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .btn-logout:hover   { color: var(--red); }
   .matrix-cell:hover  { border-color: var(--accent); background: var(--card-2); color: var(--text); }
   .paper-row:hover    { background: var(--card-2); }
+  .nextup:hover       { background: var(--card-hover); border-color: var(--border-2); }
+  .subject-card:hover { background: var(--card-hover); border-color: var(--border-2); }
+  .rx-item:hover      { background: var(--card-hover); }
+  .quick-row:hover    { background: var(--card-hover); }
+  .timeline-row:hover { background: var(--card-hover); }
+  .section-link:hover { color: var(--text); }
   .upload-card:hover  { background: var(--card-2); }
   .topic-pill:hover   { background: rgba(var(--accent-rgb),0.26); color: #fff; }
   .auth-link:hover    { text-decoration: underline; }

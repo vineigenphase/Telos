@@ -2,229 +2,234 @@
 {% block title %}Dashboard — Telos{% endblock %}
 {% block content %}
 
-{% set subject_meta = {
-  ("Further Maths", "Edexcel"): {"short": "FM",   "color": "#8b5cf6", "cls": "fm"},
-  ("Maths",         "Edexcel"): {"short": "Math", "color": "#3b82f6", "cls": "math"},
-  ("Physics",       "OCR A"):   {"short": "Phys", "color": "#10b981", "cls": "phys"},
-} %}
+{#  Layout order is deliberate and follows the UI brief: performance overview,
+    then the single next action, then subjects, then activity. Everything above
+    the fold answers "what do I do now", not "how am I feeling".
+
+    Copy is direct and evidence-based throughout — facts, not encouragement.  #}
 
 <div class="page-header">
   <div>
     <div class="page-title">Dashboard</div>
-    <div class="page-subtitle">{{ now if now else "Welcome back, " ~ current_user.username }}</div>
+    <div class="page-subtitle">
+      {% if headline.papers.value %}Your progress this week{% else %}Log a paper to get started{% endif %}
+    </div>
   </div>
   <a href="{{ url_for('add_paper') }}" class="btn btn-primary">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Log Paper
+    Log paper
   </a>
 </div>
 
 <div class="page-body">
 
-  <!-- ── Today ────────────────────────────────────────────────────────────
-       Predicted grade, the next three questions, and anything due. This panel
-       is meant to be the reason someone opens Telos on a Tuesday evening, so
-       it leads with the action, not the number.
+  {# ── Performance overview ───────────────────────────────────────────────
+     Four plain numbers. A delta only renders when there is a real comparison
+     behind it; "+0 this week" on a new account would be a lie. Deltas began
+     accruing at migration 005 and are not backfillable. #}
+  <div class="statrow">
 
-       Never a bare grade: every prediction is shown with the marks that would
-       move it. A number without a next step is just anxiety. -->
-  {% if is_pro_user %}
-  <div class="today">
-    <div class="today-head">
-      <div class="today-title">Today</div>
-      <div class="today-sub">
-        {% if due_count %}{{ due_count }} due{% else %}Your next moves{% endif %}
+    <div class="statrow-item">
+      <div class="statrow-label">
+        Predicted grade
+        {# Low confidence must be labelled. An unqualified letter off three
+           papers is false precision, which Phase 3 rules out explicitly. #}
+        {% if is_pro and headline.grade.confidence == 'low' %}<span class="badge-provisional">provisional</span>{% endif %}
       </div>
-    </div>
-
-    <div class="today-section">
-    {% if predictions %}
-    <div style="display:grid; gap:10px;">
-      {% for p in predictions %}
-      {% set colour = '#f59e0b' if p.predicted_grade == 'A*' else ('#22c55e' if p.predicted_grade == 'A' else ('#3b82f6' if p.predicted_grade == 'B' else '#a78bfa')) %}
-      <div class="card" style="border-left:3px solid {{ colour }};">
-        <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;">
-          <div style="font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">
-            {{ p.subject }} — predicted
-          </div>
-          {% if p.confidence == 'low' %}
-          <span style="font-size:0.68rem; color:var(--gold); border:1px solid var(--gold); border-radius:100px; padding:1px 8px;">provisional</span>
+      {% if is_pro and headline.grade.value %}
+        <div class="statrow-value">
+          {{ headline.grade.value }}
+          {% if headline.grade.delta_letters %}
+          <span class="delta {{ 'up' if headline.grade.delta_letters > 0 else 'down' }}">
+            {{ '↑' if headline.grade.delta_letters > 0 else '↓' }}{{ headline.grade.delta_letters|abs }} grade{{ 's' if headline.grade.delta_letters|abs != 1 }}
+          </span>
           {% endif %}
         </div>
-
-        <div style="display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap;">
-          <div style="font-size:2.4rem; font-weight:700; line-height:1; color:{{ colour }};">
-            {{ p.predicted_grade }}
-          </div>
-          <div style="font-size:0.9rem; color:var(--muted-2);">
-            {% if p.next_grade and p.marks_to_next is not none %}
-              You're <strong style="color:var(--text);">{{ p.marks_to_next|int }} mark{{ 's' if p.marks_to_next|int != 1 }}</strong>
-              off {{ 'an' if p.next_grade in ['A','A*'] else 'a' }} {{ p.next_grade }}.
-              <a href="{{ url_for('heatmap') }}" class="auth-link">See where they are →</a>
-            {% else %}
-              Top of the scale — keep it there.
-            {% endif %}
-          </div>
-        </div>
-
-        <div style="font-size:0.72rem; color:var(--muted); margin-top:10px;">
-          {% if p.confidence == 'low' %}
-            Provisional — based on {{ p.sample_size }} papers. Log more for a sharper estimate.
+        {# Never a bare grade — the number is only allowed on screen paired
+           with the marks that would move it. #}
+        <div class="statrow-sub">
+          {% if headline.grade.marks_to_next is not none and headline.grade.next_grade %}
+            <a href="{{ url_for('heatmap') }}">{{ headline.grade.marks_to_next|int }} mark{{ 's' if headline.grade.marks_to_next|int != 1 }} off {{ 'an' if headline.grade.next_grade in ['A','A*'] else 'a' }} {{ headline.grade.next_grade }} →</a>
           {% else %}
-            Based on {{ p.sample_size }} papers · {{ p.confidence }} confidence
+            Top of the scale
           {% endif %}
         </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="today-label">Predicted grade</div>
-    <div class="today-empty">
-      {% if papers_logged is defined and papers_logged < 3 %}
-        Log {{ 3 - papers_logged }} more paper{{ 's' if (3 - papers_logged) != 1 }} to unlock your predicted grade.
-        Three is the minimum for an estimate worth trusting.
+      {% elif is_pro %}
+        <div class="statrow-value muted">—</div>
+        <div class="statrow-sub">
+          {% if papers_logged < 3 %}{{ 3 - papers_logged }} more paper{{ 's' if (3 - papers_logged) != 1 }} to unlock{% else %}Needs grade boundaries{% endif %}
+        </div>
       {% else %}
-        No prediction yet — add grade boundaries for your papers to unlock it.
+        <div class="statrow-value muted">—</div>
+        <div class="statrow-sub"><a href="{{ url_for('subscription') }}?from=predicted-grade">Telos Pro →</a></div>
       {% endif %}
     </div>
-    {% endif %}
+
+    <div class="statrow-item">
+      <div class="statrow-label">Papers completed</div>
+      <div class="statrow-value">
+        {{ headline.papers.value }}
+        {% if headline.papers.delta %}<span class="delta up">+{{ headline.papers.delta }}</span>{% endif %}
+      </div>
+      <div class="statrow-sub">{% if headline.papers.delta %}this week{% else %}all time{% endif %}</div>
     </div>
 
-    <!-- ── Your next 3 questions ────────────────────────────────────────────
-         Every pick carries its "why". An unexplained recommendation gets
-         ignored, so the topic accuracy and the marks it costs per paper are
-         part of the row, not a tooltip. -->
-    <div class="today-section">
-      <div class="today-label">
-        {% if prescriptions and prescriptions.ready %}
-          Your next {{ prescriptions.picks|length }} question{{ 's' if prescriptions.picks|length != 1 }}
-        {% else %}
-          Your next questions
+    <div class="statrow-item">
+      <div class="statrow-label">Questions answered</div>
+      <div class="statrow-value">
+        {{ headline.questions.value }}
+        {% if headline.questions.delta %}<span class="delta up">+{{ headline.questions.delta }}</span>{% endif %}
+      </div>
+      <div class="statrow-sub">{% if headline.questions.delta %}this week{% else %}all time{% endif %}</div>
+    </div>
+
+    <div class="statrow-item">
+      <div class="statrow-label">Accuracy</div>
+      <div class="statrow-value">
+        {% if headline.accuracy.value is not none %}{{ headline.accuracy.value }}%{% else %}<span class="muted">—</span>{% endif %}
+        {% if headline.accuracy.delta %}
+        <span class="delta {{ 'up' if headline.accuracy.delta > 0 else 'down' }}">
+          {{ '↑' if headline.accuracy.delta > 0 else '↓' }}{{ headline.accuracy.delta|abs }}%
+        </span>
         {% endif %}
       </div>
+      <div class="statrow-sub">{% if headline.accuracy.delta %}vs last week{% else %}across all marks{% endif %}</div>
+    </div>
+  </div>
 
-      {% if prescriptions and prescriptions.ready %}
-      <div class="rx-list">
-        {% for q in prescriptions.picks %}
-        {% set href = url_for('enter_marks', pid=q.paper_id) if q.kind == 'redo'
-                      else url_for('bank', topic=q.topic) %}
-        <a class="rx-item" href="{{ href }}">
-          <span class="rx-rank">{{ loop.index }}</span>
-          <span class="rx-body">
-            <span class="rx-head">
-              <span class="rx-source">{{ q.source }}</span>
-              <span class="rx-tag {{ q.kind }}">{{ 'redo' if q.kind == 'redo' else 'new' }}</span>
-            </span>
-            <span class="rx-why">{{ q.why }}</span>
-            <span class="rx-meta">
-              {% if q.kind == 'redo' %}
-                You scored {{ q.scored }} ({{ q.pct }}%) · {{ q.action }} →
-              {% else %}
-                {% if q.max_marks %}{{ q.max_marks }} marks · {% endif %}{{ q.action }} →
-              {% endif %}
-            </span>
+  {# ── Next up ────────────────────────────────────────────────────────────
+     The top prescription gets the prominent card; picks 2 and 3 follow as
+     compact rows. Three picks span three topics on purpose — a student who
+     only ever revises their single worst topic still fails the other two.
+     Every pick carries its "why": an unexplained recommendation gets ignored. #}
+  {% if is_pro %}
+    {% if prescriptions and prescriptions.ready %}
+    {% set lead = prescriptions.picks[0] %}
+    <div class="section-head">
+      <h2 class="section-title">Next up</h2>
+      {% if due_count %}<a class="section-link" href="{{ url_for('revise') }}">{{ due_count }} due for review →</a>{% endif %}
+    </div>
+
+    <a class="nextup" href="{{ url_for('enter_marks', pid=lead.paper_id) if lead.kind == 'redo' else url_for('bank', topic=lead.topic) }}">
+      <div class="nextup-main">
+        <div class="nextup-topic">{{ lead.topic }}</div>
+        <div class="nextup-meta">
+          <span class="subject-tag">{{ lead.source }}</span>
+          <span class="rx-tag {{ lead.kind }}">{{ 'redo' if lead.kind == 'redo' else 'new' }}</span>
+        </div>
+        <div class="nextup-why">{{ lead.why }}</div>
+        {# The bar is current accuracy on this topic, not progress through it —
+           Telos has no notion of "part way through a topic". #}
+        {% set acc = prescriptions.topics[0].pct if prescriptions.topics else 0 %}
+        <div class="progress-bar-track"><div class="progress-bar-fill" style="width:{{ acc }}%;"></div></div>
+        <div class="nextup-foot">
+          {{ acc }}% accuracy{% if lead.max_marks %} · {{ lead.max_marks }} marks{% endif %}
+          {# TODO: the brief asks for an estimated time here. papers.time_taken is
+             whole-paper only, so there is no per-question timing to derive it
+             from. Needs a schema change before it can be shown honestly. #}
+        </div>
+      </div>
+      <span class="btn btn-primary nextup-cta">Continue →</span>
+    </a>
+
+    {% if prescriptions.picks|length > 1 %}
+    <div class="rx-list">
+      {% for q in prescriptions.picks[1:] %}
+      <a class="rx-item" href="{{ url_for('enter_marks', pid=q.paper_id) if q.kind == 'redo' else url_for('bank', topic=q.topic) }}">
+        <span class="rx-rank">{{ loop.index + 1 }}</span>
+        <span class="rx-body">
+          <span class="rx-head">
+            <span class="rx-source">{{ q.topic }}</span>
+            <span class="rx-tag {{ q.kind }}">{{ 'redo' if q.kind == 'redo' else 'new' }}</span>
           </span>
+          <span class="rx-why">{{ q.why }}</span>
+          <span class="rx-meta">
+            {{ q.source }}{% if q.kind == 'redo' %} · scored {{ q.scored }}{% elif q.max_marks %} · {{ q.max_marks }} marks{% endif %} →
+          </span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="section-head"><h2 class="section-title">Next up</h2></div>
+    <div class="card"><div class="today-empty">
+      {{ prescriptions.message if prescriptions else "Log a paper and tag its questions by topic to get recommendations." }}
+    </div></div>
+    {% endif %}
+  {% else %}
+    <div class="section-head"><h2 class="section-title">Next up</h2></div>
+    {% with feature="Predicted grade", blurb="Your grade from real boundaries, the marks to the next one, and the three questions to do next." %}
+      {% include "_upgrade_prompt.html" %}
+    {% endwith %}
+  {% endif %}
+
+  {# ── Your subjects ──────────────────────────────────────────────────────
+     Coverage against the papers that exist, not mastery. A subject can read
+     100% here and still be weak — that is what the heatmap is for. #}
+  <div class="section-head"><h2 class="section-title">Your subjects</h2></div>
+  <div class="subject-grid">
+    {% for s in subjects %}
+    <a class="subject-card" href="{{ url_for('papers') }}">
+      <div class="subject-head">
+        <span class="subject-dot" style="background: {{ s.colour }};"></span>
+        <span class="subject-name">{{ s.subject }}</span>
+      </div>
+      <div class="subject-meta">{{ s.board }}{% if s.areas %} · {{ s.areas }} spec areas{% endif %}</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:{{ s.pct }}%;"></div></div>
+      <div class="subject-foot">
+        <span>{{ s.logged }} of {{ s.available }} papers</span>
+        <span class="subject-pct">{{ s.pct }}%</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {# ── Recent activity + Quick access ─────────────────────────────────────── #}
+  <div class="two-col">
+    <div>
+      <div class="section-head">
+        <h2 class="section-title">Recent activity</h2>
+        <a class="section-link" href="{{ url_for('papers') }}">All papers →</a>
+      </div>
+      {% if activity %}
+      <div class="timeline">
+        {% for group in activity %}
+        <div class="timeline-day">{{ group.label }}</div>
+        {% for item in group['items'] %}
+        <a class="timeline-row" href="{{ url_for('edit_paper', pid=item.id) }}">
+          <span class="timeline-what">{{ item.subject }} · {{ item.paper_code }} {{ item.year }}</span>
+          <span class="timeline-result">{% if item.pct is not none %}{{ item.pct }}%{% else %}no score{% endif %}</span>
         </a>
+        {% endfor %}
         {% endfor %}
       </div>
       {% else %}
-      <div class="today-empty">
-        {{ prescriptions.message if prescriptions else
-           "Log a paper and tag its questions by topic to get recommendations." }}
-      </div>
+      <div class="card"><div class="today-empty">No papers logged yet.</div></div>
       {% endif %}
     </div>
 
-    {% if due_count %}
-    <div class="today-section">
-      <div class="today-label">Revision due</div>
-      <a class="rx-item" href="{{ url_for('revise') }}">
-        <span class="rx-rank">{{ due_count }}</span>
-        <span class="rx-body">
-          <span class="rx-source">{{ due_count }} question{{ 's' if due_count != 1 }} due for review</span>
-          <span class="rx-meta">Review them →</span>
-        </span>
-      </a>
-    </div>
-    {% endif %}
-  </div>
-  {% else %}
-    <div style="margin-bottom:24px;">
-      {% with feature="Predicted grade", blurb="Your grade from real boundaries, exactly how many marks to the next one, and the three questions to do next." %}
-        {% include "_upgrade_prompt.html" %}
-      {% endwith %}
-    </div>
-  {% endif %}
-
-  <!-- Stat cards -->
-  <div class="stat-grid" style="margin-bottom: 24px;">
-    <div class="stat-card total">
-      <div class="stat-value">{{ total }}</div>
-      <div class="stat-label">Papers completed</div>
-    </div>
-    {% for board, subjects in templates.items() %}
-      {% for subject, data in subjects.items() %}
-        {% set key = (subject, board) %}
-        {% set s = stats.get(key, {"n": 0, "avg": 0}) %}
-        {% set meta = {"Further Maths": "fm", "Maths": "math", "Physics": "phys"} %}
-        <div class="stat-card {{ meta.get(subject, 'fm') }}">
-          <div class="stat-value">{{ s.n }}</div>
-          <div class="stat-label">{{ subject }} papers</div>
-          {% if s.n > 0 %}
-          <div style="margin-top: 8px;">
-            <div style="font-size: 0.78rem; color: var(--muted);">Avg score</div>
-            <div style="font-size: 1rem; font-weight: 700; color: var(--text);">{{ s.avg }}%</div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" style="width:{{ s.avg }}%; background:{{ data.color }};"></div>
-            </div>
-          </div>
-          {% endif %}
-        </div>
-      {% endfor %}
-    {% endfor %}
-  </div>
-
-  <!-- Recent papers -->
-  <div class="card-header">
-    <div class="card-title">Recent papers</div>
-    <a href="{{ url_for('papers') }}" class="btn btn-ghost btn-sm">View all →</a>
-  </div>
-
-  {% if recent %}
-    {% for p in recent %}
-    {% set colors = {"Further Maths": "#8b5cf6", "Maths": "#3b82f6", "Physics": "#10b981"} %}
-    <a class="paper-row" href="{{ url_for('edit_paper', pid=p.id) }}">
-      <div class="paper-subject-bar" style="background: {{ colors.get(p.subject, '#8b5cf6') }};"></div>
-      <div class="paper-info">
-        <div class="paper-name">{{ p.board }} {{ p.subject }} — {{ p.paper_code }}</div>
-        <div class="paper-meta">{{ p.year }}{% if p.series and p.series != 'June' %} {{ p.series }}{% endif %}
-          {% if p.date_completed %} · {{ p.date_completed }}{% endif %}
-          {% if p.time_taken %} · {{ p.time_taken }} min{% endif %}
-        </div>
-        {% if p.weak_topics %}
-        <div style="font-size: 0.72rem; color: var(--orange); margin-top: 3px;">⚠ {{ p.weak_topics }}</div>
-        {% endif %}
+    <div>
+      <div class="section-head"><h2 class="section-title">Quick access</h2></div>
+      <div class="quick-list">
+        {% for q in [
+          {"href": url_for('bank'),    "label": "Question bank", "desc": "Upload and tag questions by topic"},
+          {"href": url_for('heatmap'), "label": "Heatmap",       "desc": "Per-question accuracy across papers"},
+          {"href": url_for('revise'),  "label": "Revise",        "desc": "Questions due for review"},
+          {"href": url_for('mocks'),   "label": "Mock papers",   "desc": "Full papers under exam conditions"},
+        ] %}
+        <a class="quick-row" href="{{ q.href }}">
+          <span class="quick-body">
+            <span class="quick-label">{{ q.label }}</span>
+            <span class="quick-desc">{{ q.desc }}</span>
+          </span>
+          <span class="quick-arrow">→</span>
+        </a>
+        {% endfor %}
       </div>
-      {% if p.pct is not none %}
-      <div class="paper-score">
-        <div class="paper-pct" style="color: {{ p.grade_color or 'var(--text)' }}">{{ p.pct }}%</div>
-        <div class="paper-raw">{{ p.score | int }}/{{ p.max_marks | int }}</div>
-        {% if p.grade %}
-        <div style="font-size: 0.72rem; font-weight: 700; color: {{ p.grade_color }}">{{ p.grade }}</div>
-        {% endif %}
-      </div>
-      {% else %}
-      <div style="font-size: 0.76rem; color: var(--muted);">No score</div>
-      {% endif %}
-    </a>
-    {% endfor %}
-  {% else %}
-    <div style="text-align:center; padding: 40px 20px; color: var(--muted);">
-      <div style="font-size: 2rem; margin-bottom: 10px;">📖</div>
-      <div style="font-size: 0.9rem; margin-bottom: 12px;">No papers logged yet.</div>
-      <a href="{{ url_for('papers') }}" class="btn btn-primary">Start tracking →</a>
     </div>
-  {% endif %}
+  </div>
 
 </div>
 {% endblock %}

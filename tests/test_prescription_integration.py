@@ -112,16 +112,23 @@ try:
         s["_fresh"] = True
     html = c.get("/").data.decode()
     check("free user sees the upgrade teaser", "Unlock with Pro" in html, True)
-    check("free user does not see the Today panel", 'class="today"' in html, False)
+    check("free user does not see the Next up card", 'class="nextup"' in html, False)
     check("free user does not see a prescription", "rx-item" in html, False)
 
     # 7. Pro user gets the panel, and every pick shows its reason
     with get_db() as db:
         db.execute("UPDATE users SET grandfathered=true WHERE id=?", (uid,))
     html = c.get("/").data.decode()
-    check("pro user sees the Today panel", 'class="today"' in html, True)
-    check("panel is headed Today", ">Today<" in html, True)
-    check("picks are rendered", html.count('class="rx-item"') >= 3, True)
+    check("pro user sees the Next up card", 'class="nextup"' in html, True)
+    # Match the heading element, not the bare word: "Today" also appears as a
+    # timeline day label, which made the old assertion pass for the wrong
+    # reason once the panel it was checking for no longer existed.
+    check("section is headed Next up",
+          '<h2 class="section-title">Next up</h2>' in html, True)
+    # The lead pick is the Next up card; picks 2 and 3 are compact rows.
+    check("the two follow-up picks are rendered",
+          html.count('class="rx-item"'), 2)
+    check("stat row is rendered", 'class="statrow"' in html, True)
     # Jinja escapes the apostrophe in "You're", so match past it.
     check("the why line is shown", "at 30% on Complex Numbers" in html, True)
     check("the per-paper cost is shown", "marks/paper" in html, True)
