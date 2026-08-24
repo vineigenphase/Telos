@@ -2,10 +2,17 @@
 {% block title %}Heatmap — Telos{% endblock %}
 
 {% block content %}
+{#- The score -> class ladder, defined once. It previously appeared four times
+    across this template, and the copy in the topic list carried its own
+    hardcoded hexes, so the list and the grid could describe the same mark
+    with different colours. Colour now lives entirely in telos.css. -#}
+{%- macro pct_class(p) -%}
+{{ 'pct-90' if p >= 90 else ('pct-80' if p >= 80 else ('pct-70' if p >= 70 else ('pct-60' if p >= 60 else ('pct-50' if p >= 50 else 'pct-0')))) }}
+{%- endmacro -%}
 <div class="page-header">
   <div>
     <div class="page-title">Heatmap</div>
-    <div class="page-subtitle">Per-question mark breakdown across all papers</div>
+    <div class="page-subtitle">Per-question accuracy across every paper you have logged</div>
   </div>
 </div>
 
@@ -31,7 +38,7 @@
       </div>
       {% if subject_filter %}
       <div class="form-group" style="min-width:140px;">
-        <label class="form-label">Paper Code</label>
+        <label class="form-label">Paper code</label>
         <select name="code" class="form-control" onchange="this.form.submit()">
           <option value="">All papers</option>
           {% for c in all_codes %}
@@ -67,15 +74,15 @@
   {% if topics_ranked %}
   <div class="topic-list mobile-only" style="margin-bottom:24px;">
     {% for t in topics_ranked %}
-      {% set colour = '#22c55e' if t.pct >= 80 else ('#84cc16' if t.pct >= 70 else ('#eab308' if t.pct >= 60 else ('#f97316' if t.pct >= 50 else '#ef4444'))) %}
+      {% set cls = pct_class(t.pct) %}
       <details class="topic-item">
         <summary style="list-style:none; cursor:pointer;">
           <div class="topic-item-head">
             <span class="topic-item-name">{{ t.topic }}</span>
-            <span class="topic-item-pct" style="color:{{ colour }};">{{ t.pct }}%</span>
+            <span class="topic-item-pct {{ cls }}">{{ t.pct }}%</span>
           </div>
           <div class="topic-bar-track">
-            <div class="topic-bar-fill" style="width:{{ t.pct }}%; background:{{ colour }};"></div>
+            <div class="topic-bar-fill {{ cls }}" style="width:{{ t.pct }}%;"></div>
           </div>
           <div class="topic-item-meta">
             {{ t.lost }} mark{{ 's' if t.lost != 1 }} lost across {{ t.n }} question{{ 's' if t.n != 1 }}
@@ -97,11 +104,12 @@
   {% if sections %}
     <div class="heatmap-grid">
     {% for sec in sections %}
-    <div class="card" style="margin-bottom: 24px;">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
-        <div style="width:12px;height:12px;border-radius:50%;background:{{ sec.color }};"></div>
-        <div style="font-weight:600; font-size:0.95rem;">{{ sec.board }} {{ sec.subject }} — {{ sec.code }}</div>
-        <div style="font-size:0.78rem; color:var(--muted); margin-left:auto;">{{ sec.rows | length }} attempt{{ 's' if sec.rows | length != 1 }}</div>
+    <div class="matrix-section">
+      <div class="matrix-header">
+        <span class="subject-dot" style="background: {{ sec.color }};"></span>
+        <span class="matrix-title">{{ sec.subject }} — {{ sec.code }}</span>
+        <span class="matrix-board">{{ sec.board }}</span>
+        <span class="matrix-count">{{ sec.rows | length }} attempt{{ 's' if sec.rows | length != 1 }}</span>
       </div>
 
       {% if sec.q_nums %}
@@ -122,8 +130,7 @@
               <td class="row-label">{{ row.label }}</td>
               <td>
                 {% if row.pct is not none %}
-                {% set tcls = 'pct-90' if row.pct >= 90 else ('pct-80' if row.pct >= 80 else ('pct-70' if row.pct >= 70 else ('pct-60' if row.pct >= 60 else ('pct-50' if row.pct >= 50 else 'pct-0')))) %}
-                <div class="hm-cell {{ tcls }}" style="width:46px;" data-tip="{{ row.pct }}%">
+                <div class="hm-cell {{ pct_class(row.pct) }}" style="width:46px;" data-tip="{{ row.pct }}%">
                   {{ row.pct }}%
                 </div>
                 {% else %}
@@ -134,8 +141,7 @@
                 {% set qd = row.qmap.get(qn) %}
                 {% if qd %}
                   {% set pct = qd.pct %}
-                  {% set cls = 'pct-90' if pct >= 90 else ('pct-80' if pct >= 80 else ('pct-70' if pct >= 70 else ('pct-60' if pct >= 60 else ('pct-50' if pct >= 50 else 'pct-0')))) %}
-                  <td><div class="hm-cell {{ cls }}" data-tip="Q{{ qn }}: {{ qd.obtained }}/{{ qd.max }}">{{ pct | int }}%</div></td>
+                  <td><div class="hm-cell {{ pct_class(pct) }}" data-tip="Q{{ qn }}: {{ qd.obtained }}/{{ qd.max }}">{{ pct | int }}%</div></td>
                 {% else %}
                   <td><div class="hm-cell empty">—</div></td>
                 {% endif %}
@@ -146,20 +152,19 @@
         </table>
       </div>
       {% else %}
-      <div style="text-align:center; padding:24px; color:var(--muted); font-size:0.85rem;">
-        No per-question marks logged for these papers yet.<br>
-        <a href="{{ url_for('papers') }}" class="auth-link" style="margin-top:8px;display:inline-block;">Go to Papers → click a paper → enter question marks</a>
+      <div class="empty-inline">
+        No per-question marks logged for these papers yet.
+        <a href="{{ url_for('papers') }}" class="auth-link">Open a paper to enter them →</a>
       </div>
       {% endif %}
     </div>
     {% endfor %}
     </div>
   {% else %}
-    <div style="text-align:center; padding:60px 20px; color:var(--muted);">
-      <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
-      <div style="font-size:0.92rem; margin-bottom:8px;">No heatmap data yet.</div>
-      <div style="font-size:0.8rem;">Log a paper and fill in per-question marks to see your breakdown here.</div>
-      <a href="{{ url_for('papers') }}" class="btn btn-primary" style="margin-top:16px;">View Papers</a>
+    <div class="empty-state">
+      <div class="empty-title">No per-question marks yet</div>
+      <div class="empty-body">Log a paper and enter its question marks to see the breakdown here.</div>
+      <a href="{{ url_for('papers') }}" class="btn btn-primary">Go to papers</a>
     </div>
   {% endif %}
   </div>

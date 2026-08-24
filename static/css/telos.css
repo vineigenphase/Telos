@@ -62,6 +62,21 @@
   --subj-fm-hint: #9A8F6B;
   --subj-physics: #5E8B7E;
 
+  /* Heatmap scale, strongest to weakest. Sequential and perceptually ordered
+     so the grid reads at a glance, but warm throughout: sage through brass to
+     rust, with no alarm red. A student's own weakest topic should look like
+     information, not an error.
+
+     These are tokens because two different renderers use them — the grid cells
+     and the per-topic list — and the list used to restate the hexes inline,
+     which is exactly how the two drift apart. */
+  --hm-90: #6E8F5E;
+  --hm-80: #8A9B55;
+  --hm-70: #A9932F;
+  --hm-60: #C9A227;
+  --hm-50: #B9783C;
+  --hm-0:  #A85246;
+
   --sidebar-w: 220px;
   /* Near-flat. Large radii read consumer-friendly; an instrument has edges. */
   --radius:    4px;                                 /* cards */
@@ -540,6 +555,29 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   font-size: 0.58rem; letter-spacing: 0.08em; opacity: 0.8; margin-top: 2px;
 }
 
+/* Sits after the rule, so the count reads as a note on the heading. */
+.matrix-count {
+  font-size: 11px; color: var(--muted); white-space: nowrap;
+  font-variant-numeric: tabular-nums; order: 4;
+}
+
+/* ── Empty states ────────────────────────────────────────────────────────── */
+/* Stated plainly. No decorative glyph and no encouragement — an empty screen
+   should tell you what is missing and how to fill it. */
+.empty-state { padding: 48px 20px; text-align: center; }
+.empty-title {
+  font-family: var(--serif);
+  font-size: 19px; font-weight: 400; color: var(--text);
+}
+.empty-body {
+  font-size: 13px; color: var(--muted);
+  margin: 6px auto 18px; max-width: 42ch; line-height: 1.55;
+}
+.empty-inline {
+  padding: 20px 2px; font-size: 13px; color: var(--muted); line-height: 1.6;
+}
+.empty-inline .auth-link { display: inline-block; margin-top: 4px; }
+
 .matrix-legend {
   margin-top: 10px;
   display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
@@ -582,13 +620,24 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   border: 1px solid rgba(0,0,0,0.2);
 }
 
-.hm-cell.empty { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
-.hm-cell.pct-90 { background: #15A46E; color: #fff; }
-.hm-cell.pct-80 { background: #22C55E; color: #fff; }
-.hm-cell.pct-70 { background: #7FB524; color: #1a2e05; }
-.hm-cell.pct-60 { background: #EAB308; color: #1a1a00; }
-.hm-cell.pct-50 { background: #E8792B; color: #fff; }
-.hm-cell.pct-0  { background: #EF4444; color: #fff; }
+.hm-cell.empty { background: transparent; color: var(--disabled); border: 1px solid var(--border-sub); }
+.hm-cell.pct-90 { background: var(--hm-90); color: #0B0B0C; }
+.hm-cell.pct-80 { background: var(--hm-80); color: #0B0B0C; }
+.hm-cell.pct-70 { background: var(--hm-70); color: #0B0B0C; }
+.hm-cell.pct-60 { background: var(--hm-60); color: #0B0B0C; }
+.hm-cell.pct-50 { background: var(--hm-50); color: #0B0B0C; }
+.hm-cell.pct-0  { background: var(--hm-0);  color: #F2F1EE; }
+
+/* The per-topic list is the same data in a different renderer, so it reads the
+   same scale rather than carrying its own copy. */
+.topic-item-pct.pct-90, .topic-bar-fill.pct-90 { color: var(--hm-90); background: var(--hm-90); }
+.topic-item-pct.pct-80, .topic-bar-fill.pct-80 { color: var(--hm-80); background: var(--hm-80); }
+.topic-item-pct.pct-70, .topic-bar-fill.pct-70 { color: var(--hm-70); background: var(--hm-70); }
+.topic-item-pct.pct-60, .topic-bar-fill.pct-60 { color: var(--hm-60); background: var(--hm-60); }
+.topic-item-pct.pct-50, .topic-bar-fill.pct-50 { color: var(--hm-50); background: var(--hm-50); }
+.topic-item-pct.pct-0,  .topic-bar-fill.pct-0  { color: var(--hm-0);  background: var(--hm-0); }
+/* The percentage is text, so it must not inherit the swatch background. */
+.topic-item-pct { background: none !important; }
 
 /* Per-topic list — the mobile rendering of the same data, worst first */
 .topic-list { display: flex; flex-direction: column; gap: 8px; }
