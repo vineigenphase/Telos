@@ -218,14 +218,17 @@ body {
 .logo-mark .logo-svg { display: block; }
 .auth-mark { margin-right: 2px; }
 
-.sidebar-logo .logo-name {
+/* Unscoped: the sidebar and the four auth pages share one wordmark. It was
+   scoped to .sidebar-logo, so the signed-out pages each hand-rolled their own
+   copy — and two of them had already diverged. */
+.logo-name {
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--text);
 }
 
-.sidebar-logo .logo-name span { color: var(--accent-2); font-style: italic; }
+.logo-name span { color: var(--accent); font-style: italic; }
 
 .sidebar-nav {
   flex: 1;
@@ -1116,6 +1119,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 /* ── Auth pages ──────────────────────────────────────────────────────────── */
+.auth-wrap .flash { margin-bottom: 16px; }
+
 .auth-wrap {
   min-height: 100dvh;
   background: var(--bg);
@@ -1123,21 +1128,70 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   align-items: center;
   justify-content: center;
   padding: 16px;
+  /* At >=640px `body` becomes a flex row to carry the sidebar, which makes
+     this a flex item — without a width it collapses to its content and the
+     card sits hard against the left edge, centring itself inside nothing.
+     Pre-existing; the signed-out pages have never been centred on desktop. */
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+/* Chrome paints its own near-white fill over autofilled fields, which on a
+   dark form is jarring and leaves the text briefly unreadable. The inset
+   shadow is the only way to override it. */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--card-2) inset;
+  caret-color: var(--text);
+  transition: background-color 9999s ease-out 0s;
 }
 
 .auth-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px 20px;
+  background: transparent;               /* the page ground is enough */
+  border: none;
+  padding: 24px 4px;
   width: 100%;
-  max-width: 420px;
+  max-width: 360px;
 }
 
-.auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
-.auth-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
-.auth-subtitle { font-size: 0.82rem; color: var(--muted); }
-.auth-link { color: var(--accent-2); text-decoration: none; }
+.auth-logo {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 34px;
+  text-decoration: none;
+}
+
+/* The heading is the serif, like every other title in the app. */
+.auth-title {
+  font-family: var(--serif);
+  font-size: 27px; font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.auth-subtitle {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.55; margin-bottom: 4px;
+}
+
+.auth-form {
+  display: flex; flex-direction: column; gap: 14px;
+  margin-top: 22px;
+}
+
+.form-label-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+}
+
+.auth-foot {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid var(--border-sub);
+  font-size: 12.5px; color: var(--muted); text-align: center;
+}
+
+.auth-link { color: var(--accent); text-decoration: none; }
+.auth-link-sm { font-size: 11.5px; }
 
 /* ── Divider ─────────────────────────────────────────────────────────────── */
 .divider { height: 1px; background: var(--border); margin: 20px 0; }

@@ -1,48 +1,26 @@
-{% import "_icons.html" as icons %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0B0B0C">
-  <title>Reset password — Telos</title>
-  <link rel="canonical" href="{{ canonical_url() }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
-</head>
-<body>
-<div class="auth-wrap">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <span class="logo-mark auth-mark">{{ icons.logo(32) }}</span>
-      <div class="logo-name" style="font-size:1.1rem;font-weight:700;">Tel<span style="color:var(--accent-2);font-style:italic;">os</span></div>
-    </div>
-
-    <div class="auth-title">Forgot your password?</div>
-    <div class="auth-subtitle" style="margin-bottom:20px;">
-      Enter your email and we'll send you a link to set a new one. The link
-      works once and expires in an hour.
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for cat, msg in messages %}
-      <div class="flash flash-{{ cat }}">{{ msg }}</div>
-      {% endfor %}
-    {% endwith %}
-
-    <form method="POST">
-      <div class="form-group" style="margin-bottom:16px;">
-        <label class="form-label" for="email">Email</label>
-        <input class="form-control" type="email" id="email" name="email"
-               autocomplete="email" required autofocus>
-      </div>
-      <button type="submit" class="btn btn-primary btn-lg btn-block">Send reset link</button>
-    </form>
-
-    <div class="divider"></div>
-    <div style="font-size:0.82rem; color:var(--muted); text-align:center;">
-      Remembered it? <a class="auth-link" href="{{ url_for('login') }}">Back to log in</a>
-    </div>
-  </div>
+{% extends "auth_base.html" %}
+{% block title %}Reset your password — Telos{% endblock %}
+{% block auth_title %}Forgot your password?{% endblock %}
+{% block auth_subtitle %}
+<div class="auth-subtitle">
+  Enter your email and we'll send a link to set a new one. The link works once
+  and expires in an hour.
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block auth_body %}
+<form method="POST" class="auth-form">
+  <div class="form-group">
+    <label class="form-label" for="email">Email</label>
+    <input class="form-control" type="email" id="email" name="email"
+           placeholder="you@example.com" autocomplete="email" required autofocus>
+  </div>
+  <button type="submit" class="btn btn-primary btn-lg btn-block">Send reset link</button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<div class="auth-foot">
+  Remembered it? <a href="{{ url_for('login') }}" class="auth-link">Back to log in</a>
+</div>
+{% endblock %}

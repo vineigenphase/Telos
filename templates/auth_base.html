@@ -1,0 +1,52 @@
+{# Shared shell for the four signed-out pages: log in, register, forgot, reset.
+
+   These cannot extend base.html — that template is the application chrome
+   (sidebar, tab bar, nav), and none of it applies before you have an account.
+   But they were each carrying their own full <head>, which is exactly how they
+   drifted: forgot.html and reset.html never loaded telos.js, they used a
+   different logo lockup from login and register, and the two pairs disagreed
+   about autocomplete attributes. One head, defined here.
+
+   Pages provide: title, auth_title, auth_subtitle, auth_body, auth_footer. #}
+{% import "_icons.html" as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  <title>{% block title %}Telos{% endblock %}</title>
+  <link rel="canonical" href="{{ canonical_url() }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
+  <meta name="apple-mobile-web-app-title" content="Telos">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  {% block auth_head %}{% endblock %}
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <a class="auth-logo" href="{{ url_for('login') }}">
+      <span class="logo-mark auth-mark">{{ icons.logo(32) }}</span>
+      <span class="logo-name">Tel<span>os</span></span>
+    </a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <h1 class="auth-title">{% block auth_title %}{% endblock %}</h1>
+    {% block auth_subtitle %}{% endblock %}
+
+    {% block auth_body %}{% endblock %}
+
+    {% block auth_footer %}{% endblock %}
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/telos.js') }}"></script>
+</body>
+</html>
