@@ -87,6 +87,43 @@ TEMPLATES = {
         },
     },
     "OCR A": {
+        "Maths": {
+            "color": "#C9A227",
+            "level": "A-Level",
+            # H240. Three 100-mark papers; every one of them assesses pure
+            # content, and two of them add an applied strand on top.
+            "papers": [
+                {"code": "Paper 1", "name": "Pure Mathematics",                "max_marks": 100},
+                {"code": "Paper 2", "name": "Pure Mathematics and Statistics", "max_marks": 100},
+                {"code": "Paper 3", "name": "Pure Mathematics and Mechanics",  "max_marks": 100},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # The numbered content areas from the H240 specification: ten pure
+            # (1.01-1.10), five statistics (2.01-2.05), four mechanics
+            # (3.01-3.04). Papers 2 and 3 carry the full pure list as well as
+            # their applied strand, because that is what they assess — long
+            # lists, but a student tagging a question needs the topic that is
+            # actually on the paper.
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods", "Vectors"],
+                "Paper 2": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods", "Vectors",
+                          "Statistical Sampling", "Data Presentation and Interpretation",
+                          "Probability", "Statistical Distributions",
+                          "Statistical Hypothesis Testing"],
+                "Paper 3": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods", "Vectors",
+                          "Quantities and Units in Mechanics", "Kinematics",
+                          "Forces and Newton's Laws", "Moments"],
+            },
+        },
         "Physics": {
             "color": "#5E8B7E",
             "level": "A-Level",

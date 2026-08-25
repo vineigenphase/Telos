@@ -92,6 +92,28 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── OCR A Level Mathematics A (H240) — per paper, official raw marks ─────
+    # Paper 1 = H240/01 (100), Paper 2 = H240/02 (100), Paper 3 = H240/03 (100).
+    # Component boundaries, not the 300-mark qualification total.
+    ("Maths", "OCR A", "Paper 1", "2018", "June", 83, 67, 55, 44),
+    ("Maths", "OCR A", "Paper 2", "2018", "June", 75, 61, 50, 39),
+    ("Maths", "OCR A", "Paper 3", "2018", "June", 82, 69, 57, 45),
+    ("Maths", "OCR A", "Paper 1", "2019", "June", 72, 54, 44, 34),
+    ("Maths", "OCR A", "Paper 2", "2019", "June", 76, 58, 47, 36),
+    ("Maths", "OCR A", "Paper 3", "2019", "June", 68, 49, 39, 30),
+    ("Maths", "OCR A", "Paper 1", "2022", "June", 73, 56, 44, 33),
+    ("Maths", "OCR A", "Paper 2", "2022", "June", 62, 48, 39, 30),
+    ("Maths", "OCR A", "Paper 3", "2022", "June", 58, 45, 36, 27),
+    ("Maths", "OCR A", "Paper 1", "2023", "June", 74, 58, 46, 34),
+    ("Maths", "OCR A", "Paper 2", "2023", "June", 67, 52, 42, 32),
+    ("Maths", "OCR A", "Paper 3", "2023", "June", 68, 51, 41, 31),
+    ("Maths", "OCR A", "Paper 1", "2024", "June", 73, 57, 47, 36),
+    ("Maths", "OCR A", "Paper 2", "2024", "June", 72, 56, 46, 36),
+    ("Maths", "OCR A", "Paper 3", "2024", "June", 71, 55, 44, 34),
+    ("Maths", "OCR A", "Paper 1", "2025", "June", 84, 69, 57, 46),
+    ("Maths", "OCR A", "Paper 2", "2025", "June", 83, 67, 56, 45),
+    ("Maths", "OCR A", "Paper 3", "2025", "June", 75, 60, 50, 39),
+
     # ── OCR A Level Physics A (H556) — per paper, official raw marks ─────────
     # Paper 1 = H556/01 Modelling physics (100), Paper 2 = H556/02 Exploring
     # physics (100), Paper 3 = H556/03 Unified physics (70). Taken from OCR's
