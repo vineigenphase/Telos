@@ -58,6 +58,32 @@ TEMPLATES = {
                           "Literary Text Essay", "Film Essay"],
             },
         },
+        "Philosophy": {
+            "color": "#8A8985",
+            "level": "A-Level",
+            # 7172. Two 100-mark papers, both compulsory, no options and no
+            # coursework — the simplest shape in the catalogue.
+            "papers": [
+                {"code": "Paper 1", "name": "Epistemology and Moral Philosophy", "max_marks": 100},
+                {"code": "Paper 2", "name": "Metaphysics of God and of Mind",    "max_marks": 100},
+            ],
+            # First assessed in 2019.
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Specification sections 3.1-3.4. Each paper is two sections of five
+            # questions, and the sub-sections below are what those questions are
+            # drawn from.
+            "topics": {
+                "Paper 1": [
+                          "What is Knowledge?", "Perception as a Source of Knowledge",
+                          "Reason as a Source of Knowledge", "The Limits of Knowledge",
+                          "Normative Ethical Theories", "Applied Ethics", "Meta-ethics"],
+                "Paper 2": [
+                          "The Concept and Nature of God",
+                          "Arguments Relating to the Existence of God", "Religious Language",
+                          "What Do We Mean by Mind?", "Dualist Theories", "Physicalist Theories",
+                          "Functionalism"],
+            },
+        },
         "Spanish": {
             "color": "#B4574C",
             "level": "A-Level",

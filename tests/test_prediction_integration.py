@@ -27,6 +27,12 @@ try:
         cur = db.execute("INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
                          ("p3-test@telos.local", "p3test", generate_password_hash("Passw0rd!x")))
         uid = cur.lastrowid
+        # Give the account a subject. Every app page redirects a signed-in
+        # student with no subjects to setup, so a test user without one
+        # never reaches the page it is trying to assert on.
+        db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
+                   "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                   (uid, "Edexcel", "Further Maths", "A-Level"))
         # free by default -> also lets us test the gate
         db.execute("UPDATE users SET plan='free', grandfathered=false, "
                    "subscription_status='free' WHERE id=?", (uid,))

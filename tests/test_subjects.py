@@ -130,6 +130,21 @@ try:
     check("the paper matrix still shows a subject with logged work",
           first["subject"] in subjects_in_matrix, True)
 
+    # ── setup redirect ──────────────────────────────────────────────────────
+    # A signed-in student with no subjects is sent to choose them. The
+    # dashboard, papers and heatmap are all built around their subjects and are
+    # close to meaningless without them.
+    with get_db() as db:
+        db.execute("DELETE FROM user_subjects WHERE user_id=?", (uid,))
+    for path in ("/", "/papers", "/heatmap"):
+        r = c.get(path)
+        check("%s redirects to setup when no subjects are chosen" % path,
+              (r.status_code, (r.headers.get("Location") or "").endswith("/welcome")),
+              (302, True))
+    check("...but onboarding itself stays reachable", c.get("/welcome").status_code, 200)
+    check("...and so does the manage screen", c.get("/subjects").status_code, 200)
+    c.post("/welcome", data={"qualification": [key]})
+
     # ── optional modules ────────────────────────────────────────────────────
     # Some qualifications are bigger than any one student's timetable: Edexcel
     # Further Maths is ten papers of which four are sat. A student says which
@@ -144,11 +159,13 @@ try:
         mandatory, optional, choose_n = paper_options(board, subject)
         qkey = f"{board}|{subject}|{level}"
 
-        # No choice yet means show everything — narrowing someone's view on a
-        # decision they have not made would hide papers they may be sitting.
-        check("with no choice made, every paper is visible",
+        # No choice yet means the compulsory papers only. Showing all ten of
+        # Edexcel Further Maths by default buried Core Pure 1 and 2 among eight
+        # options belonging to someone else's timetable; the compulsory papers
+        # are the ones every student on the qualification definitely sits.
+        check("with no choice made, only the compulsory papers are visible",
               A.visible_papers(uid, board, subject),
-              {p["code"] for p in mandatory} | {p["code"] for p in optional})
+              {p["code"] for p in mandatory})
 
         picked = [optional[0]["code"], optional[1]["code"]]
         c.post("/subjects", data={

@@ -92,6 +92,18 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level Philosophy (7172) — two 100-mark papers, from 2019 ───────
+    ("Philosophy", "AQA", "Paper 1", "2019", "June", 76, 64, 52, 40),
+    ("Philosophy", "AQA", "Paper 2", "2019", "June", 78, 67, 54, 41),
+    ("Philosophy", "AQA", "Paper 1", "2022", "June", 69, 58, 46, 35),
+    ("Philosophy", "AQA", "Paper 2", "2022", "June", 71, 61, 48, 35),
+    ("Philosophy", "AQA", "Paper 1", "2023", "June", 79, 69, 56, 43),
+    ("Philosophy", "AQA", "Paper 2", "2023", "June", 78, 67, 53, 40),
+    ("Philosophy", "AQA", "Paper 1", "2024", "June", 78, 67, 55, 43),
+    ("Philosophy", "AQA", "Paper 2", "2024", "June", 77, 66, 53, 40),
+    ("Philosophy", "AQA", "Paper 1", "2025", "June", 79, 68, 55, 43),
+    ("Philosophy", "AQA", "Paper 2", "2025", "June", 79, 68, 54, 40),
+
     # ── AQA A-level French (7652), German (7662), Spanish (7692) ─────────────
     # Paper 1 (100) and Paper 2 (80), RAW boundaries — AQA scales both and
     # publishes a scaled row too. Speaking is an oral and is not tracked.

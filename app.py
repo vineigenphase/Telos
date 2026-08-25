@@ -2510,9 +2510,17 @@ def get_user_papers(user_id):
 def visible_papers(user_id, board, subject, level=None):
     """The paper codes this student should see for one qualification.
 
-    Compulsory papers always; optional papers only if chosen. A student who has
-    made no choice sees all of them — narrowing someone's view based on a
-    decision they have not made would hide papers they may well be sitting.
+    Compulsory papers always; optional papers only if chosen.
+
+    A student who has chosen nothing sees the compulsory papers only. Edexcel
+    Further Maths has ten papers and a student sits four, so showing all ten by
+    default buried Core Pure 1 and 2 in eight options belonging to somebody
+    else's timetable. The compulsory papers are the ones every student on that
+    qualification definitely sits, which makes them the honest default.
+
+    Nothing is lost by starting narrow: onboarding asks for the options up
+    front, the manage screen can add them at any time, and paper_matrix keeps
+    any paper with logged work against it regardless of what is selected here.
     """
     mandatory, optional, _n = paper_options(board, subject)
     codes = {p["code"] for p in mandatory}
@@ -2520,9 +2528,7 @@ def visible_papers(user_id, board, subject, level=None):
         return codes
 
     level = level or qualification_level(board, subject)
-    chosen = get_user_papers(user_id).get((board, subject, level))
-    if not chosen:
-        return codes | {p["code"] for p in optional}
+    chosen = get_user_papers(user_id).get((board, subject, level)) or set()
     return codes | {p["code"] for p in optional if p["code"] in chosen}
 
 
@@ -2556,6 +2562,39 @@ def subject_keys(user_id):
     """(board, subject) pairs this student studies — the shape the rest of the
     app already filters by."""
     return {(s["board"], s["subject"]) for s in get_user_subjects(user_id)}
+
+
+# Endpoints reachable before a student has told us what they study. Everything
+# else waits until they have, because the dashboard, the paper form and the
+# heatmap are all built around their subjects and are close to meaningless
+# without them.
+SETUP_EXEMPT = {
+    "onboarding", "subjects", "logout", "login", "register",
+    "forgot_password", "reset_password", "static", "service_worker",
+    "offline", "robots_txt", "sitemap_xml", "share_card", "share_card_png",
+    "api_templates", "api_template_info",
+}
+
+
+@app.before_request
+def _require_subject_setup():
+    """Send a signed-in student with no subjects to pick them.
+
+    Registration already redirects there, but that only covers accounts created
+    after this shipped — anyone who signed up earlier, or who removed every
+    subject, would otherwise land on a dashboard with nothing in it and no
+    obvious way to fix that. The catalogue check matters too: with an empty
+    catalogue this would be an inescapable redirect loop.
+    """
+    if not current_user.is_authenticated:
+        return None
+    if request.endpoint in SETUP_EXEMPT or request.endpoint is None:
+        return None
+    if not all_qualifications():
+        return None
+    if get_user_subjects(current_user.id):
+        return None
+    return redirect(url_for("onboarding"))
 
 
 @app.route("/welcome", methods=["GET", "POST"])

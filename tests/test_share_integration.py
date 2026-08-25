@@ -40,6 +40,13 @@ try:
             "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
             ("p9-other@telos.local", "p9other",
              generate_password_hash("Passw0rd!x"))).lastrowid
+        # Give the account a subject. Every app page redirects a signed-in
+        # student with no subjects to setup, so a test user without one
+        # never reaches the page it is trying to assert on.
+        for u in (uid, other_uid):
+            db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
+                       "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                       (u, "Edexcel", "Further Maths", "A-Level"))
         for yr in ("2022", "2023", "2024"):
             db.execute(
                 "INSERT INTO papers (user_id, board, subject, paper_code, year, "

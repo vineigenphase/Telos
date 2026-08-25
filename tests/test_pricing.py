@@ -44,6 +44,11 @@ try:
                          ("p5-test@telos.local", "p5test",
                           generate_password_hash("Passw0rd!x"), CUST))
         uid = cur.lastrowid
+        # Every app page redirects a signed-in student with no subjects to
+        # setup, so a test user without one never reaches the page under test.
+        db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
+                   "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                   (uid, "Edexcel", "Further Maths", "A-Level"))
         db.execute("UPDATE users SET plan='free', grandfathered=false, "
                    "subscription_status='free' WHERE id=?", (uid,))
 
