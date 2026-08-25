@@ -101,6 +101,40 @@ cancelled = sorted({(r["subject"], r["year"]) for r in rows if r["year"] in ("20
 ok("no boundaries for the cancelled 2020/2021 series", not cancelled,
    "" if not cancelled else f"{cancelled}")
 
+# 7. Published D and E, where present, must continue the ladder downward. A
+#    D above its own C, or an E at zero, would place a weak script above a
+#    strong one.
+de_rows = [r for r in rows if r.get("d_boundary") is not None or r.get("e_boundary") is not None]
+ok("D and E were actually loaded", bool(de_rows), f"{len(de_rows)} of {len(rows)} rows")
+
+half = [(r["subject"], r["paper_code"], r["year"]) for r in de_rows
+        if r["d_boundary"] is None or r["e_boundary"] is None]
+ok("no row has one of D/E without the other", not half,
+   "" if not half else f"{half[:3]}")
+
+de_order = [(r["subject"], r["paper_code"], r["year"],
+             r["c_boundary"], r["d_boundary"], r["e_boundary"])
+            for r in de_rows
+            if not (r["c_boundary"] > r["d_boundary"] > r["e_boundary"] > 0)]
+ok("C > D > E > 0 wherever D/E are published", not de_order,
+   "" if not de_order else f"{de_order[:3]}")
+
+# 8. The ladder must prefer published values and infer only when it has to.
+from prediction import boundary_ladder, infer_de  # noqa: E402
+
+published = {"a_star": 74, "a_boundary": 65, "b_boundary": 54, "c_boundary": 43,
+             "d_boundary": 32, "e_boundary": 22}
+ladder = dict((g, m) for g, m in boundary_ladder(published))
+ok("the ladder uses published D and E when present",
+   (ladder[2], ladder[1]) == (32.0, 22.0), f"D={ladder[2]}, E={ladder[1]}")
+
+bare = {"a_star": 88, "a_boundary": 74, "b_boundary": 61, "c_boundary": 48}
+d_exp, e_exp = infer_de(88, 74, 61, 48)
+ladder2 = dict((g, m) for g, m in boundary_ladder(bare))
+ok("...and still infers them when they are absent",
+   (round(ladder2[2], 3), round(ladder2[1], 3)) == (round(d_exp, 3), round(e_exp, 3)),
+   f"D={ladder2[2]:.1f}, E={ladder2[1]:.1f}")
+
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
 sys.exit(1 if fails else 0)

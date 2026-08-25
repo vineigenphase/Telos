@@ -35,16 +35,18 @@ class MissingBoundaries(Exception):
 
 
 def infer_de(a_star, a, b, c):
-    """Infer D and E boundaries by extending the observed spacing downward.
+    """Infer D and E by extending the observed spacing downward.
 
-    The grade_boundaries table stores A*/A/B/C only, but the scale needs D and
-    E to place a weaker script. Rather than invent numbers, this extends the
-    mean gap between the boundaries that ARE known — for Edexcel Pure 1 2025
-    (88/74/61/48) the gaps are 14/13/13, giving D=35 and E=22, which is close
-    to how real boundaries fall.
+    Only used for boundary sets that carry no published D/E — rows typed in
+    through the admin screen, and medians assembled across years. Where the
+    board publishes D and E, boundary_ladder reads them instead; see migrations
+    009-011, which added the columns and filled them from OCR's and Pearson's
+    own documents.
 
-    This is an approximation and it is confined to this one function: if real
-    D/E data is ever added to the table, delete this and read the columns.
+    The approximation extends the mean gap between the boundaries that ARE
+    known: for Edexcel Pure 1 2025 (88/74/61/48) the gaps are 14/13/13, giving
+    D=35 and E=22, which is close to how real boundaries fall. Close, but a
+    guess — which is why real values win wherever they exist.
     """
     gaps = [a_star - a, a - b, b - c]
     step = sum(gaps) / len(gaps)
@@ -56,13 +58,23 @@ def infer_de(a_star, a, b, c):
 def boundary_ladder(bs):
     """[(grade_point, marks), ...] ascending, from E up to A*.
 
-    `bs` is a mapping with a_star / a_boundary / b_boundary / c_boundary.
+    `bs` is a mapping with a_star / a_boundary / b_boundary / c_boundary, and
+    optionally d_boundary / e_boundary. Published D and E are used when present
+    and inferred otherwise — a set may legitimately have neither, since medians
+    across years and hand-entered rows carry only the four.
     """
     a_star = float(bs["a_star"])
     a = float(bs["a_boundary"])
     b = float(bs["b_boundary"])
     c = float(bs["c_boundary"])
-    d, e = infer_de(a_star, a, b, c)
+
+    d = bs.get("d_boundary") if hasattr(bs, "get") else None
+    e = bs.get("e_boundary") if hasattr(bs, "get") else None
+    if d is None or e is None:
+        d, e = infer_de(a_star, a, b, c)
+    else:
+        d, e = float(d), float(e)
+
     return [(1, e), (2, d), (3, c), (4, b), (5, a), (6, a_star)]
 
 
@@ -99,12 +111,36 @@ def select_boundaries(rows, board, subject, paper_code, year):
 
 
 def _median_set(rows):
-    return {
+    """Median of each boundary across rows.
+
+    D and E are only carried through when EVERY row in the set has them. A
+    median mixing published values with absent ones would be neither, and a
+    ladder built half from real boundaries and half from inferred ones is worse
+    than one built consistently either way.
+    """
+    out = {
         "a_star":      median(float(r["a_star"]) for r in rows),
         "a_boundary":  median(float(r["a_boundary"]) for r in rows),
         "b_boundary":  median(float(r["b_boundary"]) for r in rows),
         "c_boundary":  median(float(r["c_boundary"]) for r in rows),
     }
+
+    def col(name):
+        vals = []
+        for r in rows:
+            try:
+                v = r[name]
+            except (KeyError, IndexError, TypeError):
+                return None
+            if v is None:
+                return None
+            vals.append(float(v))
+        return median(vals) if vals else None
+
+    d, e = col("d_boundary"), col("e_boundary")
+    if d is not None and e is not None:
+        out["d_boundary"], out["e_boundary"] = d, e
+    return out
 
 
 # ---------------------------------------------------------------------------

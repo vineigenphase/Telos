@@ -1698,19 +1698,28 @@ def boundaries():
             data = json.loads(request.form["json_data"])
             with get_db() as db:
                 for row in data:
+                    # d and e are optional. An import owns the whole boundary
+                    # set for a row, so they are written even when absent —
+                    # otherwise re-importing a paper would replace A*-C while
+                    # leaving a stale D/E from a previous series attached to it,
+                    # and the ladder would mix two different years.
                     db.execute(
                         """INSERT INTO grade_boundaries
                            (subject, board, paper_code, year, series,
-                            a_star, a_boundary, b_boundary, c_boundary)
-                           VALUES (?,?,?,?,?,?,?,?,?)
+                            a_star, a_boundary, b_boundary, c_boundary,
+                            d_boundary, e_boundary)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?)
                            ON CONFLICT (subject, board, paper_code, year, series)
                            DO UPDATE SET a_star=EXCLUDED.a_star,
                                          a_boundary=EXCLUDED.a_boundary,
                                          b_boundary=EXCLUDED.b_boundary,
-                                         c_boundary=EXCLUDED.c_boundary""",
+                                         c_boundary=EXCLUDED.c_boundary,
+                                         d_boundary=EXCLUDED.d_boundary,
+                                         e_boundary=EXCLUDED.e_boundary""",
                         (row["subject"], row["board"], row["paper_code"],
                          row["year"], row.get("series", "June"),
-                         row.get("a_star"), row.get("a"), row.get("b"), row.get("c"))
+                         row.get("a_star"), row.get("a"), row.get("b"), row.get("c"),
+                         row.get("d"), row.get("e"))
                     )
             flash(f"Imported {len(data)} boundary records.", "success")
         except Exception as e:

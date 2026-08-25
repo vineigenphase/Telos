@@ -43,7 +43,7 @@
             <tr>
               <th>Year</th>
               <th>Series</th>
-              {% for g in ['A*', 'A', 'B', 'C'] %}
+              {% for g in ['A*', 'A', 'B', 'C', 'D', 'E'] %}
               <th class="num" style="color: {{ GRADE_COLOURS[g] }};">{{ g }}</th>
               {% endfor %}
             </tr>
@@ -53,8 +53,13 @@
             <tr>
               <td class="strong num">{{ b.year }}</td>
               <td class="dim">{{ b.series }}</td>
+              {# D and E render only where the board publishes them; rows
+                 without them fall back to inference in the engine, and showing
+                 a blank is more honest than showing a computed number as if it
+                 were official. #}
               {% for val, g in [(b.a_star, 'A*'), (b.a_boundary, 'A'),
-                                (b.b_boundary, 'B'), (b.c_boundary, 'C')] %}
+                                (b.b_boundary, 'B'), (b.c_boundary, 'C'),
+                                (b.d_boundary, 'D'), (b.e_boundary, 'E')] %}
               <td class="num figure" style="color: {{ GRADE_COLOURS[g] }};">
                 {{ val if val is not none else '—' }}
               </td>
