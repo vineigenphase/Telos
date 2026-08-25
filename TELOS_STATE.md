@@ -48,7 +48,8 @@ See `.env.example`. Pull real values with `railway variables`.
 
 ## Phase status
 
-Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 → 4 → 9 → 6 → 8 → 7 → 10`
+Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 → 4 → 9 → 6 → 7 → 10`
+(Phase 8, the weekly parent report, was cut on 2026-08-25.)
 
 | Phase | What | Commit | Status |
 |---|---|---|---|
@@ -65,7 +66,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | — | UI overhaul — Editorial treatment across all twelve screens, new stroke logo | `7df213d` | **live** |
 | 9 | Shareable card export — the growth engine | `0df51d7` | **live** |
 | — | Page loader — the mark charges during navigation | `0df51d7` | **live** |
-| 6, 8, 7, 10 | Spaced repetition, parent report, percentile, simulator | — | not started |
+| 6, 7, 10 | Spaced repetition, percentile, simulator | — | not started |
+| 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
 ---
 
@@ -194,6 +196,13 @@ round-trip per checkout.
    data is ever sourced. Delete that one function if so.
 
 **Known good, don't "fix":**
+
+- **`users.parent_email` and `users.parent_report_optin` are dead columns.**
+  Migration 001 created them for the weekly parent report, which was cut on
+  2026-08-25. Zero rows have either set and nothing outside that migration
+  touches them. Left in place on purpose — dropping a column is destructive and
+  irreversible, and two unused nullable columns cost nothing. Don't "tidy" them
+  away without deciding to.
 
 - Founder account (`svinujan10@gmail.com`, user 1) is `grandfathered=true` on
   purpose — permanent free Pro. It also means that account never sees the

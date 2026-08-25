@@ -64,7 +64,6 @@ PRO — see Phase 5 for prices
   Full stats & topic analytics
   Pro Zone — resources, golden tips, monthly notes
   Original mock papers
-  Weekly parent report
   Unlimited file uploads
   Pro badge
 ```
@@ -93,8 +92,6 @@ Add to `users`:
 | `stripe_subscription_id` | TEXT | NULL | indexed |
 | `current_period_end` | TIMESTAMPTZ | NULL | access expiry |
 | `grandfathered` | BOOLEAN | `false` | legacy £2 pricing |
-| `parent_email` | TEXT | NULL | Phase 8, opt-in only |
-| `parent_report_optin` | BOOLEAN | `false` | Phase 8 |
 | `share_percentile_optin` | BOOLEAN | `false` | Phase 7 |
 | `exam_date` | DATE | NULL | countdown / plan |
 
@@ -416,25 +413,28 @@ gets better as you grow.
 
 ---
 
-## Phase 8 — Weekly parent report
+## Phase 8 — Weekly parent report — CUT
 
-Branch: `feat/parent-report`
+Removed 2026-08-25 by the owner. Not deferred, not blocked: cut.
 
-Highest-leverage feature for revenue: it converts the person holding the card.
+It is recorded here rather than deleted so nobody proposes it again as a new
+idea. The original argument for it was revenue — it converts the person holding
+the card — and the original cost was the consent machinery: double opt-in with
+a parent confirmation link, one-click unsubscribe in every email, a revocable
+settings toggle, stored confirmation timestamps, and all of it for a user base
+that is mostly under 18. That cost does not go away, so if this is ever
+revisited it starts from the same place.
 
-Weekly email: papers logged, predicted grade and trend, topics improved, topics to
-work on, next exam countdown. Warm and factual — never a "your child is failing" email.
+The `parent_email` and `parent_report_optin` columns are gone from this
+schema table, but they DO still exist on `users` in production — migration 001
+created them both, and migrations are never rewritten. Verified 2026-08-25:
+zero rows have either set, and no code outside that migration reads or writes
+them. They are dead columns, not live data.
 
-**Consent requirements — non-negotiable:**
-- Double opt-in: student enters the parent email, parent must click a confirmation link
-- One-click unsubscribe in every email, and revocable from settings at any time
-- No email sent until the parent confirms
-- Store confirmation timestamp
-- Users under 18 are the norm here, so the student's own consent must be explicit and
-  the settings toggle obvious, not buried
-
-Use Resend or Postmark. Send via a scheduled job (Railway cron or APScheduler),
-Sunday evening. Idempotent — never double-send for a week.
+They are deliberately not dropped. Dropping a column is destructive and
+irreversible, and two unused nullable columns on a three-row table cost
+nothing. If they are ever removed it should be a numbered migration of its own,
+decided on purpose rather than as a side effect of cutting a phase.
 
 ---
 

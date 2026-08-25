@@ -7,7 +7,9 @@ user-facing routes).
 Domain purchased: **telosapp.co.uk**
 
 New phase order:
-`0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 → 4 → 9 → 6 → 8 → 7 → 10`
+`0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 → 4 → 9 → 6 → 7 → 10`
+
+(Phase 8, the weekly parent report, was cut on 2026-08-25. See the spec.)
 
 ---
 
