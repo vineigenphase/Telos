@@ -1,5 +1,104 @@
 TEMPLATES = {
     "AQA": {
+        "Biology": {
+            "color": "#5E9E6B",
+            "level": "A-Level",
+            # 7402. Three compulsory papers with different mark totals.
+            "papers": [
+                {"code": "Paper 1", "name": "Topics 1-4",  "max_marks": 91},
+                {"code": "Paper 2", "name": "Topics 5-8",  "max_marks": 91},
+                {"code": "Paper 3", "name": "Any content", "max_marks": 78},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Specification sections 3.1-3.8. Paper 1 covers topics 1-4, Paper 2
+            # covers 5-8, and Paper 3 covers everything — which is why its list
+            # is long. A shorter one would leave a student unable to tag half
+            # the questions on the paper they actually sat.
+            "topics": {
+                "Paper 1": [
+                          "Monomers and Polymers", "Carbohydrates", "Lipids", "Proteins",
+                          "Nucleic Acids", "ATP", "Water", "Inorganic Ions", "Cell Structure",
+                          "Cell Division", "Transport Across Cell Membranes",
+                          "Cell Recognition and the Immune System", "Surface Area to Volume Ratio",
+                          "Gas Exchange", "Digestion and Absorption", "Mass Transport",
+                          "DNA, Genes and Chromosomes", "DNA and Protein Synthesis",
+                          "Genetic Diversity and Meiosis", "Genetic Diversity and Adaptation",
+                          "Species and Taxonomy", "Biodiversity Within a Community",
+                          "Investigating Diversity"],
+                "Paper 2": [
+                          "Photosynthesis", "Respiration", "Energy and Ecosystems",
+                          "Nutrient Cycles", "Stimuli and Responses", "Nervous Coordination",
+                          "Skeletal Muscles", "Homeostasis", "Inheritance", "Populations",
+                          "Evolution and Speciation", "Populations in Ecosystems", "Mutations",
+                          "Control of Gene Expression", "Using Genome Projects",
+                          "Gene Technologies"],
+                "Paper 3": [
+                          "Monomers and Polymers", "Carbohydrates", "Lipids", "Proteins",
+                          "Nucleic Acids", "ATP", "Water", "Inorganic Ions", "Cell Structure",
+                          "Cell Division", "Transport Across Cell Membranes",
+                          "Cell Recognition and the Immune System", "Surface Area to Volume Ratio",
+                          "Gas Exchange", "Digestion and Absorption", "Mass Transport",
+                          "DNA, Genes and Chromosomes", "DNA and Protein Synthesis",
+                          "Genetic Diversity and Meiosis", "Genetic Diversity and Adaptation",
+                          "Species and Taxonomy", "Biodiversity Within a Community",
+                          "Investigating Diversity", "Photosynthesis", "Respiration",
+                          "Energy and Ecosystems", "Nutrient Cycles", "Stimuli and Responses",
+                          "Nervous Coordination", "Skeletal Muscles", "Homeostasis", "Inheritance",
+                          "Populations", "Evolution and Speciation", "Populations in Ecosystems",
+                          "Mutations", "Control of Gene Expression", "Using Genome Projects",
+                          "Gene Technologies"],
+            },
+        },
+        "Chemistry": {
+            "color": "#5E8B7E",
+            "level": "A-Level",
+            # 7405. Three compulsory papers; Paper 3 is shorter than the others.
+            "papers": [
+                {"code": "Paper 1", "name": "Inorganic and Physical", "max_marks": 105},
+                {"code": "Paper 2", "name": "Organic and Physical",   "max_marks": 105},
+                {"code": "Paper 3", "name": "Any content",            "max_marks": 90},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Paper 1 takes physical 3.1.1-3.1.4, 3.1.6-3.1.8 and 3.1.10-3.1.12
+            # with all of inorganic; Paper 2 takes physical 3.1.2-3.1.6 and
+            # 3.1.9 with all of organic. Kinetics and rate equations sit on
+            # Paper 2 only, thermodynamics on Paper 1 only — the physical
+            # content is genuinely split between them, not shared.
+            "topics": {
+                "Paper 1": [
+                          "Atomic Structure", "Amount of Substance", "Bonding", "Energetics",
+                          "Chemical Equilibria and Kc", "Oxidation, Reduction and Redox",
+                          "Thermodynamics", "Equilibrium Constant Kp",
+                          "Electrode Potentials and Electrochemical Cells", "Acids and Bases",
+                          "Periodicity", "Group 2, the Alkaline Earth Metals",
+                          "Group 7, the Halogens", "Period 3 Elements and Their Oxides",
+                          "Transition Metals", "Reactions of Ions in Aqueous Solution"],
+                "Paper 2": [
+                          "Amount of Substance", "Bonding", "Energetics", "Kinetics",
+                          "Chemical Equilibria and Kc", "Rate Equations",
+                          "Introduction to Organic Chemistry", "Alkanes", "Halogenoalkanes",
+                          "Alkenes", "Alcohols", "Organic Analysis", "Optical Isomerism",
+                          "Aldehydes and Ketones", "Carboxylic Acids and Derivatives",
+                          "Aromatic Chemistry", "Amines", "Polymers",
+                          "Amino Acids, Proteins and DNA", "Organic Synthesis", "NMR Spectroscopy",
+                          "Chromatography"],
+                "Paper 3": [
+                          "Atomic Structure", "Amount of Substance", "Bonding", "Energetics",
+                          "Kinetics", "Chemical Equilibria and Kc",
+                          "Oxidation, Reduction and Redox", "Thermodynamics", "Rate Equations",
+                          "Equilibrium Constant Kp",
+                          "Electrode Potentials and Electrochemical Cells", "Acids and Bases",
+                          "Periodicity", "Group 2, the Alkaline Earth Metals",
+                          "Group 7, the Halogens", "Period 3 Elements and Their Oxides",
+                          "Transition Metals", "Reactions of Ions in Aqueous Solution",
+                          "Introduction to Organic Chemistry", "Alkanes", "Halogenoalkanes",
+                          "Alkenes", "Alcohols", "Organic Analysis", "Optical Isomerism",
+                          "Aldehydes and Ketones", "Carboxylic Acids and Derivatives",
+                          "Aromatic Chemistry", "Amines", "Polymers",
+                          "Amino Acids, Proteins and DNA", "Organic Synthesis", "NMR Spectroscopy",
+                          "Chromatography"],
+            },
+        },
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",

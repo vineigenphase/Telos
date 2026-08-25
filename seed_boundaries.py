@@ -92,6 +92,47 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level Chemistry (7405) and Biology (7402) ──────────────────────
+    # Three compulsory papers each, with different max marks per paper:
+    # Chemistry 105/105/90, Biology 91/91/78.
+    ("Chemistry", "AQA", "Paper 1", "2018", "June", 86, 72, 58, 45),
+    ("Chemistry", "AQA", "Paper 2", "2018", "June", 84, 69, 57, 45),
+    ("Chemistry", "AQA", "Paper 3", "2018", "June", 71, 57, 47, 38),
+    ("Chemistry", "AQA", "Paper 1", "2019", "June", 85, 71, 58, 45),
+    ("Chemistry", "AQA", "Paper 2", "2019", "June", 86, 72, 59, 47),
+    ("Chemistry", "AQA", "Paper 3", "2019", "June", 74, 63, 52, 41),
+    ("Chemistry", "AQA", "Paper 1", "2022", "June", 81, 65, 52, 39),
+    ("Chemistry", "AQA", "Paper 2", "2022", "June", 84, 70, 56, 43),
+    ("Chemistry", "AQA", "Paper 3", "2022", "June", 72, 61, 49, 37),
+    ("Chemistry", "AQA", "Paper 1", "2023", "June", 87, 72, 58, 45),
+    ("Chemistry", "AQA", "Paper 2", "2023", "June", 88, 75, 61, 48),
+    ("Chemistry", "AQA", "Paper 3", "2023", "June", 75, 63, 52, 41),
+    ("Chemistry", "AQA", "Paper 1", "2024", "June", 87, 74, 60, 46),
+    ("Chemistry", "AQA", "Paper 2", "2024", "June", 82, 67, 54, 42),
+    ("Chemistry", "AQA", "Paper 3", "2024", "June", 70, 57, 47, 37),
+    ("Chemistry", "AQA", "Paper 1", "2025", "June", 84, 70, 57, 44),
+    ("Chemistry", "AQA", "Paper 2", "2025", "June", 82, 66, 54, 42),
+    ("Chemistry", "AQA", "Paper 3", "2025", "June", 73, 61, 50, 40),
+
+    ("Biology", "AQA", "Paper 1", "2018", "June", 56, 46, 38, 30),
+    ("Biology", "AQA", "Paper 2", "2018", "June", 61, 52, 43, 35),
+    ("Biology", "AQA", "Paper 3", "2018", "June", 49, 40, 33, 27),
+    ("Biology", "AQA", "Paper 1", "2019", "June", 62, 52, 43, 35),
+    ("Biology", "AQA", "Paper 2", "2019", "June", 62, 52, 43, 34),
+    ("Biology", "AQA", "Paper 3", "2019", "June", 54, 45, 38, 31),
+    ("Biology", "AQA", "Paper 1", "2022", "June", 62, 51, 41, 31),
+    ("Biology", "AQA", "Paper 2", "2022", "June", 62, 51, 41, 31),
+    ("Biology", "AQA", "Paper 3", "2022", "June", 50, 40, 32, 25),
+    ("Biology", "AQA", "Paper 1", "2023", "June", 63, 53, 43, 34),
+    ("Biology", "AQA", "Paper 2", "2023", "June", 66, 58, 47, 36),
+    ("Biology", "AQA", "Paper 3", "2023", "June", 51, 42, 34, 27),
+    ("Biology", "AQA", "Paper 1", "2024", "June", 67, 58, 49, 40),
+    ("Biology", "AQA", "Paper 2", "2024", "June", 67, 57, 48, 39),
+    ("Biology", "AQA", "Paper 3", "2024", "June", 58, 50, 43, 36),
+    ("Biology", "AQA", "Paper 1", "2025", "June", 66, 56, 47, 38),
+    ("Biology", "AQA", "Paper 2", "2025", "June", 69, 60, 50, 40),
+    ("Biology", "AQA", "Paper 3", "2025", "June", 57, 49, 42, 35),
+
     # ── AQA A-level Further Mathematics (7367) — notional components ─────────
     # Papers 1 and 2 compulsory (100 each); two 50-mark options from
     # Discrete / Mechanics / Statistics. First assessed 2019.
