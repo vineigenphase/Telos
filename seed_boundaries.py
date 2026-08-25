@@ -1,5 +1,11 @@
 """
 Permanent grade boundary seed data.
+
+Only real exam series appear here. Summer 2020 and 2021 were cancelled in
+England — grades came from centre and teacher assessment — so no boundaries
+were published for them, and rows for those years used to be seeded anyway.
+An attempt at a 2020 or 2021 paper falls back to the median of the real years,
+which is the honest answer. See migrations/008_drop_cancelled_series.sql.
 Called once from init_db() — uses INSERT OR IGNORE so existing records are never overwritten.
 """
 
@@ -19,12 +25,6 @@ BOUNDARY_ROWS = [
     ("Maths", "Edexcel", "Pure 1",     "2022", "June", 70, 53, 42, 31),
     ("Maths", "Edexcel", "Pure 2",     "2022", "June", 73, 55, 43, 31),
     ("Maths", "Edexcel", "Stats&Mech", "2022", "June", 74, 56, 44, 32),
-    ("Maths", "Edexcel", "Pure 1",     "2021", "June", 71, 54, 44, 34),
-    ("Maths", "Edexcel", "Pure 2",     "2021", "June", 71, 54, 44, 34),
-    ("Maths", "Edexcel", "Stats&Mech", "2021", "June", 65, 49, 40, 31),
-    ("Maths", "Edexcel", "Pure 1",     "2020", "June", 71, 53, 42, 32),
-    ("Maths", "Edexcel", "Pure 2",     "2020", "June", 71, 53, 42, 31),
-    ("Maths", "Edexcel", "Stats&Mech", "2020", "June", 72, 56, 45, 34),
     ("Maths", "Edexcel", "Pure 1",     "2019", "June", 74, 56, 45, 35),
     ("Maths", "Edexcel", "Pure 2",     "2019", "June", 68, 52, 42, 32),
     ("Maths", "Edexcel", "Stats&Mech", "2019", "June", 75, 57, 46, 35),
@@ -38,10 +38,6 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "CP2", "2023", "June", 56, 46, 38, 31),
     ("Further Maths", "Edexcel", "CP1", "2022", "June", 61, 51, 41, 31),
     ("Further Maths", "Edexcel", "CP2", "2022", "June", 60, 50, 40, 30),
-    ("Further Maths", "Edexcel", "CP1", "2021", "June", 51, 42, 33, 24),
-    ("Further Maths", "Edexcel", "CP2", "2021", "June", 49, 39, 30, 22),
-    ("Further Maths", "Edexcel", "CP1", "2020", "June", 57, 43, 33, 24),
-    ("Further Maths", "Edexcel", "CP2", "2020", "June", 54, 40, 31, 22),
     ("Further Maths", "Edexcel", "CP1", "2019", "June", 58, 49, 40, 31),
     ("Further Maths", "Edexcel", "CP2", "2019", "June", 57, 45, 37, 29),
 
@@ -85,23 +81,7 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2022", "June", 58, 48, 38, 29),
     ("Further Maths", "Edexcel", "D2",  "2022", "June", 54, 45, 36, 27),
 
-    ("Further Maths", "Edexcel", "FP1", "2021", "June", 53, 41, 32, 23),
-    ("Further Maths", "Edexcel", "FS1", "2021", "June", 52, 43, 34, 25),
-    ("Further Maths", "Edexcel", "FM1", "2021", "June", 57, 44, 35, 26),
-    ("Further Maths", "Edexcel", "D1",  "2021", "June", 49, 40, 32, 24),
-    ("Further Maths", "Edexcel", "FP2", "2021", "June", 50, 41, 32, 24),
-    ("Further Maths", "Edexcel", "FS2", "2021", "June", 58, 46, 36, 26),
-    ("Further Maths", "Edexcel", "FM2", "2021", "June", 62, 47, 37, 27),
-    ("Further Maths", "Edexcel", "D2",  "2021", "June", 51, 39, 30, 21),
 
-    ("Further Maths", "Edexcel", "FP1", "2020", "June", 55, 47, 37, 27),
-    ("Further Maths", "Edexcel", "FS1", "2020", "June", 54, 46, 36, 26),
-    ("Further Maths", "Edexcel", "FM1", "2020", "June", 53, 47, 37, 27),
-    ("Further Maths", "Edexcel", "D1",  "2020", "June", 49, 42, 33, 24),
-    ("Further Maths", "Edexcel", "FP2", "2020", "June", 57, 43, 33, 24),
-    ("Further Maths", "Edexcel", "FS2", "2020", "June", 60, 47, 37, 27),
-    ("Further Maths", "Edexcel", "FM2", "2020", "June", 55, 49, 39, 29),
-    ("Further Maths", "Edexcel", "D2",  "2020", "June", 48, 42, 32, 23),
 
     ("Further Maths", "Edexcel", "FP1", "2019", "June", 62, 53, 44, 35),
     ("Further Maths", "Edexcel", "FS1", "2019", "June", 61, 52, 43, 34),
@@ -112,25 +92,39 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
-    # ── OCR A Level Physics A (total qualification score, out of 270) ─────────
-    ("Physics", "OCR A", "Overall", "2025", "June", 270, 206, 179, 151),
-    ("Physics", "OCR A", "Overall", "2024", "June", 270, 207, 175, 146),
-    ("Physics", "OCR A", "Overall", "2023", "June", 270, 211, 182, 151),
-    ("Physics", "OCR A", "Overall", "2022", "June", 270, 211, 181, 147),
-    ("Physics", "OCR A", "Overall", "2021", "June", 270, 214, 182, 151),
-    ("Physics", "OCR A", "Overall", "2020", "June", 270, 221, 192, 159),
-    ("Physics", "OCR A", "Overall", "2019", "June", 270, 230, 204, 174),
-    ("Physics", "OCR A", "Overall", "2018", "June", 270, 219, 188, 158),
-
-    # ── OCR A Level Physics B — Advancing Physics (total, out of 270) ─────────
-    ("Physics B", "OCR", "Overall", "2025", "June", 270, 203, 174, 145),
-    ("Physics B", "OCR", "Overall", "2024", "June", 270, 194, 158, 134),
-    ("Physics B", "OCR", "Overall", "2023", "June", 270, 207, 170, 141),
-    ("Physics B", "OCR", "Overall", "2022", "June", 270, 177, 143, 116),
-    ("Physics B", "OCR", "Overall", "2021", "June", 270, 187, 151, 127),
-    ("Physics B", "OCR", "Overall", "2020", "June", 270, 194, 161, 134),
-    ("Physics B", "OCR", "Overall", "2019", "June", 270, 209, 176, 148),
-    ("Physics B", "OCR", "Overall", "2018", "June", 270, 206, 173, 145),
+    # ── OCR A Level Physics A (H556) — per paper, official raw marks ─────────
+    # Paper 1 = H556/01 Modelling physics (100), Paper 2 = H556/02 Exploring
+    # physics (100), Paper 3 = H556/03 Unified physics (70). Taken from OCR's
+    # published boundary PDFs.
+    #
+    # These were previously the OVERALL qualification boundaries (out of 270)
+    # stored under paper_code "Overall", and shifted a column besides — the max
+    # mark sat in a_star, so A* read 270 in every year and everything else was
+    # one grade too generous. Students log one paper at a time, so a 60/100
+    # Paper 1 was measured against a 270-mark scale and came out U. See
+    # migrations/007_physics_boundaries.sql.
+    #
+    # No 2020 or 2021: there was no summer exam series in either year, so no
+    # official boundaries exist. An attempt at one of those papers falls back to
+    # the median of the real years.
+    ("Physics", "OCR A", "Paper 1", "2018", "June", 83, 72, 60, 49),
+    ("Physics", "OCR A", "Paper 2", "2018", "June", 81, 69, 57, 46),
+    ("Physics", "OCR A", "Paper 3", "2018", "June", 55, 47, 39, 31),
+    ("Physics", "OCR A", "Paper 1", "2019", "June", 88, 80, 70, 59),
+    ("Physics", "OCR A", "Paper 2", "2019", "June", 87, 77, 65, 53),
+    ("Physics", "OCR A", "Paper 3", "2019", "June", 55, 47, 39, 32),
+    ("Physics", "OCR A", "Paper 1", "2022", "June", 83, 73, 60, 47),
+    ("Physics", "OCR A", "Paper 2", "2022", "June", 79, 67, 54, 41),
+    ("Physics", "OCR A", "Paper 3", "2022", "June", 49, 41, 33, 25),
+    ("Physics", "OCR A", "Paper 1", "2023", "June", 74, 65, 54, 43),
+    ("Physics", "OCR A", "Paper 2", "2023", "June", 81, 69, 57, 45),
+    ("Physics", "OCR A", "Paper 3", "2023", "June", 56, 48, 40, 32),
+    ("Physics", "OCR A", "Paper 1", "2024", "June", 72, 63, 52, 42),
+    ("Physics", "OCR A", "Paper 2", "2024", "June", 84, 70, 58, 46),
+    ("Physics", "OCR A", "Paper 3", "2024", "June", 51, 42, 36, 29),
+    ("Physics", "OCR A", "Paper 1", "2025", "June", 75, 66, 56, 46),
+    ("Physics", "OCR A", "Paper 2", "2025", "June", 84, 74, 62, 50),
+    ("Physics", "OCR A", "Paper 3", "2025", "June", 47, 39, 33, 27),
 ]
 
 
