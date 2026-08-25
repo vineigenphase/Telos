@@ -81,6 +81,28 @@
   </div>
 
   {% block content %}{% endblock %}
+
+  {# ── Footer ─────────────────────────────────────────────────────────────
+     Sits inside .main so it follows the content rather than pinning to the
+     viewport, and clears the mobile tab bar via .site-footer's padding. Kept
+     to what is true: the mark, the name, and where things are. No taglines —
+     the copy rule for the whole app is facts, not encouragement. #}
+  <footer class="site-footer">
+    <div class="footer-mark">
+      {{ icons.logo(22) }}
+      <span class="footer-name">Tel<span>os</span></span>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="{{ url_for('papers') }}">Papers</a>
+      <a href="{{ url_for('heatmap') }}">Heatmap</a>
+      <a href="{{ url_for('stats') }}">Statistics</a>
+      <a href="{{ url_for('subscription') }}">Subscription</a>
+    </nav>
+    <p class="footer-note">
+      Past-paper tracking for A-level students.
+      Grade predictions are estimates from your own logged marks, not results.
+    </p>
+  </footer>
 </div>
 
 <!-- ── Bottom tab bar (<640px) ── -->

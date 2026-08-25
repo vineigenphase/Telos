@@ -2023,3 +2023,126 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .loader-fill-in { transform: none; }
   .loader-ghost { opacity: 0; }
 }
+
+/* ── Per-subject predicted grades ────────────────────────────────────────────
+   The stat row can only ever hold one number. A student with three subjects
+   was left reading a single unattributed letter, so every prediction gets a
+   row here. Same rule as the tile: never a grade without the marks that would
+   move it. */
+.pred-list {
+  border-top: 1px solid var(--border);
+}
+
+.pred-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "subject grade"
+    "next    meta";
+  gap: 2px 14px;
+  align-items: baseline;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--border-sub);
+}
+
+.pred-subject {
+  grid-area: subject;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pred-board {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.pred-grade {
+  grid-area: grade;
+  font-family: var(--serif);
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.pred-meta {
+  grid-area: meta;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.pred-sample { font-size: 0.75rem; color: var(--muted); }
+
+.pred-next { grid-area: next; font-size: 0.8rem; color: var(--muted-2); }
+.pred-next a { color: var(--accent-2); text-decoration: none; }
+
+/* Which subject the headline tile is describing. */
+.statrow-scope {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── Site footer ─────────────────────────────────────────────────────────────
+   Follows the content rather than pinning to the viewport. The bottom padding
+   clears the fixed mobile tab bar, which would otherwise sit on top of it. */
+.site-footer {
+  margin-top: 48px;
+  padding: 24px 0 calc(var(--nav-height) + var(--safe-bottom) + 28px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+
+.footer-name {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.footer-name span { font-style: italic; color: var(--accent-2); }
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.footer-links a {
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  text-decoration: none;
+}
+
+.footer-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  /* No tab bar above 640px, so the extra clearance is unnecessary. */
+  .site-footer { padding-bottom: 32px; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-links a:hover { color: var(--accent-2); }
+  .pred-next a:hover { text-decoration: underline; }
+}

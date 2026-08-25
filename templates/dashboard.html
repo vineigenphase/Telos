@@ -48,6 +48,12 @@
           </span>
           {% endif %}
         </div>
+        {# The tile shows the best-evidenced subject, not the only one. Saying
+           which is not decoration: "A*" on its own describes nobody, and a
+           student with three subjects cannot tell whose grade it is. #}
+        {% if headline.grade.subject %}
+        <div class="statrow-scope">{{ headline.grade.subject }}</div>
+        {% endif %}
         {# Never a bare grade — the number is only allowed on screen paired
            with the marks that would move it. #}
         <div class="statrow-sub">
@@ -100,19 +106,39 @@
     </div>
   </div>
 
-  {# ── Share ──────────────────────────────────────────────────────────────
-     A ruled row rather than a card: this is an action, not a result, and the
-     stat row above it is the thing worth looking at. Only the cards the user
-     actually has data for are offered — a "Predicted grade" button that
-     flashes "no prediction to share yet" would be a worse answer than not
-     showing it. Each is a POST because it creates something. #}
-  {% if shareable %}
-  <div class="share-row">
-    <span class="share-row-label">Share</span>
-    {% for opt in shareable %}
-    <form method="post" action="{{ url_for('create_share_card', card_type=opt.type) }}">
-      <button class="btn btn-secondary btn-sm" type="submit">{{ opt.label }}</button>
-    </form>
+  {# ── Predicted grades ───────────────────────────────────────────────────
+     Every subject, not just the headline one. The stat row can only carry a
+     single number, so on its own it left a student with three subjects looking
+     at one unattributed letter — which is the definition of a statistic about
+     nobody. `predictions` was already being passed to this template and simply
+     never rendered.
+
+     Same rule as the tile: a grade never appears without the marks that would
+     move it. A prediction with no next step is just anxiety. #}
+  {% if is_pro and predictions and predictions|length %}
+  <div class="section-head">
+    <h2 class="section-title">Predicted grades</h2>
+  </div>
+  <div class="pred-list">
+    {% for p in predictions %}
+    <div class="pred-row">
+      <div class="pred-subject">
+        {{ p.subject }}
+        <span class="pred-board">{{ p.board }}</span>
+      </div>
+      <div class="pred-grade">{{ p.predicted_grade }}</div>
+      <div class="pred-meta">
+        {% if p.confidence == 'low' %}<span class="badge-provisional">provisional</span>{% endif %}
+        <span class="pred-sample">{{ p.sample_size }} paper{{ 's' if p.sample_size != 1 }}</span>
+      </div>
+      <div class="pred-next">
+        {% if p.marks_to_next is not none and p.next_grade %}
+          <a href="{{ url_for('heatmap') }}?subject={{ p.subject|urlencode }}">{{ p.marks_to_next|int }} mark{{ 's' if p.marks_to_next|int != 1 }} off {{ 'an' if p.next_grade in ['A','A*'] else 'a' }} {{ p.next_grade }} →</a>
+        {% else %}
+          <span class="muted">Top of the scale</span>
+        {% endif %}
+      </div>
+    </div>
     {% endfor %}
   </div>
   {% endif %}
@@ -256,4 +282,23 @@
   </div>
 
 </div>
+
+  {# ── Share ──────────────────────────────────────────────────────────────
+     A ruled row rather than a card: this is an action, not a result, and
+     everything above it is the thing worth looking at. It sits at the foot
+     of the page for the same reason — you share a result after reading it,
+     not before. Only the cards the user
+     actually has data for are offered — a "Predicted grade" button that
+     flashes "no prediction to share yet" would be a worse answer than not
+     showing it. Each is a POST because it creates something. #}
+  {% if shareable %}
+  <div class="share-row">
+    <span class="share-row-label">Share</span>
+    {% for opt in shareable %}
+    <form method="post" action="{{ url_for('create_share_card', card_type=opt.type) }}">
+      <button class="btn btn-secondary btn-sm" type="submit">{{ opt.label }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
 {% endblock %}
