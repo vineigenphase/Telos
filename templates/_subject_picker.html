@@ -8,7 +8,7 @@
    Grouped by subject rather than by board, because that is the order a student
    thinks in: "Physics — which board am I?" not "OCR A — what do I take?". #}
 
-{% macro subject_picker(qualifications, chosen, levels) %}
+{% macro subject_picker(qualifications, chosen, levels, chosen_papers) %}
   {% if levels|length > 1 %}
   <div class="pick-levels">
     <span class="pick-levels-label">Levels available</span>
@@ -33,9 +33,40 @@
         </span>
         <span class="pick-body">
           <span class="pick-board">{{ q.board }}</span>
-          <span class="pick-meta">{{ q.level }} · {{ q.paper_count }} paper{{ 's' if q.paper_count != 1 }}</span>
+          <span class="pick-meta">
+            {{ q.level }} ·
+            {% if q.optional %}
+              {{ q.mandatory|length }} core + choose {{ q.choose_optional }}
+            {% else %}
+              {{ q.paper_count }} paper{{ 's' if q.paper_count != 1 }}
+            {% endif %}
+          </span>
         </span>
       </label>
+
+      {# Qualifications bigger than one student's timetable — Further Maths is
+         ten papers of which four are sat — let the student say which options
+         they take, so the rest of the app can stop offering the other six.
+
+         Rendered whether or not the parent is ticked. Options belonging to an
+         unticked qualification are ignored when saved, so correctness does not
+         depend on the JavaScript that dims them. #}
+      {% if q.optional %}
+      <div class="pick-modules{{ ' on' if key in chosen }}" data-for="{{ key }}">
+        <span class="pick-modules-label">
+          Which {{ q.choose_optional }}?
+          <span class="pick-core">{{ q.mandatory|map(attribute='name')|join(' and ') }} included</span>
+        </span>
+        {% for pap in q.optional %}
+        {% set pkey = key ~ '|' ~ pap.code %}
+        <label class="pick-module{{ ' on' if pkey in chosen_papers }}">
+          <input type="checkbox" name="paper" value="{{ pkey }}"
+                 {% if pkey in chosen_papers %}checked{% endif %}>
+          <span class="pick-module-name">{{ pap.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      {% endif %}
     {% endfor %}
   </div>
 

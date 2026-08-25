@@ -3,20 +3,26 @@ TEMPLATES = {
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",
+            # Two of the eight optional papers. Edexcel also restricts which
+            # pairs are allowed (any two Option 1 papers, or a matching Option 1
+            # and Option 2 pair) — not enforced here, because a student who has
+            # already been entered knows their own combination and a rule that
+            # rejects a valid one is worse than no rule.
+            "choose_optional": 2,
             # 9FM0. Two compulsory Core Pure papers plus two options chosen from
             # eight, so all ten are listed — a student takes four papers, but
             # which four differs between them.
             "papers": [
                 {"code": "CP1", "name": "Core Pure 1",              "max_marks": 75},
                 {"code": "CP2", "name": "Core Pure 2",              "max_marks": 75},
-                {"code": "FP1", "name": "Further Pure 1",           "max_marks": 75},
-                {"code": "FP2", "name": "Further Pure 2",           "max_marks": 75},
-                {"code": "FS1", "name": "Further Statistics 1",     "max_marks": 75},
-                {"code": "FS2", "name": "Further Statistics 2",     "max_marks": 75},
-                {"code": "FM1", "name": "Further Mechanics 1",      "max_marks": 75},
-                {"code": "FM2", "name": "Further Mechanics 2",      "max_marks": 75},
-                {"code": "D1",  "name": "Decision Mathematics 1",   "max_marks": 75},
-                {"code": "D2",  "name": "Decision Mathematics 2",   "max_marks": 75},
+                {"code": "FP1", "name": "Further Pure 1",           "max_marks": 75, "optional": True},
+                {"code": "FP2", "name": "Further Pure 2",           "max_marks": 75, "optional": True},
+                {"code": "FS1", "name": "Further Statistics 1",     "max_marks": 75, "optional": True},
+                {"code": "FS2", "name": "Further Statistics 2",     "max_marks": 75, "optional": True},
+                {"code": "FM1", "name": "Further Mechanics 1",      "max_marks": 75, "optional": True},
+                {"code": "FM2", "name": "Further Mechanics 2",      "max_marks": 75, "optional": True},
+                {"code": "D1",  "name": "Decision Mathematics 1",   "max_marks": 75, "optional": True},
+                {"code": "D2",  "name": "Decision Mathematics 2",   "max_marks": 75, "optional": True},
             ],
             "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
             # Option-paper topics are the numbered content headings from the
@@ -90,15 +96,16 @@ TEMPLATES = {
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",
+            "choose_optional": 2,
             # H245. Both Pure Core papers are mandatory; a student then takes
             # two of the four options, so all six are offered.
             "papers": [
                 {"code": "Y540", "name": "Pure Core 1",              "max_marks": 75},
                 {"code": "Y541", "name": "Pure Core 2",              "max_marks": 75},
-                {"code": "Y542", "name": "Statistics",               "max_marks": 75},
-                {"code": "Y543", "name": "Mechanics",                "max_marks": 75},
-                {"code": "Y544", "name": "Discrete Mathematics",     "max_marks": 75},
-                {"code": "Y545", "name": "Additional Pure Maths",    "max_marks": 75},
+                {"code": "Y542", "name": "Statistics",               "max_marks": 75, "optional": True},
+                {"code": "Y543", "name": "Mechanics",                "max_marks": 75, "optional": True},
+                {"code": "Y544", "name": "Discrete Mathematics",     "max_marks": 75, "optional": True},
+                {"code": "Y545", "name": "Additional Pure Maths",    "max_marks": 75, "optional": True},
             ],
             # First assessed in 2019, so no 2018 series exists.
             "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
@@ -258,6 +265,8 @@ def all_qualifications():
     out = []
     for board, subjects in TEMPLATES.items():
         for subject, data in subjects.items():
+            mandatory = [p for p in data["papers"] if not p.get("optional")]
+            optional = [p for p in data["papers"] if p.get("optional")]
             out.append({
                 "board": board,
                 "subject": subject,
@@ -265,6 +274,9 @@ def all_qualifications():
                 "color": data["color"],
                 "papers": data["papers"],
                 "paper_count": len(data["papers"]),
+                "mandatory": mandatory,
+                "optional": optional,
+                "choose_optional": data.get("choose_optional", 0),
                 "years": data["years"],
             })
     return sorted(out, key=lambda q: (q["subject"], q["level"], q["board"]))
@@ -287,3 +299,22 @@ def available_subjects(level=None):
             seen.add(q["subject"])
             out.append(q["subject"])
     return out
+
+
+def paper_options(board, subject):
+    """(mandatory, optional, choose_n) for one qualification.
+
+    A qualification with no optional papers returns an empty optional list and
+    choose_n of 0, which callers read as "everything is compulsory".
+    """
+    try:
+        cfg = TEMPLATES[board][subject]
+    except KeyError:
+        return [], [], 0
+    mandatory = [p for p in cfg["papers"] if not p.get("optional")]
+    optional = [p for p in cfg["papers"] if p.get("optional")]
+    return mandatory, optional, cfg.get("choose_optional", 0)
+
+
+def has_options(board, subject):
+    return bool(paper_options(board, subject)[1])

@@ -380,3 +380,32 @@ const LOADER_DELAY = 180;
   window.addEventListener('pageshow', disarm);
   window.addEventListener('pagehide', disarm);
 })();
+
+// ── Subject picker ──────────────────────────────────────────────────────────
+//
+// Two purely visual jobs: reflect a ticked checkbox on its label, and dim the
+// module list of a subject that is not selected. Neither is load-bearing — the
+// server decides what a valid selection is, and ignores modules belonging to an
+// unticked qualification — so if this never runs the picker still works, it
+// just looks flatter.
+(function () {
+  var grid = document.querySelector('.pick-grid');
+  if (!grid) return;
+
+  function sync() {
+    grid.querySelectorAll('.pick-option').forEach(function (label) {
+      var box = label.querySelector('input[name="qualification"]');
+      if (!box) return;
+      label.classList.toggle('on', box.checked);
+      var modules = grid.querySelector('.pick-modules[data-for="' + box.value + '"]');
+      if (modules) modules.classList.toggle('on', box.checked);
+    });
+    grid.querySelectorAll('.pick-module').forEach(function (label) {
+      var box = label.querySelector('input[name="paper"]');
+      if (box) label.classList.toggle('on', box.checked);
+    });
+  }
+
+  grid.addEventListener('change', sync);
+  sync();
+})();

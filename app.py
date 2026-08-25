@@ -15,7 +15,8 @@ import stripe
 
 from paper_templates import (TEMPLATES, get_paper_info, get_topics, all_combos,
                              all_qualifications, available_levels,
-                             qualification_level, DEFAULT_LEVEL)
+                             qualification_level, paper_options, has_options,
+                             DEFAULT_LEVEL)
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
@@ -471,8 +472,16 @@ def paper_matrix(user_id):
         for subject, data in subjects.items():
             if show is not None and (board, subject) not in show:
                 continue
+            # Optional papers the student does not sit are dropped, unless they
+            # have logged one anyway — a paper with work against it always
+            # stays visible.
+            visible = visible_papers(user_id, board, subject)
+            logged_codes = {p["paper_code"] for p in done
+                            if p["board"] == board and p["subject"] == subject}
             rows = []
             for paper in data["papers"]:
+                if paper["code"] not in visible and paper["code"] not in logged_codes:
+                    continue
                 cells = []
                 for yr in data["years"]:
                     key   = (subject, board, paper["code"], yr)
@@ -2483,6 +2492,66 @@ def set_user_subjects(user_id, chosen):
     return len(keep)
 
 
+def get_user_papers(user_id):
+    """{(board, subject, level): {paper_code, ...}} of chosen optional papers.
+
+    Only optional choices are stored, so a qualification absent from this map
+    has either no options or no choice made yet — both mean "show everything",
+    which is what visible_papers() below does.
+    """
+    with get_db() as db:
+        rows = db.execute("SELECT * FROM user_papers WHERE user_id=?", (user_id,)).fetchall()
+    out = {}
+    for r in rows:
+        out.setdefault((r["board"], r["subject"], r["level"]), set()).add(r["paper_code"])
+    return out
+
+
+def visible_papers(user_id, board, subject, level=None):
+    """The paper codes this student should see for one qualification.
+
+    Compulsory papers always; optional papers only if chosen. A student who has
+    made no choice sees all of them — narrowing someone's view based on a
+    decision they have not made would hide papers they may well be sitting.
+    """
+    mandatory, optional, _n = paper_options(board, subject)
+    codes = {p["code"] for p in mandatory}
+    if not optional:
+        return codes
+
+    level = level or qualification_level(board, subject)
+    chosen = get_user_papers(user_id).get((board, subject, level))
+    if not chosen:
+        return codes | {p["code"] for p in optional}
+    return codes | {p["code"] for p in optional if p["code"] in chosen}
+
+
+def set_user_papers(user_id, selections):
+    """Replace the student's optional-paper choices.
+
+    `selections` is a list of "board|subject|level|paper_code". Anything that is
+    not an optional paper of a real qualification is dropped — compulsory papers
+    included, because storing those would create a second source of truth about
+    what is compulsory.
+    """
+    valid = set()
+    for q in all_qualifications():
+        _m, optional, _n = paper_options(q["board"], q["subject"])
+        for pap in optional:
+            valid.add(f"{q['board']}|{q['subject']}|{q['level']}|{pap['code']}")
+
+    keep = [sel for sel in selections if sel in valid]
+    with get_db() as db:
+        db.execute("DELETE FROM user_papers WHERE user_id=?", (user_id,))
+        for sel in keep:
+            board, subject, level, code = sel.split("|", 3)
+            db.execute(
+                "INSERT INTO user_papers (user_id, board, subject, level, paper_code) "
+                "VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+                (user_id, board, subject, level, code))
+    return len(keep)
+
+
 def subject_keys(user_id):
     """(board, subject) pairs this student studies — the shape the rest of the
     app already filters by."""
@@ -2500,6 +2569,7 @@ def onboarding():
     """
     if request.method == "POST":
         n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        set_user_papers(current_user.id, request.form.getlist("paper"))
         if not n:
             flash("Pick at least one subject to get started.", "error")
             return redirect(url_for("onboarding"))
@@ -2507,9 +2577,15 @@ def onboarding():
         flash("You're set up. Log your first paper whenever you're ready.", "success")
         return redirect(url_for("dashboard"))
 
+    chosen_papers = set()
+    for key, codes in get_user_papers(current_user.id).items():
+        for code in codes:
+            chosen_papers.add("|".join(key) + "|" + code)
+
     return render_template("onboarding.html",
                            qualifications=all_qualifications(),
                            levels=available_levels(),
+                           chosen_papers=chosen_papers,
                            chosen={f"{s['board']}|{s['subject']}|{s['level']}"
                                    for s in get_user_subjects(current_user.id)})
 
@@ -2524,6 +2600,7 @@ def subjects():
         # silently binning a term of logged papers because a checkbox was
         # unticked would be indefensible.
         n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        set_user_papers(current_user.id, request.form.getlist("paper"))
         log_event("subjects_updated", current_user.id, str(n))
         flash("Subjects updated." if n else
               "All subjects removed — add one to see your papers grouped again.",
@@ -2541,9 +2618,15 @@ def subjects():
     orphaned = [dict(r) for r in logged
                 if (r["board"], r["subject"]) not in chosen_pairs and r["n"]]
 
+    chosen_papers = set()
+    for key, codes in get_user_papers(current_user.id).items():
+        for code in codes:
+            chosen_papers.add("|".join(key) + "|" + code)
+
     return render_template("subjects.html",
                            qualifications=all_qualifications(),
                            levels=available_levels(),
+                           chosen_papers=chosen_papers,
                            chosen={f"{s['board']}|{s['subject']}|{s['level']}"
                                    for s in mine},
                            mine=mine,

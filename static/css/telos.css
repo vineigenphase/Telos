@@ -2441,3 +2441,75 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   /* A subject heading spans the row above its boards. */
   .pick-subject { grid-column: 1 / -1; }
 }
+
+/* ── Optional module picker ──────────────────────────────────────────────────
+   Shown under a qualification that is larger than one student's timetable.
+   Rendered whether or not its parent subject is ticked, because the server
+   ignores modules belonging to an unticked qualification — the dimming below
+   is a hint, never the thing that makes it correct. */
+.pick-modules {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px 12px;
+  margin-top: -4px;
+  border: 1px solid var(--border-sub);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  opacity: 0.45;
+  transition: opacity 140ms ease-out;
+}
+
+.pick-modules.on { opacity: 1; }
+
+.pick-modules-label {
+  flex: 1 0 100%;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.pick-core {
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--disabled);
+  margin-left: 6px;
+}
+
+.pick-module {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  cursor: pointer;
+  transition: border-color 140ms ease-out, color 140ms ease-out;
+}
+
+.pick-module.on { border-color: var(--accent); color: var(--accent-2); }
+
+.pick-module input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.pick-module input:focus-visible + .pick-module-name {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pick-module:hover { border-color: var(--border-2); }
+  .pick-option:hover { border-color: var(--border-2); }
+}
