@@ -301,3 +301,82 @@ if ('serviceWorker' in navigator) {
     if (isIOS() && isSafari()) showBanner();
   });
 })();
+
+// ── Page loader ─────────────────────────────────────────────────────────────
+//
+// Telos is server-rendered: every click is a full document navigation, so the
+// browser gives no feedback between the click and the next paint. Warm that is
+// ~250ms of nothing; after Neon has scaled to zero the first request is far
+// worse. Nothing here was janky before — there was simply no feedback at all,
+// which is what "laggy" usually turns out to mean.
+//
+// The delay is the important part. Showing a loader instantly on every click
+// makes fast pages feel worse, because the eye catches a flash it cannot read.
+// Below this threshold the navigation already feels immediate and the loader
+// never appears at all.
+const LOADER_DELAY = 180;
+
+(function () {
+  const tpl = document.getElementById('loader-tpl');
+  if (!tpl || !tpl.content) return;
+
+  let timer = null;
+  let el = null;
+
+  // Built on first use rather than shipped in the document — see the comment
+  // on the macro in _icons.html. If this never runs, nothing is on screen.
+  function mount() {
+    if (el) return el;
+    el = tpl.content.firstElementChild.cloneNode(true);
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function show() {
+    const node = mount();
+    // Force a style resolution between insert and class change, or the browser
+    // coalesces the two and the fade-in never runs.
+    void node.offsetWidth;
+    node.classList.add('on');
+  }
+
+  function arm() {
+    clearTimeout(timer);
+    timer = setTimeout(show, LOADER_DELAY);
+  }
+
+  function disarm() {
+    clearTimeout(timer);
+    if (el) el.classList.remove('on');
+  }
+
+  document.addEventListener('click', e => {
+    // Only navigations that actually replace this document. A new tab, a
+    // download, an anchor jump or a modified click all leave this page on
+    // screen, and covering a page that is staying put would strand it.
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    const a = e.target.closest('a');
+    if (!a || !a.href) return;
+    if (a.target && a.target !== '_self') return;
+    if (a.hasAttribute('download')) return;
+    if (a.origin !== location.origin) return;
+
+    const href = a.getAttribute('href') || '';
+    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    if (a.pathname === location.pathname && a.search === location.search && a.hash) return;
+
+    arm();
+  });
+
+  document.addEventListener('submit', e => {
+    if (!e.defaultPrevented) arm();
+  });
+
+  // Back/forward out of the bfcache restores this page exactly as it was,
+  // loader included. Without this the user returns to a permanently charging
+  // screen — the classic bug with any loader shown on the way out.
+  window.addEventListener('pageshow', disarm);
+  window.addEventListener('pagehide', disarm);
+})();

@@ -1921,3 +1921,105 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 .share-row form { margin: 0; }
+
+/* ── Page loader ─────────────────────────────────────────────────────────────
+   Telos is server-rendered, so every click is a full document navigation. Warm,
+   that is roughly a quarter-second of nothing; after Neon has scaled to zero the
+   first request is far worse. Nothing was janky before this — there was simply
+   no feedback at all, which is what "laggy" usually turns out to mean.
+
+   Two rules keep it from becoming the problem it is meant to solve:
+
+   1. It only appears after LOADER_DELAY (see telos.js). A spinner that flashes
+      on every fast navigation makes an app feel *less* settled, not more.
+   2. Everything animated here is transform or opacity, the two properties the
+      compositor can run without the main thread. This animation plays exactly
+      while the browser is fetching and parsing the next document, so anything
+      driven by layout — height, clip-path, stroke-dashoffset — would stutter
+      precisely when it is on screen. That constraint is the whole design.  */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 140ms ease-out, visibility 0s linear 140ms;
+}
+
+.loader.on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 140ms ease-out, visibility 0s;
+}
+
+.loader-mark {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+}
+
+/* The dim copy: the mark before it has charged. */
+.loader-ghost {
+  position: absolute;
+  inset: 0;
+  opacity: 0.20;
+}
+
+/* The bright copy, revealed bottom-up. The window slides up while its contents
+   slide down by the same amount, so the mark appears to fill while never
+   actually moving. Both halves are transforms, so both are composited. */
+.loader-fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: transform;
+  animation: loader-window 1400ms cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+.loader-fill-in {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  animation: loader-content 1400ms cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+.loader-ghost .logo-svg,
+.loader-fill-in .logo-svg { display: block; }
+
+@keyframes loader-window {
+  0%        { transform: translateY(100%); }
+  55%, 100% { transform: translateY(0); }
+}
+
+@keyframes loader-content {
+  0%        { transform: translateY(-100%); }
+  55%, 100% { transform: translateY(0); }
+}
+
+/* The charge holds full for the tail of the cycle, then the whole mark fades
+   back to empty — a hard cut back to 0% would read as a glitch. */
+.loader-mark {
+  animation: loader-cycle 1400ms linear infinite;
+}
+
+@keyframes loader-cycle {
+  0%, 70%   { opacity: 1; }
+  90%       { opacity: 0.45; }
+  100%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Still say "working", just without the motion. */
+  .loader-fill,
+  .loader-fill-in,
+  .loader-mark { animation: none; }
+  .loader-fill { transform: none; }
+  .loader-fill-in { transform: none; }
+  .loader-ghost { opacity: 0; }
+}

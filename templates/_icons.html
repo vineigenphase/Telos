@@ -16,6 +16,33 @@
 </svg>
 {% endmacro %}
 
+{# The page loader, shipped as an inert <template>.
+
+   It is deliberately NOT live markup. A loader is position:fixed inset:0, so
+   if its stylesheet ever fails to arrive — a blocked request, a flaky
+   connection that gets the HTML but not the CSS — live markup would render as
+   an opaque block covering the whole app. A <template> renders nothing no
+   matter what happens to the CSS, and telos.js clones it the first time a
+   navigation is actually slow enough to need it. The failure mode is "no
+   loader", never "no app".
+
+   Two copies of the mark stacked: a dim "empty" one, and a bright one revealed
+   bottom-up so the T reads as charging. The reveal uses two counter-translated
+   transforms rather than an animated height or clip-path, because transform is
+   the only one of the three the compositor runs off the main thread — and this
+   animation plays precisely while the main thread is busy fetching and parsing
+   the next document, which is exactly when the others would stutter. #}
+{% macro loader() %}
+<template id="loader-tpl">
+  <div class="loader" aria-hidden="true">
+    <div class="loader-mark">
+      <span class="loader-ghost">{{ logo(44) }}</span>
+      <span class="loader-fill"><span class="loader-fill-in">{{ logo(44) }}</span></span>
+    </div>
+  </div>
+</template>
+{% endmacro %}
+
 {# Single icon set, keyed by the `icon` field in NAV_ITEMS, so the sidebar and
    the mobile tab bar can never show different glyphs for the same thing. #}
 {% macro icon(name) %}

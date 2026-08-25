@@ -26,6 +26,7 @@
   {% block auth_head %}{% endblock %}
 </head>
 <body>
+{{ icons.loader() }}
 <div class="auth-wrap">
   <div class="auth-card">
     <a class="auth-logo" href="{{ url_for('login') }}">
