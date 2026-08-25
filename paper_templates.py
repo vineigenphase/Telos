@@ -1,5 +1,91 @@
 TEMPLATES = {
     "AQA": {
+        "French": {
+            "color": "#4C7EF3",
+            "level": "A-Level",
+            # 7652. Paper 1 is listening, reading and translation; Paper 2 is two
+            # essays on set works. The speaking component is not tracked — it is
+            # an oral conducted by an examiner, not a paper a student can sit
+            # and mark alone.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
+                {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # The four specification themes, plus the two translation tasks —
+            # separately marked at 10 each, and the place students most often
+            # lose marks without noticing which half of the paper did it.
+            "topics": {
+                "Paper 1": [
+                          "Aspects of French-speaking Society: Current Trends",
+                          "Aspects of French-speaking Society: Current Issues",
+                          "Artistic Culture in the French-speaking World",
+                          "Aspects of Political Life in the French-speaking World",
+                          "Translation into English", "Translation into French"],
+                # Two essays on works the student chose from AQA's prescribed
+                # lists. Naming every set text would be a long list of which all
+                # but two entries are irrelevant to any given student.
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+            },
+        },
+        "German": {
+            "color": "#C08A3E",
+            "level": "A-Level",
+            # 7662. Paper 1 is listening, reading and translation; Paper 2 is two
+            # essays on set works. The speaking component is not tracked — it is
+            # an oral conducted by an examiner, not a paper a student can sit
+            # and mark alone.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
+                {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # The four specification themes, plus the two translation tasks —
+            # separately marked at 10 each, and the place students most often
+            # lose marks without noticing which half of the paper did it.
+            "topics": {
+                "Paper 1": [
+                          "Aspects of German-speaking Society",
+                          "Artistic Culture in the German-speaking World",
+                          "Multiculturalism in German-speaking Society",
+                          "Aspects of Political Life in German-speaking Society",
+                          "Translation into English", "Translation into German"],
+                # Two essays on works the student chose from AQA's prescribed
+                # lists. Naming every set text would be a long list of which all
+                # but two entries are irrelevant to any given student.
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+            },
+        },
+        "Spanish": {
+            "color": "#B4574C",
+            "level": "A-Level",
+            # 7692. Paper 1 is listening, reading and translation; Paper 2 is two
+            # essays on set works. The speaking component is not tracked — it is
+            # an oral conducted by an examiner, not a paper a student can sit
+            # and mark alone.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
+                {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # The four specification themes, plus the two translation tasks —
+            # separately marked at 10 each, and the place students most often
+            # lose marks without noticing which half of the paper did it.
+            "topics": {
+                "Paper 1": [
+                          "Aspects of Hispanic Society", "Artistic Culture in the Hispanic World",
+                          "Multiculturalism in Hispanic Society",
+                          "Aspects of Political Life in Hispanic Society",
+                          "Translation into English", "Translation into Spanish"],
+                # Two essays on works the student chose from AQA's prescribed
+                # lists. Naming every set text would be a long list of which all
+                # but two entries are irrelevant to any given student.
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+            },
+        },
         "Economics": {
             "color": "#C08A3E",
             "level": "A-Level",

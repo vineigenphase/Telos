@@ -92,6 +92,48 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level French (7652), German (7662), Spanish (7692) ─────────────
+    # Paper 1 (100) and Paper 2 (80), RAW boundaries — AQA scales both and
+    # publishes a scaled row too. Speaking is an oral and is not tracked.
+    ("French", "AQA", "Paper 1", "2018", "June", 87, 75, 65, 56),
+    ("French", "AQA", "Paper 2", "2018", "June", 72, 64, 54, 45),
+    ("French", "AQA", "Paper 1", "2019", "June", 89, 80, 69, 58),
+    ("French", "AQA", "Paper 2", "2019", "June", 71, 63, 53, 44),
+    ("French", "AQA", "Paper 1", "2022", "June", 85, 75, 64, 53),
+    ("French", "AQA", "Paper 2", "2022", "June", 63, 52, 42, 33),
+    ("French", "AQA", "Paper 1", "2023", "June", 91, 82, 70, 58),
+    ("French", "AQA", "Paper 2", "2023", "June", 70, 60, 50, 40),
+    ("French", "AQA", "Paper 1", "2024", "June", 92, 85, 75, 65),
+    ("French", "AQA", "Paper 2", "2024", "June", 68, 59, 49, 40),
+    ("French", "AQA", "Paper 1", "2025", "June", 91, 82, 73, 64),
+    ("French", "AQA", "Paper 2", "2025", "June", 71, 62, 53, 44),
+
+    ("German", "AQA", "Paper 1", "2018", "June", 85, 67, 55, 43),
+    ("German", "AQA", "Paper 2", "2018", "June", 67, 51, 42, 33),
+    ("German", "AQA", "Paper 1", "2019", "June", 82, 66, 54, 42),
+    ("German", "AQA", "Paper 2", "2019", "June", 66, 54, 44, 34),
+    ("German", "AQA", "Paper 1", "2022", "June", 81, 64, 52, 40),
+    ("German", "AQA", "Paper 2", "2022", "June", 61, 43, 35, 27),
+    ("German", "AQA", "Paper 1", "2023", "June", 87, 72, 57, 43),
+    ("German", "AQA", "Paper 2", "2023", "June", 67, 52, 41, 30),
+    ("German", "AQA", "Paper 1", "2024", "June", 89, 78, 66, 54),
+    ("German", "AQA", "Paper 2", "2024", "June", 65, 52, 42, 32),
+    ("German", "AQA", "Paper 1", "2025", "June", 89, 78, 66, 54),
+    ("German", "AQA", "Paper 2", "2025", "June", 66, 54, 44, 34),
+
+    ("Spanish", "AQA", "Paper 1", "2018", "June", 86, 76, 64, 52),
+    ("Spanish", "AQA", "Paper 2", "2018", "June", 68, 59, 49, 39),
+    ("Spanish", "AQA", "Paper 1", "2019", "June", 82, 70, 58, 46),
+    ("Spanish", "AQA", "Paper 2", "2019", "June", 68, 60, 49, 38),
+    ("Spanish", "AQA", "Paper 1", "2022", "June", 80, 68, 55, 42),
+    ("Spanish", "AQA", "Paper 2", "2022", "June", 64, 54, 44, 34),
+    ("Spanish", "AQA", "Paper 1", "2023", "June", 87, 77, 63, 49),
+    ("Spanish", "AQA", "Paper 2", "2023", "June", 67, 57, 46, 36),
+    ("Spanish", "AQA", "Paper 1", "2024", "June", 86, 75, 62, 49),
+    ("Spanish", "AQA", "Paper 2", "2024", "June", 66, 57, 46, 35),
+    ("Spanish", "AQA", "Paper 1", "2025", "June", 89, 81, 68, 56),
+    ("Spanish", "AQA", "Paper 2", "2025", "June", 65, 55, 46, 37),
+
     # ── AQA A-level Economics (7136) and Geography (7037) ────────────────────
     # Economics: three 80-mark papers. Geography: two 120-mark papers; the
     # fieldwork investigation is coursework and is not tracked.
