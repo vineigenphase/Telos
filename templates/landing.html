@@ -1,0 +1,456 @@
+{# The public landing page, served at "/" to anyone who is not signed in.
+
+   Standalone rather than extending base.html: the sidebar, tab bar and nav are
+   application chrome and mean nothing to a visitor without an account — the
+   same reason auth_base.html exists. It does not extend auth_base.html either,
+   because that shell is a single narrow column built for a login form.
+
+   The product shots are real markup built from telos.css's own tokens, not
+   images. A screenshot goes stale the moment the palette moves; these cannot,
+   because they are made of the same variables the product is.
+
+   Prices come from PRICING via the route. Never hardcode a price in a
+   template — that rule is in TELOS_STATE.md and this page is the most
+   tempting place in the app to break it. #}
+{% import "_icons.html" as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  <title>Telos — know your grade before the exam does</title>
+  <meta name="description" content="Log past papers, mark them by question, and see exactly which topics are costing you marks. Free to use, with predicted grades for Telos Pro.">
+  <link rel="canonical" href="{{ canonical_url('/') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
+  <meta property="og:title" content="Telos — know your grade before the exam does">
+  <meta property="og:description" content="Past-paper tracking that tells you which topics are costing you marks.">
+  <meta property="og:type" content="website">
+</head>
+<body class="lp">
+
+<header class="lp-nav" id="lp-nav">
+  <div class="lp-wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(26) }}
+      <span class="lp-logo-name">Tel<span>os</span></span>
+    </a>
+    <div class="lp-nav-actions">
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('login') }}">Log in</a>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">Start free</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  {# ── Hero ─────────────────────────────────────────────────────────────── #}
+  <section class="lp-hero">
+    <div class="lp-wrap">
+      <p class="lp-eyebrow">A-level past papers</p>
+      <h1 class="lp-title">Know your grade<br>before the <em>exam</em> does.</h1>
+      <p class="lp-lede">
+        Log a past paper, mark it question by question, and Telos shows you the
+        topics quietly costing you marks — and exactly how many stand between
+        you and the next grade.
+      </p>
+      <div class="lp-cta">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">Start free</a>
+        <a class="btn btn-ghost btn-lg" href="{{ url_for('login') }}">I have an account</a>
+      </div>
+      <p class="lp-cta-note">Free forever for tracking. No card to start.</p>
+    </div>
+
+    {# The first sight of the product. Rises and flattens out of its tilt as
+       you scroll — driven by scroll position, not a timer, so it tracks your
+       own movement. #}
+    <div class="lp-stage">
+      <div class="lp-wrap">
+        <div class="lp-device">
+          <div class="lp-device-bar">
+            <span class="lp-dot"></span><span class="lp-dot"></span><span class="lp-dot"></span>
+            <span class="lp-device-title">Dashboard</span>
+          </div>
+          <div class="lp-shot" style="padding:20px;">
+            <div class="mk-statrow">
+              <div class="mk-stat">
+                <div class="mk-stat-label">Predicted grade</div>
+                <div class="mk-stat-value" style="color:var(--accent-2);">A*</div>
+                <div class="mk-stat-sub">Further Maths</div>
+              </div>
+              <div class="mk-stat">
+                <div class="mk-stat-label">Papers completed</div>
+                <div class="mk-stat-value">24</div>
+                <div class="mk-stat-sub"><span class="mk-up">+3</span> this week</div>
+              </div>
+              <div class="mk-stat">
+                <div class="mk-stat-label">Questions answered</div>
+                <div class="mk-stat-value">312</div>
+                <div class="mk-stat-sub"><span class="mk-up">+41</span> this week</div>
+              </div>
+              <div class="mk-stat">
+                <div class="mk-stat-label">Accuracy</div>
+                <div class="mk-stat-value">81%</div>
+                <div class="mk-stat-sub"><span class="mk-up">↑4%</span> vs last week</div>
+              </div>
+            </div>
+
+            <hr class="mk-rule">
+
+            <div class="mk-section-title">Predicted grades</div>
+            <div class="mk-row">
+              <div>
+                <div class="mk-row-main">Further Maths <span style="color:var(--muted);font-size:0.68rem;letter-spacing:0.12em;">EDEXCEL</span></div>
+                <div class="mk-row-sub" style="color:var(--accent-2);">4 marks off an A* →</div>
+              </div>
+              <div class="mk-grade">A*</div>
+            </div>
+            <div class="mk-row">
+              <div>
+                <div class="mk-row-main">Mathematics <span style="color:var(--muted);font-size:0.68rem;letter-spacing:0.12em;">EDEXCEL</span></div>
+                <div class="mk-row-sub" style="color:var(--accent-2);">9 marks off an A* →</div>
+              </div>
+              <div class="mk-grade">A</div>
+            </div>
+            <div class="mk-row">
+              <div>
+                <div class="mk-row-main">Physics <span style="color:var(--muted);font-size:0.68rem;letter-spacing:0.12em;">AQA</span></div>
+                <div class="mk-row-sub" style="color:var(--accent-2);">6 marks off an A →</div>
+              </div>
+              <div class="mk-grade">B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Diagnosis ────────────────────────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-split">
+        <div class="lp-section-head reveal">
+          <p class="lp-kicker">Diagnosis</p>
+          <h2 class="lp-h2">A percentage tells you nothing. A topic tells you what to do tonight.</h2>
+          <p class="lp-p">
+            Telos records every question separately, so "68%" becomes something
+            useful: integration is fine, capacitance is not, and the marks you
+            keep dropping are in three topics rather than everywhere.
+          </p>
+        </div>
+
+        <div class="lp-panel reveal">
+          <div class="mk-section-title">Topic accuracy</div>
+          <p class="mk-row-sub" style="margin-bottom:14px;">Further Maths · 24 papers</p>
+          <div class="mk-heat">
+            {# The same colour ladder as the product's heatmap, driven by the
+               --hm-* tokens rather than hexes restated here. #}
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c90"></span>
+            <span class="mk-cell mk-c80"></span><span class="mk-cell mk-c70"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c60"></span>
+            <span class="mk-cell mk-c80"></span><span class="mk-cell mk-c50"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c70"></span>
+            <span class="mk-cell mk-c80"></span><span class="mk-cell mk-cnull"></span>
+            <span class="mk-cell mk-c70"></span><span class="mk-cell mk-c80"></span>
+            <span class="mk-cell mk-c0"></span><span class="mk-cell mk-c60"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c80"></span>
+            <span class="mk-cell mk-c50"></span><span class="mk-cell mk-c70"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c60"></span>
+            <span class="mk-cell mk-c80"></span><span class="mk-cell mk-c90"></span>
+            <span class="mk-cell mk-c70"></span><span class="mk-cell mk-c0"></span>
+            <span class="mk-cell mk-c80"></span><span class="mk-cell mk-c90"></span>
+            <span class="mk-cell mk-c60"></span><span class="mk-cell mk-c80"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c70"></span>
+            <span class="mk-cell mk-cnull"></span><span class="mk-cell mk-c80"></span>
+            <span class="mk-cell mk-c90"></span><span class="mk-cell mk-c50"></span>
+          </div>
+          <hr class="mk-rule">
+          <div class="mk-row">
+            <div class="mk-row-main">Capacitance</div>
+            <div style="color:var(--hm-0);font-size:0.8rem;">31%</div>
+          </div>
+          <div class="mk-row">
+            <div class="mk-row-main">Differential equations</div>
+            <div style="color:var(--hm-50);font-size:0.8rem;">54%</div>
+          </div>
+          <div class="mk-row">
+            <div class="mk-row-main">Complex numbers</div>
+            <div style="color:var(--hm-90);font-size:0.8rem;">92%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Prescription ─────────────────────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-split">
+        <div class="lp-panel reveal" style="order:2;">
+          <div class="mk-section-title">Next up</div>
+          <p class="mk-row-sub" style="margin-bottom:14px;">Three questions, chosen from your own marks</p>
+
+          <div style="border:1px solid var(--border);border-radius:8px;padding:15px;background:var(--bg);">
+            <div class="mk-row-main" style="font-weight:600;">Integration by substitution</div>
+            <div class="mk-row-sub">2021 CP3 Q5 · worth ~6 marks/paper</div>
+            <div class="mk-bar"><span style="width:25%;"></span></div>
+            <div class="mk-row-sub" style="margin-top:7px;">25% accuracy · 9 marks</div>
+          </div>
+
+          <div class="mk-row" style="margin-top:6px;">
+            <div>
+              <div class="mk-row-main">Complex numbers</div>
+              <div class="mk-row-sub">2021 CP3 Q7 · 12 marks</div>
+            </div>
+          </div>
+          <div class="mk-row">
+            <div>
+              <div class="mk-row-main">Roots of polynomials</div>
+              <div class="mk-row-sub">2023 CP1 Q4 · scored 7/12</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lp-section-head reveal" style="order:1;">
+          <p class="lp-kicker">Prescription</p>
+          <h2 class="lp-h2">Then it tells you which three questions to do next.</h2>
+          <p class="lp-p">
+            Not a revision plan you will abandon by Wednesday. Three specific
+            questions, picked from the topics costing you the most marks, each
+            with the reason it was chosen. Do them, log them, and the list
+            changes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Prediction ───────────────────────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-section-head reveal">
+        <p class="lp-kicker">Prediction</p>
+        <h2 class="lp-h2">And how many marks stand between you and the next grade.</h2>
+        <p class="lp-p">
+          Every prediction is built from real grade boundaries and weighted
+          toward your recent papers, with its confidence stated plainly. A grade
+          never appears on its own — always with the marks that would move it,
+          because a prediction you cannot act on is just anxiety.
+        </p>
+      </div>
+
+      <div class="lp-panel reveal" style="margin-top:26px;">
+        <div class="mk-statrow">
+          <div class="mk-stat">
+            <div class="mk-stat-label">Predicted</div>
+            <div class="mk-stat-value" style="color:var(--accent-2);">A*</div>
+            <div class="mk-stat-sub">High confidence · 24 papers</div>
+          </div>
+          <div class="mk-stat">
+            <div class="mk-stat-label">Marks to next</div>
+            <div class="mk-stat-value">4</div>
+            <div class="mk-stat-sub">to hold an A*</div>
+          </div>
+          <div class="mk-stat">
+            <div class="mk-stat-label">Boundary used</div>
+            <div class="mk-stat-value">63</div>
+            <div class="mk-stat-sub">Edexcel CP1, 2023</div>
+          </div>
+          <div class="mk-stat">
+            <div class="mk-stat-label">Trend</div>
+            <div class="mk-stat-value">↑1</div>
+            <div class="mk-stat-sub">grade, 4 weeks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Pricing ──────────────────────────────────────────────────────────── #}
+  <section class="lp-section" id="pricing">
+    <div class="lp-wrap">
+      <div class="lp-section-head reveal">
+        <p class="lp-kicker">Pricing</p>
+        <h2 class="lp-h2">Free covers diagnosis. Pro adds prediction.</h2>
+        <p class="lp-p">
+          Tracking papers and finding your weak topics is free, permanently and
+          without a card. Pro is for when you want the grade and the plan.
+        </p>
+      </div>
+
+      {% set pro_plan = pricing[default_interval] %}
+      <div class="lp-plans reveal">
+        <div class="lp-plan">
+          <div class="lp-plan-name">Free</div>
+          <div class="lp-plan-price">£0</div>
+          <div class="lp-plan-period">forever</div>
+          <div>
+            {% for f in pricing_features.free %}
+            <div class="lp-feature">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ f.label }}
+            </div>
+            {% endfor %}
+          </div>
+          <a class="btn btn-ghost" href="{{ url_for('register') }}" style="margin-top:auto;">Start free</a>
+        </div>
+
+        <div class="lp-plan pro">
+          <div class="lp-plan-name">
+            Telos Pro
+            <span class="lp-plan-flag">Recommended</span>
+          </div>
+          {# Price, period and saving all read from PRICING. #}
+          <div class="lp-plan-price">{{ pro_plan.label }}</div>
+          <div class="lp-plan-period">{{ pro_plan.period }}</div>
+          <div class="lp-plan-sub">{{ pro_plan.sub }}</div>
+          <div>
+            {% for f in pricing_features.pro %}
+            <div class="lp-feature{{ ' soon' if f.coming_soon }}">
+              {% if f.coming_soon %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {% else %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+              {% endif %}
+              {{ f.label }}
+              {% if f.coming_soon %}<span class="lp-soon-tag">soon</span>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <a class="btn btn-primary" href="{{ url_for('register') }}" style="margin-top:auto;">Get Telos Pro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Close ────────────────────────────────────────────────────────────── #}
+  <section class="lp-close">
+    <div class="lp-wrap">
+      <h2 class="lp-title reveal" style="font-size:clamp(2.1rem,5.4vw,3.6rem);">
+        Start with one paper.
+      </h2>
+      <p class="lp-lede reveal">
+        Log a paper you have already done. The heatmap is useful from the first
+        one, and honest from the third.
+      </p>
+      <div class="lp-cta reveal">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">Create your account</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lp-wrap">
+  <div class="lp-footer">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(20) }}
+      <span class="lp-logo-name" style="font-size:0.95rem;">Tel<span>os</span></span>
+    </a>
+    <nav class="lp-footer-links" aria-label="Footer">
+      <a href="{{ url_for('login') }}">Log in</a>
+      <a href="{{ url_for('register') }}">Sign up</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <p class="lp-footer-note">
+      Telos does not host or distribute exam-board papers. Predicted grades are
+      estimates from your own logged marks, not results.
+    </p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var targets = [].slice.call(document.querySelectorAll('.reveal, .lp-device'));
+    if (!targets.length) return;
+
+    // Nothing hides until this class is set, and it is only set once we are
+    // certain the code that unhides is running. If this script fails, throws,
+    // or never loads, the page renders fully visible and static — a fine
+    // landing page. Read the note in landing.css: an earlier version hid
+    // elements from CSS and relied on scroll-driven animations to bring them
+    // back, and when those silently failed the page was blank below the hero.
+    root.classList.add('lp-reveal-ready');
+
+    // Deliberately a scroll listener rather than IntersectionObserver. IO is
+    // the tidier tool and is what this used first, but it is one more thing
+    // that has to fire for content to become visible, and content appearing
+    // at all should not depend on a callback. Twelve elements and a rAF-
+    // throttled read cost nothing.
+    // Throttled on a timestamp rather than requestAnimationFrame. rAF is the
+    // usual choice and it was the first one here, but it makes revealing
+    // content depend on the frame loop actually ticking — and if it stalls,
+    // the `pending` flag latches and nothing ever reveals again. A timestamp
+    // cannot latch. This is the same lesson as IntersectionObserver above:
+    // whether text is visible should rest on as little machinery as possible.
+    var last = 0;
+
+    function check() {
+      var h = window.innerHeight || root.clientHeight;
+      for (var i = targets.length - 1; i >= 0; i--) {
+        var r = targets[i].getBoundingClientRect();
+        // Trigger a little before the top edge arrives, so the movement
+        // finishes about when the element does.
+        if (r.top < h * 0.92 && r.bottom > 0) {
+          targets[i].classList.add('in');
+          targets.splice(i, 1);
+        }
+      }
+      if (!targets.length) {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      }
+    }
+
+    function onScroll() {
+      var now = Date.now();
+      if (now - last < 80) return;
+      last = now;
+      check();
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    check();                    // whatever is already on screen reveals now
+
+    // Last resort. Hiding content behind a CSS transition assumes the
+    // transition will actually run, and that assumption can fail: during
+    // development this exact page sat fully invisible in a browser whose
+    // animation timeline had stopped ticking — the rules were right, the
+    // classes were right, and every transition stayed frozen at its start
+    // value. So: shortly after load, look at something that has been told to
+    // reveal and check whether it actually did. If it did not, drop the gate
+    // class entirely, which removes every hiding rule at once and does not
+    // depend on transitions running at all.
+    window.setTimeout(function () {
+      // Check every element that has been told to reveal, not just the first
+      // one — sampling a single element passes as soon as that one happens to
+      // work, which is exactly how this failed to fire during development.
+      var told = document.querySelectorAll('.reveal.in, .lp-device.in');
+      for (var i = 0; i < told.length; i++) {
+        if (parseFloat(window.getComputedStyle(told[i]).opacity) < 0.5) {
+          root.classList.remove('lp-reveal-ready');
+          return;
+        }
+      }
+    }, 3000);
+
+    // The nav gains a hairline once it starts overlapping content.
+    var nav = document.getElementById('lp-nav');
+    if (nav) {
+      window.addEventListener('scroll', function () {
+        nav.classList.toggle('stuck', window.scrollY > 8);
+      }, { passive: true });
+    }
+  })();
+</script>
+
+</body>
+</html>

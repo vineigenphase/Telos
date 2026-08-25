@@ -627,8 +627,22 @@ def logout():
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
 @app.route("/")
-@login_required
 def dashboard():
+    """The app for a signed-in student; the landing page for everyone else.
+
+    Not @login_required any more. "/" was already listed as a public page in
+    sitemap.xml, and it answered crawlers and first-time visitors with a
+    redirect to /login — a front door that asks who you are before telling you
+    what the building is.
+    """
+    if not current_user.is_authenticated:
+        return render_template(
+            "landing.html",
+            pricing=PRICING,
+            default_interval=DEFAULT_INTERVAL,
+            pricing_features=PRICING_FEATURES,
+        )
+
     with get_db() as db:
         recent = db.execute(
             "SELECT * FROM papers WHERE user_id=? ORDER BY created_at DESC LIMIT 8",

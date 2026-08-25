@@ -1,0 +1,525 @@
+/* Telos — landing page.
+   ---------------------------------------------------------------------------
+   Separate from telos.css on purpose: none of this is ever loaded by a signed-in
+   student, and the app stylesheet should not carry marketing weight for the
+   people using the product every day. It reuses telos.css's tokens rather than
+   redefining them (the landing must look like the thing it is selling), so this
+   file loads *after* telos.css and assumes --bg, --accent, --serif and friends
+   already exist.
+
+   On the motion: see the "Reveal on scroll" section near the bottom. It is
+   JavaScript-gated rather than pure CSS, and the comment there explains why
+   the pure-CSS version was pulled — briefly, a browser can report support for
+   scroll-driven animations, attach a real ViewTimeline, and still leave it
+   permanently inactive, which turns every revealed element permanently
+   invisible. Nothing on this page hides itself unless something has confirmed
+   it can also unhide it. */
+
+.lp {
+  /* telos.css turns <body> into a flex row at >=640px, because that is how the
+     app puts its sidebar beside the main column. This page has no sidebar, and
+     inheriting that rule laid the header, main and footer out side by side as
+     three columns. Opt out explicitly — a class selector beats the element
+     selector in that media query regardless of source order. */
+  display: block;
+  padding-bottom: 0;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+
+  /* clip, NOT hidden. `overflow-x: hidden` makes the body a scroll container,
+     which silently breaks every scroll-driven animation on this page: view()
+     then resolves against the body's own scrollport, and since the document is
+     what actually scrolls, that scrollport never moves and the reveals sit at
+     opacity 0 forever. `clip` gives the same visual result without creating a
+     scroll container. telos.css sets hidden on body for the app, which is why
+     this has to be overridden here rather than simply omitted. */
+  overflow-x: clip;
+}
+
+.lp-wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+/* ── Top bar ───────────────────────────────────────────────────────────────
+   Stays out of the way. The hero is the pitch; this is just wayfinding. */
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms ease-out;
+}
+
+/* A hairline appears only once you have scrolled past the hero, so the bar is
+   invisible at rest and defined when it overlaps content. */
+.lp-nav.stuck { border-bottom-color: var(--border); }
+
+.lp-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.lp-logo-name {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.lp-logo-name span { font-style: italic; color: var(--accent-2); }
+
+.lp-nav-actions { display: flex; align-items: center; gap: 10px; }
+
+/* ── Hero ──────────────────────────────────────────────────────────────────
+   Type first, product second — the mockup means nothing until you know what
+   the thing is. */
+.lp-hero {
+  padding: 78px 0 0;
+  text-align: center;
+}
+
+.lp-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.lp-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 7.2vw, 5.1rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.lp-title em {
+  font-style: italic;
+  color: var(--accent-2);
+}
+
+.lp-lede {
+  max-width: 46ch;
+  margin: 22px auto 0;
+  font-size: clamp(1rem, 2.1vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--muted-2);
+  text-wrap: pretty;
+}
+
+.lp-cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.lp-cta-note {
+  margin: 16px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── The device ────────────────────────────────────────────────────────────
+   A sticky stage: the mockup starts small and slightly tilted, then rises and
+   flattens as it scrolls into place. This is the one piece of showmanship on
+   the page, and it is doing a job — it is the first sight of the product. */
+.lp-stage {
+  margin-top: 54px;
+  perspective: 1600px;
+}
+
+.lp-device {
+  position: relative;
+  margin: 0 auto;
+  max-width: 940px;
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  transform-origin: 50% 0%;
+}
+
+/* The window chrome — three dots and a title, enough to read as an app window
+   without pretending to be a specific operating system. */
+.lp-device-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.lp-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border-2);
+}
+
+.lp-device-title {
+  margin-left: 8px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lp-shot { display: block; }
+
+/* ── Sections ──────────────────────────────────────────────────────────────*/
+.lp-section { padding: 108px 0 0; }
+
+.lp-section-head { max-width: 54ch; }
+
+.lp-kicker {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin: 0 0 14px;
+}
+
+.lp-h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.2vw, 2.9rem);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.lp-p {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--muted-2);
+  max-width: 58ch;
+}
+
+.lp-panel {
+  margin-top: 30px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  padding: 22px;
+}
+
+/* ── Mockup internals ──────────────────────────────────────────────────────
+   Real markup using the app's own tokens rather than screenshots. Screenshots
+   go stale the moment the palette moves, and these cannot — they are made of
+   the same variables the product is. */
+.mk-statrow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mk-stat { background: var(--card); padding: 14px 15px; }
+
+.mk-stat-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.mk-stat-value {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  line-height: 1.1;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mk-stat-sub { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+.mk-up { color: var(--green); font-size: 0.68rem; }
+
+.mk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--border-sub);
+}
+
+.mk-row:last-child { border-bottom: 0; }
+
+.mk-row-main { font-size: 0.85rem; }
+.mk-row-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+.mk-grade {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--accent-2);
+}
+
+.mk-section-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  margin: 0 0 4px;
+}
+
+.mk-rule {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
+}
+
+/* Heatmap grid — the same colour ladder the product uses. */
+.mk-heat {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+}
+
+.mk-cell { aspect-ratio: 1; border-radius: 3px; }
+.mk-c90 { background: var(--hm-90); }
+.mk-c80 { background: var(--hm-80); }
+.mk-c70 { background: var(--hm-70); }
+.mk-c60 { background: var(--hm-60); }
+.mk-c50 { background: var(--hm-50); }
+.mk-c0  { background: var(--hm-0); }
+.mk-cnull { background: var(--card-2); }
+
+.mk-bar {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.mk-bar span { display: block; height: 100%; background: var(--accent); }
+
+/* ── Split rows ────────────────────────────────────────────────────────────*/
+.lp-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 26px;
+  align-items: center;
+}
+
+/* ── Pricing ───────────────────────────────────────────────────────────────*/
+.lp-plans {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 30px;
+  align-items: stretch;
+}
+
+.lp-plan {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 22px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Same brass treatment as the in-app subscription page, so the paid plan reads
+   identically on both sides of signing up. */
+.lp-plan.pro {
+  border-color: var(--accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-plan.pro::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+}
+
+.lp-plan-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lp-plan-flag {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent-2);
+  border: 1px solid rgba(var(--accent-rgb), 0.42);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.lp-plan-price {
+  font-family: var(--serif);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.lp-plan.pro .lp-plan-price { color: var(--accent-2); }
+
+.lp-plan-period { font-size: 0.8rem; color: var(--muted); margin-top: -6px; }
+.lp-plan-sub { font-size: 0.78rem; color: var(--accent-2); }
+
+.lp-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.85rem;
+  color: var(--muted-2);
+  padding: 3px 0;
+}
+
+.lp-feature svg { flex: 0 0 auto; margin-top: 3px; color: var(--muted); }
+.lp-feature.soon { color: var(--muted); }
+
+.lp-soon-tag {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border-2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: auto;
+}
+
+/* ── Closing ───────────────────────────────────────────────────────────────*/
+.lp-close {
+  padding: 118px 0 96px;
+  text-align: center;
+}
+
+.lp-footer {
+  border-top: 1px solid var(--border);
+  padding: 26px 0 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 26px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lp-footer-note {
+  font-size: 0.74rem;
+  color: var(--muted);
+  max-width: 56ch;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.lp-footer-links { display: flex; gap: 18px; }
+
+.lp-footer-links a {
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  text-decoration: none;
+}
+
+/* ── Reveal on scroll ──────────────────────────────────────────────────────
+   The reveals are gated on a class that JavaScript puts on <html>, not on
+   @supports. That is deliberate, and it is the second attempt.
+
+   The first version used pure scroll-driven CSS (animation-timeline: view())
+   guarded by @supports. It is a lovely technique and it failed here: this
+   browser reports CSS.supports('animation-timeline: view()') as true, attaches
+   a real ViewTimeline, and then leaves that timeline permanently inactive —
+   currentTime null, progress null. An inactive timeline means the animation
+   never applies, so every revealed element kept its base opacity of 0 and the
+   entire page below the hero was blank. @supports answered "can you parse
+   this?", which turned out not to be the same question as "will this run?".
+
+   So: nothing is hidden unless JavaScript is running AND has confirmed it can
+   observe the elements. If the script never executes, `.lp-reveal-ready` is
+   never set, nothing is hidden, and the page is simply static. The failure
+   mode is a page without animation, never a page without content.
+
+   The motion itself is opacity and transform only, so it composites. */
+.reveal { will-change: opacity, transform; }
+
+.lp-reveal-ready .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.lp-reveal-ready .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* The hero device gets the same treatment with a longer throw, so it rises and
+   flattens out of its tilt rather than simply fading. Its base state is fully
+   visible — if the script never runs, the product shot is still the first
+   thing you see, which is the whole point of it. */
+.lp-device { will-change: opacity, transform; }
+
+.lp-reveal-ready .lp-device {
+  opacity: 0;
+  transform: translateY(46px) scale(0.955) rotateX(7deg);
+  transition: opacity 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.lp-reveal-ready .lp-device.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Wider screens ─────────────────────────────────────────────────────────*/
+@media (min-width: 720px) {
+  .lp-wrap { padding: 0 32px; }
+  .lp-hero { padding-top: 104px; }
+  .lp-split { grid-template-columns: 1fr 1fr; gap: 46px; }
+  .lp-plans { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .lp-section { padding-top: 132px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Show everything, move nothing. */
+  /* Show everything immediately, move nothing. */
+  .lp-reveal-ready .reveal,
+  .lp-reveal-ready .lp-device {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .lp-nav { transition: none; }
+}

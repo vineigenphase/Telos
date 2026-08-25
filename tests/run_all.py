@@ -36,6 +36,7 @@ SUITES = [
     ("share cards (pure)",         "test_share_cards.py"),
     ("share cards integration",    "test_share_integration.py"),
     ("db pool survives Neon sleep", "test_db_resilience.py"),
+    ("landing page",               "test_landing.py"),
 ]
 
 
