@@ -1,4 +1,43 @@
 TEMPLATES = {
+    "AQA": {
+        "Maths": {
+            "color": "#C9A227",
+            "level": "A-Level",
+            # 7357. Three 100-mark papers, all compulsory.
+            "papers": [
+                {"code": "Paper 1", "name": "Pure Mathematics",              "max_marks": 100},
+                {"code": "Paper 2", "name": "Pure Mathematics and Mechanics","max_marks": 100},
+                {"code": "Paper 3", "name": "Pure Mathematics and Statistics","max_marks": 100},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Content areas A-S from the 7357 specification's scheme of
+            # assessment, which states exactly what each paper covers.
+            #
+            # Note Vectors sits in Paper 2, not Paper 1 — AQA puts it with the
+            # mechanics content. OCR treats vectors as pure and carries it on
+            # every paper, so the two boards genuinely differ here and the lists
+            # are not interchangeable.
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods"],
+                "Paper 2": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods", "Vectors",
+                          "Quantities and Units in Mechanics", "Kinematics",
+                          "Forces and Newton's Laws", "Moments"],
+                "Paper 3": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Numerical Methods",
+                          "Statistical Sampling", "Data Presentation and Interpretation",
+                          "Probability", "Statistical Distributions",
+                          "Statistical Hypothesis Testing"],
+            },
+        },
+    },
     "Edexcel": {
         "Further Maths": {
             "color": "#7A7973",

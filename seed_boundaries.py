@@ -92,6 +92,28 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level Mathematics (7357) — notional component boundaries ───────
+    # Three 100-mark papers. AQA awards at qualification level and derives the
+    # per-paper figures, which is why some series are evenly spaced.
+    ("Maths", "AQA", "Paper 1", "2018", "June", 74, 56, 50, 44),
+    ("Maths", "AQA", "Paper 2", "2018", "June", 79, 65, 56, 47),
+    ("Maths", "AQA", "Paper 3", "2018", "June", 76, 60, 52, 44),
+    ("Maths", "AQA", "Paper 1", "2019", "June", 72, 53, 43, 33),
+    ("Maths", "AQA", "Paper 2", "2019", "June", 77, 62, 50, 38),
+    ("Maths", "AQA", "Paper 3", "2019", "June", 82, 70, 57, 45),
+    ("Maths", "AQA", "Paper 1", "2022", "June", 71, 53, 42, 32),
+    ("Maths", "AQA", "Paper 2", "2022", "June", 73, 56, 45, 35),
+    ("Maths", "AQA", "Paper 3", "2022", "June", 76, 62, 50, 38),
+    ("Maths", "AQA", "Paper 1", "2023", "June", 82, 65, 52, 39),
+    ("Maths", "AQA", "Paper 2", "2023", "June", 80, 62, 50, 38),
+    ("Maths", "AQA", "Paper 3", "2023", "June", 86, 74, 60, 46),
+    ("Maths", "AQA", "Paper 1", "2024", "June", 87, 75, 61, 48),
+    ("Maths", "AQA", "Paper 2", "2024", "June", 84, 70, 58, 47),
+    ("Maths", "AQA", "Paper 3", "2024", "June", 88, 77, 64, 51),
+    ("Maths", "AQA", "Paper 1", "2025", "June", 87, 74, 61, 48),
+    ("Maths", "AQA", "Paper 2", "2025", "June", 86, 73, 61, 49),
+    ("Maths", "AQA", "Paper 3", "2025", "June", 87, 74, 61, 48),
+
     # ── OCR A Level Further Mathematics A (H245) — per component ─────────────
     # Y540/Y541 Pure Core (mandatory), Y542-Y545 options. All 75 marks.
     # First assessed 2019.
