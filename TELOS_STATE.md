@@ -63,7 +63,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
 | 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
 | — | UI overhaul — Editorial treatment across all twelve screens, new stroke logo | `7df213d` | **live** |
-| 9 | Shareable card export — the growth engine | `feat/share-cards` | **built, awaiting sign-off** |
+| 9 | Shareable card export — the growth engine | `0df51d7` | **live** |
+| — | Page loader — the mark charges during navigation | `0df51d7` | **live** |
 | 6, 8, 7, 10 | Spaced repetition, parent report, percentile, simulator | — | not started |
 
 ---
@@ -139,10 +140,8 @@ on the Editorial treatment, plus the new stroke logo. Three things to know:
 - **Pro Zone posts use `.post-*`, not `.entry-*`.** That namespace already
   belongs to the phone mark-entry flow — fourteen classes of it.
 
-**Phase 9 is built but not merged.** Five commits on `feat/share-cards`, all
-tests green (12 suites). Migration 006 is already applied to production — it is
-additive and nothing in `main` reads it. Two departures from the spec, both
-agreed with the owner before building:
+**Phase 9 shipped 2026-08-25** (`0df51d7`), together with the page loader. Two
+departures from the spec, both agreed with the owner before building:
 
 - **The card page is `noindex`.** A student chose to show a result to the people
   they sent it to, which is not the same as agreeing to surface in a search for
@@ -164,6 +163,17 @@ than faked with a placeholder number.
 a bug. Prediction is the Pro half of the free/Pro split, so a free user has
 accuracy and papers-logged to share but no predicted grade. The dashboard
 offers only the cards the data supports.
+
+**The page loader is deliberately shy, and deliberately inert until needed.** It
+waits 180ms before appearing, because a loader that flashes on every fast click
+makes an app feel less settled rather than more. It animates only transform and
+opacity — the charge is two counter-translated transforms, not an animated
+height or clip-path — because it plays exactly while the main thread is busy
+parsing the next document, which is when anything layout-driven would stutter.
+And it ships as an inert `<template>` that `telos.js` clones on first use: a
+`position:fixed inset:0` element in live markup becomes an opaque sheet over
+the whole app if its stylesheet ever fails to arrive. Don't "simplify" any of
+those three into the obvious version.
 
 **Decisions waiting on the owner:**
 
