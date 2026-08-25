@@ -2,7 +2,13 @@
    The serif is doing real work — it is the single biggest reason the UI reads
    as a study instrument rather than another dark SaaS dashboard — so it is
    confined to numbers and headings and never used for body copy or controls. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap');
+/* The webfonts are NOT @imported here. An @import is only discovered once
+   this file has downloaded and parsed, so the font request could not even
+   start until then — three serial round-trips before any text could be
+   painted in the right face. They are <link>ed from the document head
+   instead, with preconnect, so they resolve in parallel with this file.
+   Change the families here and you must change base.html and
+   auth_base.html, which is the cost of the parallelism. */
 
 /* ───────────────────────────────────────────────────────────────────────────
    Telos — mobile-first.
@@ -1173,8 +1179,39 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   padding: 20px 18px;
   text-align: left;
 }
-/* The paid plan is marked by its border alone — no tinted panel behind it. */
-.plan-card.pro { border-color: var(--border-2); }
+/* The paid plan is outlined in brass, with a rule across its top edge. The
+   rest of the app keeps the accent to single controls; this is the deliberate
+   exception, because distinguishing the two plans is the entire job of this
+   page and a slightly lighter grey border was doing that work invisibly.
+   Still no tinted panel behind it — the outline carries it. */
+.plan-card.pro {
+  border-color: var(--accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-card.pro::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+}
+
+.plan-card.pro .plan-price { color: var(--accent-2); }
+
+.plan-name { display: flex; align-items: center; gap: 8px; }
+
+.plan-flag {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  border: 1px solid rgba(var(--accent-rgb), 0.42);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+}
 
 .plan-name {
   font-size: 10px; font-weight: 500;
@@ -1786,7 +1823,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   /* Question list beside the file list. This was a hardcoded 1fr/320px grid
      with no breakpoint at all, so it overflowed every phone. */
   .bank-split { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 28px; align-items: start; }
-  .plan-grid  { grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  /* stretch, not start: the two plans are a comparison, and cards that end
+     at different heights read as an alignment bug rather than as a
+     difference in what you get. */
+  .plan-grid  { grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
 
   /* Two-column: weakest-topics list on the left, the full grid on the right.
      iPad is where students actually revise, so it gets a real layout rather
@@ -2145,4 +2185,61 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (hover: hover) and (pointer: fine) {
   .footer-links a:hover { color: var(--accent-2); }
   .pred-next a:hover { text-decoration: underline; }
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────────
+   Telos is server-rendered, so every click tears the document down and builds
+   a new one. Without this the app "flashes" between pages — a hard white-to-
+   dark cut on every navigation, which reads as jank even when the request was
+   fast.
+
+   Cross-document view transitions hand the browser both frames and let it
+   cross-fade them on the compositor. It costs one rule, adds no JavaScript,
+   and degrades to exactly today's behaviour in browsers that don't support it.
+
+   It also composes with the page loader rather than fighting it: a fast
+   navigation cross-fades and the loader never appears, while a slow one shows
+   the charging mark first and then cross-fades when the next document is
+   ready. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 160ms;
+  animation-timing-function: ease-out;
+}
+
+/* The chrome is identical between pages, so cross-fading it just makes it
+   shimmer. Holding the sidebar and tab bar still is what makes the content
+   look like it changed rather than the whole window. */
+.sidebar { view-transition-name: chrome-sidebar; }
+.tabbar  { view-transition-name: chrome-tabbar; }
+
+::view-transition-group(chrome-sidebar),
+::view-transition-group(chrome-tabbar) { animation: none; }
+
+/* Interactive surfaces get a short, functional transition. 140ms ease-out
+   throughout — long enough to read as movement, short enough that it never
+   sits between the user and the thing they clicked. */
+.btn,
+.nav-link,
+.tab,
+.matrix-cell,
+.paper-row,
+.pred-row,
+.plan-card,
+.footer-links a {
+  transition: background-color 140ms ease-out,
+              border-color 140ms ease-out,
+              color 140ms ease-out;
+}
+
+.pred-row:hover,
+.paper-row:hover { background: var(--card); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Turn the page transition off entirely rather than shortening it. */
+  @view-transition { navigation: none; }
+  .btn, .nav-link, .tab, .matrix-cell, .paper-row, .pred-row,
+  .plan-card, .footer-links a { transition: none; }
 }

@@ -44,8 +44,16 @@
       </div>
     </div>
 
+    {# The paid plan carries a brass rule across its top and a brass border.
+       This is the one place in the app where the accent is allowed to outline
+       a whole element rather than mark a single control — it is the page whose
+       entire job is to distinguish two plans, and the distinction should not
+       depend on the reader noticing a slightly lighter grey. #}
     <div class="plan-card pro">
-      <div class="plan-name">Telos Pro</div>
+      <div class="plan-name">
+        Telos Pro
+        <span class="plan-flag">Recommended</span>
+      </div>
       {% set default_plan = pricing[default_interval] %}
       <div class="plan-price">{{ default_plan.label }}</div>
       <div class="plan-period">{{ default_plan.period }}</div>

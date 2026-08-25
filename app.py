@@ -131,7 +131,6 @@ PRICING_FEATURES = {
         {"label": "Full stats & topic analytics", "coming_soon": True},
         {"label": "Pro Zone — resources, golden tips, monthly notes"},
         {"label": "Original mock papers"},
-        {"label": "Weekly parent report", "coming_soon": True},
         {"label": "Unlimited file uploads"},
         {"label": "Pro badge"},
     ],
