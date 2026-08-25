@@ -92,6 +92,40 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── OCR A Level Further Mathematics A (H245) — per component ─────────────
+    # Y540/Y541 Pure Core (mandatory), Y542-Y545 options. All 75 marks.
+    # First assessed 2019.
+    ("Further Maths", "OCR A", "Y540", "2019", "June", 61, 51, 43, 35),
+    ("Further Maths", "OCR A", "Y541", "2019", "June", 58, 46, 38, 30),
+    ("Further Maths", "OCR A", "Y542", "2019", "June", 63, 54, 47, 41),
+    ("Further Maths", "OCR A", "Y543", "2019", "June", 52, 42, 36, 30),
+    ("Further Maths", "OCR A", "Y544", "2019", "June", 51, 45, 38, 31),
+    ("Further Maths", "OCR A", "Y545", "2019", "June", 56, 47, 39, 31),
+    ("Further Maths", "OCR A", "Y540", "2022", "June", 50, 42, 34, 27),
+    ("Further Maths", "OCR A", "Y541", "2022", "June", 45, 36, 29, 22),
+    ("Further Maths", "OCR A", "Y542", "2022", "June", 59, 49, 39, 30),
+    ("Further Maths", "OCR A", "Y543", "2022", "June", 45, 33, 26, 20),
+    ("Further Maths", "OCR A", "Y544", "2022", "June", 49, 39, 32, 25),
+    ("Further Maths", "OCR A", "Y545", "2022", "June", 39, 29, 23, 18),
+    ("Further Maths", "OCR A", "Y540", "2023", "June", 48, 38, 31, 24),
+    ("Further Maths", "OCR A", "Y541", "2023", "June", 48, 38, 31, 25),
+    ("Further Maths", "OCR A", "Y542", "2023", "June", 52, 42, 34, 27),
+    ("Further Maths", "OCR A", "Y543", "2023", "June", 51, 40, 32, 25),
+    ("Further Maths", "OCR A", "Y544", "2023", "June", 60, 50, 41, 32),
+    ("Further Maths", "OCR A", "Y545", "2023", "June", 48, 38, 32, 26),
+    ("Further Maths", "OCR A", "Y540", "2024", "June", 56, 48, 41, 34),
+    ("Further Maths", "OCR A", "Y541", "2024", "June", 56, 47, 40, 33),
+    ("Further Maths", "OCR A", "Y542", "2024", "June", 58, 48, 40, 32),
+    ("Further Maths", "OCR A", "Y543", "2024", "June", 60, 50, 42, 34),
+    ("Further Maths", "OCR A", "Y544", "2024", "June", 56, 47, 40, 33),
+    ("Further Maths", "OCR A", "Y545", "2024", "June", 44, 35, 29, 23),
+    ("Further Maths", "OCR A", "Y540", "2025", "June", 53, 45, 38, 31),
+    ("Further Maths", "OCR A", "Y541", "2025", "June", 56, 49, 42, 35),
+    ("Further Maths", "OCR A", "Y542", "2025", "June", 62, 53, 44, 35),
+    ("Further Maths", "OCR A", "Y543", "2025", "June", 60, 51, 42, 34),
+    ("Further Maths", "OCR A", "Y544", "2025", "June", 56, 48, 39, 31),
+    ("Further Maths", "OCR A", "Y545", "2025", "June", 57, 49, 40, 31),
+
     # ── OCR A Level Mathematics A (H240) — per paper, official raw marks ─────
     # Paper 1 = H240/01 (100), Paper 2 = H240/02 (100), Paper 3 = H240/03 (100).
     # Component boundaries, not the 300-mark qualification total.

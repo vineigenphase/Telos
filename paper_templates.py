@@ -87,6 +87,52 @@ TEMPLATES = {
         },
     },
     "OCR A": {
+        "Further Maths": {
+            "color": "#7A7973",
+            "level": "A-Level",
+            # H245. Both Pure Core papers are mandatory; a student then takes
+            # two of the four options, so all six are offered.
+            "papers": [
+                {"code": "Y540", "name": "Pure Core 1",              "max_marks": 75},
+                {"code": "Y541", "name": "Pure Core 2",              "max_marks": 75},
+                {"code": "Y542", "name": "Statistics",               "max_marks": 75},
+                {"code": "Y543", "name": "Mechanics",                "max_marks": 75},
+                {"code": "Y544", "name": "Discrete Mathematics",     "max_marks": 75},
+                {"code": "Y545", "name": "Additional Pure Maths",    "max_marks": 75},
+            ],
+            # First assessed in 2019, so no 2018 series exists.
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Topic areas from the H245 specification. Y540 and Y541 share a
+            # list because OCR defines Pure Core once across both mandatory
+            # papers and does not split it between them — the same situation as
+            # Edexcel's Core Pure.
+            "topics": {
+                "Y540": [
+                          "Proof", "Complex Numbers", "Matrices", "Further Vectors",
+                          "Further Algebra", "Series", "Hyperbolic Functions", "Further Calculus",
+                          "Polar Coordinates", "Differential Equations"],
+                "Y541": [
+                          "Proof", "Complex Numbers", "Matrices", "Further Vectors",
+                          "Further Algebra", "Series", "Hyperbolic Functions", "Further Calculus",
+                          "Polar Coordinates", "Differential Equations"],
+                "Y542": [
+                          "Probability", "Discrete Random Variables",
+                          "Continuous Random Variables", "Linear Combinations of Random Variables",
+                          "Hypothesis Tests and Confidence Intervals", "Chi-squared Tests",
+                          "Non-parametric Tests", "Correlation", "Linear Regression"],
+                "Y543": [
+                          "Dimensional Analysis", "Work, Energy and Power", "Impulse and Momentum",
+                          "Centre of Mass", "Motion in a Circle",
+                          "Further Dynamics and Kinematics"],
+                "Y544": [
+                          "Mathematical Preliminaries", "Graphs and Networks", "Algorithms",
+                          "Network Algorithms", "Decision Making in Project Management",
+                          "Graphical Linear Programming", "The Simplex Algorithm", "Game Theory"],
+                "Y545": [
+                          "Sequences and Series", "Number Theory", "Groups", "Further Vectors",
+                          "Surfaces and Partial Differentiation", "Further Calculus"],
+            },
+        },
         "Maths": {
             "color": "#C9A227",
             "level": "A-Level",
