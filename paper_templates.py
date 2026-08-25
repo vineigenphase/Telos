@@ -1,5 +1,72 @@
 TEMPLATES = {
     "AQA": {
+        "Economics": {
+            "color": "#C08A3E",
+            "level": "A-Level",
+            # 7136. Three compulsory papers, 80 marks each.
+            "papers": [
+                {"code": "Paper 1", "name": "Markets and Market Failure",     "max_marks": 80},
+                {"code": "Paper 2", "name": "National and International Economy", "max_marks": 80},
+                {"code": "Paper 3", "name": "Economic Principles and Issues", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Specification sections 4.1.1-4.1.8 and 4.2.1-4.2.6. AQA describes
+            # them as "content 1-14": Paper 1 assesses 1-8, Paper 2 assesses
+            # 9-14, and Paper 3 assesses all fourteen.
+            "topics": {
+                "Paper 1": [
+                          "Economic Methodology and the Economic Problem",
+                          "Individual Economic Decision Making",
+                          "Price Determination in a Competitive Market",
+                          "Production, Costs and Revenue",
+                          "Perfect Competition, Imperfect Competition and Monopoly",
+                          "The Labour Market", "Distribution of Income and Wealth",
+                          "Market Mechanism, Market Failure and Government Intervention"],
+                "Paper 2": [
+                          "Measurement of Macroeconomic Performance", "How the Macroeconomy Works",
+                          "Economic Performance", "Financial Markets and Monetary Policy",
+                          "Fiscal Policy and Supply-side Policies", "The International Economy"],
+                "Paper 3": [
+                          "Economic Methodology and the Economic Problem",
+                          "Individual Economic Decision Making",
+                          "Price Determination in a Competitive Market",
+                          "Production, Costs and Revenue",
+                          "Perfect Competition, Imperfect Competition and Monopoly",
+                          "The Labour Market", "Distribution of Income and Wealth",
+                          "Market Mechanism, Market Failure and Government Intervention",
+                          "Measurement of Macroeconomic Performance", "How the Macroeconomy Works",
+                          "Economic Performance", "Financial Markets and Monetary Policy",
+                          "Fiscal Policy and Supply-side Policies", "The International Economy"],
+            },
+        },
+        "Geography": {
+            "color": "#6E8F5E",
+            "level": "A-Level",
+            # 7037. Two written papers of 120 marks. The third component is a
+            # 3,000-4,000 word fieldwork investigation, marked by teachers —
+            # not a past paper, so it is not offered here and its boundaries
+            # are not stored.
+            "papers": [
+                {"code": "Paper 1", "name": "Physical Geography", "max_marks": 120},
+                {"code": "Paper 2", "name": "Human Geography",    "max_marks": 120},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Sections 3.1.1-3.1.6 and 3.2.1-3.2.5. Each paper offers choices
+            # within it — Paper 1 Section B is one of three landscape systems,
+            # Section C one of two — so every option is listed: different
+            # students sit different questions on the same paper, and each needs
+            # the topic they actually answered.
+            "topics": {
+                "Paper 1": [
+                          "Water and Carbon Cycles", "Hot Desert Systems and Landscapes",
+                          "Coastal Systems and Landscapes", "Glacial Systems and Landscapes",
+                          "Hazards", "Ecosystems Under Stress"],
+                "Paper 2": [
+                          "Global Systems and Global Governance", "Changing Places",
+                          "Contemporary Urban Environments", "Population and the Environment",
+                          "Resource Security"],
+            },
+        },
         "Biology": {
             "color": "#5E9E6B",
             "level": "A-Level",

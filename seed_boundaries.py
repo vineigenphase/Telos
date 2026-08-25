@@ -92,6 +92,41 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level Economics (7136) and Geography (7037) ────────────────────
+    # Economics: three 80-mark papers. Geography: two 120-mark papers; the
+    # fieldwork investigation is coursework and is not tracked.
+    ("Economics", "AQA", "Paper 1", "2018", "June", 66, 59, 50, 42),
+    ("Economics", "AQA", "Paper 2", "2018", "June", 62, 54, 45, 37),
+    ("Economics", "AQA", "Paper 3", "2018", "June", 60, 50, 43, 37),
+    ("Economics", "AQA", "Paper 1", "2019", "June", 65, 56, 47, 39),
+    ("Economics", "AQA", "Paper 2", "2019", "June", 64, 55, 46, 37),
+    ("Economics", "AQA", "Paper 3", "2019", "June", 63, 53, 46, 39),
+    ("Economics", "AQA", "Paper 1", "2022", "June", 59, 51, 42, 33),
+    ("Economics", "AQA", "Paper 2", "2022", "June", 59, 51, 41, 31),
+    ("Economics", "AQA", "Paper 3", "2022", "June", 57, 49, 41, 34),
+    ("Economics", "AQA", "Paper 1", "2023", "June", 63, 56, 46, 37),
+    ("Economics", "AQA", "Paper 2", "2023", "June", 60, 51, 43, 35),
+    ("Economics", "AQA", "Paper 3", "2023", "June", 59, 49, 42, 35),
+    ("Economics", "AQA", "Paper 1", "2024", "June", 59, 52, 44, 36),
+    ("Economics", "AQA", "Paper 2", "2024", "June", 58, 50, 42, 34),
+    ("Economics", "AQA", "Paper 3", "2024", "June", 56, 47, 40, 34),
+    ("Economics", "AQA", "Paper 1", "2025", "June", 61, 54, 45, 36),
+    ("Economics", "AQA", "Paper 2", "2025", "June", 60, 52, 43, 34),
+    ("Economics", "AQA", "Paper 3", "2025", "June", 56, 47, 41, 35),
+
+    ("Geography", "AQA", "Paper 1", "2018", "June", 86, 72, 61, 50),
+    ("Geography", "AQA", "Paper 2", "2018", "June", 88, 74, 62, 50),
+    ("Geography", "AQA", "Paper 1", "2019", "June", 93, 80, 69, 58),
+    ("Geography", "AQA", "Paper 2", "2019", "June", 90, 75, 64, 53),
+    ("Geography", "AQA", "Paper 1", "2022", "June", 86, 72, 60, 48),
+    ("Geography", "AQA", "Paper 2", "2022", "June", 92, 81, 69, 57),
+    ("Geography", "AQA", "Paper 1", "2023", "June", 95, 83, 70, 57),
+    ("Geography", "AQA", "Paper 2", "2023", "June", 92, 78, 65, 53),
+    ("Geography", "AQA", "Paper 1", "2024", "June", 93, 80, 69, 58),
+    ("Geography", "AQA", "Paper 2", "2024", "June", 94, 82, 69, 56),
+    ("Geography", "AQA", "Paper 1", "2025", "June", 94, 81, 70, 59),
+    ("Geography", "AQA", "Paper 2", "2025", "June", 95, 83, 71, 60),
+
     # ── AQA A-level Chemistry (7405) and Biology (7402) ──────────────────────
     # Three compulsory papers each, with different max marks per paper:
     # Chemistry 105/105/90, Biology 91/91/78.
