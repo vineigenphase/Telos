@@ -1,0 +1,45 @@
+{# The subject picker, shared by first-run onboarding and the manage screen.
+
+   One definition on purpose. The two pages frame the same choice differently —
+   one is a welcome, the other is settings — but the control itself must behave
+   identically, and two copies of a checkbox grid is exactly the kind of thing
+   that drifts until the two disagree about what a subject is.
+
+   Grouped by subject rather than by board, because that is the order a student
+   thinks in: "Physics — which board am I?" not "OCR A — what do I take?". #}
+
+{% macro subject_picker(qualifications, chosen, levels) %}
+  {% if levels|length > 1 %}
+  <div class="pick-levels">
+    <span class="pick-levels-label">Levels available</span>
+    {% for lvl in levels %}<span class="pick-level">{{ lvl }}</span>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="pick-grid">
+    {% set ns = namespace(subject=None) %}
+    {% for q in qualifications %}
+      {% if q.subject != ns.subject %}
+        {% set ns.subject = q.subject %}
+        <h3 class="pick-subject">{{ q.subject }}</h3>
+      {% endif %}
+      {% set key = q.board ~ '|' ~ q.subject ~ '|' ~ q.level %}
+      <label class="pick-option{{ ' on' if key in chosen }}">
+        <input type="checkbox" name="qualification" value="{{ key }}"
+               {% if key in chosen %}checked{% endif %}>
+        <span class="pick-check" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <span class="pick-body">
+          <span class="pick-board">{{ q.board }}</span>
+          <span class="pick-meta">{{ q.level }} · {{ q.paper_count }} paper{{ 's' if q.paper_count != 1 }}</span>
+        </span>
+      </label>
+    {% endfor %}
+  </div>
+
+  {% if not qualifications %}
+  <p class="pick-empty">No subjects in the catalogue yet.</p>
+  {% endif %}
+{% endmacro %}

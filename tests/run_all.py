@@ -38,6 +38,7 @@ SUITES = [
     ("db pool survives Neon sleep", "test_db_resilience.py"),
     ("landing page",               "test_landing.py"),
     ("grade boundary integrity",   "test_boundaries.py"),
+    ("subject selection",          "test_subjects.py"),
 ]
 
 

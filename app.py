@@ -13,7 +13,9 @@ from urllib.parse import urlunsplit
 import psycopg
 import stripe
 
-from paper_templates import TEMPLATES, get_paper_info, get_topics, all_combos
+from paper_templates import (TEMPLATES, get_paper_info, get_topics, all_combos,
+                             all_qualifications, available_levels,
+                             qualification_level, DEFAULT_LEVEL)
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
@@ -178,6 +180,9 @@ NAV_ITEMS = [
      "icon": "star",     "primary": False, "section": "Exam",
      "match": ("pro_zone",)},
     # ── Account ──
+    {"endpoint": "subjects",      "label": "Subjects",       "short": "Subjects",
+     "icon": "book",     "primary": False, "section": "Account",
+     "match": ("subjects", "onboarding")},
     {"endpoint": "subscription",  "label": "Subscription",   "short": "Plan",
      "icon": "card",     "primary": False, "section": "Account",
      "match": ("subscription",)},
@@ -427,7 +432,19 @@ app.jinja_env.globals["GRADE_COLOURS"] = GRADE_COLOURS
 
 
 def paper_matrix(user_id):
-    """Build the full paper completion matrix per template."""
+    """The paper completion matrix, limited to what this student studies.
+
+    A student taking three subjects has no use for a grid of every subject in
+    the catalogue, and the more the catalogue grows the worse that gets. Their
+    chosen subjects drive it.
+
+    Two deliberate fallbacks. A student who has chosen nothing yet sees
+    everything, because an empty grid teaches them less than a full one. And a
+    subject they have logged papers against is always included even if it is not
+    currently ticked — work already done never disappears from the grid because
+    of a settings change.
+    """
+    mine = subject_keys(user_id)
     with get_db() as db:
         done = db.execute(
             "SELECT subject, board, paper_code, year, id, score, max_marks "
@@ -445,9 +462,15 @@ def paper_matrix(user_id):
         key = (b["subject"], b["board"], b["paper_code"], b["year"])
         bnd_map[key] = b
 
+    # Subjects with logged work, so unticking a subject cannot hide it.
+    logged = {(p["board"], p["subject"]) for p in done}
+    show = (mine | logged) if mine else None
+
     matrix = []
     for board, subjects in TEMPLATES.items():
         for subject, data in subjects.items():
+            if show is not None and (board, subject) not in show:
+                continue
             rows = []
             for paper in data["papers"]:
                 cells = []
@@ -500,7 +523,7 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("onboarding"))
     if request.method == "POST":
         email    = request.form["email"].strip().lower()
         username = request.form["username"].strip()
@@ -2415,6 +2438,116 @@ def delete_share_card(token):
     log_event("share_card_revoked", current_user.id, row["card_type"])
     flash("Card revoked. The link no longer works.")
     return redirect(url_for("dashboard"))
+
+
+
+# ── A student's subjects ─────────────────────────────────────────────────────
+#
+# Telos used to infer these from logged papers, which means it knew nothing
+# about a student until after they had done the work. Recorded directly now, so
+# the app is about their subjects from the first screen rather than the tenth.
+
+def get_user_subjects(user_id):
+    """This student's chosen qualifications, in catalogue order."""
+    with get_db() as db:
+        rows = db.execute(
+            "SELECT * FROM user_subjects WHERE user_id=? ORDER BY subject, level, board",
+            (user_id,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def set_user_subjects(user_id, chosen):
+    """Replace this student's subjects with `chosen`.
+
+    `chosen` is a list of "board|subject|level" strings from the form. Anything
+    not in the catalogue is dropped rather than trusted — the value arrives from
+    a client, and a subject with no papers behind it would be a dead entry the
+    rest of the app cannot render.
+
+    Deliberately a replace rather than a merge: the manage screen shows the full
+    set with checkboxes, so what comes back IS the intended state, and merging
+    would make unticking a subject impossible.
+    """
+    valid = {f"{q['board']}|{q['subject']}|{q['level']}" for q in all_qualifications()}
+    keep = [c for c in chosen if c in valid]
+
+    with get_db() as db:
+        db.execute("DELETE FROM user_subjects WHERE user_id=?", (user_id,))
+        for c in keep:
+            board, subject, level = c.split("|", 2)
+            db.execute(
+                "INSERT INTO user_subjects (user_id, board, subject, level) "
+                "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                (user_id, board, subject, level))
+    return len(keep)
+
+
+def subject_keys(user_id):
+    """(board, subject) pairs this student studies — the shape the rest of the
+    app already filters by."""
+    return {(s["board"], s["subject"]) for s in get_user_subjects(user_id)}
+
+
+@app.route("/welcome", methods=["GET", "POST"])
+@login_required
+def onboarding():
+    """Pick your subjects. Shown once, straight after signing up.
+
+    Separate from /subjects even though the two share a form, because the
+    framing differs: this one is a first run with no way to get it wrong, and
+    the other is a settings screen for someone who already has data.
+    """
+    if request.method == "POST":
+        n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        if not n:
+            flash("Pick at least one subject to get started.", "error")
+            return redirect(url_for("onboarding"))
+        log_event("onboarding_completed", current_user.id, str(n))
+        flash("You're set up. Log your first paper whenever you're ready.", "success")
+        return redirect(url_for("dashboard"))
+
+    return render_template("onboarding.html",
+                           qualifications=all_qualifications(),
+                           levels=available_levels(),
+                           chosen={f"{s['board']}|{s['subject']}|{s['level']}"
+                                   for s in get_user_subjects(current_user.id)})
+
+
+@app.route("/subjects", methods=["GET", "POST"])
+@login_required
+def subjects():
+    """Add or remove subjects after setup."""
+    if request.method == "POST":
+        # Papers already logged against a subject are never touched. Removing a
+        # subject is about what the app shows you, not about deleting work —
+        # silently binning a term of logged papers because a checkbox was
+        # unticked would be indefensible.
+        n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        log_event("subjects_updated", current_user.id, str(n))
+        flash("Subjects updated." if n else
+              "All subjects removed — add one to see your papers grouped again.",
+              "success")
+        return redirect(url_for("subjects"))
+
+    mine = get_user_subjects(current_user.id)
+    # Papers logged against subjects no longer selected: shown so the student
+    # can see the work is still there rather than wondering where it went.
+    with get_db() as db:
+        logged = db.execute(
+            "SELECT board, subject, COUNT(*) AS n FROM papers WHERE user_id=? "
+            "GROUP BY board, subject", (current_user.id,)).fetchall()
+    chosen_pairs = {(s["board"], s["subject"]) for s in mine}
+    orphaned = [dict(r) for r in logged
+                if (r["board"], r["subject"]) not in chosen_pairs and r["n"]]
+
+    return render_template("subjects.html",
+                           qualifications=all_qualifications(),
+                           levels=available_levels(),
+                           chosen={f"{s['board']}|{s['subject']}|{s['level']}"
+                                   for s in mine},
+                           mine=mine,
+                           orphaned=orphaned)
 
 
 # ── Boot ──────────────────────────────────────────────────────────────────────

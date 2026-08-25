@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "_subject_picker.html" as picker %}
+
+{# Manage subjects. Same picker as onboarding, different framing: this is a
+   settings screen for someone who already has data, so it says what changing
+   the selection does and — more importantly — what it doesn't. #}
+
+{% block title %}Subjects — Telos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Subjects</div>
+    <div class="page-subtitle">What you're studying</div>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <form method="post">
+    {{ picker.subject_picker(qualifications, chosen, levels) }}
+
+    <div class="subjects-actions">
+      <button class="btn btn-primary" type="submit">Save subjects</button>
+      <span class="subjects-note">
+        Removing a subject only changes what Telos shows you. Papers you've
+        already logged stay exactly where they are.
+      </span>
+    </div>
+  </form>
+
+  {% if orphaned %}
+  {# Papers logged against something no longer selected. Shown so the work is
+     visibly still there — a student who unticks a subject and then cannot find
+     a term of logged papers will assume they were deleted. #}
+  <div class="section-head" style="margin-top:34px;">
+    <h2 class="section-title">Papers outside your subjects</h2>
+  </div>
+  <div class="orphan-list">
+    {% for o in orphaned %}
+    <div class="orphan-row">
+      <div>
+        <div class="orphan-subject">{{ o.subject }}</div>
+        <div class="orphan-board">{{ o.board }}</div>
+      </div>
+      <div class="orphan-count">{{ o.n }} paper{{ 's' if o.n != 1 }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="subjects-note" style="margin-top:12px;">
+    These are still logged and still counted. Tick the subject above to group
+    them with the rest again.
+  </p>
+  {% endif %}
+
+</div>
+{% endblock %}
