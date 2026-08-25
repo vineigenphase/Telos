@@ -412,6 +412,100 @@ TEMPLATES = {
         },
     },
     "Edexcel": {
+        "Physics": {
+            "color": "#5E8B7E",
+            "level": "A-Level",
+            # Physics. Three compulsory papers; Paper 3 is synoptic and assesses
+            # every topic, which is why its list is the whole subject.
+            "papers": [
+                {"code": "Paper 1", "name": "Advanced Physics I", "max_marks": 90},
+                {"code": "Paper 2", "name": "Advanced Physics II", "max_marks": 90},
+                {"code": "Paper 3", "name": "General and Practical Principles", "max_marks": 120},
+            ],
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Paper-to-topic mapping read from the specification, not inferred.
+            # Papers 1 and 2 overlap: several topics are assessed by both.
+            "topics": {
+                "Paper 1": [
+                          "Working as a Physicist", "Mechanics", "Electric Circuits",
+                          "Further Mechanics", "Electric and Magnetic Fields",
+                          "Nuclear and Particle Physics"],
+                "Paper 2": [
+                          "Working as a Physicist", "Materials",
+                          "Waves and Particle Nature of Light", "Thermodynamics", "Space",
+                          "Nuclear Radiation", "Gravitational Fields", "Oscillations"],
+                "Paper 3": [
+                          "Working as a Physicist", "Mechanics", "Electric Circuits", "Materials",
+                          "Waves and Particle Nature of Light", "Further Mechanics",
+                          "Electric and Magnetic Fields", "Nuclear and Particle Physics",
+                          "Thermodynamics", "Space", "Nuclear Radiation", "Gravitational Fields",
+                          "Oscillations"],
+            },
+        },
+        "Chemistry": {
+            "color": "#5E8B7E",
+            "level": "A-Level",
+            # Chemistry. Three compulsory papers; Paper 3 is synoptic and assesses
+            # every topic, which is why its list is the whole subject.
+            "papers": [
+                {"code": "Paper 1", "name": "Advanced Inorganic and Physical", "max_marks": 90},
+                {"code": "Paper 2", "name": "Advanced Organic and Physical", "max_marks": 90},
+                {"code": "Paper 3", "name": "General and Practical Principles", "max_marks": 120},
+            ],
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Paper-to-topic mapping read from the specification, not inferred.
+            # Papers 1 and 2 overlap: several topics are assessed by both.
+            "topics": {
+                "Paper 1": [
+                          "Atomic Structure and the Periodic Table", "Bonding and Structure",
+                          "Redox I", "Inorganic Chemistry and the Periodic Table",
+                          "Formulae, Equations and Amounts of Substance", "Energetics I",
+                          "Equilibrium I", "Equilibrium II", "Acid-base Equilibria",
+                          "Energetics II", "Redox II", "Transition Metals"],
+                "Paper 2": [
+                          "Bonding and Structure", "Redox I",
+                          "Formulae, Equations and Amounts of Substance", "Organic Chemistry I",
+                          "Modern Analytical Techniques I", "Kinetics I", "Kinetics II",
+                          "Organic Chemistry II", "Organic Chemistry III",
+                          "Modern Analytical Techniques II"],
+                "Paper 3": [
+                          "Atomic Structure and the Periodic Table", "Bonding and Structure",
+                          "Redox I", "Inorganic Chemistry and the Periodic Table",
+                          "Formulae, Equations and Amounts of Substance", "Organic Chemistry I",
+                          "Modern Analytical Techniques I", "Energetics I", "Kinetics I",
+                          "Equilibrium I", "Equilibrium II", "Acid-base Equilibria",
+                          "Energetics II", "Redox II", "Transition Metals", "Kinetics II",
+                          "Organic Chemistry II", "Organic Chemistry III",
+                          "Modern Analytical Techniques II"],
+            },
+        },
+        "Biology": {
+            "color": "#5E9E6B",
+            "level": "A-Level",
+            # Biology A (Salters Nuffield). Three compulsory papers; Paper 3 is synoptic and assesses
+            # every topic, which is why its list is the whole subject.
+            "papers": [
+                {"code": "Paper 1", "name": "Natural Environment and Species Survival", "max_marks": 100},
+                {"code": "Paper 2", "name": "Energy, Exercise and Co-ordination", "max_marks": 100},
+                {"code": "Paper 3", "name": "General and Practical Applications", "max_marks": 100},
+            ],
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Paper-to-topic mapping read from the specification, not inferred.
+            # Papers 1 and 2 overlap: several topics are assessed by both.
+            "topics": {
+                "Paper 1": [
+                          "Lifestyle, Health and Risk", "Genes and Health", "Voice of the Genome",
+                          "Biodiversity and Natural Resources", "On the Wild Side",
+                          "Immunity, Infection and Forensics"],
+                "Paper 2": [
+                          "Lifestyle, Health and Risk", "Genes and Health", "Voice of the Genome",
+                          "Biodiversity and Natural Resources", "Run for your Life", "Grey Matter"],
+                "Paper 3": [
+                          "Lifestyle, Health and Risk", "Genes and Health", "Voice of the Genome",
+                          "Biodiversity and Natural Resources", "On the Wild Side",
+                          "Immunity, Infection and Forensics", "Run for your Life", "Grey Matter"],
+            },
+        },
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",
