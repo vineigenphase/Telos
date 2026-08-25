@@ -175,14 +175,20 @@ And it ships as an inert `<template>` that `telos.js` clones on first use: a
 the whole app if its stylesheet ever fails to arrive. Don't "simplify" any of
 those three into the obvious version.
 
+**The Neon wake-up 500 is fixed** (2026-08-25, owner approved touching `db.py`).
+The pool now passes `check=ConnectionPool.check_connection`, which tests a
+connection on checkout and replaces a dead one. Note the old description of the
+symptom here was wrong in a way that mattered: it said the first request after
+an idle period fails and "the retry works". In practice the pool holds several
+connections and each request borrows a different one, so a wake-up could
+produce a *run* of 500s — the app looked broken rather than slow.
+`tests/test_db_resilience.py` reproduces it by killing a backend from a second
+connection, and was confirmed to fail without the argument. Cost is one
+round-trip per checkout.
+
 **Decisions waiting on the owner:**
 
-10. **`db.py` connection check.** The first request after Neon idles returns a
-   500 (`AdminShutdown: terminating connection due to administrator command`);
-   the retry works. Fix is one argument — `check=ConnectionPool.check_connection`
-   on the pool. Not applied because spec working-rule 7 says don't touch
-   `db.py` without asking.
-11. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
+10. **D/E grade boundaries.** `grade_boundaries` stores A*/A/B/C only.
    `prediction.infer_de()` extrapolates D and E from the mean gap of the known
    boundaries. Owner approved keeping this (2026-08-19); revisit if real D/E
    data is ever sourced. Delete that one function if so.
