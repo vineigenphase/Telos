@@ -1,5 +1,50 @@
 TEMPLATES = {
     "AQA": {
+        "Further Maths": {
+            "color": "#7A7973",
+            "level": "A-Level",
+            "choose_optional": 2,
+            # 7367. Papers 1 and 2 are compulsory and 100 marks each; the third
+            # paper is two 50-mark option booklets chosen from three. AQA
+            # publishes a subject row per pairing — 7367DS, 7367MD, 7367SM —
+            # which is what confirms two options rather than one.
+            "papers": [
+                {"code": "Paper 1",  "name": "Compulsory Content 1", "max_marks": 100},
+                {"code": "Paper 2",  "name": "Compulsory Content 2", "max_marks": 100},
+                {"code": "Paper 3D", "name": "Discrete",   "max_marks": 50, "optional": True},
+                {"code": "Paper 3M", "name": "Mechanics",  "max_marks": 50, "optional": True},
+                {"code": "Paper 3S", "name": "Statistics", "max_marks": 50, "optional": True},
+            ],
+            # First assessed in 2019.
+            "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Content sections A-J (compulsory), DA-DG, MA-ME and SA-SH from the
+            # 7367 specification. Papers 1 and 2 share the compulsory list
+            # because AQA states both "may assess content from" all ten sections
+            # and does not divide them between the two.
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Complex Numbers", "Matrices", "Further Algebra and Functions",
+                          "Further Calculus", "Further Vectors", "Polar Coordinates",
+                          "Hyperbolic Functions", "Differential Equations", "Numerical Methods"],
+                "Paper 2": [
+                          "Proof", "Complex Numbers", "Matrices", "Further Algebra and Functions",
+                          "Further Calculus", "Further Vectors", "Polar Coordinates",
+                          "Hyperbolic Functions", "Differential Equations", "Numerical Methods"],
+                "Paper 3D": [
+                          "Graphs", "Networks", "Network Flows", "Linear Programming",
+                          "Critical Path Analysis", "Game Theory for Zero-sum Games",
+                          "Binary Operations"],
+                "Paper 3M": [
+                          "Dimensional Analysis", "Momentum and Collisions",
+                          "Work, Energy and Power", "Circular Motion",
+                          "Centres of Mass and Moments"],
+                "Paper 3S": [
+                          "Discrete Random Variables and Expectation", "Poisson Distribution",
+                          "Type I and Type II Errors", "Continuous Random Variables",
+                          "Chi-squared Tests for Association", "Exponential Distribution",
+                          "Inference: One Sample t-Distribution", "Confidence Intervals"],
+            },
+        },
         "Maths": {
             "color": "#C9A227",
             "level": "A-Level",

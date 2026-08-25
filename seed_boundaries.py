@@ -92,6 +92,35 @@ BOUNDARY_ROWS = [
     ("Further Maths", "Edexcel", "FM2", "2019", "June", 65, 56, 47, 38),
     ("Further Maths", "Edexcel", "D2",  "2019", "June", 57, 48, 39, 30),
 
+    # ── AQA A-level Further Mathematics (7367) — notional components ─────────
+    # Papers 1 and 2 compulsory (100 each); two 50-mark options from
+    # Discrete / Mechanics / Statistics. First assessed 2019.
+    ("Further Maths", "AQA", "Paper 1", "2019", "June", 67, 52, 42, 32),
+    ("Further Maths", "AQA", "Paper 2", "2019", "June", 69, 55, 45, 35),
+    ("Further Maths", "AQA", "Paper 3D", "2019", "June", 40, 35, 30, 25),
+    ("Further Maths", "AQA", "Paper 3M", "2019", "June", 36, 29, 23, 18),
+    ("Further Maths", "AQA", "Paper 3S", "2019", "June", 38, 33, 27, 21),
+    ("Further Maths", "AQA", "Paper 1", "2022", "June", 58, 45, 36, 27),
+    ("Further Maths", "AQA", "Paper 2", "2022", "June", 56, 43, 34, 26),
+    ("Further Maths", "AQA", "Paper 3D", "2022", "June", 35, 31, 26, 21),
+    ("Further Maths", "AQA", "Paper 3M", "2022", "June", 30, 24, 19, 14),
+    ("Further Maths", "AQA", "Paper 3S", "2022", "June", 37, 33, 26, 19),
+    ("Further Maths", "AQA", "Paper 1", "2023", "June", 75, 62, 50, 39),
+    ("Further Maths", "AQA", "Paper 2", "2023", "June", 71, 57, 46, 36),
+    ("Further Maths", "AQA", "Paper 3D", "2023", "June", 39, 33, 27, 22),
+    ("Further Maths", "AQA", "Paper 3M", "2023", "June", 29, 24, 19, 15),
+    ("Further Maths", "AQA", "Paper 3S", "2023", "June", 41, 36, 29, 22),
+    ("Further Maths", "AQA", "Paper 1", "2024", "June", 77, 64, 52, 40),
+    ("Further Maths", "AQA", "Paper 2", "2024", "June", 77, 63, 51, 40),
+    ("Further Maths", "AQA", "Paper 3D", "2024", "June", 41, 36, 30, 24),
+    ("Further Maths", "AQA", "Paper 3M", "2024", "June", 39, 33, 27, 21),
+    ("Further Maths", "AQA", "Paper 3S", "2024", "June", 42, 35, 29, 23),
+    ("Further Maths", "AQA", "Paper 1", "2025", "June", 79, 65, 54, 43),
+    ("Further Maths", "AQA", "Paper 2", "2025", "June", 79, 65, 53, 42),
+    ("Further Maths", "AQA", "Paper 3D", "2025", "June", 43, 38, 33, 28),
+    ("Further Maths", "AQA", "Paper 3M", "2025", "June", 39, 33, 28, 24),
+    ("Further Maths", "AQA", "Paper 3S", "2025", "June", 42, 36, 29, 22),
+
     # ── AQA A-level Mathematics (7357) — notional component boundaries ───────
     # Three 100-mark papers. AQA awards at qualification level and derives the
     # per-paper figures, which is why some series are evenly spaced.
