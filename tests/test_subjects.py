@@ -48,6 +48,27 @@ try:
     check("only levels with data are offered",
           set(available_levels()) <= {q["level"] for q in quals}, True)
 
+    # ── catalogue integrity ────────────────────────────────────────────────
+    # Every paper needs a topic list. A paper without one can be logged for a
+    # score but produces no heatmap and no prescriptions, which is the half of
+    # Telos that is free — so it fails silently in exactly the way that matters.
+    from paper_templates import TEMPLATES  # noqa: E402
+    missing_topics = []
+    for board, subjects in TEMPLATES.items():
+        for subject, cfg in subjects.items():
+            for paper in cfg["papers"]:
+                if not cfg.get("topics", {}).get(paper["code"]):
+                    missing_topics.append(f"{board}/{subject}/{paper['code']}")
+    check("every paper has a topic list", missing_topics, [])
+
+    dup = []
+    for board, subjects in TEMPLATES.items():
+        for subject, cfg in subjects.items():
+            codes = [p["code"] for p in cfg["papers"]]
+            if len(codes) != len(set(codes)):
+                dup.append(f"{board}/{subject}")
+    check("no duplicate paper codes within a subject", dup, [])
+
     # ── onboarding ──────────────────────────────────────────────────────────
     r = c.get("/welcome")
     body = r.get_data(as_text=True)

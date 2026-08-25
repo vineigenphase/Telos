@@ -3,23 +3,63 @@ TEMPLATES = {
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",
+            # 9FM0. Two compulsory Core Pure papers plus two options chosen from
+            # eight, so all ten are listed — a student takes four papers, but
+            # which four differs between them.
             "papers": [
-                {"code": "CP1", "name": "Core Pure 1",          "max_marks": 75},
-                {"code": "CP2", "name": "Core Pure 2",          "max_marks": 75},
-                {"code": "FM1", "name": "Further Mechanics 1",  "max_marks": 75},
-                {"code": "FS1", "name": "Further Statistics 1", "max_marks": 75},
+                {"code": "CP1", "name": "Core Pure 1",              "max_marks": 75},
+                {"code": "CP2", "name": "Core Pure 2",              "max_marks": 75},
+                {"code": "FP1", "name": "Further Pure 1",           "max_marks": 75},
+                {"code": "FP2", "name": "Further Pure 2",           "max_marks": 75},
+                {"code": "FS1", "name": "Further Statistics 1",     "max_marks": 75},
+                {"code": "FS2", "name": "Further Statistics 2",     "max_marks": 75},
+                {"code": "FM1", "name": "Further Mechanics 1",      "max_marks": 75},
+                {"code": "FM2", "name": "Further Mechanics 2",      "max_marks": 75},
+                {"code": "D1",  "name": "Decision Mathematics 1",   "max_marks": 75},
+                {"code": "D2",  "name": "Decision Mathematics 2",   "max_marks": 75},
             ],
             "years": ["SPEC", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Option-paper topics are the numbered content headings from the
+            # 9FM0 specification (Issue 4, June 2023), not recalled from memory.
+            # The Core Pure lists are a split of the spec's single combined Core
+            # Pure content across the two papers, which is a convention rather
+            # than something the spec states.
             "topics": {
                 "CP1": ["Complex Numbers", "Argand Diagram", "Modulus-Argument", "Roots of Polynomials",
                         "Series (Sigma Notation)", "Matrices", "Linear Transformations", "Proof by Induction"],
                 "CP2": ["Complex Numbers II", "De Moivre's Theorem", "Series & Limits",
                         "Hyperbolic Functions", "Polar Coordinates", "Methods in Calculus",
                         "Volumes of Revolution", "Differential Equations", "Maclaurin/Taylor"],
-                "FM1": ["Momentum & Impulse", "Elastic Strings & Springs", "Elastic Collisions",
-                        "SHM", "Circular Motion", "Dimensional Analysis"],
-                "FS1": ["Discrete Distributions", "Poisson Distribution", "CLT",
-                        "Hypothesis Testing", "Chi-Squared Tests", "PGFs", "Correlation & Regression"],
+                "FP1": ["Further Trigonometry", "Further Calculus", "Further Differential Equations",
+                        "Coordinate Systems", "Further Vectors", "Further Numerical Methods",
+                        "Inequalities"],
+                "FP2": ["Groups", "Further Calculus", "Further Matrix Algebra",
+                        "Further Complex Numbers", "Number Theory", "Further Sequences and Series"],
+                # Previously listed "Correlation & Regression", which is FS2
+                # content — corrected against the spec.
+                "FS1": ["Discrete Probability Distributions", "Poisson & Binomial Distributions",
+                        "Geometric and Negative Binomial Distributions", "Hypothesis Testing",
+                        "Central Limit Theorem", "Chi-Squared Tests",
+                        "Probability Generating Functions", "Quality of Tests"],
+                "FS2": ["Linear Regression", "Continuous Probability Distributions", "Correlation",
+                        "Combinations of Random Variables",
+                        "Estimation, Confidence Intervals and Tests",
+                        "Other Hypothesis Tests and Confidence Intervals",
+                        "Confidence Intervals and Tests using the t-Distribution"],
+                # Previously listed SHM, Circular Motion and Dimensional
+                # Analysis. The first two are FM2 content and the third is not
+                # in Edexcel Further Maths at all — corrected against the spec.
+                "FM1": ["Momentum and Impulse", "Work, Energy and Power",
+                        "Elastic Strings and Springs and Elastic Energy",
+                        "Elastic Collisions in One Dimension",
+                        "Elastic Collisions in Two Dimensions"],
+                "FM2": ["Motion in a Circle", "Centres of Mass of Plane Figures",
+                        "Further Centres of Mass", "Further Dynamics", "Further Kinematics"],
+                "D1":  ["Algorithms and Graph Theory", "Algorithms on Graphs",
+                        "Algorithms on Graphs II", "Critical Path Analysis", "Linear Programming"],
+                "D2":  ["Transportation Problems", "Allocation (Assignment) Problems",
+                        "Flows in Networks", "Dynamic Programming", "Game Theory",
+                        "Recurrence Relations", "Decision Analysis"],
             },
         },
         "Maths": {
