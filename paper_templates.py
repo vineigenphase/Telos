@@ -179,6 +179,56 @@ TEMPLATES = {
                           "Resource Security"],
             },
         },
+        "Physics": {
+            "color": "#5E8B7E",
+            "level": "A-Level",
+            "choose_optional": 1,
+            # 7408. Papers 1 and 2 plus Paper 3, which AQA publishes as two
+            # separate components: a compulsory 45-mark practical section and
+            # one 35-mark optional topic chosen from five. Modelled the way AQA
+            # publishes it, because those are the boundaries that exist.
+            "papers": [
+                {"code": "Paper 1",  "name": "Sections 1-5 and Periodic Motion", "max_marks": 85},
+                {"code": "Paper 2",  "name": "Thermal, Fields and Nuclear",      "max_marks": 85},
+                {"code": "Paper 3A", "name": "Paper 3A: Practical and Data",     "max_marks": 45},
+                {"code": "Paper 3BA", "name": "Paper 3B: Astrophysics", "max_marks": 35, "optional": True},
+                {"code": "Paper 3BB", "name": "Paper 3B: Medical Physics", "max_marks": 35, "optional": True},
+                {"code": "Paper 3BC", "name": "Paper 3B: Engineering Physics", "max_marks": 35, "optional": True},
+                {"code": "Paper 3BD", "name": "Paper 3B: Turning Points in Physics", "max_marks": 35, "optional": True},
+                {"code": "Paper 3BE", "name": "Paper 3B: Electronics", "max_marks": 35, "optional": True},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Paper 1 is sections 1-5 and 6.1; Paper 2 is 6.2, 7 and 8 with
+            # sections 1-6.1 as assumed knowledge, so those are listed there too
+            # — a Paper 2 question can be on mechanics, and a student needs
+            # somewhere accurate to tag it.
+            "topics": {
+                "Paper 1": [
+                          "Measurements and Their Errors", "Particles and Radiation", "Waves",
+                          "Mechanics and Materials", "Electricity", "Periodic Motion"],
+                "Paper 2": [
+                          "Thermal Physics", "Fields and Their Consequences", "Nuclear Physics",
+                          "Measurements and Their Errors", "Particles and Radiation", "Waves",
+                          "Mechanics and Materials", "Electricity", "Periodic Motion"],
+                "Paper 3A": [
+                          "Practical Skills", "Data Analysis and Uncertainties"],
+                "Paper 3BA": [
+                          "Telescopes", "Classification of Stars", "Cosmology"],
+                "Paper 3BB": [
+                          "Physics of the Eye", "Physics of the Ear", "Biological Measurement",
+                          "Non-ionising Imaging", "X-ray Imaging",
+                          "Radionuclide Imaging and Therapy"],
+                "Paper 3BC": [
+                          "Rotational Dynamics", "Thermodynamics and Engines"],
+                "Paper 3BD": [
+                          "The Discovery of the Electron", "Wave-particle Duality",
+                          "Special Relativity"],
+                "Paper 3BE": [
+                          "Discrete Semiconductor Devices", "Analogue and Digital Signals",
+                          "Analogue Signal Processing", "Operational Amplifiers",
+                          "Digital Signal Processing", "Data Communication Systems"],
+            },
+        },
         "Biology": {
             "color": "#5E9E6B",
             "level": "A-Level",
@@ -455,6 +505,108 @@ TEMPLATES = {
         },
     },
     "OCR A": {
+        "Biology": {
+            "color": "#5E9E6B",
+            "level": "A-Level",
+            # H420. Three written papers; the Practical Endorsement is reported
+            # separately from the grade and is not tracked.
+            "papers": [
+                {"code": "Paper 1", "name": "Biological processes", "max_marks": 100},
+                {"code": "Paper 2", "name": "Biological diversity", "max_marks": 100},
+                {"code": "Paper 3", "name": "Unified biology", "max_marks": 70},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Module 1 is practical skills, assessed inside every written paper,
+            # so its four planning-to-evaluation sections appear on all three.
+            # Modules 1.2.1 and 1.2.2 are the Practical Endorsement and are left
+            # out — they are not assessed by these papers.
+            "topics": {
+                "Paper 1": [
+                          "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",
+                          "Biological Molecules", "Nucleotides and Nucleic Acids", "Enzymes",
+                          "Biological Membranes", "Cell Division, Diversity and Organisation",
+                          "Exchange Surfaces", "Transport in Animals", "Transport in Plants",
+                          "Communication and Homeostasis", "Excretion", "Neuronal Communication",
+                          "Hormonal Communication", "Plant and Animal Responses", "Photosynthesis",
+                          "Respiration"],
+                "Paper 2": [
+                          "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",
+                          "Biological Molecules", "Nucleotides and Nucleic Acids", "Enzymes",
+                          "Biological Membranes", "Cell Division, Diversity and Organisation",
+                          "Communicable Diseases and Immunity", "Biodiversity",
+                          "Classification and Evolution", "Cellular Control",
+                          "Patterns of Inheritance", "Manipulating Genomes",
+                          "Cloning and Biotechnology", "Ecosystems",
+                          "Populations and Sustainability"],
+                "Paper 3": [
+                          "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",
+                          "Biological Molecules", "Nucleotides and Nucleic Acids", "Enzymes",
+                          "Biological Membranes", "Cell Division, Diversity and Organisation",
+                          "Exchange Surfaces", "Transport in Animals", "Transport in Plants",
+                          "Communicable Diseases and Immunity", "Biodiversity",
+                          "Classification and Evolution", "Communication and Homeostasis",
+                          "Excretion", "Neuronal Communication", "Hormonal Communication",
+                          "Plant and Animal Responses", "Photosynthesis", "Respiration",
+                          "Cellular Control", "Patterns of Inheritance", "Manipulating Genomes",
+                          "Cloning and Biotechnology", "Ecosystems",
+                          "Populations and Sustainability"],
+            },
+        },
+        "Chemistry": {
+            "color": "#5E8B7E",
+            "level": "A-Level",
+            # H432. Three written papers; the Practical Endorsement is reported
+            # separately from the grade and is not tracked.
+            "papers": [
+                {"code": "Paper 1", "name": "Periodic Table and Physical", "max_marks": 100},
+                {"code": "Paper 2", "name": "Synthesis and Analysis", "max_marks": 100},
+                {"code": "Paper 3", "name": "Unified chemistry", "max_marks": 70},
+            ],
+            "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+            # Module 1 is practical skills, assessed inside every written paper,
+            # so its four planning-to-evaluation sections appear on all three.
+            # Modules 1.2.1 and 1.2.2 are the Practical Endorsement and are left
+            # out — they are not assessed by these papers.
+            "topics": {
+                "Paper 1": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Atomic Structure and Isotopes", "Compounds, Formulae and Equations",
+                          "Amount of Substance", "Acids", "Redox", "Electron Structure",
+                          "Bonding and Structure", "Periodicity", "Group 2", "The Halogens",
+                          "Qualitative Analysis", "Enthalpy Changes", "Reaction Rates",
+                          "Chemical Equilibrium", "How Fast?", "How Far?",
+                          "Acids, Bases and Buffers", "Lattice Enthalpy", "Enthalpy and Entropy",
+                          "Redox and Electrode Potentials", "Transition Elements",
+                          "Qualitative Analysis II"],
+                "Paper 2": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Atomic Structure and Isotopes", "Compounds, Formulae and Equations",
+                          "Amount of Substance", "Acids", "Redox", "Electron Structure",
+                          "Bonding and Structure", "Basic Concepts of Organic Chemistry",
+                          "Alkanes", "Alkenes", "Alcohols", "Haloalkanes", "Organic Synthesis",
+                          "Analytical Techniques", "Aromatic Compounds", "Carbonyl Compounds",
+                          "Carboxylic Acids and Esters", "Amines",
+                          "Amino Acids, Amides and Chirality", "Polyesters and Polyamides",
+                          "Carbon-carbon Bond Formation", "Organic Synthesis II",
+                          "Chromatography and Qualitative Analysis", "Spectroscopy"],
+                "Paper 3": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Atomic Structure and Isotopes", "Compounds, Formulae and Equations",
+                          "Amount of Substance", "Acids", "Redox", "Electron Structure",
+                          "Bonding and Structure", "Periodicity", "Group 2", "The Halogens",
+                          "Qualitative Analysis", "Enthalpy Changes", "Reaction Rates",
+                          "Chemical Equilibrium", "Basic Concepts of Organic Chemistry", "Alkanes",
+                          "Alkenes", "Alcohols", "Haloalkanes", "Organic Synthesis",
+                          "Analytical Techniques", "How Fast?", "How Far?",
+                          "Acids, Bases and Buffers", "Lattice Enthalpy", "Enthalpy and Entropy",
+                          "Redox and Electrode Potentials", "Transition Elements",
+                          "Qualitative Analysis II", "Aromatic Compounds", "Carbonyl Compounds",
+                          "Carboxylic Acids and Esters", "Amines",
+                          "Amino Acids, Amides and Chirality", "Polyesters and Polyamides",
+                          "Carbon-carbon Bond Formation", "Organic Synthesis II",
+                          "Chromatography and Qualitative Analysis", "Spectroscopy"],
+            },
+        },
         "Further Maths": {
             "color": "#7A7973",
             "level": "A-Level",
