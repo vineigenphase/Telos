@@ -241,6 +241,23 @@ def _get_pool():
                     max_size=int(os.environ.get("DB_POOL_MAX", "5")),
                     max_idle=300,
                     kwargs={"autocommit": False},
+                    # Neon scales to zero. When it does, every connection the
+                    # pool is holding is severed at the server, but the pool has
+                    # no way to know that until something tries to use one — so
+                    # the first request after an idle period died with
+                    # "AdminShutdown: terminating connection due to
+                    # administrator command", as a 500 in the user's face.
+                    #
+                    # It was never reliably just the first request, either. The
+                    # pool holds several connections and each request borrows a
+                    # different one, so a wake-up could produce a run of 500s
+                    # until every dead connection had been handed out once.
+                    #
+                    # check_connection tests a connection on the way out of the
+                    # pool and quietly replaces it if it is dead. The cost is a
+                    # round-trip per checkout; the alternative is that waking
+                    # the app looks like an outage.
+                    check=ConnectionPool.check_connection,
                     open=True,
                 )
     return _pool
