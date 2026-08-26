@@ -215,6 +215,58 @@ med, _src = select_boundaries(AS_ROWS, "AQA", "Mathematics (AS)", "Paper 3", "20
 check("a median over AS rows carries no A*", med["a_star"], None)
 check("...so its ladder still tops out at A", boundary_ladder(med)[-1][0], 5)
 
+
+# ── qualifications graded A-D ───────────────────────────────────────────────
+#
+# An SQA Advanced Higher has no A* and no E. Below D is No Award, so the ladder
+# must stop at D rather than invent an E beneath it — and it must not throw away
+# the published D in order to infer a pair. The boundary set says which kind it
+# is by what is present: no a_star, and a d_boundary with no e_boundary.
+
+AH = {"board": "SQA", "subject": "Physics (AH)", "paper_code": "Question Paper",
+      "year": "2025", "a_star": None, "a_boundary": 83, "b_boundary": 69,
+      "c_boundary": 56, "d_boundary": 43, "e_boundary": None}
+AH2 = {"board": "SQA", "subject": "Physics (AH)", "paper_code": "Question Paper",
+       "year": "2024", "a_star": None, "a_boundary": 80, "b_boundary": 67,
+       "c_boundary": 55, "d_boundary": 42, "e_boundary": None}
+AH_PROJ = {"board": "SQA", "subject": "Physics (AH)", "paper_code": "Project",
+           "year": "2025", "a_star": None, "a_boundary": 28, "b_boundary": 23,
+           "c_boundary": 19, "d_boundary": 14, "e_boundary": None}
+AH_ROWS = [AH, AH2, AH_PROJ]
+
+ah_ladder = boundary_ladder(AH)
+check("an A-D ladder stops at D", ah_ladder[0][0], 2)
+check("...and still tops out at A", ah_ladder[-1][0], 5)
+check("...with exactly four grades on it", len(ah_ladder), 4)
+check("the published D is kept, not re-inferred", ah_ladder[0][1], 43.0)
+
+# Below D is No Award, which the engine already scores as U.
+check("a bare D is exactly 2", attempt_grade_score(43, AH, 120), 2.0)
+check("below D is No Award", score_to_grade(attempt_grade_score(30, AH, 120)), "U")
+close("a perfect A-D script tops out at 5.5", attempt_grade_score(120, AH, 120), 5.5)
+check("...and floors to an A", score_to_grade(attempt_grade_score(120, AH, 120)), "A")
+
+# An A-level set with both D and E is untouched by the new branch.
+check("a full ladder still starts at E", boundary_ladder(HARD)[0][0], 1)
+check("...and still has six grades", len(boundary_ladder(HARD)), 6)
+
+def ah_attempt(year, score, code="Question Paper", mx=120):
+    return {"board": "SQA", "subject": "Physics (AH)", "paper_code": code,
+            "year": year, "score": score, "max_marks": mx}
+
+ah = predict([ah_attempt("2025", 95), ah_attempt("2024", 92),
+              ah_attempt("2025", 98), ah_attempt("2024", 94)], AH_ROWS)
+check("consistently strong Advanced Higher work predicts A",
+      ah["predicted_grade"], "A")
+check("...and names no grade above it", ah["next_grade"], None)
+
+ah_mid = predict([ah_attempt("2025", 60), ah_attempt("2024", 58),
+                  ah_attempt("2025", 62), ah_attempt("2024", 59)], AH_ROWS)
+check("a mid Advanced Higher prediction is a real SQA grade",
+      ah_mid["predicted_grade"] in ("A", "B", "C", "D"), True)
+check("...and the next grade is never E or A*",
+      ah_mid["next_grade"] not in ("E", "A*"), True)
+
 print()
 print("ALL PASS" if not FAILS else f"FAILURES ({len(FAILS)}): {FAILS}")
 sys.exit(1 if FAILS else 0)

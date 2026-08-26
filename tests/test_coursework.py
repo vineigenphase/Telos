@@ -113,6 +113,18 @@ QUAL_TOTALS = {
     ("Edexcel", "Physics (AS)"):        160,  # 80 + 80
     ("Edexcel", "Chemistry (AS)"):      160,
     ("Edexcel", "Biology (AS)"):        160,
+    # SQA Advanced Highers. These totals are the check that matters most here:
+    # the component max marks come from one SQA publication and the course
+    # maximum from another, and the load refuses unless they agree.
+    ("SQA", "Biology (AH)"):    160,   # 24 + 96 + 40 project
+    ("SQA", "Chemistry (AH)"):  160,   # 27 + 93 + 40 project
+    ("SQA", "Physics (AH)"):    160,   # 120 + 40 project
+    ("SQA", "Maths (AH)"):      115,   # 35 non-calculator + 80 calculator
+    ("SQA", "Economics (AH)"):  120,   # 80 + 40 project
+    ("SQA", "Geography (AH)"):  150,   # 50 + 60 study + 40 issue
+    ("SQA", "French (AH)"):     200,   # 50 + 70 + 50 talking + 30 portfolio
+    ("SQA", "German (AH)"):     200,
+    ("SQA", "Spanish (AH)"):    200,
 }
 for (board, subject), want in sorted(QUAL_TOTALS.items()):
     cfg = TEMPLATES.get(board, {}).get(subject)

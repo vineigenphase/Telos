@@ -78,6 +78,17 @@ def boundary_ladder(bs):
     a_star of None means the qualification has no A* (an AS-level), and the
     ladder ends at A. Callers must read the top from ladder[-1] rather than
     assuming 6; see attempt_grade_score and marks_for_score.
+
+    The bottom is described the same way, by which boundaries are present:
+
+      * both D and E        -> use both, ladder runs from E
+      * neither             -> infer both, as for hand-entered and median rows
+      * D but no E          -> the qualification has no E grade, and the ladder
+                               stops at D. This is the SQA case: an Advanced
+                               Higher is graded A-D, and below D is No Award.
+                               Inferring an E here would invent a grade, and
+                               discarding the published D to infer both would
+                               throw away a real boundary to do it.
     """
     a_star = bs["a_star"]
     a_star = float(a_star) if a_star is not None else None
@@ -87,12 +98,17 @@ def boundary_ladder(bs):
 
     d = bs.get("d_boundary") if hasattr(bs, "get") else None
     e = bs.get("e_boundary") if hasattr(bs, "get") else None
-    if d is None or e is None:
-        d, e = infer_de(a_star, a, b, c)
-    else:
-        d, e = float(d), float(e)
 
-    ladder = [(1, e), (2, d), (3, c), (4, b), (5, a)]
+    if d is not None and e is None:
+        ladder = [(2, float(d))]            # graded A-D; no E to reach
+    else:
+        if d is None or e is None:
+            d, e = infer_de(a_star, a, b, c)
+        else:
+            d, e = float(d), float(e)
+        ladder = [(1, e), (2, d)]
+
+    ladder += [(3, c), (4, b), (5, a)]
     if a_star is not None:
         ladder.append((6, a_star))
     return ladder

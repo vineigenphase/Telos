@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
-from paper_templates import TEMPLATES  # noqa: E402
+from paper_templates import TEMPLATES, qualification_level, top_grade  # noqa: E402
 
 fails = []
 
@@ -94,8 +94,6 @@ ok("A* > A wherever an A* is published", not bad_star,
 # 5. An A* stored against a qualification that cannot award one would be
 #    predicted as a real grade — the specific fault this guards is an AS row
 #    carrying its A-level sibling's A* boundary.
-from paper_templates import qualification_level, top_grade  # noqa: E402
-
 wrong_star = [(r["board"], r["subject"], r["paper_code"], r["year"])
               for r in rows
               if r["a_star"] is not None
@@ -136,17 +134,61 @@ ok("no boundaries for the cancelled 2020/2021 series", not cancelled,
 de_rows = [r for r in rows if r.get("d_boundary") is not None or r.get("e_boundary") is not None]
 ok("D and E were actually loaded", bool(de_rows), f"{len(de_rows)} of {len(rows)} rows")
 
+# An SQA course is graded A-D: below D is No Award, and there is no E to
+# publish. D without E is correct there and wrong everywhere else, so the check
+# asks the catalogue which kind of qualification the row belongs to.
+NO_E_LEVELS = {"Advanced Higher", "Higher"}
+
+
+def has_e_grade(row):
+    return qualification_level(row["board"], row["subject"]) not in NO_E_LEVELS
+
+
 half = [(r["subject"], r["paper_code"], r["year"]) for r in de_rows
-        if r["d_boundary"] is None or r["e_boundary"] is None]
+        if has_e_grade(r) and (r["d_boundary"] is None or r["e_boundary"] is None)]
 ok("no row has one of D/E without the other", not half,
    "" if not half else f"{half[:3]}")
+
+# ...and the reverse: a qualification with no E must not have acquired one.
+stray_e = [(r["board"], r["subject"], r["paper_code"], r["year"]) for r in rows
+           if not has_e_grade(r) and r["e_boundary"] is not None]
+ok("no E on a qualification graded A-D", not stray_e,
+   "" if not stray_e else f"{stray_e[:3]}")
+
+no_d = [(r["board"], r["subject"], r["paper_code"], r["year"]) for r in rows
+        if not has_e_grade(r) and r["d_boundary"] is None]
+ok("every A-D row still has its D", not no_d, "" if not no_d else f"{no_d[:3]}")
 
 de_order = [(r["subject"], r["paper_code"], r["year"],
              r["c_boundary"], r["d_boundary"], r["e_boundary"])
             for r in de_rows
-            if not (r["c_boundary"] > r["d_boundary"] > r["e_boundary"] > 0)]
+            if r["e_boundary"] is not None
+            and not (r["c_boundary"] > r["d_boundary"] > r["e_boundary"] > 0)]
 ok("C > D > E > 0 wherever D/E are published", not de_order,
    "" if not de_order else f"{de_order[:3]}")
+
+cd_order = [(r["board"], r["subject"], r["paper_code"], r["year"])
+            for r in rows
+            if r["d_boundary"] is not None
+            and not (r["c_boundary"] > r["d_boundary"] > 0)]
+ok("C > D > 0 wherever D is published", not cd_order,
+   "" if not cd_order else f"{cd_order[:3]}")
+
+# 7b. Derived boundaries must be exactly the rows that are actually derived.
+#     SQA publishes cut-off scores for the whole course and never per
+#     component, so those rows are computed from a course boundary. Every other
+#     row in this table came out of an awarding body's own document, and a
+#     derived row that looked published would be a trap for whoever reads this
+#     table next.
+derived = [(r["board"], r["subject"], r["paper_code"], r["year"]) for r in rows
+           if r.get("derived_from_course")]
+ok("the derived rows are the SQA ones", derived and all(b == "SQA" for b, _s, _p, _y in derived),
+   f"{len(derived)} rows, boards: {sorted({b for b, _s, _p, _y in derived})}")
+
+undeclared = [(r["board"], r["subject"], r["paper_code"], r["year"]) for r in rows
+              if r["board"] == "SQA" and not r.get("derived_from_course")]
+ok("every SQA row is flagged derived", not undeclared,
+   "" if not undeclared else f"{undeclared[:3]}")
 
 # 8. The ladder must prefer published values and infer only when it has to.
 from prediction import boundary_ladder, infer_de  # noqa: E402

@@ -1374,6 +1374,236 @@ TEMPLATES = {
             },
         },
     },
+    # SQA. A separate board, and the only one whose boundaries Telos
+    # derives rather than reads: SQA publishes cut-off scores for the
+    # whole course and never per component. The component max marks are
+    # SQA's own. Keys are suffixed (AH) to leave room for Highers.
+    "SQA": {
+        "Biology (AH)": {
+            "name": "Biology",
+            "color": "#5E9E6B",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Section 2", "name": "Section 2", "max_marks": 96},
+                {"code": "Section 1", "name": "Section 1: Objective Test", "max_marks": 24},
+                {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Section 2": [
+                          "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
+                "Section 1": [
+                          "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
+                "Project": [
+                          "Research Project"],
+            },
+        },
+        "Chemistry (AH)": {
+            "name": "Chemistry",
+            "color": "#5E8B7E",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Section 2", "name": "Section 2", "max_marks": 93},
+                {"code": "Section 1", "name": "Section 1: Objective Test", "max_marks": 27},
+                {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Section 2": [
+                          "Inorganic and Physical Chemistry",
+                          "Organic Chemistry and Instrumental Analysis", "Researching Chemistry"],
+                "Section 1": [
+                          "Inorganic and Physical Chemistry",
+                          "Organic Chemistry and Instrumental Analysis", "Researching Chemistry"],
+                "Project": [
+                          "Research Project"],
+            },
+        },
+        "Economics (AH)": {
+            "name": "Economics",
+            "color": "#C08A3E",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Question Paper", "name": "Question Paper", "max_marks": 80},
+                {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Question Paper": [
+                          "Economics of the Market", "Global Economic Activity", "The UK Economy",
+                          "Economic Data and Analysis"],
+                "Project": [
+                          "Economics Project"],
+            },
+        },
+        "French (AH)": {
+            "name": "French",
+            "color": "#4C7EF3",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
+                {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
+                {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
+                "Listening": [
+                          "Listening Comprehension", "Discursive Writing"],
+                "Talking": [
+                          "Presentation", "Discussion"],
+                "Portfolio": [
+                          "Written Portfolio"],
+            },
+        },
+        "Geography (AH)": {
+            "name": "Geography",
+            "color": "#6E8F5E",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Question Paper", "name": "Question Paper", "max_marks": 50},
+                {"code": "Folio A", "name": "Project-folio: Geographical Study", "max_marks": 60, "assessment": "coursework"},
+                {"code": "Folio B", "name": "Project-folio: Geographical Issue", "max_marks": 40, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Question Paper": [
+                          "Geographical Methods and Techniques"],
+                "Folio A": [
+                          "Geographical Study"],
+                "Folio B": [
+                          "Geographical Issue"],
+            },
+        },
+        "German (AH)": {
+            "name": "German",
+            "color": "#C08A3E",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
+                {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
+                {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
+                "Listening": [
+                          "Listening Comprehension", "Discursive Writing"],
+                "Talking": [
+                          "Presentation", "Discussion"],
+                "Portfolio": [
+                          "Written Portfolio"],
+            },
+        },
+        "Maths (AH)": {
+            "name": "Maths",
+            "color": "#C9A227",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Paper 1 (Non-calculator)", "max_marks": 35},
+                {"code": "Paper 2", "name": "Paper 2 (Calculator)", "max_marks": 80},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Methods in Algebra and Calculus",
+                          "Applications of Algebra and Calculus",
+                          "Geometry, Proof and Systems of Equations"],
+                "Paper 2": [
+                          "Methods in Algebra and Calculus",
+                          "Applications of Algebra and Calculus",
+                          "Geometry, Proof and Systems of Equations"],
+            },
+        },
+        "Physics (AH)": {
+            "name": "Physics",
+            "color": "#5E8B7E",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Question Paper", "name": "Question Paper", "max_marks": 120},
+                {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Question Paper": [
+                          "Rotational Motion and Astrophysics", "Quanta and Waves",
+                          "Electromagnetism", "Units, Prefixes and Uncertainties"],
+                "Project": [
+                          "Research Project"],
+            },
+        },
+        "Spanish (AH)": {
+            "name": "Spanish",
+            "color": "#D06A5A",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
+                {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
+                {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
+                "Listening": [
+                          "Listening Comprehension", "Discursive Writing"],
+                "Talking": [
+                          "Presentation", "Discussion"],
+                "Portfolio": [
+                          "Written Portfolio"],
+            },
+        },
+    },
 }
 
 
