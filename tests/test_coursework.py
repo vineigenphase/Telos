@@ -125,6 +125,17 @@ QUAL_TOTALS = {
     ("SQA", "French (AH)"):     200,   # 50 + 70 + 50 talking + 30 portfolio
     ("SQA", "German (AH)"):     200,
     ("SQA", "Spanish (AH)"):    200,
+    # SQA Highers, same two-source check.
+    ("SQA", "Biology (H)"):    150,   # 25 + 95 + 30 assignment
+    ("SQA", "Chemistry (H)"):  150,
+    ("SQA", "Physics (H)"):    150,
+    ("SQA", "Maths (H)"):      120,   # 55 non-calculator + 65 calculator
+    ("SQA", "Economics (H)"):  120,   # 90 + 30 assignment
+    ("SQA", "Geography (H)"):  110,   # 50 + 30 + 30 assignment
+    ("SQA", "French (H)"):     120,   # 30 + 30 + 15 + 30 talking + 15 assignment
+    ("SQA", "German (H)"):     120,
+    ("SQA", "Spanish (H)"):    120,
+    ("SQA", "English (H)"):    100,   # 30 RUAE + 40 critical reading + 30 portfolio
 }
 for (board, subject), want in sorted(QUAL_TOTALS.items()):
     cfg = TEMPLATES.get(board, {}).get(subject)

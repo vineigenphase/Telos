@@ -362,6 +362,73 @@ at several levels and a student takes one of them, so a flat list would put
 a new heading whenever either changes — keep that sort and that grouping
 together.
 
+**SQA is the one board whose boundaries Telos derives rather than reads**
+(2026-08-26, migrations 037-039). Nine Advanced Highers and nine Highers, taking
+the catalogue to 59 qualifications and the boundary table to 792 rows.
+
+- **SQA publishes grade boundaries for the WHOLE COURSE only** — one maximum
+  mark and A/B/C/D cut-offs — and never per component, in any subject, in any
+  year. So a component's boundary is its share of the course cut-off:
+  `round(course_boundary * component_max / course_max)`.
+- **Migration 037 adds `derived_from_course`**, TRUE on every SQA row and false
+  everywhere else, because an estimate that looks like published data is a trap
+  for whoever reads the table next. `test_boundaries.py` asserts it both ways.
+  Don't load anything else with that flag without meaning it.
+- **The component structures are NOT derived.** SQA publishes component names
+  and max marks in a *separate* release ("Assessment and Component Marks"), and
+  the loaders refuse unless each course's components sum to the course maximum
+  — cross-checked against the grade-boundary release, since the two are
+  different publications that could drift apart.
+- **The approximation's limit, stated:** it assumes a component is as hard as
+  the course as a whole. Projects and multiple-choice papers generally score
+  higher than that, so the estimate reads slightly harsh on those and slightly
+  generous on the long written paper. Fine for a prediction, not a published
+  boundary — which is what the flag is for.
+
+**An SQA course is graded A-D, so the ladder needed a bottom as well as a top.**
+`boundary_ladder` used to require D and E together, which would have thrown away
+a published D to infer a pair *and* invented an E grade that does not exist. The
+bottom is now data-driven exactly as the top is:
+
+| a_star | d / e | ladder |
+|---|---|---|
+| present | both | E..A* — an A-level |
+| absent | both | E..A — an AS-level |
+| absent | D, no E | D..A — an SQA course; below D is No Award |
+| either | neither | D and E inferred — hand-entered and median rows |
+
+A-level ladders are unchanged and tested for it: still six grades, still from E.
+
+**Only 2024 and 2025 are stored, for both SQA levels.** In 2022 and 2023 these
+courses ran in a modified form with the coursework removed — Advanced Higher
+Biology was 120 marks rather than 160, Higher Geography 70 rather than 110.
+That is a different set of components, not the same course with different
+numbers, so those years are left out rather than bent to fit.
+
+**Two things that would have shipped wrong without a second source:**
+
+- **The Advanced Higher Chemistry and Biology course specifications give totals
+  of 134 and 122, not the 160 SQA's own boundary tables show** — those PDFs
+  describe a future revision. The component-marks release gave the structure
+  actually in force. Never take a course spec as evidence of what a past series
+  contained.
+- **SQA is inconsistent about its own component names between years.** Higher
+  German's coursework is "Assignment: Writing" in 2024 and "Assignment -
+  Writing" in 2025. Names are normalised before comparison so a punctuation
+  change does not read as a course restructure.
+
+**SQA component order is SQA's, not a student's** — it lists Paper 2 before
+Paper 1 for the sciences. The loader reorders to written papers, then oral, then
+coursework. Don't sort these alphabetically; "Assignment" would lead.
+
+**Higher English is the first subject with no sibling at any other level.**
+Every other subject in the catalogue exists at A-level and is joined there by an
+AS or an SQA course; English exists only as `SQA / English (H)`. The picker
+copes — it groups by subject name and English simply has one level under it —
+but a reader expecting the A-level to be the anchor of every subject should know
+this one isn't. Advanced Higher English is *not* loaded; adding it is one entry
+in `gen_sqa_ah.py` and a rerun.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**

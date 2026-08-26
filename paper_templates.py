@@ -1603,7 +1603,271 @@ TEMPLATES = {
                           "Written Portfolio"],
             },
         },
-    },
+            "Biology (H)": {
+            "name": "Biology",
+            "color": "#5E9E6B",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Paper 1 (Multiple Choice)", "max_marks": 25},
+                {"code": "Paper 2", "name": "Paper 2", "max_marks": 95},
+                {"code": "Assignment", "name": "Assignment", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "DNA and the Genome", "Metabolism and Survival",
+                          "Sustainability and Interdependence"],
+                "Paper 2": [
+                          "DNA and the Genome", "Metabolism and Survival",
+                          "Sustainability and Interdependence"],
+                "Assignment": [
+                          "Assignment"],
+            },
+        },
+        "Chemistry (H)": {
+            "name": "Chemistry",
+            "color": "#5E8B7E",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Paper 1 (Multiple Choice)", "max_marks": 25},
+                {"code": "Paper 2", "name": "Paper 2", "max_marks": 95},
+                {"code": "Assignment", "name": "Assignment", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Chemical Changes and Structure", "Nature's Chemistry",
+                          "Chemistry in Society", "Researching Chemistry"],
+                "Paper 2": [
+                          "Chemical Changes and Structure", "Nature's Chemistry",
+                          "Chemistry in Society", "Researching Chemistry"],
+                "Assignment": [
+                          "Assignment"],
+            },
+        },
+        "Economics (H)": {
+            "name": "Economics",
+            "color": "#C08A3E",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Question Paper", "name": "Question Paper", "max_marks": 90},
+                {"code": "Assignment", "name": "Assignment", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Question Paper": [
+                          "Economics of the Market", "UK Economic Activity",
+                          "Global Economic Activity"],
+                "Assignment": [
+                          "Economics Assignment"],
+            },
+        },
+        "English (H)": {
+            "name": "English",
+            "color": "#8A6FA8",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Reading for Understanding, Analysis and Evaluation", "max_marks": 30},
+                {"code": "Paper 2", "name": "Critical Reading", "max_marks": 40},
+                {"code": "Portfolio", "name": "Portfolio: Writing", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Reading for Understanding", "Analysis", "Evaluation", "Summarising",
+                          "Comparison of Passages"],
+                "Paper 2": [
+                          "Scottish Text", "Critical Essay: Drama", "Critical Essay: Prose",
+                          "Critical Essay: Poetry", "Critical Essay: Film and Television Drama",
+                          "Critical Essay: Language"],
+                "Portfolio": [
+                          "Broadly Creative Writing", "Broadly Discursive Writing"],
+            },
+        },
+        "French (H)": {
+            "name": "French",
+            "color": "#4C7EF3",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Directed Writing", "name": "Directed Writing", "max_marks": 15},
+                {"code": "Listening", "name": "Listening", "max_marks": 30},
+                {"code": "Reading", "name": "Reading", "max_marks": 30},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 30, "assessment": "oral"},
+                {"code": "Assignment", "name": "Assignment: Writing", "max_marks": 15, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Directed Writing": [
+                          "Directed Writing"],
+                "Listening": [
+                          "Listening Comprehension"],
+                "Reading": [
+                          "Reading Comprehension"],
+                "Talking": [
+                          "Presentation", "Conversation"],
+                "Assignment": [
+                          "Written Assignment"],
+            },
+        },
+        "Geography (H)": {
+            "name": "Geography",
+            "color": "#6E8F5E",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Physical and Human Environments", "max_marks": 50},
+                {"code": "Paper 2", "name": "Global Issues and Geographical Skills", "max_marks": 30},
+                {"code": "Assignment", "name": "Assignment", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Atmosphere", "Hydrosphere", "Lithosphere", "Biosphere", "Population",
+                          "Rural Land Use", "Urban"],
+                "Paper 2": [
+                          "River Basin Management", "Development and Health",
+                          "Global Climate Change", "Energy", "Geographical Skills"],
+                "Assignment": [
+                          "Geographical Assignment"],
+            },
+        },
+        "German (H)": {
+            "name": "German",
+            "color": "#C08A3E",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Directed Writing", "name": "Directed Writing", "max_marks": 15},
+                {"code": "Listening", "name": "Listening", "max_marks": 30},
+                {"code": "Reading", "name": "Reading", "max_marks": 30},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 30, "assessment": "oral"},
+                {"code": "Assignment", "name": "Assignment: Writing", "max_marks": 15, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Directed Writing": [
+                          "Directed Writing"],
+                "Listening": [
+                          "Listening Comprehension"],
+                "Reading": [
+                          "Reading Comprehension"],
+                "Talking": [
+                          "Presentation", "Conversation"],
+                "Assignment": [
+                          "Written Assignment"],
+            },
+        },
+        "Maths (H)": {
+            "name": "Maths",
+            "color": "#C9A227",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Paper 1 (Non-calculator)", "max_marks": 55},
+                {"code": "Paper 2", "name": "Paper 2 (Calculator)", "max_marks": 65},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Algebraic and Trigonometric Skills", "Geometric Skills",
+                          "Calculus Skills", "Algebraic and Geometric Skills"],
+                "Paper 2": [
+                          "Algebraic and Trigonometric Skills", "Geometric Skills",
+                          "Calculus Skills", "Reasoning Skills"],
+            },
+        },
+        "Physics (H)": {
+            "name": "Physics",
+            "color": "#5E8B7E",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Paper 1", "name": "Paper 1 (Multiple Choice)", "max_marks": 25},
+                {"code": "Paper 2", "name": "Paper 2", "max_marks": 95},
+                {"code": "Assignment", "name": "Assignment", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Our Dynamic Universe", "Particles and Waves", "Electricity"],
+                "Paper 2": [
+                          "Our Dynamic Universe", "Particles and Waves", "Electricity"],
+                "Assignment": [
+                          "Assignment"],
+            },
+        },
+        "Spanish (H)": {
+            "name": "Spanish",
+            "color": "#D06A5A",
+            "level": "Higher",
+            # Graded A-D: no A* and no E. Component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Directed Writing", "name": "Directed Writing", "max_marks": 15},
+                {"code": "Listening", "name": "Listening", "max_marks": 30},
+                {"code": "Reading", "name": "Reading", "max_marks": 30},
+                {"code": "Talking", "name": "Performance: Talking", "max_marks": 30, "assessment": "oral"},
+                {"code": "Assignment", "name": "Assignment: Writing", "max_marks": 15, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with a different
+            # set of components.
+            "years": ["SPEC", "2024", "2025"],
+            "topics": {
+                "Directed Writing": [
+                          "Directed Writing"],
+                "Listening": [
+                          "Listening Comprehension"],
+                "Reading": [
+                          "Reading Comprehension"],
+                "Talking": [
+                          "Presentation", "Conversation"],
+                "Assignment": [
+                          "Written Assignment"],
+            },
+        },
+},
 }
 
 

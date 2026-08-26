@@ -770,63 +770,14 @@ BOUNDARY_ROWS = [
     ("Spanish (AS)", "AQA", "Paper 2", "2025", "June", None, 37, 32, 27),
     ("Spanish (AS)", "AQA", "Paper 3", "2025", "June", None, 49, 43, 37),
 
-    # SQA Advanced Highers. a_star is None (no A*), and these boundaries are
-    # each component's share of the published course cut-off — see migration
-    # 038 and the derived_from_course column.
-    ("Biology (AH)", "SQA", "Section 2", "2024", "June", None, 62, 52, 42),
-    ("Biology (AH)", "SQA", "Section 1", "2024", "June", None, 16, 13, 10),
-    ("Biology (AH)", "SQA", "Project", "2024", "June", None, 26, 22, 18),
-    ("Chemistry (AH)", "SQA", "Section 2", "2024", "June", None, 60, 51, 42),
-    ("Chemistry (AH)", "SQA", "Section 1", "2024", "June", None, 18, 15, 12),
-    ("Chemistry (AH)", "SQA", "Project", "2024", "June", None, 26, 22, 18),
-    ("Economics (AH)", "SQA", "Question Paper", "2024", "June", None, 56, 48, 40),
-    ("Economics (AH)", "SQA", "Project", "2024", "June", None, 28, 24, 20),
-    ("French (AH)", "SQA", "Reading", "2024", "June", None, 37, 32, 26),
-    ("French (AH)", "SQA", "Listening", "2024", "June", None, 52, 44, 37),
-    ("French (AH)", "SQA", "Talking", "2024", "June", None, 37, 32, 26),
-    ("French (AH)", "SQA", "Portfolio", "2024", "June", None, 22, 19, 16),
-    ("Geography (AH)", "SQA", "Question Paper", "2024", "June", None, 35, 29, 24),
-    ("Geography (AH)", "SQA", "Folio A", "2024", "June", None, 42, 35, 28),
-    ("Geography (AH)", "SQA", "Folio B", "2024", "June", None, 28, 23, 19),
-    ("German (AH)", "SQA", "Reading", "2024", "June", None, 35, 30, 25),
-    ("German (AH)", "SQA", "Listening", "2024", "June", None, 49, 42, 35),
-    ("German (AH)", "SQA", "Talking", "2024", "June", None, 35, 30, 25),
-    ("German (AH)", "SQA", "Portfolio", "2024", "June", None, 21, 18, 15),
-    ("Maths (AH)", "SQA", "Paper 1", "2024", "June", None, 24, 20, 16),
-    ("Maths (AH)", "SQA", "Paper 2", "2024", "June", None, 56, 46, 37),
-    ("Physics (AH)", "SQA", "Question Paper", "2024", "June", None, 82, 69, 56),
-    ("Physics (AH)", "SQA", "Project", "2024", "June", None, 28, 23, 18),
-    ("Spanish (AH)", "SQA", "Reading", "2024", "June", None, 34, 28, 24),
-    ("Spanish (AH)", "SQA", "Listening", "2024", "June", None, 47, 40, 33),
-    ("Spanish (AH)", "SQA", "Talking", "2024", "June", None, 34, 28, 24),
-    ("Spanish (AH)", "SQA", "Portfolio", "2024", "June", None, 20, 17, 14),
-    ("Biology (AH)", "SQA", "Section 2", "2025", "June", None, 60, 50, 41),
-    ("Biology (AH)", "SQA", "Section 1", "2025", "June", None, 15, 13, 10),
-    ("Biology (AH)", "SQA", "Project", "2025", "June", None, 25, 21, 17),
-    ("Chemistry (AH)", "SQA", "Section 2", "2025", "June", None, 63, 53, 44),
-    ("Chemistry (AH)", "SQA", "Section 1", "2025", "June", None, 18, 16, 13),
-    ("Chemistry (AH)", "SQA", "Project", "2025", "June", None, 27, 23, 19),
-    ("Economics (AH)", "SQA", "Question Paper", "2025", "June", None, 59, 49, 40),
-    ("Economics (AH)", "SQA", "Project", "2025", "June", None, 29, 25, 20),
-    ("French (AH)", "SQA", "Reading", "2025", "June", None, 36, 30, 25),
-    ("French (AH)", "SQA", "Listening", "2025", "June", None, 50, 43, 35),
-    ("French (AH)", "SQA", "Talking", "2025", "June", None, 36, 30, 25),
-    ("French (AH)", "SQA", "Portfolio", "2025", "June", None, 22, 18, 15),
-    ("Geography (AH)", "SQA", "Question Paper", "2025", "June", None, 35, 30, 25),
-    ("Geography (AH)", "SQA", "Folio A", "2025", "June", None, 42, 36, 30),
-    ("Geography (AH)", "SQA", "Folio B", "2025", "June", None, 28, 24, 20),
-    ("German (AH)", "SQA", "Reading", "2025", "June", None, 35, 30, 25),
-    ("German (AH)", "SQA", "Listening", "2025", "June", None, 49, 42, 35),
-    ("German (AH)", "SQA", "Talking", "2025", "June", None, 35, 30, 25),
-    ("German (AH)", "SQA", "Portfolio", "2025", "June", None, 21, 18, 15),
-    ("Maths (AH)", "SQA", "Paper 1", "2025", "June", None, 25, 22, 18),
-    ("Maths (AH)", "SQA", "Paper 2", "2025", "June", None, 58, 49, 42),
-    ("Physics (AH)", "SQA", "Question Paper", "2025", "June", None, 82, 69, 56),
-    ("Physics (AH)", "SQA", "Project", "2025", "June", None, 28, 23, 19),
-    ("Spanish (AH)", "SQA", "Reading", "2025", "June", None, 35, 30, 25),
-    ("Spanish (AH)", "SQA", "Listening", "2025", "June", None, 49, 42, 35),
-    ("Spanish (AH)", "SQA", "Talking", "2025", "June", None, 35, 30, 25),
-    ("Spanish (AH)", "SQA", "Portfolio", "2025", "June", None, 21, 18, 15),
+    # No SQA rows here, deliberately. This seed carries four boundaries per row
+    # (A*/A/B/C) and cannot express what an SQA row needs: a published D, no E,
+    # and derived_from_course. Seeding one would produce a row that looks
+    # published, has no D, and would have an E inferred for a qualification
+    # graded A-D. Migrations 038 and 039 are the only source for SQA, and the
+    # derived_from_course column does not exist until migration 037 has run
+    # anyway. See tests/test_boundaries.py, which fails if an SQA row ever
+    # appears without its flag.
 ]
 
 
