@@ -21,6 +21,12 @@ uploads and tags a paper. So selection falls back to re-doing weak questions
 from papers already logged (`question_marks`). The spec's own rule, "preferring
 unattempted questions, then ones scored below 60%", already assumes attempt
 data, which only the marks table has.
+
+The cutoff itself is a departure from the spec, agreed with the owner: 75%, not
+60%. 60% is around a C, so a student sitting on a B was told there was nothing
+to work on — which is wrong for the students this is for. 75% is roughly the
+A/B border, so the redo list keeps offering work to someone who is already
+doing well and wants an A*.
 """
 
 from __future__ import annotations
@@ -29,7 +35,10 @@ import math
 
 RECENCY_BOOST = 1.3         # topic last seen in the most recent N papers
 RECENCY_WINDOW = 3          # ...where N is this many papers
-WEAK_THRESHOLD = 0.60       # "scored below 60%" — the spec's redo cutoff
+# The redo cutoff. The spec says 60%; this is deliberately higher — see the
+# module docstring. Everything derives from this constant, the user-facing
+# message included, so it is the only place to change it.
+WEAK_THRESHOLD = 0.75
 TOP_TOPICS = 3
 DEFAULT_PICKS = 3
 MIN_TOPIC_MARKS = 1.0       # ignore topics with almost no marks behind them

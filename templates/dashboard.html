@@ -231,7 +231,10 @@
          low opacity — see the subject_art macro. #}
       <span class="subject-art-wrap" style="color: {{ s.colour }};">{{ icons.subject_art(s.subject) }}</span>
       <div class="subject-name">{{ s.subject }}</div>
-      <div class="subject-meta">{{ s.board }}{% if s.areas %} · {{ s.areas }} spec areas{% endif %}</div>
+      {# Level is named because one subject can be taken at more than one, and
+         "Maths / AQA" twice over would read as a duplicate rather than as an
+         A-level and an AS. #}
+      <div class="subject-meta">{{ s.board }} · {{ s.level }}{% if s.areas %} · {{ s.areas }} spec areas{% endif %}</div>
       <div class="progress-bar-track"><div class="progress-bar-fill" style="width:{{ s.pct }}%;"></div></div>
       <div class="subject-foot">
         <span>{{ s.logged }} of {{ s.available }} papers</span>
@@ -240,6 +243,11 @@
       <span class="subject-cta">Browse papers →</span>
     </a>
     {% endfor %}
+    {% if not subjects %}
+    <p class="pick-empty">
+      No subjects yet — <a href="{{ url_for('subjects') }}">choose what you study</a>.
+    </p>
+    {% endif %}
   </div>
 
   {# ── Recent activity + Quick access ─────────────────────────────────────── #}

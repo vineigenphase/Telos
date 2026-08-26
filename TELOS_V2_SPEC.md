@@ -308,7 +308,7 @@ priority = marks_lost_ratio × log(1 + topic_frequency) × recency_factor
 - `recency_factor` = 1.3 if the last attempt was in the most recent 3 papers, else 1.0
 
 Take the top 3 topics, then select from `bank_questions` matching those topics,
-preferring unattempted questions, then ones scored below 60%. Return question, source
+preferring unattempted questions, then ones scored below 75%. Return question, source
 paper, and *why* it was picked ("you're at 41% on complex numbers, worth ~8 marks/paper").
 
 The "why" line is not optional — an unexplained recommendation gets ignored.
@@ -376,7 +376,7 @@ Env vars: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_MONTHLY`,
 
 Branch: `feat/spaced-repetition`
 
-SM-2 simplified. Any question scored below 60% enters `revision_queue` automatically.
+SM-2 simplified. Any question scored below 75% enters `revision_queue` automatically.
 
 Review outcome → interval:
 

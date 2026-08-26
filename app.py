@@ -1217,6 +1217,15 @@ def dashboard_stats(user_id):
 def subject_progress(user_id):
     """Per-subject coverage for the 'Your subjects' row.
 
+    This student's subjects, not the catalogue's. It used to walk every entry
+    in TEMPLATES, which was survivable when there were three qualifications and
+    absurd at sixty — a student taking three A-levels was shown every subject on
+    every board, at 0%, under a heading that said "Your subjects".
+
+    A subject appears if the student chose it, or if they have papers logged
+    against it. The second half matters: unticking a subject must never make
+    logged work vanish, and the manage screen makes the same promise.
+
     "Complete" means papers logged against papers that exist in the template
     (every paper code x every year), which is the only completeness this app
     can actually measure. It is coverage, not mastery — a student can be 100%
@@ -1229,22 +1238,37 @@ def subject_progress(user_id):
         ).fetchall()
     logged = {(r["subject"], r["board"]): int(r["n"]) for r in rows}
 
+    wanted = {(u["subject"], u["board"]) for u in get_user_subjects(user_id)}
+    wanted |= set(logged)
+
     out = []
     for board, subjects in TEMPLATES.items():
         for subject, data in subjects.items():
-            available = len(data["papers"]) * len(data["years"])
+            if (subject, board) not in wanted:
+                continue
+            # Only the papers this student actually sits. A Further Maths
+            # student taking two of four options should not be measured against
+            # the two they never sit.
+            codes = visible_papers(user_id, board, subject)
+            available = len(codes) * len(data["years"])
             done = logged.get((subject, board), 0)
-            # Spec areas = distinct topics across this subject's papers.
-            areas = {t for topics in data.get("topics", {}).values() for t in topics}
+            # Spec areas = distinct topics across the papers they sit.
+            areas = {t for code, topics in data.get("topics", {}).items()
+                     if code in codes for t in topics}
             out.append({
-                "subject": subject,
+                "subject": data.get("name", subject),
                 "board": board,
+                "level": data.get("level", DEFAULT_LEVEL),
                 "colour": data["color"],
                 "logged": done,
                 "available": available,
-                "pct": round(done / available * 100) if available else 0,
+                # Logging more than the catalogue offers is possible — a paper
+                # kept from an unticked option, say — and a bar past 100% would
+                # overflow its track.
+                "pct": min(100, round(done / available * 100)) if available else 0,
                 "areas": len(areas),
             })
+    out.sort(key=lambda s_: (s_["subject"], s_["level"], s_["board"]))
     return out
 
 

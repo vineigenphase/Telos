@@ -14,6 +14,12 @@ from prescription import (  # noqa: E402
     topic_stats, why_line,
 )
 
+# Marks that sit exactly on the redo cutoff, out of ten. Written in terms of
+# WEAK_THRESHOLD rather than as a number, because a fixture that hardcodes the
+# old cutoff turns into a silent behaviour change the day the cutoff moves —
+# which is exactly what happened when it went from 60% to 75%.
+AT_LINE = WEAK_THRESHOLD * 10
+
 FAILS = []
 
 
@@ -129,8 +135,10 @@ mixed = [
     mark("Complex Numbers", 2, 10, paper_id=1, q_num="1"),
     mark("Complex Numbers", 2, 10, paper_id=2, q_num="1"),
     mark("Proof", 1, 10, paper_id=1, q_num="3"),
-    mark("Vectors", 6, 10, paper_id=1, q_num="4"),   # exactly 60% -> no redo
-    mark("Vectors", 6, 10, paper_id=2, q_num="4"),
+    # Exactly at the cutoff, derived so this fixture does not silently become
+    # a weak question the next time the threshold moves.
+    mark("Vectors", AT_LINE, 10, paper_id=1, q_num="4"),
+    mark("Vectors", AT_LINE, 10, paper_id=2, q_num="4"),
 ]
 res_mixed = prescribe(mixed, bank=[])
 check("a topic with no weak question contributes no pick",
@@ -139,14 +147,16 @@ check("...and the slot goes to a topic that has one",
       len(res_mixed["picks"]), 3)
 
 # A question already above the threshold is not worth redoing.
+# 90%: comfortably above the cutoff, but not perfect — a topic with nothing
+# at all to gain ranks out entirely, which would test something else.
 strong = [mark("Vectors", 9, 10, paper_id=1, q_num="4")]
 res_strong = prescribe(strong, bank=[])
 check("nothing prescribed when every question is strong", res_strong["ready"], False)
 check("...and it says why", res_strong["reason"], "no_questions")
 check("...but the topic ranking still comes back", len(res_strong["topics"]) > 0, True)
 
-# Exactly at the threshold is not weak — 60% is the cutoff, inclusive.
-at_line = [mark("Vectors", 6, 10, paper_id=1, q_num="4")]
+# Exactly at the threshold is not weak — the cutoff is inclusive.
+at_line = [mark("Vectors", AT_LINE, 10, paper_id=1, q_num="4")]
 check(f"{int(WEAK_THRESHOLD*100)}% exactly is not prescribed as a redo",
       prescribe(at_line, bank=[])["ready"], False)
 

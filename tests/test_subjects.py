@@ -204,6 +204,49 @@ try:
             check("an unchosen paper with logged work stays in the matrix",
                   dropped in codes, True)
 
+    # ── the dashboard shows THIS student's subjects ─────────────────────
+    #
+    # subject_progress used to walk the whole of TEMPLATES, so the row headed
+    # "Your subjects" listed every qualification on every board at 0%. Harmless
+    # at three qualifications and absurd at sixty.
+    first = quals[0]
+    A.set_user_subjects(uid, [(first["board"], first["subject"], first["level"])])
+
+    # The expected set is the chosen subject PLUS anything this user already has
+    # papers against — earlier checks in this file logged one. Computed from the
+    # database rather than assumed, so the assertion stays true no matter what
+    # ran before it.
+    with get_db() as db:
+        with_work = {(r["board"], r["subject"]) for r in db.execute(
+            "SELECT DISTINCT board, subject FROM papers WHERE user_id=?", (uid,))}
+    expected = {(b, A.display_name(b, s_)) for b, s_ in with_work}
+    expected.add((first["board"], first["name"]))
+
+    prog = A.subject_progress(uid)
+    check("the dashboard shows only this student's subjects and their logged work",
+          {(p_["board"], p_["subject"]) for p_ in prog}, expected)
+    check("...not the whole catalogue", len(prog) < len(quals), True)
+
+    # Work already logged must stay visible even after its subject is unticked,
+    # which is the promise the manage screen makes.
+    other = next(q for q in quals
+                 if (q["board"], q["subject"]) != (first["board"], first["subject"]))
+    with get_db() as db:
+        db.execute(
+            """INSERT INTO papers (user_id, subject, board, paper_code, year, series,
+                                   score, max_marks, date_completed, weak_topics, notes)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            (uid, other["subject"], other["board"], other["papers"][0]["code"],
+             "2024", "June", 40, other["papers"][0]["max_marks"], "2026-08-01", "", ""))
+    names = {(p_["board"], p_["subject"]) for p_ in A.subject_progress(uid)}
+    check("a subject with logged work still appears when unticked",
+          (other["board"], other["name"]) in names, True)
+
+    # Coverage is measured against the papers a student actually sits.
+    for p_ in A.subject_progress(uid):
+        check(f"{p_['subject']} coverage is a real percentage",
+              0 <= p_["pct"] <= 100, True)
+
     # A qualification with no options is unaffected by any of this.
     plain = next((q for q in quals if not q["optional"]), None)
     if plain:

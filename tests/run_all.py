@@ -40,6 +40,7 @@ SUITES = [
     ("grade boundary integrity",   "test_boundaries.py"),
     ("subject selection",          "test_subjects.py"),
     ("coursework components",      "test_coursework.py"),
+    ("engine sweep — all subjects", "test_engine_sweep.py"),
 ]
 
 
