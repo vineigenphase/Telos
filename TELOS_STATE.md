@@ -552,9 +552,11 @@ this was not for them. It now names all four. Anything that describes coverage
 in prose — the eyebrow, the meta description, the mockups — has to move when the
 catalogue does; none of it is generated.
 
-**`TUTORING_EMAIL`** drives the tutoring section's "book a free call" mailto and
-defaults to the owner's personal address. Set it to a business address in
-Railway rather than editing the default.
+**`TUTORING_EMAIL`** drives the tutoring section's "book a free call" mailto.
+It defaults to `telostutor@gmail.com`, so the page works from a clean checkout
+with nothing configured; the environment variable is there to repoint it
+without a deploy. The founder's personal address is deliberately not the
+fallback — a landing page publishes whatever it is given.
 
 **Known good, don't "fix":**
 

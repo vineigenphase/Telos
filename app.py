@@ -106,11 +106,11 @@ PRICING = {
 }
 DEFAULT_INTERVAL = "year"     # annual is preselected on purpose
 
-# Where the landing page's tutoring section sends a "book a free call". An
-# environment variable so a working address can be swapped in without a deploy,
-# and so the owner's personal inbox is a default rather than a decision made
-# for them.
-TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "svinujan10@gmail.com")
+# Where the landing page's tutoring section sends a "book a free call". The
+# default is the address the tutoring goes to, so the page works from a clean
+# checkout with nothing configured. Still an environment variable, so it can be
+# repointed without a deploy.
+TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "telostutor@gmail.com")
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
