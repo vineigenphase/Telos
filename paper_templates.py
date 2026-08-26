@@ -10,6 +10,8 @@ TEMPLATES = {
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+                {"code": "Paper 3", "name": "Speaking",                       "max_marks": 60,
+                 "assessment": "oral"},
             ],
             "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
             # The four specification themes, plus the two translation tasks —
@@ -27,6 +29,9 @@ TEMPLATES = {
                 # but two entries are irrelevant to any given student.
                 "Paper 2": [
                           "Literary Text Essay", "Film Essay"],
+                # Speaking is a discussion of one sub-theme plus the student's
+                # own research project.
+                "Paper 3": ["Theme Discussion", "Individual Research Project"],
             },
         },
         "German": {
@@ -39,6 +44,8 @@ TEMPLATES = {
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+                {"code": "Paper 3", "name": "Speaking",                       "max_marks": 60,
+                 "assessment": "oral"},
             ],
             "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
             # The four specification themes, plus the two translation tasks —
@@ -56,6 +63,9 @@ TEMPLATES = {
                 # but two entries are irrelevant to any given student.
                 "Paper 2": [
                           "Literary Text Essay", "Film Essay"],
+                # Speaking is a discussion of one sub-theme plus the student's
+                # own research project.
+                "Paper 3": ["Theme Discussion", "Individual Research Project"],
             },
         },
         "Philosophy": {
@@ -94,6 +104,8 @@ TEMPLATES = {
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
+                {"code": "Paper 3", "name": "Speaking",                       "max_marks": 60,
+                 "assessment": "oral"},
             ],
             "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
             # The four specification themes, plus the two translation tasks —
@@ -110,6 +122,9 @@ TEMPLATES = {
                 # but two entries are irrelevant to any given student.
                 "Paper 2": [
                           "Literary Text Essay", "Film Essay"],
+                # Speaking is a discussion of one sub-theme plus the student's
+                # own research project.
+                "Paper 3": ["Theme Discussion", "Individual Research Project"],
             },
         },
         "Economics": {
@@ -161,6 +176,8 @@ TEMPLATES = {
             "papers": [
                 {"code": "Paper 1", "name": "Physical Geography", "max_marks": 120},
                 {"code": "Paper 2", "name": "Human Geography",    "max_marks": 120},
+                {"code": "NEA",     "name": "Fieldwork Investigation", "max_marks": 60,
+                 "assessment": "coursework"},
             ],
             "years": ["SPEC", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"],
             # Sections 3.1.1-3.1.6 and 3.2.1-3.2.5. Each paper offers choices
@@ -173,6 +190,9 @@ TEMPLATES = {
                           "Water and Carbon Cycles", "Hot Desert Systems and Landscapes",
                           "Coastal Systems and Landscapes", "Glacial Systems and Landscapes",
                           "Hazards", "Ecosystems Under Stress"],
+                # The investigation is the student's own question on any part of
+                # the specification, so it has no fixed topic list.
+                "NEA": ["Fieldwork Investigation"],
                 "Paper 2": [
                           "Global Systems and Global Governance", "Changing Places",
                           "Contemporary Urban Environments", "Population and the Environment",

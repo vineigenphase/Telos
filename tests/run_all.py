@@ -39,6 +39,7 @@ SUITES = [
     ("landing page",               "test_landing.py"),
     ("grade boundary integrity",   "test_boundaries.py"),
     ("subject selection",          "test_subjects.py"),
+    ("coursework components",      "test_coursework.py"),
 ]
 
 

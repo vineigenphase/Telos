@@ -501,6 +501,34 @@ BOUNDARY_ROWS = [
     ("Physics", "OCR A", "Paper 1", "2025", "June", 75, 66, 56, 46),
     ("Physics", "OCR A", "Paper 2", "2025", "June", 84, 74, 62, 50),
     ("Physics", "OCR A", "Paper 3", "2025", "June", 47, 39, 33, 27),
+
+    # Non-written components that count toward the grade: the Geography
+    # fieldwork investigation and the three MFL speaking exams. Marked in
+    # the catalogue so the app asks for one overall mark.
+    ("Geography", "AQA", "NEA", "2018", "June", 51, 47, 39, 32),
+    ("Geography", "AQA", "NEA", "2019", "June", 53, 49, 41, 33),
+    ("Geography", "AQA", "NEA", "2022", "June", 49, 45, 36, 28),
+    ("Geography", "AQA", "NEA", "2023", "June", 53, 49, 41, 33),
+    ("Geography", "AQA", "NEA", "2024", "June", 52, 49, 41, 33),
+    ("Geography", "AQA", "NEA", "2025", "June", 53, 49, 41, 33),
+    ("French", "AQA", "Paper 3", "2018", "June", 54, 48, 41, 34),
+    ("French", "AQA", "Paper 3", "2019", "June", 54, 48, 41, 34),
+    ("French", "AQA", "Paper 3", "2022", "June", 52, 46, 38, 31),
+    ("French", "AQA", "Paper 3", "2023", "June", 54, 48, 41, 34),
+    ("French", "AQA", "Paper 3", "2024", "June", 53, 48, 41, 34),
+    ("French", "AQA", "Paper 3", "2025", "June", 54, 48, 41, 34),
+    ("German", "AQA", "Paper 3", "2018", "June", 54, 48, 41, 34),
+    ("German", "AQA", "Paper 3", "2019", "June", 54, 48, 41, 34),
+    ("German", "AQA", "Paper 3", "2022", "June", 53, 46, 38, 31),
+    ("German", "AQA", "Paper 3", "2023", "June", 55, 48, 41, 34),
+    ("German", "AQA", "Paper 3", "2024", "June", 54, 48, 41, 34),
+    ("German", "AQA", "Paper 3", "2025", "June", 54, 48, 41, 34),
+    ("Spanish", "AQA", "Paper 3", "2018", "June", 53, 48, 41, 34),
+    ("Spanish", "AQA", "Paper 3", "2019", "June", 53, 48, 41, 34),
+    ("Spanish", "AQA", "Paper 3", "2022", "June", 51, 46, 39, 32),
+    ("Spanish", "AQA", "Paper 3", "2023", "June", 53, 48, 41, 34),
+    ("Spanish", "AQA", "Paper 3", "2024", "June", 53, 48, 41, 34),
+    ("Spanish", "AQA", "Paper 3", "2025", "June", 53, 48, 41, 34),
 ]
 
 

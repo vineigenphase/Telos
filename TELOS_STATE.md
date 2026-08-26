@@ -240,6 +240,64 @@ publishes FP1, FP2, FS2, FM2, D1 and D2; `paper_templates.py` offers only CP1,
 CP2, FM1, FS1. Students on those options have nowhere to put them. Real data,
 missing feature — `test_boundaries.py` prints it as a NOTE on every run.
 
+**The subject catalogue now covers 21 qualifications across five boards**
+(2026-08-25/26, migrations 012-033). Every board was onboarded the same way,
+and the method is the point:
+
+> download the board's own PDFs -> write or extend a parser for that board's
+> layout -> **validate every component against its own expected max mark** ->
+> generate the migration SQL *by script, never by hand* -> cross-check against a
+> second source where one exists -> author topics from the specification ->
+> run the suites -> deploy.
+
+The expected-max guard has caught a genuine fault on **every** board it was
+pointed at. It is not ceremony.
+
+- **Each board prints boundaries differently, and all the layouts are handled.**
+  OCR uses three table layouts. Pearson uses four, including one with a single
+  number per line (2024) and one row whose paper label is simply missing
+  (Physics 2019 Paper 2, where the label line reads `9PE0`) — that one is placed
+  only when exactly one paper is unaccounted for and exactly one unlabelled row
+  of that max mark remains, and it prints a note when it fires. AQA scales its
+  language components and publishes both a raw and a scaled row, so taking the
+  last match would double every boundary.
+- **Students see only the modules they chose.** `visible_papers()` returns the
+  compulsory papers always, and an optional paper only if that student picked
+  it. A student who has picked nothing sees the compulsory papers alone, not
+  every option in the catalogue. `paper_options()` is the single source for
+  which is which.
+- **A signed-in student with no subjects is redirected to choose them**
+  (`_require_subject_setup`, with `SETUP_EXEMPT` for the routes that must stay
+  reachable). This broke four integration suites whose throwaway users had no
+  subjects; each now gets a `user_subjects` row, which is a more honest fixture
+  anyway.
+
+**Coursework and speaking components count toward the grade, and were missing**
+(2026-08-26, migration 033). Geography's fieldwork investigation (7037/C, 60
+marks) and the three MFL speaking exams (7652/3T, 7662/3T, 7692/3T, 60 each)
+were excluded under the rule *"a paper belongs here if a student can sit and
+mark it alone."* That rule was wrong for these four: a Geography prediction was
+being built from 80% of the qualification and an MFL prediction from 70%, and
+nothing said so.
+
+- **The OCR Practical Endorsements stay out, and that is the same rule applied
+  correctly.** They are reported separately and contribute nothing to the grade,
+  so a prediction has nothing to do with them. Don't "finish the job" by adding
+  them.
+- **The form asks for one mark, not a breakdown.** A catalogue paper may carry
+  `"assessment": "coursework"` or `"oral"` (default `"exam"`). `applyAssessment()`
+  in `telos.js` reads it off `/api/template-info`, hides `#q-breakdown`, and
+  clears any rows already there so nothing hidden gets posted. A 3,000-word
+  investigation has no question numbers to enter.
+- **Speaking is stored from the teacher-conducted variant.** AQA publishes 3T
+  and 3V separately and their boundaries are identical in every series checked,
+  so one row serves both and a student need not know which their centre used.
+- **`tests/test_coursework.py` guards the omission, not the fix.** It sums each
+  qualification's components against the total the board actually grades out of.
+  That is the only check that sees a missing component — the papers that *are*
+  there look perfectly correct on their own. Physics counts one 35-mark option
+  because a student sits exactly one.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**

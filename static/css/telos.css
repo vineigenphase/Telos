@@ -104,6 +104,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* The browser's own [hidden] rule is a plain `display: none` on the element
+   type, so any class that sets display beats it — .btn is `inline-flex`, and
+   a hidden button stayed on screen. Anything marked hidden is hidden. */
+[hidden] { display: none !important; }
+
 /* 15px root is deliberate — bumping it would rescale every desktop screen.
    Inputs get an explicit 16px below instead, which is what iOS actually
    cares about. */

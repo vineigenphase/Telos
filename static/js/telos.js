@@ -120,6 +120,7 @@ function onCodeChange() {
         const mx = document.getElementById('max_marks');
         if (mx && !mx.dataset.userEdited) mx.value = data.info.max_marks;
       }
+      applyAssessment(data.info);
       window._currentTopics = data.topics || [];
       // Re-render any existing topic selects
       document.querySelectorAll('.q-topic').forEach(sel => {
@@ -130,6 +131,47 @@ function onCodeChange() {
           ).join('');
       });
     });
+}
+
+// Coursework and speaking are marked as a whole by a teacher — a student has
+// one number and no question breakdown to give. For those the form asks for the
+// component mark alone; every written paper keeps the per-question entry that
+// feeds the topic heatmap.
+const SINGLE_MARK_NOTE = {
+  coursework: 'Marked as a whole, so there are no question marks to enter — ' +
+              'put your total for the component below.',
+  oral:       'A speaking exam is marked as a whole, so there are no question ' +
+              'marks to enter — put your total for the component below.',
+};
+
+function applyAssessment(info) {
+  const section = document.getElementById('q-section');
+  if (!section) return;
+  const kind      = (info && info.assessment) || 'exam';
+  const single    = kind !== 'exam';
+  const breakdown = document.getElementById('q-breakdown');
+  const note      = document.getElementById('q-single-note');
+  const addBtn    = document.getElementById('q-add-btn');
+  const label     = document.getElementById('q-section-label');
+  const direct    = document.getElementById('q-direct-label');
+
+  if (breakdown) breakdown.hidden = single;
+  if (addBtn)    addBtn.hidden    = single;
+  if (note) {
+    note.hidden = !single;
+    if (single) note.textContent = SINGLE_MARK_NOTE[kind] || SINGLE_MARK_NOTE.coursework;
+  }
+  if (label)  label.textContent  = single ? 'Component Mark'
+                                          : 'Question Marks — enter per question for the heatmap';
+  if (direct) direct.textContent = single ? 'Mark awarded →' : 'or enter total score directly →';
+
+  // A hidden breakdown must not also submit stale rows, and the running total
+  // is computed from them — so clear it when switching to a single-mark
+  // component rather than leaving invisible inputs to be posted.
+  if (single) {
+    document.querySelectorAll('#q-rows .q-row').forEach(r => r.remove());
+    recalcTotal();
+  }
 }
 
 function updateTopics() {

@@ -123,19 +123,27 @@
   </div>
 
   <!-- ── Per-question marks ── -->
-  <div class="entry-section">
+  <div class="entry-section" id="q-section">
     <div class="entry-section-title" style="display:flex; align-items:center; justify-content:space-between;">
-      <span>Question Marks — enter per question for the heatmap</span>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="addQRow(null, null, null, null, window._currentTopics)">
+      <span id="q-section-label">Question Marks — enter per question for the heatmap</span>
+      <button type="button" class="btn btn-ghost btn-sm" id="q-add-btn"
+              onclick="addQRow(null, null, null, null, window._currentTopics)">
         + Add Question
       </button>
     </div>
 
-    <div style="display:grid; grid-template-columns: 70px 1fr 14px 90px 1fr 28px; gap:8px; margin-bottom:8px; font-size:0.72rem; color:var(--muted); padding: 0 0 4px;">
-      <span>Q#</span><span>Marks got</span><span></span><span>Out of</span><span>Topic (opt)</span><span></span>
-    </div>
+    <!-- Coursework and speaking come back as one mark from a teacher, so there
+         is no breakdown to enter. The heatmap section is replaced by this
+         note and the total field below carries the whole component. -->
+    <p id="q-single-note" class="entry-section-note" hidden
+       style="color:var(--muted); font-size:0.82rem; margin:0 0 12px;"></p>
 
-    <div id="q-rows">
+    <div id="q-breakdown">
+      <div style="display:grid; grid-template-columns: 70px 1fr 14px 90px 1fr 28px; gap:8px; margin-bottom:8px; font-size:0.72rem; color:var(--muted); padding: 0 0 4px;">
+        <span>Q#</span><span>Marks got</span><span></span><span>Out of</span><span>Topic (opt)</span><span></span>
+      </div>
+
+      <div id="q-rows">
       {% if qmarks %}
         {% for q in qmarks %}
         <div class="q-row">
@@ -155,6 +163,7 @@
         </div>
         {% endfor %}
       {% endif %}
+      </div>
     </div>
 
     <!-- Running total display -->
@@ -163,7 +172,7 @@
       <span class="q-total-value" id="calc-score">—</span>
       <span class="q-total-pct" id="calc-pct"></span>
       <div id="calc-grade" class="grade-badge" style="margin-left:8px; min-width:32px;"></div>
-      <span class="q-total-label" style="margin-left:8px; font-size:0.72rem;">
+      <span class="q-total-label" id="q-direct-label" style="margin-left:8px; font-size:0.72rem;">
         or enter total score directly →
       </span>
       <input type="number" id="score_direct" name="score_direct" class="form-control"

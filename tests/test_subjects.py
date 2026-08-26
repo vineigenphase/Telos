@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
 from paper_templates import all_qualifications, available_levels  # noqa: E402
+from _fixtures import fresh_user, purge_user  # noqa: E402
 from werkzeug.security import generate_password_hash  # noqa: E402
 
 app = A.app
@@ -31,10 +32,8 @@ def check(label, got, want):
 uid = None
 try:
     with get_db() as db:
-        uid = db.execute(
-            "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-            ("subj-test@telos.local", "subjtest",
-             generate_password_hash("Passw0rd!x"))).lastrowid
+        uid = fresh_user(db, "subj-test@telos.local", "subjtest",
+                         generate_password_hash("Passw0rd!x"))
 
     c = app.test_client()
     with c.session_transaction() as s:
@@ -214,11 +213,7 @@ try:
 
 finally:
     with get_db() as db:
-        if uid:
-            db.execute("DELETE FROM papers WHERE user_id=?", (uid,))
-            db.execute("DELETE FROM user_papers WHERE user_id=?", (uid,))
-            db.execute("DELETE FROM user_subjects WHERE user_id=?", (uid,))
-            db.execute("DELETE FROM users WHERE id=?", (uid,))
+        purge_user(db, "subj-test@telos.local")
 
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
