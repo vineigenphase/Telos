@@ -510,7 +510,20 @@ railway run .venv\Scripts\python.exe tests\run_all.py
 
 # Migrations — numbered, idempotent, safe to re-run
 railway run .venv\Scripts\python.exe migrations\run_migrations.py
+
+# What boundary data is missing, per qualification, for 2019 and 2022-2025
+railway run .venv\Scripts\python.exe scripts\boundaries\audit.py
 ```
+
+**`scripts/boundaries/` holds every loader that produced a boundary row**,
+with its own README covering the method, each board's document URLs, and the
+layout quirks that cost real time to find. The documents are gitignored
+(~60MB); set `TELOS_BOUNDARY_DOCS` or drop them in
+`scripts/boundaries/documents/`. `pypdf`, `cryptography` and `openpyxl` are
+installed only while running a loader and are deliberately not in
+`requirements.txt` — the app never parses a PDF. Read that README before
+adding a board: the "don't hand-type boundary data" rule above is the whole
+reason it exists.
 
 Local dev runs against the **production** database. Fine while there's one
 user; use a Neon branch once there are real students.
