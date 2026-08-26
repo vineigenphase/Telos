@@ -8,3 +8,6 @@ __pycache__/
 *.env
 .venv/
 venv/
+
+# Board documents for the boundary loaders — see scripts/boundaries/README.md
+scripts/boundaries/documents/
