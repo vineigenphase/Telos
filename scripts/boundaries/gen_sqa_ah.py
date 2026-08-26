@@ -62,7 +62,14 @@ def norm_name(name):
     return re.sub(r"[\s:_,-]+", " ", str(name)).strip().lower()
 
 
-YEARS = ["2022", "2023", "2024", "2025"]
+YEARS = ["2019", "2022", "2023", "2024", "2025"]
+# 2019 has published course boundaries but no published component structure:
+# SQA's component-marks release starts in 2022. The 2022 structure stands in for
+# it, and the sum check below is what makes that honest — if the 2022 components
+# add up to the course maximum SQA published for 2019, the course had the same
+# shape. Where they do not, the structure changed and 2019 is skipped.
+BORROWED = {"2019": "2022"}
+
 
 # SQA's component name -> the code Telos stores, the label a student reads, and
 # how it is marked. "coursework" and "oral" get single-mark entry.
@@ -172,7 +179,9 @@ def component_table(year):
     release — which is a stronger check than reading a total from the same
     file it is meant to validate.
     """
-    wb = load_workbook(os.path.join(SP, "sqacomp_%s.xlsx" % year), data_only=True)
+    wb = load_workbook(
+        os.path.join(SP, "sqacomp_%s.xlsx" % BORROWED.get(year, year)),
+        data_only=True)
     ws = wb[SHEET]
     rows = list(ws.iter_rows(values_only=True))
     hdr_i, subj_i = next(
@@ -259,8 +268,15 @@ for year in YEARS:
 
         # The two publications must agree about the course before anything is
         # derived from them. They are separate releases and could drift.
-        assert bmax == course_max, "%s %s: boundary max %d vs component max %d" % (
-            sqa_name, year, bmax, course_max)
+        if bmax != course_max:
+            if year in BORROWED:
+                # The borrowed structure does not describe this year's course.
+                skipped.append((key, year, "whole course",
+                                course_max, bmax))
+                continue
+            raise AssertionError(
+                "%s %s: boundary max %d vs component max %d"
+                % (sqa_name, year, bmax, course_max))
         summed = sum(m for _c, _l, _k, m in comps)
         assert summed == course_max, "%s %s: components sum to %d, course is %d" % (
             sqa_name, year, summed, course_max)
@@ -292,9 +308,15 @@ for year in YEARS:
     print("%s: %d subjects" % (year, len(SUBJECTS)))
 
 if skipped:
-    print("skipped (component absent or a different size that year):")
+    print("skipped:")
     for key, year, code, got, want in skipped:
-        print("   %-16s %s %-16s max %s, catalogue says %s" % (key, year, code, got, want))
+        if code == "whole course":
+            print("   %-16s %s  the %s structure sums to %s, but SQA published a "
+                  "%s-mark course that year" % (key, year, BORROWED.get(year, year),
+                                                got, want))
+        else:
+            print("   %-16s %s  %-16s was %s marks that year, %s in the catalogue"
+                  % (key, year, code, got, want))
 
 entries = []
 for sqa_name, (key, label, colour) in sorted(SUBJECTS.items(), key=lambda kv: kv[1][0]):

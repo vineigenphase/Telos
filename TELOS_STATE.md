@@ -435,14 +435,28 @@ centre and teacher assessment and no boundaries were published — so "every yea
 since 2019" is five series, not seven. `test_boundaries.py` fails if a
 2020 or 2021 row ever reappears.
 
-Coverage now stands at **947 rows, 41 of 60 qualifications complete**. Every
+Coverage now stands at **1001 rows, 49 of 61 qualifications complete**. Every
 A-level and every AS-level is complete. What is left is SQA only, and each gap
 has a reason:
 
-- **SQA 2019 is impossible, not missing.** SQA's component-marks publication
-  begins in 2022. The course-level boundaries for 2019 exist, but deriving a
-  component boundary needs that year's component structure, and it was never
-  published. Inventing one would be the only way to fill this.
+- **SQA 2019 borrows the 2022 component structure** (owner's call, 2026-08-26).
+  SQA's component-marks publication begins in 2022, so 2019 has published
+  course boundaries and no published structure. The 2022 shape stands in — but
+  only where it can be shown to fit, and the check is the course maximum: if
+  the 2022 components sum to the course maximum SQA published for 2019, the
+  course had the same shape that year.
+
+  That passed for 13 of 20 SQA qualifications and refused 7, because 2022 was
+  itself a modified year for several courses. Higher Biology was a 150-mark
+  course in 2019 and 120 in 2022; Advanced Higher Physics 130 against 155.
+  Those get no 2019 rows rather than components that do not add up to the
+  course they claim to describe. Individual components are refused the same
+  way — Higher MFL "Directed Writing" was 30 marks in 2019 and is 15 now — so
+  a subject can carry 2019 for its unchanged papers and not for the rest.
+
+  `BORROWED = {"2019": "2022"}` in both SQA generators is the whole mechanism.
+  Do not extend it to another year without the same sum check: it is the only
+  thing separating a defensible substitution from an invented one.
 - **SQA 2022 and 2023 are partial on purpose.** Those courses ran in a modified
   form: coursework withdrawn and several question papers resized. A component
   earns a row for a year only when it was the same paper that year — same code,

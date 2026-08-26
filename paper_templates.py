@@ -1408,7 +1408,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Section 1": [
                           "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
@@ -1432,7 +1432,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Section 1": [
                           "Inorganic and Physical Chemistry",
@@ -1457,7 +1457,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Economics of the Market", "Global Economic Activity", "The UK Economy",
@@ -1481,7 +1481,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Literary Study": [
                           "Critical Essay on a Chosen Text", "Poetry", "Prose Fiction",
@@ -1510,7 +1510,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
@@ -1536,7 +1536,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Geographical Methods and Techniques"],
@@ -1561,7 +1561,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
@@ -1586,7 +1586,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Methods in Algebra and Calculus",
@@ -1611,7 +1611,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Rotational Motion and Astrophysics", "Quanta and Waves",
@@ -1635,7 +1635,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
@@ -1661,7 +1661,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "DNA and the Genome", "Metabolism and Survival",
@@ -1687,7 +1687,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Chemical Changes and Structure", "Nature's Chemistry",
@@ -1712,7 +1712,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Economics of the Market", "UK Economic Activity",
@@ -1735,7 +1735,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Reading for Understanding", "Analysis", "Evaluation", "Summarising",
@@ -1764,7 +1764,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
@@ -1792,7 +1792,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Atmosphere", "Hydrosphere", "Lithosphere", "Biosphere", "Population",
@@ -1820,7 +1820,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
@@ -1847,7 +1847,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Algebraic and Trigonometric Skills", "Geometric Skills",
@@ -1871,7 +1871,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Our Dynamic Universe", "Particles and Waves", "Electricity"],
@@ -1897,7 +1897,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
