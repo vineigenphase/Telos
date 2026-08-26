@@ -6,7 +6,13 @@
    that drifts until the two disagree about what a subject is.
 
    Grouped by subject rather than by board, because that is the order a student
-   thinks in: "Physics — which board am I?" not "OCR A — what do I take?". #}
+   thinks in: "Physics — which board am I?" not "OCR A — what do I take?".
+
+   Level sits between the two. One subject is offered at several levels, and a
+   student takes one of them — so the levels are sub-headings under the subject
+   and the boards are the options under each, rather than a flat list where
+   "AQA A-Level" and "AQA AS-Level" sit side by side and read as near
+   duplicates. #}
 
 {% macro subject_picker(qualifications, chosen, levels, chosen_papers) %}
   {% if levels|length > 1 %}
@@ -17,11 +23,21 @@
   {% endif %}
 
   <div class="pick-grid">
-    {% set ns = namespace(subject=None) %}
+    {# `qualifications` arrives sorted by (name, level, board), so a change in
+       either value opens a new heading. #}
+    {% set ns = namespace(subject=None, level=None) %}
     {% for q in qualifications %}
-      {% if q.subject != ns.subject %}
-        {% set ns.subject = q.subject %}
-        <h3 class="pick-subject">{{ q.subject }}</h3>
+      {% if q.name != ns.subject %}
+        {% set ns.subject = q.name %}
+        {% set ns.level = None %}
+        <h3 class="pick-subject">{{ q.name }}</h3>
+      {% endif %}
+      {% if q.level != ns.level %}
+        {% set ns.level = q.level %}
+        <h4 class="pick-level-head">
+          {{ q.level }}
+          <span class="pick-level-top">graded to {{ q.top_grade }}</span>
+        </h4>
       {% endif %}
       {% set key = q.board ~ '|' ~ q.subject ~ '|' ~ q.level %}
       <label class="pick-option{{ ' on' if key in chosen }}">
@@ -34,7 +50,6 @@
         <span class="pick-body">
           <span class="pick-board">{{ q.board }}</span>
           <span class="pick-meta">
-            {{ q.level }} ·
             {% if q.optional %}
               {{ q.mandatory|length }} core + choose {{ q.choose_optional }}
             {% else %}

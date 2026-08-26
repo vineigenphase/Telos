@@ -16,7 +16,7 @@ import stripe
 from paper_templates import (TEMPLATES, get_paper_info, get_topics, all_combos,
                              all_qualifications, available_levels,
                              qualification_level, paper_options, has_options,
-                             DEFAULT_LEVEL)
+                             top_grade, display_name, DEFAULT_LEVEL)
 from seed_boundaries import seed_boundaries
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
@@ -406,11 +406,19 @@ GRADE_COLOURS = {
 }
 
 
-def get_grade(score, max_marks, a_star=None, a=None, b=None, c=None):
+def get_grade(score, max_marks, a_star=None, a=None, b=None, c=None, top="A*"):
+    """A letter grade and its colour for one attempt.
+
+    `top` is the highest grade this qualification awards. It matters for the
+    percentage fallback below: with no boundary row at all, a_star is None
+    whether the qualification has no A* or simply has no data, and those two
+    cases are not the same. An AS paper at 92% is an A — there is no A* on the
+    certificate to give it.
+    """
     if not score or not max_marks:
         return None, None
     pct = score / max_marks * 100
-    if a_star is not None and score >= a_star:
+    if top == "A*" and a_star is not None and score >= a_star:
         return "A*", GRADE_COLOURS["A*"]
     if a is not None and score >= a:
         return "A", GRADE_COLOURS["A"]
@@ -419,7 +427,9 @@ def get_grade(score, max_marks, a_star=None, a=None, b=None, c=None):
     if c is not None and score >= c:
         return "C", GRADE_COLOURS["C"]
     # percentage fallback
-    if pct >= 90: return "A*", GRADE_COLOURS["A*"]
+    if pct >= 90:
+        return (("A*", GRADE_COLOURS["A*"]) if top == "A*"
+                else ("A", GRADE_COLOURS["A"]))
     if pct >= 80: return "A",  GRADE_COLOURS["A"]
     if pct >= 70: return "B",  GRADE_COLOURS["B"]
     if pct >= 60: return "C",  GRADE_COLOURS["C"]
@@ -494,6 +504,7 @@ def paper_matrix(user_id):
                             bnd["a_boundary"] if bnd else None,
                             bnd["b_boundary"] if bnd else None,
                             bnd["c_boundary"] if bnd else None,
+                            top=top_grade(qualification_level(board, subject)),
                         )
                         pct = round(entry["score"] / entry["max_marks"] * 100, 1)
                         cells.append({"year": yr, "done": True, "pct": pct,
@@ -708,6 +719,7 @@ def dashboard():
             bnd["a_boundary"] if bnd else None,
             bnd["b_boundary"] if bnd else None,
             bnd["c_boundary"] if bnd else None,
+            top=top_grade(qualification_level(p["board"], p["subject"])),
         ) if p["score"] else (None, None)
         pct = round(p["score"] / p["max_marks"] * 100, 1) if p["score"] else None
         recent_enriched.append({**dict(p), "grade": grade, "grade_color": color, "pct": pct})
@@ -1700,6 +1712,7 @@ def stats():
             bnd["a_boundary"] if bnd else None,
             bnd["b_boundary"] if bnd else None,
             bnd["c_boundary"] if bnd else None,
+            top=top_grade(qualification_level(p["board"], p["subject"])),
         )
         by_subject[key].append({**dict(p), "pct": pct, "grade": grade, "grade_color": color})
 

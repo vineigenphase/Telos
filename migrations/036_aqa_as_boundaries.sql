@@ -1,0 +1,133 @@
+-- 036_aqa_as_boundaries.sql
+-- AQA AS-levels: Mathematics (7356), Further Mathematics (7366),
+-- Physics (7407), Chemistry (7404), Biology (7401), Geography (7036),
+-- Economics (7135), French (7651), German (7661), Spanish (7691).
+--
+-- There is no AS Philosophy. AQA does not award one, so none is offered.
+--
+-- a_star is NULL on every row: an AS-level is graded A-E. prediction.py
+-- reads the absence and stops the grade ladder at A.
+--
+-- Read from AQA's separate AS boundary documents, which are not the same
+-- files as the A-level ones - the A-level documents contain no AS tables
+-- at all. An AS row carries six numbers (max, then A B C D E) where an
+-- A-level row carries seven, so it is parsed by its own reader rather
+-- than risking an A boundary being stored in the A* column.
+--
+-- The bare subject rows (7356 MATHEMATICS AS 160 ...) are the award across
+-- every paper and are never matched: they carry no slash. Storing one as
+-- if it were a paper is the fault that made Physics predict U on an 85%.
+--
+-- Speaking is stored from the teacher-conducted variant; 3T and 3V agree
+-- in every series checked.
+--
+-- Only 2022-2025: AQA's AS documents before that are not to hand.
+--
+-- Idempotent.
+
+DELETE FROM grade_boundaries WHERE board = 'AQA' AND subject LIKE '% (AS)';
+
+INSERT INTO grade_boundaries
+    (subject, board, paper_code, year, series,
+     a_star, a_boundary, b_boundary, c_boundary, d_boundary, e_boundary)
+VALUES
+    ('Maths (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 42, 34, 27, 20, 13),
+    ('Maths (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 50, 41, 33, 25, 17),
+    ('Maths (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 51, 43, 35, 28, 21),
+    ('Maths (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 55, 47, 39, 32, 25),
+    ('Maths (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 60, 53, 46, 39, 33),
+    ('Maths (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 55, 49, 43, 37, 32),
+    ('Maths (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 65, 57, 49, 41, 34),
+    ('Maths (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 62, 55, 48, 42, 36),
+    ('Further Maths (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 60, 51, 42, 33, 25),
+    ('Further Maths (AS)', 'AQA', 'Paper 2D', '2022', 'June', NULL, 28, 24, 21, 18, 15),
+    ('Further Maths (AS)', 'AQA', 'Paper 2M', '2022', 'June', NULL, 32, 27, 22, 17, 12),
+    ('Further Maths (AS)', 'AQA', 'Paper 2S', '2022', 'June', NULL, 31, 26, 21, 16, 11),
+    ('Further Maths (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 61, 54, 47, 41, 35),
+    ('Further Maths (AS)', 'AQA', 'Paper 2D', '2023', 'June', NULL, 29, 26, 23, 20, 17),
+    ('Further Maths (AS)', 'AQA', 'Paper 2M', '2023', 'June', NULL, 27, 24, 21, 18, 15),
+    ('Further Maths (AS)', 'AQA', 'Paper 2S', '2023', 'June', NULL, 29, 25, 21, 18, 15),
+    ('Further Maths (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 57, 51, 46, 41, 36),
+    ('Further Maths (AS)', 'AQA', 'Paper 2D', '2024', 'June', NULL, 29, 26, 24, 22, 20),
+    ('Further Maths (AS)', 'AQA', 'Paper 2M', '2024', 'June', NULL, 33, 29, 25, 21, 17),
+    ('Further Maths (AS)', 'AQA', 'Paper 2S', '2024', 'June', NULL, 29, 25, 21, 18, 15),
+    ('Further Maths (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 50, 44, 38, 32, 27),
+    ('Further Maths (AS)', 'AQA', 'Paper 2D', '2025', 'June', NULL, 31, 28, 25, 22, 20),
+    ('Further Maths (AS)', 'AQA', 'Paper 2M', '2025', 'June', NULL, 32, 28, 25, 22, 19),
+    ('Further Maths (AS)', 'AQA', 'Paper 2S', '2025', 'June', NULL, 27, 23, 19, 15, 12),
+    ('Physics (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 36, 30, 24, 18, 13),
+    ('Physics (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 36, 31, 26, 21, 16),
+    ('Physics (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 37, 31, 26, 21, 16),
+    ('Physics (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 38, 33, 28, 24, 20),
+    ('Physics (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 43, 37, 32, 27, 22),
+    ('Physics (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 36, 31, 26, 22, 18),
+    ('Physics (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 45, 39, 33, 27, 21),
+    ('Physics (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 36, 31, 26, 21, 17),
+    ('Chemistry (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 53, 44, 35, 27, 19),
+    ('Chemistry (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 58, 48, 38, 28, 19),
+    ('Chemistry (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 61, 52, 43, 35, 27),
+    ('Chemistry (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 60, 51, 42, 33, 25),
+    ('Chemistry (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 53, 45, 37, 29, 21),
+    ('Chemistry (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 61, 53, 45, 38, 31),
+    ('Chemistry (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 60, 51, 43, 35, 27),
+    ('Chemistry (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 57, 49, 41, 33, 25),
+    ('Biology (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 39, 33, 27, 21, 16),
+    ('Biology (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 36, 30, 24, 19, 14),
+    ('Biology (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 43, 37, 31, 25, 19),
+    ('Biology (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 44, 38, 32, 26, 21),
+    ('Biology (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 54, 48, 42, 36, 30),
+    ('Biology (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 46, 40, 34, 28, 22),
+    ('Biology (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 43, 37, 31, 25, 20),
+    ('Biology (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 50, 43, 37, 31, 25),
+    ('Geography (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 52, 45, 38, 32, 26),
+    ('Geography (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 46, 40, 35, 30, 25),
+    ('Geography (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 56, 50, 44, 38, 33),
+    ('Geography (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 49, 44, 39, 34, 29),
+    ('Geography (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 58, 51, 45, 39, 33),
+    ('Geography (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 52, 47, 42, 37, 33),
+    ('Geography (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 57, 51, 45, 39, 33),
+    ('Geography (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 51, 46, 41, 36, 31),
+    ('Economics (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 51, 44, 38, 32, 26),
+    ('Economics (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 45, 39, 33, 28, 23),
+    ('Economics (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 51, 46, 41, 36, 32),
+    ('Economics (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 48, 43, 38, 33, 28),
+    ('Economics (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 49, 44, 39, 35, 31),
+    ('Economics (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 48, 42, 36, 31, 26),
+    ('Economics (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 53, 47, 41, 36, 31),
+    ('Economics (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 49, 43, 38, 33, 28),
+    ('French (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 69, 60, 51, 42, 33),
+    ('French (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 39, 32, 25, 19, 13),
+    ('French (AS)', 'AQA', 'Paper 3', '2022', 'June', NULL, 47, 40, 33, 26, 19),
+    ('French (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 74, 64, 54, 45, 36),
+    ('French (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 39, 33, 27, 22, 17),
+    ('French (AS)', 'AQA', 'Paper 3', '2023', 'June', NULL, 49, 43, 37, 31, 25),
+    ('French (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 74, 66, 58, 51, 44),
+    ('French (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 36, 31, 26, 22, 18),
+    ('French (AS)', 'AQA', 'Paper 3', '2024', 'June', NULL, 49, 43, 37, 31, 25),
+    ('French (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 69, 62, 55, 48, 41),
+    ('French (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 41, 36, 31, 27, 23),
+    ('French (AS)', 'AQA', 'Paper 3', '2025', 'June', NULL, 49, 43, 37, 31, 25),
+    ('German (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 60, 49, 38, 27, 16),
+    ('German (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 28, 21, 15, 9, 3),
+    ('German (AS)', 'AQA', 'Paper 3', '2022', 'June', NULL, 45, 38, 31, 24, 18),
+    ('German (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 61, 51, 41, 31, 21),
+    ('German (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 34, 27, 20, 14, 8),
+    ('German (AS)', 'AQA', 'Paper 3', '2023', 'June', NULL, 49, 43, 37, 31, 25),
+    ('German (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 64, 54, 44, 34, 24),
+    ('German (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 35, 28, 21, 15, 9),
+    ('German (AS)', 'AQA', 'Paper 3', '2024', 'June', NULL, 49, 43, 37, 31, 25),
+    ('German (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 66, 55, 44, 34, 24),
+    ('German (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 35, 28, 21, 15, 9),
+    ('German (AS)', 'AQA', 'Paper 3', '2025', 'June', NULL, 49, 43, 37, 31, 25),
+    ('Spanish (AS)', 'AQA', 'Paper 1', '2022', 'June', NULL, 66, 55, 45, 35, 25),
+    ('Spanish (AS)', 'AQA', 'Paper 2', '2022', 'June', NULL, 34, 28, 22, 16, 10),
+    ('Spanish (AS)', 'AQA', 'Paper 3', '2022', 'June', NULL, 47, 40, 33, 27, 21),
+    ('Spanish (AS)', 'AQA', 'Paper 1', '2023', 'June', NULL, 70, 60, 50, 41, 32),
+    ('Spanish (AS)', 'AQA', 'Paper 2', '2023', 'June', NULL, 36, 30, 24, 18, 13),
+    ('Spanish (AS)', 'AQA', 'Paper 3', '2023', 'June', NULL, 49, 43, 37, 31, 25),
+    ('Spanish (AS)', 'AQA', 'Paper 1', '2024', 'June', NULL, 68, 58, 49, 40, 31),
+    ('Spanish (AS)', 'AQA', 'Paper 2', '2024', 'June', NULL, 38, 32, 27, 22, 17),
+    ('Spanish (AS)', 'AQA', 'Paper 3', '2024', 'June', NULL, 49, 43, 37, 31, 25),
+    ('Spanish (AS)', 'AQA', 'Paper 1', '2025', 'June', NULL, 68, 59, 50, 42, 34),
+    ('Spanish (AS)', 'AQA', 'Paper 2', '2025', 'June', NULL, 37, 32, 27, 23, 19),
+    ('Spanish (AS)', 'AQA', 'Paper 3', '2025', 'June', NULL, 49, 43, 37, 31, 25);

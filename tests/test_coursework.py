@@ -44,6 +44,9 @@ non_exam = [(b, s, p) for b, subjects in TEMPLATES.items()
             for s, cfg in subjects.items()
             for p in cfg["papers"] if p.get("assessment", "exam") != "exam"]
 
+# The AS languages carry a speaking exam too, and it is the same 60 marks
+# awarded as one number — so the count grows with the AS load rather than
+# staying at the original four.
 ok("the catalogue has non-exam components", len(non_exam) >= 4,
    f"{len(non_exam)}: " + ", ".join(f"{s}/{p['code']}" for _b, s, p in non_exam))
 
@@ -87,6 +90,29 @@ QUAL_TOTALS = {
     ("AQA", "Chemistry"):  300,    # 105 + 105 + 90
     ("AQA", "Biology"):    260,    # 91 + 91 + 78
     ("AQA", "Economics"):  240,    # 80 x 3
+    # AS-levels. Not the A-level at a smaller total: AS Maths is two papers of
+    # 80 where the A-level is three of 100, and the AS MFL writing paper is 50
+    # against the A-level's 80.
+    ("AQA", "Maths (AS)"):         160,   # 80 + 80
+    ("AQA", "Further Maths (AS)"): 160,   # 80 + two 40-mark options
+    ("AQA", "Physics (AS)"):       140,   # 70 + 70
+    ("AQA", "Chemistry (AS)"):     160,   # 80 + 80
+    ("AQA", "Biology (AS)"):       150,   # 75 + 75
+    ("AQA", "Geography (AS)"):     160,   # 80 + 80
+    ("AQA", "Economics (AS)"):     140,   # 70 + 70
+    ("AQA", "French (AS)"):        200,   # 90 + 50 + 60 speaking
+    ("AQA", "German (AS)"):        200,
+    ("AQA", "Spanish (AS)"):       200,
+    ("OCR A", "Maths (AS)"):          150,   # 75 + 75
+    ("OCR A", "Further Maths (AS)"):  180,   # 60 + two 60-mark options
+    ("OCR A", "Physics (AS)"):        140,   # 70 + 70
+    ("OCR A", "Chemistry (AS)"):      140,
+    ("OCR A", "Biology (AS)"):        140,
+    ("Edexcel", "Maths (AS)"):          160,  # 100 Pure + 60 Stats/Mechanics
+    ("Edexcel", "Further Maths (AS)"):  160,  # 80 + two 40-mark options
+    ("Edexcel", "Physics (AS)"):        160,  # 80 + 80
+    ("Edexcel", "Chemistry (AS)"):      160,
+    ("Edexcel", "Biology (AS)"):        160,
 }
 for (board, subject), want in sorted(QUAL_TOTALS.items()):
     cfg = TEMPLATES.get(board, {}).get(subject)

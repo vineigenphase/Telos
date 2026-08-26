@@ -2271,6 +2271,29 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 .pick-subject:first-child { margin-top: 6px; }
 
+/* A subject is offered at several levels; the level names them apart. Quieter
+   than the subject above it and louder than the board options below, so the
+   three tiers read as a hierarchy rather than three lists. */
+.pick-level-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pick-level-top {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted-2, var(--muted));
+}
+
 .pick-option {
   display: flex;
   align-items: center;
@@ -2443,8 +2466,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 @media (min-width: 640px) {
   .pick-grid { grid-template-columns: 1fr 1fr; }
-  /* A subject heading spans the row above its boards. */
+  /* A subject heading, and each level under it, span the row above the boards. */
   .pick-subject { grid-column: 1 / -1; }
+  .pick-level-head { grid-column: 1 / -1; }
 }
 
 /* ── Optional module picker ──────────────────────────────────────────────────

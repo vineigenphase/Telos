@@ -298,6 +298,70 @@ nothing said so.
   there look perfectly correct on their own. Physics counts one 35-mark option
   because a student sits exactly one.
 
+**AS-levels are a separate qualification, not half an A-level** (2026-08-26,
+migrations 034-036). 20 AS qualifications across AQA, OCR A and Edexcel, taking
+the catalogue to 41 and the boundary table to 676 rows.
+
+The engine had to change before any of it could be loaded, because it assumed
+every grade ladder ends at A*:
+
+- **`boundary_ladder` now accepts `a_star = NULL` and ends at A** (point 5).
+  `attempt_grade_score` and `marks_for_score` read the ceiling from
+  `ladder[-1]` instead of hardcoding 6, `infer_de` derives D/E from the gaps
+  that exist, and `next_grade` caps at the qualification's own top. Without
+  this an AS student scoring 95% was predicted **A***, a grade their
+  certificate cannot carry.
+- **`_median_set` returns `a_star = None` unless every row in the set has one.**
+  A median over the rows that happen to have an A* would invent a top grade for
+  a qualification that has none.
+- **`get_grade`'s percentage fallback awarded A* at >=90% regardless.** With no
+  boundary row at all, `a_star` is None whether the qualification has no A* or
+  simply has no data, and those are not the same thing — hence the explicit
+  `top` argument, passed from `top_grade(qualification_level(...))` at all
+  three call sites.
+
+**A catalogue key is a storage identity, not a label.** AQA Mathematics exists
+at A-level and at AS, and `papers`, `grade_boundaries` and `user_subjects` are
+all keyed by that string — so the AS entry's key is `"Maths (AS)"` and it
+carries a `"name"` field with what a student reads. `display_name()` falls back
+to the key, so every A-level entry needs neither. Don't "tidy" the suffix away.
+
+**Three things about the data that could not have been guessed:**
+
+- **AQA's A-level documents contain no AS tables at all.** They are separate
+  PDFs. Assuming the files already downloaded covered AS would have produced
+  nothing, silently.
+- **An AS paper is not the A-level paper at a smaller total.** Edexcel AS Maths
+  Paper 2 is 60 marks against the A-level's 100; AQA's AS MFL writing paper is
+  50 against 80; AS Maths Paper 1 is Pure *and Mechanics* where the A-level
+  Paper 1 is Pure alone. Each was read from the specification, and
+  `test_coursework.py` checks all 21 AS totals against what the board grades.
+- **Pearson zero-pads paper labels to three digits in 2019** (`Paper 021`) where
+  every other series writes `Paper 21`. The label regex rejected them, so AS
+  Further Maths silently lost a whole series. After widening it, the three
+  A-level Edexcel migrations were regenerated and confirmed byte-identical
+  before the change was trusted.
+
+**AS rows carry six numbers, A-level rows carry seven**, so each board's AS
+tables are parsed by their own reader rather than a widened one. A parser
+reading both would, on a near-miss, store an A boundary in the A* column — the
+exact shape of the fault that made Physics predict U on an 85%.
+
+**Gaps, stated rather than papered over:** there is no AS Philosophy (AQA does
+not award one). OCR and AQA published AS boundaries separately before 2022 and
+those documents are not to hand, so AS carries 2022-2025 only — Edexcel also
+has 2019. SQA Advanced Highers and Highers are **not loaded**: `LEVELS` lists
+them and `top_grade()` already returns A for both, but no data exists yet and
+SQA uses course-level cut-off scores rather than the per-component model, which
+needs a design decision first.
+
+**The subject picker nests subject -> level -> board.** One subject is offered
+at several levels and a student takes one of them, so a flat list would put
+"AQA A-Level" and "AQA AS-Level" side by side reading as near-duplicates.
+`all_qualifications()` is sorted by (name, level, board) and the template opens
+a new heading whenever either changes — keep that sort and that grouping
+together.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**

@@ -11,6 +11,12 @@ difficulty automatically.
 Scale: A*=6, A=5, B=4, C=3, D=2, E=1, U=0, with fractional positions between
 boundaries. A grade score of 4.6 means "comfortably into B, most of the way to
 an A".
+
+Not every qualification reaches the top of that scale. An AS-level is graded
+A-E with no A*, so its ladder ends at 5 and a perfect AS script scores 5.5, not
+6.5. The ladder's top is read from the ladder itself rather than assumed, which
+is what keeps an AS student from being predicted a grade that cannot appear on
+their certificate. A boundary set says which it is by whether a_star is there.
 """
 
 from __future__ import annotations
@@ -37,6 +43,10 @@ class MissingBoundaries(Exception):
 def infer_de(a_star, a, b, c):
     """Infer D and E by extending the observed spacing downward.
 
+    a_star may be None, for a qualification that has no A* — the spacing is
+    then taken from the gaps that do exist. Passing a real A* gives exactly the
+    result it always did.
+
     Only used for boundary sets that carry no published D/E — rows typed in
     through the admin screen, and medians assembled across years. Where the
     board publishes D and E, boundary_ladder reads them instead; see migrations
@@ -48,7 +58,9 @@ def infer_de(a_star, a, b, c):
     D=35 and E=22, which is close to how real boundaries fall. Close, but a
     guess — which is why real values win wherever they exist.
     """
-    gaps = [a_star - a, a - b, b - c]
+    gaps = [a - b, b - c]
+    if a_star is not None:
+        gaps.insert(0, a_star - a)
     step = sum(gaps) / len(gaps)
     d = c - step
     e = d - step
@@ -56,14 +68,19 @@ def infer_de(a_star, a, b, c):
 
 
 def boundary_ladder(bs):
-    """[(grade_point, marks), ...] ascending, from E up to A*.
+    """[(grade_point, marks), ...] ascending, from E up to the top grade.
 
     `bs` is a mapping with a_star / a_boundary / b_boundary / c_boundary, and
     optionally d_boundary / e_boundary. Published D and E are used when present
     and inferred otherwise — a set may legitimately have neither, since medians
     across years and hand-entered rows carry only the four.
+
+    a_star of None means the qualification has no A* (an AS-level), and the
+    ladder ends at A. Callers must read the top from ladder[-1] rather than
+    assuming 6; see attempt_grade_score and marks_for_score.
     """
-    a_star = float(bs["a_star"])
+    a_star = bs["a_star"]
+    a_star = float(a_star) if a_star is not None else None
     a = float(bs["a_boundary"])
     b = float(bs["b_boundary"])
     c = float(bs["c_boundary"])
@@ -75,7 +92,10 @@ def boundary_ladder(bs):
     else:
         d, e = float(d), float(e)
 
-    return [(1, e), (2, d), (3, c), (4, b), (5, a), (6, a_star)]
+    ladder = [(1, e), (2, d), (3, c), (4, b), (5, a)]
+    if a_star is not None:
+        ladder.append((6, a_star))
+    return ladder
 
 
 def select_boundaries(rows, board, subject, paper_code, year):
@@ -116,10 +136,15 @@ def _median_set(rows):
     D and E are only carried through when EVERY row in the set has them. A
     median mixing published values with absent ones would be neither, and a
     ladder built half from real boundaries and half from inferred ones is worse
-    than one built consistently either way.
+    than one built consistently either way. A* is treated the same way, for the
+    same reason: a set is either a qualification with an A* or one without, and
+    a median over the rows that happen to have one would invent a top grade for
+    a qualification that has none.
     """
+    stars = [r["a_star"] for r in rows]
     out = {
-        "a_star":      median(float(r["a_star"]) for r in rows),
+        "a_star":      (median(float(v) for v in stars)
+                        if all(v is not None for v in stars) else None),
         "a_boundary":  median(float(r["a_boundary"]) for r in rows),
         "b_boundary":  median(float(r["b_boundary"]) for r in rows),
         "c_boundary":  median(float(r["c_boundary"]) for r in rows),
@@ -150,20 +175,21 @@ def _median_set(rows):
 def attempt_grade_score(marks, bs, max_marks):
     """Convert raw marks into a continuous grade score.
 
-    Between two boundaries, interpolate linearly. Above A*, add a small bonus
-    scaled by the marks left to full, capped at 6.5 — otherwise a 100% script
-    and a bare A* look identical. Below E, scale linearly down to 0 at zero
-    marks.
+    Between two boundaries, interpolate linearly. Above the top grade, add a
+    small bonus scaled by the marks left to full — otherwise a 100% script and
+    a bare top grade look identical. The top is whatever the ladder ends on:
+    6.5 for an A-level, 5.5 for an AS. Below E, scale linearly down to 0 at
+    zero marks.
     """
     marks = float(marks)
     ladder = boundary_ladder(bs)
-    a_star_marks = ladder[-1][1]
+    top_point, top_marks = ladder[-1]
     e_marks = ladder[0][1]
 
-    if marks >= a_star_marks:
-        headroom = max(float(max_marks) - a_star_marks, 1.0)
-        over = min(marks - a_star_marks, headroom)
-        return 6.0 + A_STAR_BONUS_CAP * (over / headroom)
+    if marks >= top_marks:
+        headroom = max(float(max_marks) - top_marks, 1.0)
+        over = min(marks - top_marks, headroom)
+        return top_point + A_STAR_BONUS_CAP * (over / headroom)
 
     if marks < e_marks:
         return max(0.0, marks / e_marks) if e_marks > 0 else 0.0
@@ -187,10 +213,11 @@ def score_to_grade(score):
 def marks_for_score(score, bs, max_marks):
     """Inverse of attempt_grade_score: what raw mark does this score represent?"""
     ladder = boundary_ladder(bs)
-    if score >= 6:
-        a_star_marks = ladder[-1][1]
-        headroom = max(float(max_marks) - a_star_marks, 1.0)
-        return a_star_marks + (min(score - 6.0, A_STAR_BONUS_CAP) / A_STAR_BONUS_CAP) * headroom
+    top_point, top_marks = ladder[-1]
+    if score >= top_point:
+        headroom = max(float(max_marks) - top_marks, 1.0)
+        return top_marks + (min(score - top_point, A_STAR_BONUS_CAP)
+                            / A_STAR_BONUS_CAP) * headroom
     if score < 1:
         return score * ladder[0][1]
     for (lo_pt, lo_marks), (hi_pt, hi_marks) in zip(ladder, ladder[1:]):
@@ -302,8 +329,12 @@ def predict(attempts, boundary_rows, reference_year=None):
         ref = _median_set(year_rows)
         ref_max = float(attempts[0].get("max_marks") or 100)
         current_marks = marks_for_score(mean, ref, ref_max)
-        target_point = min(6, int(math.floor(mean)) + 1)
-        if mean < 6:
+        # The ceiling is the qualification's own top grade, not always A*.
+        # Telling an AS student they are four marks off an A* would name a
+        # grade their certificate cannot carry.
+        top_point = boundary_ladder(ref)[-1][0]
+        target_point = min(top_point, int(math.floor(mean)) + 1)
+        if mean < top_point:
             next_grade = POINT_TO_GRADE[target_point]
             target_marks = marks_for_score(float(target_point), ref, ref_max)
             marks_to_next = max(0, math.ceil(target_marks - current_marks))

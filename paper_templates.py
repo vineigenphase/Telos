@@ -4,9 +4,10 @@ TEMPLATES = {
             "color": "#4C7EF3",
             "level": "A-Level",
             # 7652. Paper 1 is listening, reading and translation; Paper 2 is two
-            # essays on set works. The speaking component is not tracked — it is
-            # an oral conducted by an examiner, not a paper a student can sit
-            # and mark alone.
+            # essays on set works. Paper 3 is the speaking exam, marked as a
+            # whole rather than question by question — it counts toward the
+            # grade, so leaving it out built a prediction from 70% of the
+            # qualification.
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
@@ -38,9 +39,10 @@ TEMPLATES = {
             "color": "#C08A3E",
             "level": "A-Level",
             # 7662. Paper 1 is listening, reading and translation; Paper 2 is two
-            # essays on set works. The speaking component is not tracked — it is
-            # an oral conducted by an examiner, not a paper a student can sit
-            # and mark alone.
+            # essays on set works. Paper 3 is the speaking exam, marked as a
+            # whole rather than question by question — it counts toward the
+            # grade, so leaving it out built a prediction from 70% of the
+            # qualification.
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
@@ -98,9 +100,10 @@ TEMPLATES = {
             "color": "#B4574C",
             "level": "A-Level",
             # 7692. Paper 1 is listening, reading and translation; Paper 2 is two
-            # essays on set works. The speaking component is not tracked — it is
-            # an oral conducted by an examiner, not a paper a student can sit
-            # and mark alone.
+            # essays on set works. Paper 3 is the speaking exam, marked as a
+            # whole rather than question by question — it counts toward the
+            # grade, so leaving it out built a prediction from 70% of the
+            # qualification.
             "papers": [
                 {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 100},
                 {"code": "Paper 2", "name": "Writing",                        "max_marks": 80},
@@ -430,7 +433,251 @@ TEMPLATES = {
                           "Statistical Hypothesis Testing"],
             },
         },
-    },
+            "Maths (AS)": {
+            "name": "Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # 7356. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Pure Mathematics and Mechanics", "max_marks": 80},
+                {"code": "Paper 2", "name": "Pure Mathematics and Statistics", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Vectors",
+                          "Quantities and Units in Mechanics", "Kinematics",
+                          "Forces and Newton's Laws"],
+                "Paper 2": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Vectors", "Statistical Sampling",
+                          "Data Presentation and Interpretation", "Probability",
+                          "Statistical Distributions", "Statistical Hypothesis Testing"],
+            },
+        },
+        "Further Maths (AS)": {
+            "name": "Further Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # 7366. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Compulsory Pure Content", "max_marks": 80},
+                {"code": "Paper 2D", "name": "Discrete", "max_marks": 40, "optional": True},
+                {"code": "Paper 2M", "name": "Mechanics", "max_marks": 40, "optional": True},
+                {"code": "Paper 2S", "name": "Statistics", "max_marks": 40, "optional": True},
+            ],
+            "choose_optional": 2,
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Complex Numbers", "Matrices", "Further Algebra and Functions",
+                          "Further Calculus", "Further Vectors", "Proof by Induction"],
+                "Paper 2D": [
+                          "Graphs and Networks", "Network Flows", "Linear Programming",
+                          "Critical Path Analysis", "Game Theory"],
+                "Paper 2M": [
+                          "Dimensional Analysis", "Momentum and Collisions",
+                          "Work, Energy and Power", "Circular Motion"],
+                "Paper 2S": [
+                          "Discrete Random Variables", "Poisson Distribution",
+                          "Contingency Tables", "Hypothesis Testing"],
+            },
+        },
+        "Physics (AS)": {
+            "name": "Physics",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # 7407. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Sections 1-5", "max_marks": 70},
+                {"code": "Paper 2", "name": "Sections 1-5 and Practical Skills", "max_marks": 70},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Measurements and Their Errors", "Particles and Radiation", "Waves",
+                          "Mechanics and Materials", "Electricity"],
+                "Paper 2": [
+                          "Measurements and Their Errors", "Particles and Radiation", "Waves",
+                          "Mechanics and Materials", "Electricity", "Practical Skills",
+                          "Data Analysis and Uncertainties"],
+            },
+        },
+        "Chemistry (AS)": {
+            "name": "Chemistry",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # 7404. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Inorganic and Physical Chemistry", "max_marks": 80},
+                {"code": "Paper 2", "name": "Organic and Physical Chemistry", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Atomic Structure", "Amount of Substance", "Bonding", "Energetics",
+                          "Chemical Equilibria and Kc", "Oxidation, Reduction and Redox",
+                          "Periodicity", "Group 2, the Alkaline Earth Metals",
+                          "Group 7, the Halogens"],
+                "Paper 2": [
+                          "Amount of Substance", "Bonding", "Energetics", "Kinetics",
+                          "Chemical Equilibria and Kc", "Introduction to Organic Chemistry",
+                          "Alkanes", "Halogenoalkanes", "Alkenes", "Alcohols", "Organic Analysis"],
+            },
+        },
+        "Biology (AS)": {
+            "name": "Biology",
+            "color": "#5E9E6B",
+            "level": "AS-Level",
+            # 7401. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Topics 1-4", "max_marks": 75},
+                {"code": "Paper 2", "name": "Topics 1-4 and Practical Skills", "max_marks": 75},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Monomers and Polymers", "Carbohydrates", "Lipids", "Proteins",
+                          "Nucleic Acids", "ATP", "Water", "Inorganic Ions", "Cell Structure",
+                          "Cell Division", "Transport Across Cell Membranes",
+                          "Cell Recognition and the Immune System", "Surface Area to Volume Ratio",
+                          "Gas Exchange", "Digestion and Absorption", "Mass Transport",
+                          "DNA, Genes and Chromosomes", "DNA and Protein Synthesis",
+                          "Genetic Diversity and Meiosis", "Genetic Diversity and Adaptation",
+                          "Species and Taxonomy", "Biodiversity Within a Community",
+                          "Investigating Diversity"],
+                "Paper 2": [
+                          "Monomers and Polymers", "Carbohydrates", "Lipids", "Proteins",
+                          "Nucleic Acids", "ATP", "Water", "Inorganic Ions", "Cell Structure",
+                          "Cell Division", "Transport Across Cell Membranes",
+                          "Cell Recognition and the Immune System", "Surface Area to Volume Ratio",
+                          "Gas Exchange", "Digestion and Absorption", "Mass Transport",
+                          "DNA, Genes and Chromosomes", "DNA and Protein Synthesis",
+                          "Genetic Diversity and Meiosis", "Genetic Diversity and Adaptation",
+                          "Species and Taxonomy", "Biodiversity Within a Community",
+                          "Investigating Diversity", "Practical Skills"],
+            },
+        },
+        "Geography (AS)": {
+            "name": "Geography",
+            "color": "#6E8F5E",
+            "level": "AS-Level",
+            # 7036. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Physical Geography and People and the Environment", "max_marks": 80},
+                {"code": "Paper 2", "name": "Human Geography and Geography Fieldwork Investigation", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Water and Carbon Cycles", "Hot Desert Systems and Landscapes",
+                          "Coastal Systems and Landscapes", "Glacial Systems and Landscapes"],
+                "Paper 2": [
+                          "Changing Places", "Contemporary Urban Environments",
+                          "Fieldwork Investigation"],
+            },
+        },
+        "Economics (AS)": {
+            "name": "Economics",
+            "color": "#C08A3E",
+            "level": "AS-Level",
+            # 7135. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "The Operation of Markets and Market Failure", "max_marks": 70},
+                {"code": "Paper 2", "name": "The National Economy in a Global Context", "max_marks": 70},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Economic Methodology and the Economic Problem",
+                          "Individual Economic Decision Making",
+                          "Price Determination in a Competitive Market",
+                          "Production, Costs and Revenue", "Competitive and Concentrated Markets",
+                          "The Labour Market",
+                          "Market Mechanism, Market Failure and Government Intervention"],
+                "Paper 2": [
+                          "Measurement of Macroeconomic Performance", "How the Macroeconomy Works",
+                          "Economic Performance", "Macroeconomic Policy",
+                          "The International Economy"],
+            },
+        },
+        "French (AS)": {
+            "name": "French",
+            "color": "#4C7EF3",
+            "level": "AS-Level",
+            # 7651. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 90},
+                {"code": "Paper 2", "name": "Writing", "max_marks": 50},
+                {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Aspects of Society: Current Trends", "Artistic Culture",
+                          "Translation into English", "Translation into the Target Language"],
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+                "Paper 3": [
+                          "Theme Discussion", "Stimulus Card Discussion"],
+            },
+        },
+        "German (AS)": {
+            "name": "German",
+            "color": "#C08A3E",
+            "level": "AS-Level",
+            # 7661. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 90},
+                {"code": "Paper 2", "name": "Writing", "max_marks": 50},
+                {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Aspects of Society: Current Trends", "Artistic Culture",
+                          "Translation into English", "Translation into the Target Language"],
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+                "Paper 3": [
+                          "Theme Discussion", "Stimulus Card Discussion"],
+            },
+        },
+        "Spanish (AS)": {
+            "name": "Spanish",
+            "color": "#D06A5A",
+            "level": "AS-Level",
+            # 7691. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Listening, Reading and Writing", "max_marks": 90},
+                {"code": "Paper 2", "name": "Writing", "max_marks": 50},
+                {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
+            ],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Aspects of Society: Current Trends", "Artistic Culture",
+                          "Translation into English", "Translation into the Target Language"],
+                "Paper 2": [
+                          "Literary Text Essay", "Film Essay"],
+                "Paper 3": [
+                          "Theme Discussion", "Stimulus Card Discussion"],
+            },
+        },
+},
     "Edexcel": {
         "Physics": {
             "color": "#5E8B7E",
@@ -617,7 +864,149 @@ TEMPLATES = {
                                "Moments", "Projectiles", "Variable Acceleration"],
             },
         },
-    },
+            "Maths (AS)": {
+            "name": "Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # AS Mathematics. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Pure Mathematics", "max_marks": 100},
+                {"code": "Paper 2", "name": "Statistics and Mechanics", "max_marks": 60},
+            ],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Vectors", "Numerical Methods"],
+                "Paper 2": [
+                          "Statistical Sampling", "Data Presentation and Interpretation",
+                          "Probability", "Statistical Distributions",
+                          "Statistical Hypothesis Testing", "Quantities and Units in Mechanics",
+                          "Kinematics", "Forces and Newton's Laws"],
+            },
+        },
+        "Further Maths (AS)": {
+            "name": "Further Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # AS Further Mathematics. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Core Pure Mathematics", "max_marks": 80},
+                {"code": "Paper 221", "name": "Further Pure Mathematics 1", "max_marks": 40, "optional": True},
+                {"code": "Paper 222", "name": "Further Pure Mathematics 2", "max_marks": 40, "optional": True},
+                {"code": "Paper 223", "name": "Further Statistics 1", "max_marks": 40, "optional": True},
+                {"code": "Paper 224", "name": "Further Statistics 2", "max_marks": 40, "optional": True},
+                {"code": "Paper 225", "name": "Further Mechanics 1", "max_marks": 40, "optional": True},
+                {"code": "Paper 226", "name": "Further Mechanics 2", "max_marks": 40, "optional": True},
+                {"code": "Paper 227", "name": "Decision Mathematics 1", "max_marks": 40, "optional": True},
+                {"code": "Paper 228", "name": "Decision Mathematics 2", "max_marks": 40, "optional": True},
+            ],
+            # Paper 2 is two 40-mark option sections, not one
+            # paper; Pearson publishes each option separately.
+            "choose_optional": 2,
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Complex Numbers", "Matrices", "Vectors", "Roots of Polynomials",
+                          "Series", "Proof by Induction"],
+                "Paper 221": [
+                          "Complex Numbers", "Roots of Polynomials", "Series",
+                          "Coordinate Systems", "Matrix Algebra", "Proof by Induction"],
+                "Paper 222": [
+                          "Inequalities", "Series", "First Order Differential Equations",
+                          "Second Order Differential Equations", "Maclaurin and Taylor Series",
+                          "Polar Coordinates"],
+                "Paper 223": [
+                          "Discrete Probability Distributions", "Poisson Distribution",
+                          "Geometric and Negative Binomial", "Hypothesis Testing",
+                          "Chi-squared Tests", "Probability Generating Functions"],
+                "Paper 224": [
+                          "Linear Regression", "Continuous Probability Distributions",
+                          "Correlation", "Combinations of Random Variables", "Quality of Tests"],
+                "Paper 225": [
+                          "Momentum and Impulse", "Work, Energy and Power",
+                          "Elastic Strings and Springs", "Elastic Collisions in One Dimension"],
+                "Paper 226": [
+                          "Motion in a Circle", "Centres of Mass", "Further Dynamics",
+                          "Further Kinematics"],
+                "Paper 227": [
+                          "Algorithms and Graph Theory", "Algorithms on Graphs",
+                          "Critical Path Analysis", "Linear Programming", "Route Inspection"],
+                "Paper 228": [
+                          "Transportation Problems", "Allocation Problems", "Flows in Networks",
+                          "Dynamic Programming", "Game Theory"],
+            },
+        },
+        "Physics (AS)": {
+            "name": "Physics",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # AS Physics. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Core Physics I", "max_marks": 80},
+                {"code": "Paper 2", "name": "Core Physics II", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Working as a Physicist", "Mechanics", "Electric Circuits", "Materials",
+                          "Waves and Particle Nature of Light"],
+                "Paper 2": [
+                          "Working as a Physicist", "Mechanics", "Electric Circuits", "Materials",
+                          "Waves and Particle Nature of Light"],
+            },
+        },
+        "Chemistry (AS)": {
+            "name": "Chemistry",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # AS Chemistry. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Core Inorganic and Physical Chemistry", "max_marks": 80},
+                {"code": "Paper 2", "name": "Core Organic and Physical Chemistry", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Atomic Structure and the Periodic Table", "Bonding and Structure",
+                          "Redox I", "Inorganic Chemistry and the Periodic Table",
+                          "Formulae, Equations and Amounts of Substance", "Organic Chemistry I",
+                          "Modern Analytical Techniques I", "Energetics I", "Kinetics I",
+                          "Equilibrium I"],
+                "Paper 2": [
+                          "Atomic Structure and the Periodic Table", "Bonding and Structure",
+                          "Redox I", "Inorganic Chemistry and the Periodic Table",
+                          "Formulae, Equations and Amounts of Substance", "Organic Chemistry I",
+                          "Modern Analytical Techniques I", "Energetics I", "Kinetics I",
+                          "Equilibrium I"],
+            },
+        },
+        "Biology (AS)": {
+            "name": "Biology",
+            "color": "#5E9E6B",
+            "level": "AS-Level",
+            # AS Biology A (Salters Nuffield). A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Lifestyle, Transport, Genes and Health", "max_marks": 80},
+                {"code": "Paper 2", "name": "Development, Plants and the Environment", "max_marks": 80},
+            ],
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Lifestyle, Health and Risk", "Genes and Health", "Voice of the Genome",
+                          "Biodiversity and Natural Resources"],
+                "Paper 2": [
+                          "Lifestyle, Health and Risk", "Genes and Health", "Voice of the Genome",
+                          "Biodiversity and Natural Resources"],
+            },
+        },
+},
     "OCR A": {
         "Biology": {
             "color": "#5E9E6B",
@@ -827,6 +1216,163 @@ TEMPLATES = {
                             "Data Analysis", "Practical Skills", "Cross-topic Synthesis"],
             },
         },
+        "Maths (AS)": {
+            "name": "Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # Mathematics A. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Pure Mathematics and Statistics", "max_marks": 75},
+                {"code": "Paper 2", "name": "Pure Mathematics and Mechanics", "max_marks": 75},
+            ],
+            # OCR published AS boundaries in a separate document
+            # before 2022; those series are not stored.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Vectors", "Statistical Sampling",
+                          "Data Presentation and Interpretation", "Probability",
+                          "Statistical Distributions", "Statistical Hypothesis Testing"],
+                "Paper 2": [
+                          "Proof", "Algebra and Functions", "Coordinate Geometry",
+                          "Sequences and Series", "Trigonometry", "Exponentials and Logarithms",
+                          "Differentiation", "Integration", "Vectors",
+                          "Quantities and Units in Mechanics", "Kinematics",
+                          "Forces and Newton's Laws"],
+            },
+        },
+        "Further Maths (AS)": {
+            "name": "Further Maths",
+            "color": "#C9A227",
+            "level": "AS-Level",
+            # Further Mathematics A. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Y531", "name": "Pure Core", "max_marks": 60},
+                {"code": "Y532", "name": "Statistics", "max_marks": 60, "optional": True},
+                {"code": "Y533", "name": "Mechanics", "max_marks": 60, "optional": True},
+                {"code": "Y534", "name": "Discrete Mathematics", "max_marks": 60, "optional": True},
+                {"code": "Y535", "name": "Additional Pure Maths", "max_marks": 60, "optional": True},
+            ],
+            "choose_optional": 2,
+            # OCR published AS boundaries in a separate document
+            # before 2022; those series are not stored.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Y531": [
+                          "Matrices", "Complex Numbers", "Vectors", "Algebra", "Series",
+                          "Roots of Polynomials", "Proof by Induction"],
+                "Y532": [
+                          "Discrete Random Variables", "Bivariate Data", "Chi-squared Tests",
+                          "Non-parametric Tests"],
+                "Y533": [
+                          "Dimensional Analysis", "Work, Energy and Power", "Impulse and Momentum",
+                          "Centre of Mass"],
+                "Y534": [
+                          "Mathematical Preliminaries", "Graphs and Networks",
+                          "Network Algorithms", "Critical Path Analysis", "Linear Programming"],
+                "Y535": [
+                          "Sequences and Series", "Number Theory", "Groups",
+                          "Vectors and Surfaces", "Curves"],
+            },
+        },
+        "Physics (AS)": {
+            "name": "Physics",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # Physics A. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Breadth in Physics", "max_marks": 70},
+                {"code": "Paper 2", "name": "Depth in Physics", "max_marks": 70},
+            ],
+            # OCR published AS boundaries in a separate document
+            # before 2022; those series are not stored.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Physical Quantities and Units",
+                          "Making Measurements and Analysing Data", "Motion", "Forces in Action",
+                          "Work, Energy and Power", "Materials", "Laws of Motion and Momentum",
+                          "Charge and Current", "Energy, Power and Resistance",
+                          "Electrical Circuits", "Waves", "Quantum Physics"],
+                "Paper 2": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Physical Quantities and Units",
+                          "Making Measurements and Analysing Data", "Motion", "Forces in Action",
+                          "Work, Energy and Power", "Materials", "Laws of Motion and Momentum",
+                          "Charge and Current", "Energy, Power and Resistance",
+                          "Electrical Circuits", "Waves", "Quantum Physics"],
+            },
+        },
+        "Chemistry (AS)": {
+            "name": "Chemistry",
+            "color": "#5E8B7E",
+            "level": "AS-Level",
+            # Chemistry A. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Breadth in Chemistry", "max_marks": 70},
+                {"code": "Paper 2", "name": "Depth in Chemistry", "max_marks": 70},
+            ],
+            # OCR published AS boundaries in a separate document
+            # before 2022; those series are not stored.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Atomic Structure and Isotopes", "Compounds, Formulae and Equations",
+                          "Amount of Substance", "Acids", "Redox", "Electron Structure",
+                          "Bonding and Structure", "Periodicity", "Group 2", "The Halogens",
+                          "Qualitative Analysis", "Enthalpy Changes", "Reaction Rates",
+                          "Chemical Equilibrium", "Basic Concepts of Organic Chemistry", "Alkanes",
+                          "Alkenes", "Alcohols", "Haloalkanes", "Organic Synthesis",
+                          "Spectroscopy"],
+                "Paper 2": [
+                          "Planning", "Implementing", "Analysis", "Evaluation",
+                          "Atomic Structure and Isotopes", "Compounds, Formulae and Equations",
+                          "Amount of Substance", "Acids", "Redox", "Electron Structure",
+                          "Bonding and Structure", "Periodicity", "Group 2", "The Halogens",
+                          "Qualitative Analysis", "Enthalpy Changes", "Reaction Rates",
+                          "Chemical Equilibrium", "Basic Concepts of Organic Chemistry", "Alkanes",
+                          "Alkenes", "Alcohols", "Haloalkanes", "Organic Synthesis",
+                          "Spectroscopy"],
+            },
+        },
+        "Biology (AS)": {
+            "name": "Biology",
+            "color": "#5E9E6B",
+            "level": "AS-Level",
+            # Biology A. A qualification in its own right, graded A-E
+            # with no A*.
+            "papers": [
+                {"code": "Paper 1", "name": "Breadth in Biology", "max_marks": 70},
+                {"code": "Paper 2", "name": "Depth in Biology", "max_marks": 70},
+            ],
+            # OCR published AS boundaries in a separate document
+            # before 2022; those series are not stored.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Paper 1": [
+                          "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",
+                          "Biological Molecules", "Nucleotides and Nucleic Acids", "Enzymes",
+                          "Biological Membranes", "Cell Division, Diversity and Organisation",
+                          "Exchange Surfaces", "Transport in Animals", "Transport in Plants",
+                          "Communicable Diseases and the Immune System", "Biodiversity",
+                          "Classification and Evolution"],
+                "Paper 2": [
+                          "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",
+                          "Biological Molecules", "Nucleotides and Nucleic Acids", "Enzymes",
+                          "Biological Membranes", "Cell Division, Diversity and Organisation",
+                          "Exchange Surfaces", "Transport in Animals", "Transport in Plants",
+                          "Communicable Diseases and the Immune System", "Biodiversity",
+                          "Classification and Evolution"],
+            },
+        },
     },
 }
 
@@ -874,6 +1420,19 @@ LEVELS = [
 
 DEFAULT_LEVEL = "A-Level"
 
+# Only a full A-level awards A*. AS is graded A-E, and the SQA Highers are
+# graded A-D. A qualification's ceiling is a property of the level, not of the
+# board or the subject.
+LEVELS_WITH_A_STAR = {"A-Level"}
+
+# A catalogue key is a storage identity, not a label. Two qualifications in the
+# same subject and board — AQA Mathematics at A-level and at AS — need separate
+# keys, because `papers`, `grade_boundaries` and `user_subjects` are all keyed
+# by that string and the two have different papers and different boundaries.
+# The convention is a suffixed key with a "name" field carrying what a student
+# should actually read. A-level entries need neither, so they carry no suffix
+# and their key is already the name.
+
 
 def qualification_level(board, subject):
     """The level of one catalogue entry, defaulting to A-Level."""
@@ -881,6 +1440,28 @@ def qualification_level(board, subject):
         return TEMPLATES[board][subject].get("level", DEFAULT_LEVEL)
     except KeyError:
         return DEFAULT_LEVEL
+
+
+def top_grade(level):
+    """The highest grade this level can award: A* for an A-level, else A."""
+    return "A*" if level in LEVELS_WITH_A_STAR else "A"
+
+
+def has_a_star(board, subject):
+    """Whether this qualification can award an A* at all."""
+    return qualification_level(board, subject) in LEVELS_WITH_A_STAR
+
+
+def display_name(board, subject):
+    """What a student should read for this catalogue key.
+
+    Falls back to the key, so an entry that needs no disambiguation — every
+    A-level — simply doesn't carry a name.
+    """
+    try:
+        return TEMPLATES[board][subject].get("name", subject)
+    except KeyError:
+        return subject
 
 
 def all_qualifications():
@@ -895,10 +1476,15 @@ def all_qualifications():
         for subject, data in subjects.items():
             mandatory = [p for p in data["papers"] if not p.get("optional")]
             optional = [p for p in data["papers"] if p.get("optional")]
+            level = data.get("level", DEFAULT_LEVEL)
             out.append({
                 "board": board,
+                # The storage identity. "name" is what a student reads; the two
+                # differ only where one subject is offered at several levels.
                 "subject": subject,
-                "level": data.get("level", DEFAULT_LEVEL),
+                "name": data.get("name", subject),
+                "level": level,
+                "top_grade": top_grade(level),
                 "color": data["color"],
                 "papers": data["papers"],
                 "paper_count": len(data["papers"]),
@@ -907,7 +1493,8 @@ def all_qualifications():
                 "choose_optional": data.get("choose_optional", 0),
                 "years": data["years"],
             })
-    return sorted(out, key=lambda q: (q["subject"], q["level"], q["board"]))
+    return sorted(out, key=lambda q: (q["name"], LEVELS.index(q["level"])
+                                      if q["level"] in LEVELS else 99, q["board"]))
 
 
 def available_levels():

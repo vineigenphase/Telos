@@ -9,8 +9,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from prediction import (  # noqa: E402
-    MissingBoundaries, attempt_grade_score, confidence_level, infer_de,
-    marks_for_score, predict, recency_weighted, score_to_grade,
+    MissingBoundaries, attempt_grade_score, boundary_ladder, confidence_level,
+    infer_de, marks_for_score, predict, recency_weighted, score_to_grade,
     select_boundaries,
 )
 
@@ -147,6 +147,73 @@ strong = predict([attempt("2019", 62), attempt("2019", 61), attempt("2019", 60),
 check("consistent A* work predicts A*", strong["predicted_grade"], "A*")
 check("a top prediction has no next grade to chase", strong["next_grade"], None)
 check("tight consistent spread is at least medium", strong["confidence"] in ("medium", "high"), True)
+
+
+# ── qualifications with no A* ───────────────────────────────────────────────
+#
+# An AS-level is graded A-E. The engine used to top every ladder out at A*=6
+# and return a hardcoded 6.0 above the top boundary, so an AS student scoring
+# 95% would have been predicted a grade their certificate cannot carry. A
+# boundary set says which kind it is by whether a_star is present.
+
+AS_HARD = {"board": "AQA", "subject": "Mathematics (AS)", "paper_code": "Paper 1",
+           "year": "2019", "a_star": None,
+           "a_boundary": 60, "b_boundary": 52, "c_boundary": 44}
+AS_EASY = {"board": "AQA", "subject": "Mathematics (AS)", "paper_code": "Paper 1",
+           "year": "2023", "a_star": None,
+           "a_boundary": 64, "b_boundary": 56, "c_boundary": 48}
+AS_P2 = {"board": "AQA", "subject": "Mathematics (AS)", "paper_code": "Paper 2",
+         "year": "2019", "a_star": None,
+         "a_boundary": 58, "b_boundary": 50, "c_boundary": 42}
+AS_ROWS = [AS_HARD, AS_EASY, AS_P2]
+
+as_ladder = boundary_ladder(AS_HARD)
+check("an AS ladder tops out at A, not A*", as_ladder[-1][0], 5)
+check("...and still runs down to E", as_ladder[0][0], 1)
+check("an A-level ladder is unchanged", boundary_ladder(HARD)[-1][0], 6)
+
+# D and E are inferred from the gaps that exist, since there is no A* gap.
+d_as, e_as = infer_de(None, 60, 52, 44)
+close("AS D is inferred from the A-B and B-C gaps", d_as, 36.0)
+close("...and E a step below that", e_as, 28.0)
+close("A-level inference is untouched", infer_de(60, 52, 44, 36)[0], 28.0)
+
+# A perfect AS script tops out at 5.5, and floors to an A.
+perfect_as = attempt_grade_score(80, AS_HARD, 80)
+check("a perfect AS script cannot reach 6", perfect_as < 6, True)
+close("...it tops out half a point above A", perfect_as, 5.5)
+check("...and floors to an A", score_to_grade(perfect_as), "A")
+check("a bare AS A is exactly 5", attempt_grade_score(60, AS_HARD, 80), 5.0)
+
+# The A-level ceiling is untouched by any of this.
+close("a perfect A-level script still reaches 6.5",
+      attempt_grade_score(75, HARD, 75), 6.5)
+
+# marks_for_score inverts against the right ceiling.
+close("AS marks_for_score inverts at the top", marks_for_score(5.5, AS_HARD, 80), 80.0)
+close("...and at a bare A", marks_for_score(5.0, AS_HARD, 80), 60.0)
+
+def as_attempt(year, score, code="Paper 1"):
+    return {"board": "AQA", "subject": "Mathematics (AS)", "paper_code": code,
+            "year": year, "score": score, "max_marks": 80}
+
+as_strong = predict([as_attempt("2019", 74), as_attempt("2019", 76),
+                     as_attempt("2019", 75), as_attempt("2023", 77),
+                     as_attempt("2019", 75)], AS_ROWS)
+check("consistently excellent AS work predicts A, never A*",
+      as_strong["predicted_grade"], "A")
+check("...and has no next grade to chase", as_strong["next_grade"], None)
+
+as_mid = predict([as_attempt("2019", 54), as_attempt("2019", 55),
+                  as_attempt("2019", 53), as_attempt("2023", 56)], AS_ROWS)
+check("a mid AS prediction still names a next grade",
+      as_mid["next_grade"] in ("A", "B", "C"), True)
+check("...and it is never A*", as_mid["next_grade"] != "A*", True)
+
+# A median across AS rows must not invent an A*.
+med, _src = select_boundaries(AS_ROWS, "AQA", "Mathematics (AS)", "Paper 3", "2019")
+check("a median over AS rows carries no A*", med["a_star"], None)
+check("...so its ladder still tops out at A", boundary_ladder(med)[-1][0], 5)
 
 print()
 print("ALL PASS" if not FAILS else f"FAILURES ({len(FAILS)}): {FAILS}")

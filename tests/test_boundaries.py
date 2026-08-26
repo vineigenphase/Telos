@@ -62,7 +62,8 @@ if orphans:
 too_big = [(r["subject"], r["paper_code"], r["year"], r["a_star"],
             max_marks.get((r["board"], r["subject"], r["paper_code"])))
            for r in rows
-           if (r["board"], r["subject"], r["paper_code"]) in max_marks
+           if r["a_star"] is not None
+           and (r["board"], r["subject"], r["paper_code"]) in max_marks
            and r["a_star"] > max_marks[(r["board"], r["subject"], r["paper_code"])]]
 ok("no A* boundary exceeds its paper's max mark", not too_big,
    "" if not too_big else f"{too_big[:3]}")
@@ -70,17 +71,45 @@ ok("no A* boundary exceeds its paper's max mark", not too_big,
 # 3. A boundary equal to the max mark means the max mark was stored as a grade.
 equals_max = [(r["subject"], r["paper_code"], r["year"])
               for r in rows
-              if (r["board"], r["subject"], r["paper_code"]) in max_marks
+              if r["a_star"] is not None
+              and (r["board"], r["subject"], r["paper_code"]) in max_marks
               and r["a_star"] == max_marks[(r["board"], r["subject"], r["paper_code"])]]
 ok("no A* boundary equals its paper's max mark", not equals_max,
    "" if not equals_max else f"{equals_max[:3]}")
 
-# 4. Ordering. A*/A/B/C must descend and stay positive.
+# 4. Ordering. A/B/C must descend and stay positive on every row, and A* must
+#    sit above A wherever it exists.
 bad_order = [(r["subject"], r["paper_code"], r["year"])
              for r in rows
-             if not (r["a_star"] > r["a_boundary"] > r["b_boundary"] > r["c_boundary"] > 0)]
-ok("A* > A > B > C > 0 on every row", not bad_order,
+             if not (r["a_boundary"] > r["b_boundary"] > r["c_boundary"] > 0)]
+ok("A > B > C > 0 on every row", not bad_order,
    "" if not bad_order else f"{bad_order[:3]}")
+
+bad_star = [(r["subject"], r["paper_code"], r["year"])
+            for r in rows
+            if r["a_star"] is not None and not (r["a_star"] > r["a_boundary"])]
+ok("A* > A wherever an A* is published", not bad_star,
+   "" if not bad_star else f"{bad_star[:3]}")
+
+# 5. An A* stored against a qualification that cannot award one would be
+#    predicted as a real grade — the specific fault this guards is an AS row
+#    carrying its A-level sibling's A* boundary.
+from paper_templates import qualification_level, top_grade  # noqa: E402
+
+wrong_star = [(r["board"], r["subject"], r["paper_code"], r["year"])
+              for r in rows
+              if r["a_star"] is not None
+              and top_grade(qualification_level(r["board"], r["subject"])) != "A*"]
+ok("no A* on a qualification that cannot award one", not wrong_star,
+   "" if not wrong_star else f"{wrong_star[:3]}")
+
+missing_star = [(r["board"], r["subject"], r["paper_code"], r["year"])
+                for r in rows
+                if r["a_star"] is None
+                and (r["board"], r["subject"], r["paper_code"]) in max_marks
+                and top_grade(qualification_level(r["board"], r["subject"])) == "A*"]
+ok("every A-level row has its A*", not missing_star,
+   "" if not missing_star else f"{missing_star[:3]}")
 
 # 5. A floor. A C grade below a tenth of the paper means the scale is wrong.
 #    Deliberately no upper bound on A*: an earlier version capped it at 95% of
