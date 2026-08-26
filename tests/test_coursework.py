@@ -125,6 +125,7 @@ QUAL_TOTALS = {
     ("SQA", "French (AH)"):     200,   # 50 + 70 + 50 talking + 30 portfolio
     ("SQA", "German (AH)"):     200,
     ("SQA", "Spanish (AH)"):    200,
+    ("SQA", "English (AH)"):    100,   # 20 + 20 + 30 portfolio + 30 dissertation
     # SQA Highers, same two-source check.
     ("SQA", "Biology (H)"):    150,   # 25 + 95 + 30 assignment
     ("SQA", "Chemistry (H)"):  150,

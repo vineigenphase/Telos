@@ -16,10 +16,10 @@
 --
 -- Graded A-D: a_star and e_boundary are both NULL. Below D is No Award.
 --
--- 2024 and 2025 only. In 2022 and 2023 these courses ran in a modified
--- form - Geography 70 marks rather than 110, the sciences 120 rather than
--- 150 - which is a different set of components, not the same course with
--- different numbers.
+-- 2022-2025. Several of these courses ran in a modified form in 2022 and
+-- 2023 - Geography 70 marks rather than 110, the sciences 120 rather
+-- than 150 - so a component carries a boundary for a year only when it
+-- was the same paper that year: same code, same max mark.
 --
 -- Idempotent.
 

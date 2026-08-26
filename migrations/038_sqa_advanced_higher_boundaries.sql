@@ -17,14 +17,23 @@
 -- components are checked to sum to the course maximum before anything is
 -- computed from them.
 --
--- 2024 and 2025 only. In 2022 and 2023 these courses ran in a modified
--- form with the project removed (Biology 120 marks rather than 160,
--- Physics 155 rather than 160). That is a different set of components, so
--- those years are not stored rather than being bent to fit.
+-- 2022-2025. Several of these courses ran in a modified form in 2022 and
+-- 2023 - coursework withdrawn, question papers resized - so a component
+-- carries a boundary for a year only when it was the same paper that
+-- year: same code, same max mark. Advanced Higher Physics' question
+-- paper was 155 marks then against 120 now, so it has no row for those
+-- years rather than one computed for a paper of a different length.
+-- Subjects that were not modified, English among them, carry all four.
 --
 -- Idempotent.
 
-DELETE FROM grade_boundaries WHERE board = 'SQA';
+-- Scoped to the Advanced Highers. When this was first written, SQA in
+-- this table meant only Advanced Highers, so deleting every SQA row was
+-- correct. It is not any more: migration 039 owns the Higher rows, and
+-- re-running this out of numeric order wiped them. A DELETE must never
+-- be wider than the INSERT that follows it.
+DELETE FROM grade_boundaries
+  WHERE board = 'SQA' AND subject LIKE '% (AH)';
 
 INSERT INTO grade_boundaries
     (subject, board, paper_code, year, series,
@@ -35,6 +44,10 @@ VALUES
     ('Biology (AH)', 'SQA', 'Section 2', '2022', 'June', NULL, 58, 46, 35, 24, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Question Paper', '2022', 'June', NULL, 53, 45, 37, 29, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Project', '2022', 'June', NULL, 26, 22, 18, 14, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Literary Study', '2022', 'June', NULL, 13, 11, 9, 7, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Textual Analysis', '2022', 'June', NULL, 13, 11, 9, 7, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Dissertation', '2022', 'June', NULL, 20, 16, 14, 11, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Portfolio', '2022', 'June', NULL, 20, 16, 14, 11, NULL, TRUE),
     ('French (AH)', 'SQA', 'Listening', '2022', 'June', NULL, 48, 41, 34, 27, NULL, TRUE),
     ('French (AH)', 'SQA', 'Reading', '2022', 'June', NULL, 34, 29, 24, 19, NULL, TRUE),
     ('French (AH)', 'SQA', 'Talking', '2022', 'June', NULL, 34, 29, 24, 19, NULL, TRUE),
@@ -55,6 +68,10 @@ VALUES
     ('Biology (AH)', 'SQA', 'Section 2', '2023', 'June', NULL, 66, 53, 41, 28, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Question Paper', '2023', 'June', NULL, 56, 47, 38, 29, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Project', '2023', 'June', NULL, 28, 23, 19, 14, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Literary Study', '2023', 'June', NULL, 13, 11, 9, 7, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Textual Analysis', '2023', 'June', NULL, 13, 11, 9, 7, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Dissertation', '2023', 'June', NULL, 20, 16, 14, 11, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Portfolio', '2023', 'June', NULL, 20, 16, 14, 11, NULL, TRUE),
     ('French (AH)', 'SQA', 'Listening', '2023', 'June', NULL, 48, 41, 34, 27, NULL, TRUE),
     ('French (AH)', 'SQA', 'Reading', '2023', 'June', NULL, 34, 30, 24, 20, NULL, TRUE),
     ('French (AH)', 'SQA', 'Talking', '2023', 'June', NULL, 34, 30, 24, 20, NULL, TRUE),
@@ -79,6 +96,10 @@ VALUES
     ('Chemistry (AH)', 'SQA', 'Project', '2024', 'June', NULL, 26, 22, 18, 14, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Question Paper', '2024', 'June', NULL, 56, 48, 40, 32, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Project', '2024', 'June', NULL, 28, 24, 20, 16, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Literary Study', '2024', 'June', NULL, 13, 11, 10, 8, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Textual Analysis', '2024', 'June', NULL, 13, 11, 10, 8, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Dissertation', '2024', 'June', NULL, 20, 17, 14, 12, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Portfolio', '2024', 'June', NULL, 20, 17, 14, 12, NULL, TRUE),
     ('French (AH)', 'SQA', 'Listening', '2024', 'June', NULL, 52, 44, 37, 30, NULL, TRUE),
     ('French (AH)', 'SQA', 'Reading', '2024', 'June', NULL, 37, 32, 26, 21, NULL, TRUE),
     ('French (AH)', 'SQA', 'Talking', '2024', 'June', NULL, 37, 32, 26, 21, NULL, TRUE),
@@ -106,6 +127,10 @@ VALUES
     ('Chemistry (AH)', 'SQA', 'Project', '2025', 'June', NULL, 27, 23, 19, 15, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Question Paper', '2025', 'June', NULL, 59, 49, 40, 31, NULL, TRUE),
     ('Economics (AH)', 'SQA', 'Project', '2025', 'June', NULL, 29, 25, 20, 15, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Literary Study', '2025', 'June', NULL, 13, 11, 10, 8, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Textual Analysis', '2025', 'June', NULL, 13, 11, 10, 8, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Dissertation', '2025', 'June', NULL, 20, 17, 14, 12, NULL, TRUE),
+    ('English (AH)', 'SQA', 'Portfolio', '2025', 'June', NULL, 20, 17, 14, 12, NULL, TRUE),
     ('French (AH)', 'SQA', 'Listening', '2025', 'June', NULL, 50, 43, 35, 27, NULL, TRUE),
     ('French (AH)', 'SQA', 'Reading', '2025', 'June', NULL, 36, 30, 25, 20, NULL, TRUE),
     ('French (AH)', 'SQA', 'Talking', '2025', 'June', NULL, 36, 30, 25, 20, NULL, TRUE),

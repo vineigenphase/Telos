@@ -1402,17 +1402,17 @@ TEMPLATES = {
             # SQA's own; the boundaries are derived from the course
             # cut-off, because SQA publishes none per component.
             "papers": [
-                {"code": "Section 2", "name": "Section 2", "max_marks": 96},
                 {"code": "Section 1", "name": "Section 1: Objective Test", "max_marks": 24},
+                {"code": "Section 2", "name": "Section 2", "max_marks": 96},
                 {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
-                "Section 2": [
-                          "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
                 "Section 1": [
+                          "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
+                "Section 2": [
                           "Cells and Proteins", "Organisms and Evolution", "Investigative Biology"],
                 "Project": [
                           "Research Project"],
@@ -1426,18 +1426,18 @@ TEMPLATES = {
             # SQA's own; the boundaries are derived from the course
             # cut-off, because SQA publishes none per component.
             "papers": [
-                {"code": "Section 2", "name": "Section 2", "max_marks": 93},
                 {"code": "Section 1", "name": "Section 1: Objective Test", "max_marks": 27},
+                {"code": "Section 2", "name": "Section 2", "max_marks": 93},
                 {"code": "Project", "name": "Project", "max_marks": 40, "assessment": "coursework"},
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
-                "Section 2": [
+                "Section 1": [
                           "Inorganic and Physical Chemistry",
                           "Organic Chemistry and Instrumental Analysis", "Researching Chemistry"],
-                "Section 1": [
+                "Section 2": [
                           "Inorganic and Physical Chemistry",
                           "Organic Chemistry and Instrumental Analysis", "Researching Chemistry"],
                 "Project": [
@@ -1457,13 +1457,42 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Economics of the Market", "Global Economic Activity", "The UK Economy",
                           "Economic Data and Analysis"],
                 "Project": [
                           "Economics Project"],
+            },
+        },
+        "English (AH)": {
+            "name": "English",
+            "color": "#8A6FA8",
+            "level": "Advanced Higher",
+            # Graded A-D: no A* and no E. The component max marks are
+            # SQA's own; the boundaries are derived from the course
+            # cut-off, because SQA publishes none per component.
+            "papers": [
+                {"code": "Literary Study", "name": "Literary Study", "max_marks": 20},
+                {"code": "Textual Analysis", "name": "Textual Analysis", "max_marks": 20},
+                {"code": "Dissertation", "name": "Project: Dissertation", "max_marks": 30, "assessment": "coursework"},
+                {"code": "Portfolio", "name": "Portfolio: Writing", "max_marks": 30, "assessment": "coursework"},
+            ],
+            # 2022 and 2023 ran in a modified form with the project
+            # removed, which is a different set of components.
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            "topics": {
+                "Literary Study": [
+                          "Critical Essay on a Chosen Text", "Poetry", "Prose Fiction",
+                          "Prose Non-fiction", "Drama", "Film and Television Drama",
+                          "Language Study"],
+                "Textual Analysis": [
+                          "Unseen Poetry", "Unseen Prose", "Unseen Drama", "Comparative Analysis"],
+                "Dissertation": [
+                          "Independent Literary Study"],
+                "Portfolio": [
+                          "Broadly Creative Writing", "Broadly Discursive Writing"],
             },
         },
         "French (AH)": {
@@ -1474,19 +1503,19 @@ TEMPLATES = {
             # SQA's own; the boundaries are derived from the course
             # cut-off, because SQA publishes none per component.
             "papers": [
-                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
                 {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
-                "Reading": [
-                          "Reading Comprehension", "Translation into English"],
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
                 "Talking": [
                           "Presentation", "Discussion"],
                 "Portfolio": [
@@ -1507,7 +1536,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Geographical Methods and Techniques"],
@@ -1525,19 +1554,19 @@ TEMPLATES = {
             # SQA's own; the boundaries are derived from the course
             # cut-off, because SQA publishes none per component.
             "papers": [
-                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
                 {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
-                "Reading": [
-                          "Reading Comprehension", "Translation into English"],
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
                 "Talking": [
                           "Presentation", "Discussion"],
                 "Portfolio": [
@@ -1557,7 +1586,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Methods in Algebra and Calculus",
@@ -1582,7 +1611,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Rotational Motion and Astrophysics", "Quanta and Waves",
@@ -1599,26 +1628,26 @@ TEMPLATES = {
             # SQA's own; the boundaries are derived from the course
             # cut-off, because SQA publishes none per component.
             "papers": [
-                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Listening", "name": "Listening and Discursive Writing", "max_marks": 70},
+                {"code": "Reading", "name": "Reading and Translation", "max_marks": 50},
                 {"code": "Talking", "name": "Performance: Talking", "max_marks": 50, "assessment": "oral"},
                 {"code": "Portfolio", "name": "Portfolio", "max_marks": 30, "assessment": "coursework"},
             ],
             # 2022 and 2023 ran in a modified form with the project
             # removed, which is a different set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
-                "Reading": [
-                          "Reading Comprehension", "Translation into English"],
                 "Listening": [
                           "Listening Comprehension", "Discursive Writing"],
+                "Reading": [
+                          "Reading Comprehension", "Translation into English"],
                 "Talking": [
                           "Presentation", "Discussion"],
                 "Portfolio": [
                           "Written Portfolio"],
             },
         },
-            "Biology (H)": {
+        "Biology (H)": {
             "name": "Biology",
             "color": "#5E9E6B",
             "level": "Higher",
@@ -1632,7 +1661,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "DNA and the Genome", "Metabolism and Survival",
@@ -1658,7 +1687,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Chemical Changes and Structure", "Nature's Chemistry",
@@ -1683,7 +1712,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Question Paper": [
                           "Economics of the Market", "UK Economic Activity",
@@ -1706,7 +1735,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Reading for Understanding", "Analysis", "Evaluation", "Summarising",
@@ -1735,7 +1764,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
@@ -1763,7 +1792,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Atmosphere", "Hydrosphere", "Lithosphere", "Biosphere", "Population",
@@ -1791,7 +1820,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
@@ -1818,7 +1847,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Algebraic and Trigonometric Skills", "Geometric Skills",
@@ -1842,7 +1871,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Our Dynamic Universe", "Particles and Waves", "Electricity"],
@@ -1868,7 +1897,7 @@ TEMPLATES = {
             ],
             # 2022 and 2023 ran in a modified form with a different
             # set of components.
-            "years": ["SPEC", "2024", "2025"],
+            "years": ["SPEC", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Directed Writing": [
                           "Directed Writing"],
@@ -1882,7 +1911,7 @@ TEMPLATES = {
                           "Written Assignment"],
             },
         },
-},
+    },
 }
 
 

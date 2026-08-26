@@ -478,6 +478,30 @@ carries no assessment total the components are summed and checked against the
 grade boundary release instead — a stronger check than reading a total from the
 same file it is meant to validate.
 
+**A migration's DELETE must never be wider than its INSERT** (found
+2026-08-26). Migration 038 opened with `DELETE FROM grade_boundaries WHERE
+board = 'SQA'` and then inserted only the Advanced Highers. That was correct
+when it was written, because SQA meant only Advanced Highers — and it silently
+became destructive the moment migration 039 added the Highers. Re-running 038
+took the boundary table from 947 rows to 849 and deleted every Higher row.
+
+A fresh install in numeric order never sees it: 039 runs after 038 and puts them
+back. It only bites on a re-run, which is exactly why it would have sat there.
+Both are scoped by subject suffix now — `LIKE '% (AH)'` and `LIKE '% (H)'` —
+and the fix was verified by running 038 alone against a populated table and
+confirming all 114 Higher rows survived.
+
+**Indentation inside a dict literal is not load-bearing, and that is a trap.**
+`"Biology (H)"` sat at twelve spaces rather than eight in `paper_templates.py`
+for two commits. Python accepted it, the catalogue loaded correctly, every suite
+passed — and it was invisible to any edit that located entries by their indent,
+which silently dropped it. Anything editing that file structurally should match
+on `^\s+"[^"]+": \{` and never assume the indent. Two related traps in the same
+family: that pattern also matches the board line `    "SQA": {` itself, so a
+search for the first entry must start past the block's opening brace, and
+truncating a block at its first entry removes the indent belonging to its own
+closing brace.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**

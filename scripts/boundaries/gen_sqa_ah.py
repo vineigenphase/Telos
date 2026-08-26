@@ -22,11 +22,14 @@ as the course as a whole, which is not exactly true — projects generally score
 higher than question papers, so this reads slightly harsh on the project and
 slightly generous on the paper. It is an estimate, labelled as one.
 
-Only 2024 and 2025 are stored. In 2022 and 2023 the courses ran in a modified
-form with the project removed — Biology was 120 marks rather than 160 and
-Physics 155 rather than 160 — which is a different set of components, not the
-same course with different numbers. Mixing them would put a paper code against
-a course that did not contain it.
+2022 to 2025. Several of these courses ran in a modified form in 2022 and 2023
+— coursework withdrawn, question papers resized — so a component earns a row
+for a year only when it was the same paper that year: same code, same max mark.
+Advanced Higher Physics' question paper was 155 marks then against 120 now, so
+it gets no row for those years rather than a boundary computed for a paper of a
+different length. Every skip is printed on each run.
+
+Subjects that were not modified — English among them — carry all four years.
 
 An Advanced Higher is graded A-D with no E and no A*. a_star and e_boundary are
 both NULL, and prediction.py reads those absences to build a ladder that runs
@@ -76,6 +79,12 @@ _RAW_COMPONENTS = {
     "Performance: Talking":        ("Talking", "Performance: Talking", "oral"),
     "Reading and Translation":     ("Reading", "Reading and Translation", "exam"),
     "Listening and Discursive Writing": ("Listening", "Listening and Discursive Writing", "exam"),
+    # Advanced Higher English. SQA lists the question paper's two sections as
+    # separate components, which is how a student meets them.
+    "Literary Study":              ("Literary Study", "Literary Study", "exam"),
+    "Textual Analysis":            ("Textual Analysis", "Textual Analysis", "exam"),
+    "Portfolio: Writing":          ("Portfolio", "Portfolio: Writing", "coursework"),
+    "Project: Dissertation":       ("Dissertation", "Project: Dissertation", "coursework"),
 }
 
 COMPONENTS = {norm_name(k): v for k, v in _RAW_COMPONENTS.items()}
@@ -90,6 +99,8 @@ SUBJECTS = {
     "French":      ("French (AH)", "French", "#4C7EF3"),
     "German":      ("German (AH)", "German", "#C08A3E"),
     "Spanish":     ("Spanish (AH)", "Spanish", "#D06A5A"),
+    # Telos has English only at SQA, and now at both levels.
+    "English":     ("English (AH)", "English", "#8A6FA8"),
 }
 
 TOPICS = {
@@ -128,6 +139,15 @@ TOPICS = {
         "Folio A": ["Geographical Study"],
         "Folio B": ["Geographical Issue"],
     },
+}
+TOPICS["English (AH)"] = {
+    "Literary Study": ["Critical Essay on a Chosen Text", "Poetry", "Prose Fiction",
+                       "Prose Non-fiction", "Drama", "Film and Television Drama",
+                       "Language Study"],
+    "Textual Analysis": ["Unseen Poetry", "Unseen Prose", "Unseen Drama",
+                         "Comparative Analysis"],
+    "Portfolio": ["Broadly Creative Writing", "Broadly Discursive Writing"],
+    "Dissertation": ["Independent Literary Study"],
 }
 for _k in ("French (AH)", "German (AH)", "Spanish (AH)"):
     TOPICS[_k] = {
@@ -337,13 +357,22 @@ sql = (
     "-- components are checked to sum to the course maximum before anything is\n"
     "-- computed from them.\n"
     "--\n"
-    "-- 2024 and 2025 only. In 2022 and 2023 these courses ran in a modified\n"
-    "-- form with the project removed (Biology 120 marks rather than 160,\n"
-    "-- Physics 155 rather than 160). That is a different set of components, so\n"
-    "-- those years are not stored rather than being bent to fit.\n"
+    "-- 2022-2025. Several of these courses ran in a modified form in 2022 and\n"
+    "-- 2023 - coursework withdrawn, question papers resized - so a component\n"
+    "-- carries a boundary for a year only when it was the same paper that\n"
+    "-- year: same code, same max mark. Advanced Higher Physics' question\n"
+    "-- paper was 155 marks then against 120 now, so it has no row for those\n"
+    "-- years rather than one computed for a paper of a different length.\n"
+    "-- Subjects that were not modified, English among them, carry all four.\n"
     "--\n"
     "-- Idempotent.\n\n"
-    "DELETE FROM grade_boundaries WHERE board = 'SQA';\n\n"
+    "-- Scoped to the Advanced Highers. When this was first written, SQA in\n"
+    "-- this table meant only Advanced Highers, so deleting every SQA row was\n"
+    "-- correct. It is not any more: migration 039 owns the Higher rows, and\n"
+    "-- re-running this out of numeric order wiped them. A DELETE must never\n"
+    "-- be wider than the INSERT that follows it.\n"
+    "DELETE FROM grade_boundaries\n"
+    "  WHERE board = 'SQA' AND subject LIKE '%% (AH)';\n\n"
     "INSERT INTO grade_boundaries\n"
     "    (subject, board, paper_code, year, series,\n"
     "     a_star, a_boundary, b_boundary, c_boundary, d_boundary, e_boundary,\n"
