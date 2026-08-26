@@ -19,8 +19,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0B0B0C">
-  <title>Telos — know your grade before the exam does</title>
-  <meta name="description" content="Log past papers, mark them by question, and see exactly which topics are costing you marks. Free to use, with predicted grades for Telos Pro.">
+  <title>Telos — the marks between you and the next grade</title>
+  <meta name="description" content="Mark past papers question by question. Telos finds the topics costing you marks, tells you what to do next, and predicts your grade from real boundaries. A-Level, AS, Higher and Advanced Higher. Free to start.">
   <link rel="canonical" href="{{ canonical_url('/') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
-  <meta property="og:title" content="Telos — know your grade before the exam does">
-  <meta property="og:description" content="Past-paper tracking that tells you which topics are costing you marks.">
+  <meta property="og:title" content="Telos — the marks between you and the next grade">
+  <meta property="og:description" content="Past-paper tracking that finds the topics costing you marks, and an AI prediction engine built on ten years of real grade boundaries.">
   <meta property="og:type" content="website">
 </head>
 <body class="lp">
@@ -53,12 +53,18 @@
   {# ── Hero ─────────────────────────────────────────────────────────────── #}
   <section class="lp-hero">
     <div class="lp-wrap">
-      <p class="lp-eyebrow">A-level past papers</p>
-      <h1 class="lp-title">Know your grade<br>before the <em>exam</em> does.</h1>
+      {# Every level Telos actually covers. It read "A-level past papers" while
+         the catalogue carried AS, Higher and Advanced Higher — telling a
+         Scottish or AS student, in the line above the headline, that this was
+         not for them. #}
+      <p class="lp-eyebrow">A-Level · AS · Higher · Advanced Higher</p>
+      <h1 class="lp-title">The marks between you<br>and the <em>next grade</em>.</h1>
       <p class="lp-lede">
-        Log a past paper, mark it question by question, and Telos shows you the
-        topics quietly costing you marks — and exactly how many stand between
-        you and the next grade.
+        Mark a past paper question by question. Telos finds the topics bleeding
+        marks, ranks them by what they actually cost you across a paper, and
+        hands you the three questions to do next. Its AI prediction engine
+        weighs every attempt against ten years of real grade boundaries — so
+        the number you are chasing is the number the examiner will use.
       </p>
       <div class="lp-cta">
         <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">Start free</a>
@@ -284,13 +290,16 @@
         </p>
       </div>
 
-      {% set pro_plan = pricing[default_interval] %}
-      <div class="lp-plans reveal">
+      {% set monthly = pricing["month"] %}
+      {% set yearly  = pricing["year"] %}
+      <div class="lp-plans three reveal">
+
         <div class="lp-plan">
           <div class="lp-plan-name">Free</div>
           <div class="lp-plan-price">£0</div>
           <div class="lp-plan-period">forever</div>
-          <div>
+          <div class="lp-plan-sub">No card. Nothing expires.</div>
+          <div class="lp-plan-features">
             {% for f in pricing_features.free %}
             <div class="lp-feature">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -298,19 +307,47 @@
             </div>
             {% endfor %}
           </div>
-          <a class="btn btn-ghost" href="{{ url_for('register') }}" style="margin-top:auto;">Start free</a>
+          <a class="btn btn-ghost" href="{{ url_for('register') }}">Start free</a>
+        </div>
+
+        {# Monthly does not repeat the Pro list — it is the same product, and
+           nine identical ticks either side of the recommended plan buries the
+           one line that differs: the price. #}
+        <div class="lp-plan">
+          <div class="lp-plan-name">Pro Monthly</div>
+          <div class="lp-plan-price">{{ monthly.label }}</div>
+          <div class="lp-plan-period">{{ monthly.period }}</div>
+          <div class="lp-plan-sub">{{ monthly.sub }}</div>
+          <div class="lp-plan-features">
+            <div class="lp-feature">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+              Everything in Telos Pro
+            </div>
+            <div class="lp-feature">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+              Cancel any time
+            </div>
+            <p class="lp-plan-note">
+              £{{ monthly.amount_pence * 12 // 100 }}.{{ '%02d' % (monthly.amount_pence * 12 % 100) }}
+              a year at this rate.
+            </p>
+          </div>
+          {# Opens the comparison below rather than going straight to sign-up:
+             at this price the yearly plan is better for almost everyone, and
+             saying so once is worth more than a quiet default. #}
+          <button type="button" class="btn btn-ghost" id="lp-monthly-cta">Choose monthly</button>
         </div>
 
         <div class="lp-plan pro">
           <div class="lp-plan-name">
-            Telos Pro
-            <span class="lp-plan-flag">Recommended</span>
+            Pro Yearly
+            <span class="lp-plan-flag">Best value</span>
           </div>
           {# Price, period and saving all read from PRICING. #}
-          <div class="lp-plan-price">{{ pro_plan.label }}</div>
-          <div class="lp-plan-period">{{ pro_plan.period }}</div>
-          <div class="lp-plan-sub">{{ pro_plan.sub }}</div>
-          <div>
+          <div class="lp-plan-price">{{ yearly.label }}</div>
+          <div class="lp-plan-period">{{ yearly.period }}</div>
+          <div class="lp-plan-sub">{{ yearly.sub }}</div>
+          <div class="lp-plan-features">
             {% for f in pricing_features.pro %}
             <div class="lp-feature{{ ' soon' if f.coming_soon }}">
               {% if f.coming_soon %}
@@ -323,13 +360,83 @@
             </div>
             {% endfor %}
           </div>
-          <a class="btn btn-primary" href="{{ url_for('register') }}" style="margin-top:auto;">Get Telos Pro</a>
+          <a class="btn btn-primary" href="{{ url_for('register') }}?plan=year">Get Telos Pro</a>
+        </div>
+      </div>
+
+      {# The monthly second thought. Hidden until asked for, so it reads as an
+         answer to a decision the student has just made rather than as a popup
+         thrown at them. Both routes out are real: nothing here traps anyone on
+         the yearly plan. #}
+      <div class="lp-upsell" id="lp-upsell" hidden>
+        <p class="lp-upsell-q">Are you sure?</p>
+        <p class="lp-upsell-p">
+          Yearly is <strong>{{ yearly.label }}</strong> — {{ yearly.sub }}
+          Same features, same cancel-any-time, one payment.
+        </p>
+        <div class="lp-upsell-actions">
+          <a class="btn btn-primary" href="{{ url_for('register') }}?plan=year">Switch to yearly</a>
+          <a class="btn btn-ghost" href="{{ url_for('register') }}?plan=month">Continue monthly</a>
         </div>
       </div>
     </div>
   </section>
 
   {# ── Close ────────────────────────────────────────────────────────────── #}
+  {# ── Tutoring ─────────────────────────────────────────────────────────
+     A separate offer from the product, and framed as one. Telos is the tool;
+     this is a person. Kept below the pricing so it reads as "and if you want
+     more help" rather than as an upsell competing with Pro. #}
+  <section class="lp-section lp-tutor" id="tutoring">
+    <div class="lp-wrap">
+      <div class="lp-section-head reveal">
+        <p class="lp-kicker">Tutoring</p>
+        <h2 class="lp-h2">When the software isn't enough.</h2>
+        <p class="lp-p">
+          Telos will tell you which topics are costing you marks. Sometimes what
+          you need next is someone to sit down and teach the topic properly, or
+          to read the thing you have written twenty times and can no longer see.
+        </p>
+      </div>
+
+      <div class="lp-tutor-grid reveal">
+        <div class="lp-tutor-card">
+          <h3 class="lp-tutor-h">One-to-one tutoring</h3>
+          <p class="lp-tutor-p">
+            Mathematics, Further Mathematics and Physics, at A-Level and AS.
+            Sessions built around your own logged papers — the weak topics are
+            already on the board before we start.
+          </p>
+          <ul class="lp-tutor-list">
+            <li>Mathematics</li>
+            <li>Further Mathematics</li>
+            <li>Physics</li>
+          </ul>
+        </div>
+
+        <div class="lp-tutor-card">
+          <h3 class="lp-tutor-h">Personal statement review</h3>
+          <p class="lp-tutor-p">
+            A line-by-line read of your UCAS statement: what an admissions tutor
+            will actually take from it, what is doing no work, and what your
+            subject choice needs you to have said and you have not.
+          </p>
+        </div>
+
+        <div class="lp-tutor-card lp-tutor-cta-card">
+          <h3 class="lp-tutor-h">Book a free call</h3>
+          <p class="lp-tutor-p">
+            Twenty minutes, no charge and no obligation — where you are, what
+            you are aiming at, and whether any of this would help.
+          </p>
+          <a class="btn btn-primary" href="mailto:{{ tutoring_email }}?subject=Telos%20tutoring%20%E2%80%94%20free%20call">
+            Book a free call
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="lp-close">
     <div class="lp-wrap">
       <h2 class="lp-title reveal" style="font-size:clamp(2.1rem,5.4vw,3.6rem);">
@@ -357,6 +464,7 @@
       <a href="{{ url_for('login') }}">Log in</a>
       <a href="{{ url_for('register') }}">Sign up</a>
       <a href="#pricing">Pricing</a>
+      <a href="#tutoring">Tutoring</a>
     </nav>
     <p class="lp-footer-note">
       Telos does not host or distribute exam-board papers. Predicted grades are
@@ -366,6 +474,25 @@
 </footer>
 
 <script>
+  // The monthly second thought. Reveals the comparison instead of navigating,
+  // so a student who has decided on monthly sees the yearly figure once and
+  // then chooses. Both routes out of it are real links; if this script never
+  // runs the button simply does nothing visible, so the panel is also given a
+  // plain link fallback below.
+  (function () {
+    var cta = document.getElementById('lp-monthly-cta');
+    var panel = document.getElementById('lp-upsell');
+    if (!cta || !panel) return;
+    cta.addEventListener('click', function () {
+      panel.hidden = false;
+      panel.classList.add('on');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Focus the panel so a keyboard user lands on what just appeared.
+      panel.setAttribute('tabindex', '-1');
+      panel.focus({ preventScroll: true });
+    });
+  })();
+
   (function () {
     var root = document.documentElement;
     var targets = [].slice.call(document.querySelectorAll('.reveal, .lp-device'));

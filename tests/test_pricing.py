@@ -54,11 +54,34 @@ try:
 
     # ── pricing config ─────────────────────────────────────────────────────
     check("monthly is £4.99", A.PRICING["month"]["amount_pence"], 499)
-    check("annual is £29", A.PRICING["year"]["amount_pence"], 2900)
+    check("annual is £39.99", A.PRICING["year"]["amount_pence"], 3999)
     check("legacy £2 still configured", A.PRICING["legacy"]["amount_pence"], 200)
     check("annual is the default", A.DEFAULT_INTERVAL, "year")
     check("monthly price id set", A.PRICING["month"]["price_id"].startswith("price_"), True)
     check("annual price id set", A.PRICING["year"]["price_id"].startswith("price_"), True)
+
+    # The words on the page must agree with the pence in the table. A price
+    # whose own copy contradicts it is the kind of thing a customer finds first.
+    m_pence = A.PRICING["month"]["amount_pence"]
+    y_pence = A.PRICING["year"]["amount_pence"]
+    check("the yearly label matches its amount",
+          A.PRICING["year"]["label"], "£%.2f" % (y_pence / 100))
+    check("the monthly label matches its amount",
+          A.PRICING["month"]["label"], "£%.2f" % (m_pence / 100))
+    check("the advertised per-month figure is the real one",
+          "£%.2f/month" % (y_pence / 100 / 12) in A.PRICING["year"]["sub"], True)
+    check("the advertised saving is the real one",
+          "save £%d" % round((m_pence * 12 - y_pence) / 100) in A.PRICING["year"]["sub"], True)
+    check("yearly actually beats twelve months of monthly", y_pence < m_pence * 12, True)
+
+    # The offer list must not sell something that was withdrawn, and must not
+    # flag as "soon" anything already shipped.
+    pro_labels = [f["label"] for f in A.PRICING_FEATURES["pro"]]
+    check("spaced repetition is no longer offered",
+          any("epetition" in l for l in pro_labels), False)
+    check("full stats is offered", any("Full stats" in l for l in pro_labels), True)
+    check("nothing in the Pro list is still flagged soon",
+          any(f.get("coming_soon") for f in A.PRICING_FEATURES["pro"]), False)
 
     with c.session_transaction() as s:
         s["_user_id"] = str(uid)
@@ -66,10 +89,10 @@ try:
 
     # ── the page ───────────────────────────────────────────────────────────
     html = c.get("/subscription?from=pro-zone").data.decode()
-    check("shows £29", "£29" in html, True)
+    check("shows £39.99", "£39.99" in html, True)
     check("shows £4.99", "£4.99" in html, True)
-    check("shows the monthly equivalent", "£2.42/month" in html, True)
-    check("shows the saving", "save £31" in html.lower(), True)
+    check("shows the monthly equivalent", "£3.33/month" in html, True)
+    check("shows the saving", "save £20" in html.lower(), True)
     check("annual radio is preselected",
           'value="year"' in html and 'value="year"\n                     checked' in html.replace("\r", "")
           or 'value="year"' in html and "checked" in html.split('value="year"')[1][:120], True)

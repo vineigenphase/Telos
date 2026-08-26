@@ -59,7 +59,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 1 | Schema for tiers/plans, migrations framework | `edc6343` | **live** |
 | 2 | Access control, `user_is_pro` single source of truth | `616346b` | **live** |
 | 3 | Predicted grade engine | `36cdb62` | **live** |
-| 5 | £4.99/mo + £29/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** |
+| 5 | £4.99/mo + £39.99/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** (yearly repriced 2026-08-26 — see below) |
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
 | 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
@@ -78,28 +78,34 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 1. **Phone test of Phase 0.6** — log an 8-question paper one-handed and time
    it; target is under 60 seconds. And with airplane mode on, entering a mark
    must show *"Not saved yet — will retry"*, never a false *"Saved"*.
-2. **Real Stripe checkout** with card `4242 4242 4242 4242` on the £29 plan,
-   confirming the webhook grants Pro within seconds.
-3. **Cancel → period-end → access-lost** path via Stripe clock simulation.
-4. **Live-mode Stripe swap** when ready for real money: recreate product,
+2. **Create the £39.99 annual price in Stripe and repoint
+   `STRIPE_PRICE_ANNUAL`.** This one blocks the others. The pricing table and
+   the landing page now say £39.99; Stripe still holds the £29 price, so the
+   page advertises one figure and would charge another. Leave existing £29
+   subscribers where they are.
+3. **Real Stripe checkout** with card `4242 4242 4242 4242` on the annual plan,
+   confirming the webhook grants Pro within seconds. Do this after item 2, or
+   it tests the old price.
+4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
+5. **Live-mode Stripe swap** when ready for real money: recreate product,
    both prices and the webhook endpoint in live mode, update the four env vars.
-5. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
+6. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
    install to home screen on a real iPhone and a real iPad and confirm it
    opens without browser chrome, correct icon/splash; confirm an
    already-installed copy picks up a new deploy within one refresh
    (the "Update available" toast).
-6. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
+7. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
    iframe (no horizontal overflow, 76px question rows, the due row exactly at
    the 44px floor) but never opened on actual hardware. Also worth confirming
    the picks feel right against your own logged papers rather than seeded ones.
-7. **The Today panel's "Revision due" section is wired but unexercised.** It
+8. **The Today panel's "Revision due" section is wired but unexercised.** It
    only rendered during review because three synthetic `revision_queue` rows
    were inserted by hand. Nothing writes to that table until Phase 6, so in
    production the count is 0 and the section is hidden. Ready, not working.
-8. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+9. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
-9. **The UI overhaul on real hardware.** Every screen was reviewed in the
+10. **The UI overhaul on real hardware.** Every screen was reviewed in the
    browser (and at 390px in a same-origin iframe, per the auditing gotcha
    below), but none of it has been opened on an actual phone or tablet. Worth
    a pass over the dashboard, the phone mark-entry flow and the three admin
@@ -515,6 +521,40 @@ family: that pattern also matches the board line `    "SQA": {` itself, so a
 search for the first entry must start past the block's opening brace, and
 truncating a block at its first entry removes the indent belonging to its own
 closing brace.
+
+**The landing page and pricing were reworked** (2026-08-26, owner's brief).
+
+- **Three plans, not two:** Free £0, Pro Monthly £4.99, Pro Yearly £39.99.
+  Clicking *Choose monthly* reveals an "Are you sure?" panel with the yearly
+  figure rather than navigating — an argument the student can walk past, with
+  two real exits. It is not a modal and it traps nobody.
+- **The advertised figures are derived, not typed.** £39.99 / 12 = £3.33 and
+  £4.99 x 12 - £39.99 = £19.89 -> "save £20". `tests/test_pricing.py` asserts
+  the label matches `amount_pence`, that the per-month figure and the saving in
+  `sub` are the real ones, and that yearly actually beats twelve months of
+  monthly. Change a price and the suite tells you which words now lie.
+- **`STRIPE_PRICE_ANNUAL` MUST BE REPOINTED.** The table says £39.99; Stripe
+  still holds the £29 price until a new one is created in the dashboard and the
+  env var updated. Until then the page advertises one figure and charges
+  another. Existing £29 subscribers stay on their price, exactly as the legacy
+  £2 subscribers do — never migrate or cancel them.
+- **`/stats` is now `@requires_pro`.** It was `@login_required` only while being
+  sold as a Pro feature. That is the same class of untruth as the `coming_soon`
+  flags that outlived their features. One line to revert — but then "Full stats
+  & topic analytics" has to come out of the Pro list at the same time.
+- **The spaced repetition queue was removed from the offer**, not left flagged.
+  A "soon" that never arrives is worse than an absence. Nothing in the Pro list
+  carries `coming_soon` any more, and the suite fails if anything does.
+
+**The eyebrow read "A-level past papers" while the catalogue carried four
+levels.** It told a Scottish or AS student, in the line above the headline, that
+this was not for them. It now names all four. Anything that describes coverage
+in prose — the eyebrow, the meta description, the mockups — has to move when the
+catalogue does; none of it is generated.
+
+**`TUTORING_EMAIL`** drives the tutoring section's "book a free call" mailto and
+defaults to the owner's personal address. Set it to a business address in
+Railway rather than editing the default.
 
 **Known good, don't "fix":**
 

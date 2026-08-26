@@ -84,10 +84,14 @@ PRICING = {
     "year": {
         "key": "year",
         "price_id": STRIPE_PRICE_ANNUAL,
-        "amount_pence": 2900,
-        "label": "£29",
+        "amount_pence": 3999,
+        "label": "£39.99",
         "period": "per year",
-        "sub": "That's £2.42/month — save £31 vs monthly.",
+        # 4.99 x 12 = 59.88, so the saving is 19.89 — "£20" rounded, and
+        # 39.99 / 12 = 3.3325. Both figures are derived below rather than
+        # trusted: a price that disagrees with its own arithmetic is the kind
+        # of thing nobody notices until a customer does.
+        "sub": "That's £3.33/month — save £20 vs monthly.",
         "recommended": True,
     },
     "legacy": {
@@ -101,6 +105,12 @@ PRICING = {
     },
 }
 DEFAULT_INTERVAL = "year"     # annual is preselected on purpose
+
+# Where the landing page's tutoring section sends a "book a free call". An
+# environment variable so a working address can be swapped in without a deploy,
+# and so the owner's personal inbox is a default rather than a decision made
+# for them.
+TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "svinujan10@gmail.com")
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
@@ -121,17 +131,18 @@ PRICING_FEATURES = {
         {"label": "Basic heatmap"},
         {"label": "File uploads (10 max)"},
     ],
-    # `coming_soon` must track what has actually shipped. Two of these were
-    # still flagged after the features went live — the pricing page was telling
-    # prospective subscribers that the two headline Pro features did not exist
-    # yet. Predicted grade shipped in Phase 3, the next-three-questions
-    # prescription in Phase 4; both are Pro-gated and both are live.
+    # `coming_soon` must track what has actually shipped, and nothing in this
+    # list carries it any more. Predicted grade shipped in Phase 3 and the
+    # next-three-questions prescription in Phase 4; stats and topic analytics
+    # are live too, and /stats is Pro-gated so that claim is true rather than
+    # aspirational. The spaced repetition queue was removed from the offer
+    # rather than left flagged — a "soon" that never arrives is worse than an
+    # absence.
     "pro": [
         {"label": "Everything in Free"},
         {"label": "Predicted grade + marks to next boundary"},
         {"label": "Your next 3 questions"},
-        {"label": "Spaced repetition queue", "coming_soon": True},
-        {"label": "Full stats & topic analytics", "coming_soon": True},
+        {"label": "Full stats & topic analytics"},
         {"label": "Pro Zone — resources, golden tips, monthly notes"},
         {"label": "Original mock papers"},
         {"label": "Unlimited file uploads"},
@@ -682,6 +693,7 @@ def dashboard():
         return render_template(
             "landing.html",
             pricing=PRICING,
+            tutoring_email=TUTORING_EMAIL,
             default_interval=DEFAULT_INTERVAL,
             pricing_features=PRICING_FEATURES,
         )
@@ -1715,7 +1727,15 @@ def serve_upload(filename):
 
 @app.route("/stats")
 @login_required
+@requires_pro("Full stats")
 def stats():
+    """Pro-gated because the pricing page sells it as Pro.
+
+    It was reachable on the free plan while being listed as a Pro feature,
+    which is the same class of untruth as the `coming_soon` flags that outlived
+    the features they described. One line to reverse if stats should be free —
+    but then it has to come out of the Pro list too.
+    """
     with get_db() as db:
         papers = db.execute(
             "SELECT * FROM papers WHERE user_id=? AND score IS NOT NULL "

@@ -523,3 +523,143 @@
   }
   .lp-nav { transition: none; }
 }
+
+/* ── Three plans ────────────────────────────────────────────────────────────
+   Two plans sat side by side comfortably; three need the grid told explicitly,
+   or the recommended one loses the width that makes it read as recommended. */
+.lp-plans.three {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+@media (min-width: 900px) {
+  .lp-plans.three { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Features grow, the button sits on the floor of the card. Without this the
+   three cards' buttons land at three different heights, which reads as an
+   accident rather than a hierarchy. */
+.lp-plan-features {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.lp-plan-note {
+  margin-top: 10px;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+/* ── The monthly second thought ─────────────────────────────────────────────
+   Deliberately quiet: a panel that appears in the flow, not a modal that traps
+   the page. It is an argument, and the student is allowed to walk past it. */
+.lp-upsell {
+  max-width: 620px;
+  margin: 26px auto 0;
+  padding: 22px 24px;
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  text-align: center;
+  outline: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 260ms ease-out, transform 260ms ease-out;
+}
+
+.lp-upsell.on { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-upsell { transition: none; }
+}
+
+.lp-upsell-q {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  margin: 0 0 6px;
+}
+
+.lp-upsell-p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.lp-upsell-p strong { color: var(--accent); font-weight: 600; }
+
+.lp-upsell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ── Tutoring ───────────────────────────────────────────────────────────────
+   A different kind of offer from the product above it, so it gets its own
+   ground rather than another row of plan cards. */
+.lp-tutor { border-top: 1px solid var(--border); }
+
+.lp-tutor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+@media (min-width: 860px) {
+  .lp-tutor-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.lp-tutor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface, transparent);
+}
+
+.lp-tutor-cta-card {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.lp-tutor-cta-card .btn { margin-top: auto; }
+
+.lp-tutor-h {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.lp-tutor-p {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+
+.lp-tutor-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.lp-tutor-list li {
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 100px;
+  padding: 3px 10px;
+}
