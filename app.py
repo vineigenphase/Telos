@@ -958,10 +958,14 @@ def recompute_predictions(user_id):
             "SELECT board, subject, paper_code, year, score, max_marks FROM papers "
             "WHERE user_id=? ORDER BY date_completed DESC, id DESC", (user_id,)
         ).fetchall()
-        bounds = db.execute(
-            "SELECT board, subject, paper_code, year, a_star, a_boundary, "
-            "b_boundary, c_boundary FROM grade_boundaries"
-        ).fetchall()
+        # The whole row, not a subset. This used to name four boundary columns
+        # and stopped there, so the published D and E values loaded by
+        # migrations 009-011 never reached the engine and every prediction
+        # inferred them instead. It also dropped derived_from_course, which is
+        # how a set says it was computed rather than published, and — worse for
+        # SQA — dropped the published D, leaving boundary_ladder to infer an E
+        # for a qualification graded A-D that has no E grade at all.
+        bounds = db.execute("SELECT * FROM grade_boundaries").fetchall()
 
     boundary_rows = [dict(b) for b in bounds]
     groups = {}
@@ -1000,16 +1004,16 @@ def recompute_predictions(user_id):
             db.execute(
                 "INSERT INTO grade_predictions "
                 "(user_id, board, subject, grade_score, predicted_grade, next_grade, "
-                " marks_to_next, confidence, sample_size, computed_at) "
-                "VALUES (?,?,?,?,?,?,?,?,?,NOW()) "
+                " marks_to_next, confidence, sample_size, estimated, computed_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,NOW()) "
                 "ON CONFLICT (user_id, board, subject) DO UPDATE SET "
                 " grade_score=EXCLUDED.grade_score, predicted_grade=EXCLUDED.predicted_grade, "
                 " next_grade=EXCLUDED.next_grade, marks_to_next=EXCLUDED.marks_to_next, "
                 " confidence=EXCLUDED.confidence, sample_size=EXCLUDED.sample_size, "
-                " computed_at=NOW()",
+                " estimated=EXCLUDED.estimated, computed_at=NOW()",
                 (user_id, board, subject, result["grade_score"], result["predicted_grade"],
                  result["next_grade"], result["marks_to_next"], result["confidence"],
-                 result["sample_size"])
+                 result["sample_size"], result.get("estimated", False))
             )
         # Subjects the user no longer has papers for shouldn't linger.
         keep = list(groups.keys())

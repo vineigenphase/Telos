@@ -129,6 +129,12 @@
       <div class="pred-grade">{{ p.predicted_grade }}</div>
       <div class="pred-meta">
         {% if p.confidence == 'low' %}<span class="badge-provisional">provisional</span>{% endif %}
+        {# SQA publishes cut-off scores for the whole course and never per
+           component, so these papers are graded against a boundary Telos
+           worked out rather than one a board printed. Said plainly instead of
+           being presented with the same authority as an AQA prediction. #}
+        {% if p.estimated %}<span class="badge-estimated"
+             data-tip="SQA publishes grade boundaries for the whole course, not for each paper. This is worked out from your components' share of the course boundary.">estimated</span>{% endif %}
         <span class="pred-sample">{{ p.sample_size }} paper{{ 's' if p.sample_size != 1 }}</span>
       </div>
       <div class="pred-next">

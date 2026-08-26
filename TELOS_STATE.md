@@ -429,6 +429,55 @@ but a reader expecting the A-level to be the anchor of every subject should know
 this one isn't. Advanced Higher English is *not* loaded; adding it is one entry
 in `gen_sqa_ah.py` and a rerun.
 
+**Coverage target is 2019 + 2022-2025, and 2020/2021 will never exist**
+(2026-08-26). Both series were cancelled across every board — grades came from
+centre and teacher assessment and no boundaries were published — so "every year
+since 2019" is five series, not seven. `test_boundaries.py` fails if a
+2020 or 2021 row ever reappears.
+
+Coverage now stands at **947 rows, 41 of 60 qualifications complete**. Every
+A-level and every AS-level is complete. What is left is SQA only, and each gap
+has a reason:
+
+- **SQA 2019 is impossible, not missing.** SQA's component-marks publication
+  begins in 2022. The course-level boundaries for 2019 exist, but deriving a
+  component boundary needs that year's component structure, and it was never
+  published. Inventing one would be the only way to fill this.
+- **SQA 2022 and 2023 are partial on purpose.** Those courses ran in a modified
+  form: coursework withdrawn and several question papers resized. A component
+  earns a row for a year only when it was the same paper that year — same code,
+  same max mark. Advanced Higher Physics' question paper was 155 marks in 2022
+  and 2023 against 120 now, so it gets no row for those years rather than a
+  boundary computed for a paper of a different length. The generators print
+  every skip with both max marks, so the gaps are visible on each run.
+- Each year is pro-rated against **its own** course total. In 2023 Higher
+  Biology Paper 2 was 95 marks of a 120-mark course, not 95 of 150 — using the
+  current total would have made a modified year unusable rather than partial.
+
+**Three more document quirks, all found by refusing to guess:**
+
+- **AQA's AS documents for 2018/2019 need `cryptography` installed** alongside
+  `pypdf` — they are encrypted where the later ones are not, and pypdf fails
+  with an opaque traceback rather than saying so.
+- **OCR published AS boundaries as their own document in 2019** ("Reformed AS
+  Levels"), with no AS section heading because the whole file is AS. The
+  extractor recognises an AS-only file by content — AS headings and no A-level
+  ones — rather than by title, so a combined document whose heading wording
+  changes again cannot have its A-level half read as AS.
+- **SQA renames its own components between years, again.** Beyond the
+  "Assignment: Writing" / "Assignment - Writing" case, 2023 writes "Reading for
+  Understanding  Analysis and Evaluation" with a double space where every other
+  year uses a comma. The normaliser now collapses commas too. Expect more of
+  this; normalise before comparing, never match SQA's names literally.
+
+**The component-marks reader handles four spreadsheet layouts.** 2022 leads
+with a Qualification Number column and heads on row 1; 2023 has no such column
+and heads on row 2; 2024 and 2025 head on row 3 and add an "Assessment Maximum
+Mark". The header row is found by looking for the Subject cell. Where a file
+carries no assessment total the components are summed and checked against the
+grade boundary release instead — a stronger check than reading a total from the
+same file it is meant to validate.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**

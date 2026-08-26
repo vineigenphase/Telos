@@ -423,6 +423,34 @@ const LOADER_DELAY = 180;
   window.addEventListener('pagehide', disarm);
 })();
 
+// ── Sign-out clears the offline cache ───────────────────────────────────────
+//
+// The service worker serves a cached page when the network is slow, not only
+// when it is down. That is what makes a cold open instant, and it is also why
+// signing out has to take the cached pages with it — otherwise the next person
+// to open the app on this device could be handed the previous account's
+// dashboard while the login redirect is still in flight.
+//
+// Sign-out is a POST form, not a link, so this listens for the submit. The
+// route also answers GET, which is why the worker refuses to cache that path
+// as well — belt and braces for a typed URL or an old bookmark.
+//
+// Best-effort on purpose: the submit is never blocked. If the message does not
+// land, the server has still ended the session and the cached page is a dead
+// copy that any interaction bounces off.
+document.addEventListener('submit', e => {
+  const form = e.target;
+  if (!form || !form.action) return;
+  let path;
+  try {
+    path = new URL(form.action, location.origin).pathname;
+  } catch (_err) {
+    return;
+  }
+  if (path !== '/logout') return;
+  navigator.serviceWorker?.controller?.postMessage({ type: 'telos-signout' });
+});
+
 // ── Subject picker ──────────────────────────────────────────────────────────
 //
 // Two purely visual jobs: reflect a ticked checkbox on its label, and dim the

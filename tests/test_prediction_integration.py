@@ -106,10 +106,53 @@ try:
         db.execute("DELETE FROM papers WHERE id=?", (pids[1],))
     A.recompute_predictions(uid)
     check("dropping below 3 papers clears the stale prediction", len(A.get_predictions(uid)), 0)
+
+    # ── the boundary row the engine actually receives ───────────────────────
+    #
+    # recompute_predictions used to SELECT four boundary columns and stop
+    # there. Everything downstream looked right — the ladder function prefers
+    # published D and E, and its unit test proved it — but the app never handed
+    # them over, so every live prediction inferred them. The same omission
+    # dropped derived_from_course, and for SQA it dropped the published D,
+    # leaving an E to be invented for a qualification graded A-D.
+    #
+    # This asserts on the data reaching the engine, because the fault was
+    # invisible in the output: an inferred D is a plausible number.
+    with get_db() as db:
+        row = dict(db.execute(
+            "SELECT * FROM grade_boundaries WHERE d_boundary IS NOT NULL LIMIT 1"
+        ).fetchone())
+    for col in ("d_boundary", "e_boundary", "derived_from_course"):
+        check(f"the engine is given {col}", col in row, True)
+
+    # And end to end: an SQA subject must come back estimated, graded A-D.
+    with get_db() as db:
+        db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
+                   "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                   (uid, "SQA", "Physics (AH)", "Advanced Higher"))
+        for i, sc in enumerate((95, 92, 98, 90)):
+            cur = db.execute(
+                """INSERT INTO papers (user_id, subject, board, paper_code, year, series,
+                                       score, max_marks, date_completed, weak_topics, notes)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                (uid, "Physics (AH)", "SQA", "Question Paper", "2025", "June",
+                 sc, 120, "2026-08-0%d" % (i + 1), "", ""))
+            pids.append(cur.lastrowid)
+    A.recompute_predictions(uid)
+    sqa = [p for p in A.get_predictions(uid) if p["board"] == "SQA"]
+    check("an SQA subject predicts", len(sqa), 1)
+    if sqa:
+        check("...and is flagged estimated", bool(sqa[0]["estimated"]), True)
+        check("...and is graded on the A-D scale",
+              sqa[0]["predicted_grade"] in ("A", "B", "C", "D", "U"), True)
+        check("...never an E, which SQA does not award",
+              sqa[0]["predicted_grade"] != "E", True)
 finally:
     with get_db() as db:
         if uid:
             db.execute("DELETE FROM grade_predictions WHERE user_id=?", (uid,))
+            db.execute("DELETE FROM grade_prediction_history WHERE user_id=?", (uid,))
+            db.execute("DELETE FROM user_subjects WHERE user_id=?", (uid,))
             for pid in pids:
                 db.execute("DELETE FROM question_marks WHERE paper_id=?", (pid,))
             db.execute("DELETE FROM papers WHERE user_id=?", (uid,))

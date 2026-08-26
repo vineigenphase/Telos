@@ -443,7 +443,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Pure Mathematics and Mechanics", "max_marks": 80},
                 {"code": "Paper 2", "name": "Pure Mathematics and Statistics", "max_marks": 80},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Proof", "Algebra and Functions", "Coordinate Geometry",
@@ -472,7 +473,8 @@ TEMPLATES = {
                 {"code": "Paper 2S", "name": "Statistics", "max_marks": 40, "optional": True},
             ],
             "choose_optional": 2,
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Complex Numbers", "Matrices", "Further Algebra and Functions",
@@ -498,7 +500,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Sections 1-5", "max_marks": 70},
                 {"code": "Paper 2", "name": "Sections 1-5 and Practical Skills", "max_marks": 70},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Measurements and Their Errors", "Particles and Radiation", "Waves",
@@ -519,7 +522,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Inorganic and Physical Chemistry", "max_marks": 80},
                 {"code": "Paper 2", "name": "Organic and Physical Chemistry", "max_marks": 80},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Atomic Structure", "Amount of Substance", "Bonding", "Energetics",
@@ -542,7 +546,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Topics 1-4", "max_marks": 75},
                 {"code": "Paper 2", "name": "Topics 1-4 and Practical Skills", "max_marks": 75},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Monomers and Polymers", "Carbohydrates", "Lipids", "Proteins",
@@ -576,7 +581,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Physical Geography and People and the Environment", "max_marks": 80},
                 {"code": "Paper 2", "name": "Human Geography and Geography Fieldwork Investigation", "max_marks": 80},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Water and Carbon Cycles", "Hot Desert Systems and Landscapes",
@@ -596,7 +602,8 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "The Operation of Markets and Market Failure", "max_marks": 70},
                 {"code": "Paper 2", "name": "The National Economy in a Global Context", "max_marks": 70},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Economic Methodology and the Economic Problem",
@@ -622,7 +629,8 @@ TEMPLATES = {
                 {"code": "Paper 2", "name": "Writing", "max_marks": 50},
                 {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Aspects of Society: Current Trends", "Artistic Culture",
@@ -644,7 +652,8 @@ TEMPLATES = {
                 {"code": "Paper 2", "name": "Writing", "max_marks": 50},
                 {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Aspects of Society: Current Trends", "Artistic Culture",
@@ -666,7 +675,8 @@ TEMPLATES = {
                 {"code": "Paper 2", "name": "Writing", "max_marks": 50},
                 {"code": "Paper 3", "name": "Speaking", "max_marks": 60, "assessment": "oral"},
             ],
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # Every series AQA has run for these AS qualifications.
+            "years": ["SPEC", "2018", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Aspects of Society: Current Trends", "Artistic Culture",
@@ -1226,9 +1236,10 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Pure Mathematics and Statistics", "max_marks": 75},
                 {"code": "Paper 2", "name": "Pure Mathematics and Mechanics", "max_marks": 75},
             ],
-            # OCR published AS boundaries in a separate document
-            # before 2022; those series are not stored.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # 2019 is from OCR's AS-only "Reformed AS Levels" document;
+            # from 2022 the AS tables are a section of the combined series
+            # document. No 2018 to hand.
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Proof", "Algebra and Functions", "Coordinate Geometry",
@@ -1258,9 +1269,10 @@ TEMPLATES = {
                 {"code": "Y535", "name": "Additional Pure Maths", "max_marks": 60, "optional": True},
             ],
             "choose_optional": 2,
-            # OCR published AS boundaries in a separate document
-            # before 2022; those series are not stored.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # 2019 is from OCR's AS-only "Reformed AS Levels" document;
+            # from 2022 the AS tables are a section of the combined series
+            # document. No 2018 to hand.
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Y531": [
                           "Matrices", "Complex Numbers", "Vectors", "Algebra", "Series",
@@ -1289,9 +1301,10 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Breadth in Physics", "max_marks": 70},
                 {"code": "Paper 2", "name": "Depth in Physics", "max_marks": 70},
             ],
-            # OCR published AS boundaries in a separate document
-            # before 2022; those series are not stored.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # 2019 is from OCR's AS-only "Reformed AS Levels" document;
+            # from 2022 the AS tables are a section of the combined series
+            # document. No 2018 to hand.
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Planning", "Implementing", "Analysis", "Evaluation",
@@ -1319,9 +1332,10 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Breadth in Chemistry", "max_marks": 70},
                 {"code": "Paper 2", "name": "Depth in Chemistry", "max_marks": 70},
             ],
-            # OCR published AS boundaries in a separate document
-            # before 2022; those series are not stored.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # 2019 is from OCR's AS-only "Reformed AS Levels" document;
+            # from 2022 the AS tables are a section of the combined series
+            # document. No 2018 to hand.
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Planning", "Implementing", "Analysis", "Evaluation",
@@ -1353,9 +1367,10 @@ TEMPLATES = {
                 {"code": "Paper 1", "name": "Breadth in Biology", "max_marks": 70},
                 {"code": "Paper 2", "name": "Depth in Biology", "max_marks": 70},
             ],
-            # OCR published AS boundaries in a separate document
-            # before 2022; those series are not stored.
-            "years": ["SPEC", "2022", "2023", "2024", "2025"],
+            # 2019 is from OCR's AS-only "Reformed AS Levels" document;
+            # from 2022 the AS tables are a section of the combined series
+            # document. No 2018 to hand.
+            "years": ["SPEC", "2019", "2022", "2023", "2024", "2025"],
             "topics": {
                 "Paper 1": [
                           "Planning", "Implementing", "Analysis", "Evaluation", "Cell Structure",

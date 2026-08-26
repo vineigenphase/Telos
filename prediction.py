@@ -181,7 +181,26 @@ def _median_set(rows):
     d, e = col("d_boundary"), col("e_boundary")
     if d is not None and e is not None:
         out["d_boundary"], out["e_boundary"] = d, e
+
+    # Derivation is infectious: a median that draws on even one estimated row
+    # is itself an estimate, and saying otherwise would launder it.
+    out["derived_from_course"] = any(
+        _is_derived(r) for r in rows)
     return out
+
+
+def _is_derived(bs):
+    """Whether a boundary set was computed rather than published.
+
+    SQA publishes cut-off scores for the whole course only, so a component's
+    boundary is its share of one. Rows carry derived_from_course to say so; a
+    plain mapping without the key is treated as published, which is what every
+    hand-built set in the tests is.
+    """
+    try:
+        return bool(bs["derived_from_course"])
+    except (KeyError, IndexError, TypeError):
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -312,6 +331,7 @@ def predict(attempts, boundary_rows, reference_year=None):
             "attempt": a,
             "score": attempt_grade_score(a["score"], bs, a["max_marks"]),
             "boundary_source": source,
+            "estimated": _is_derived(bs),
         })
 
     n = len(scored)
@@ -373,4 +393,9 @@ def predict(attempts, boundary_rows, reference_year=None):
         "sample_size": n,
         "skipped": skipped,
         "provisional": conf == "low",
+        # True when any paper behind this prediction was graded against a
+        # boundary Telos computed rather than one a board published. Only SQA
+        # produces these today. The dashboard says so rather than presenting an
+        # estimate with the same authority as a published boundary.
+        "estimated": any(s_["estimated"] for s_ in scored),
     }

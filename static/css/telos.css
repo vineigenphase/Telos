@@ -1509,6 +1509,21 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   white-space: nowrap;
 }
 
+/* "estimated" is a statement about where a number came from, not a warning,
+   so it sits quieter than .badge-provisional — muted rather than gold, which
+   is reserved for a prediction that is not yet trustworthy. A prediction can
+   be both, and the two must not compete. */
+.badge-estimated {
+  font-size: 10px; font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 0 6px;
+  margin-left: 4px;
+  white-space: nowrap;
+  cursor: help;
+}
+
 .statrow-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .statrow-sub a { color: var(--accent); text-decoration: none; }
 
