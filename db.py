@@ -28,6 +28,7 @@ from __future__ import annotations
 import os
 import re
 import threading
+import time
 
 import psycopg
 from psycopg import sql as _sql
@@ -178,14 +179,55 @@ class Connection:
         self._conn = conn
         self._pool = pool
         self._closed = False
+        # Whether any statement has succeeded on this connection since it was
+        # borrowed. Once one has, a retry could replay half a transaction, so
+        # the retry below refuses.
+        self._used = False
+
+    def _replace_dead(self):
+        """Discard a connection found dead and borrow a live one.
+
+        Only ever called before the first successful statement. The pool sees a
+        broken connection on putconn and drops it rather than pooling it again.
+        """
+        try:
+            self._pool.putconn(self._conn)
+        except Exception:
+            pass
+        self._conn = self._pool.getconn()
+
+    def _attempt(self, run):
+        """Run `run(conn)`, replacing the connection once if it turns out dead.
+
+        This is what lets the checkout grace above be safe. Skipping the
+        pre-emptive check means a connection killed within the grace window is
+        handed out alive-looking and fails on first use; catching that here and
+        retrying on a fresh connection restores the behaviour the check gave,
+        without paying a round trip on every checkout to get it.
+
+        The retry is refused once any statement has succeeded: at that point
+        there is a transaction in progress and re-running one statement of it
+        against a new connection would be worse than the error.
+        """
+        try:
+            out = run(self._conn)
+        except DEAD_CONNECTION:
+            if self._used or self._closed:
+                raise
+            self._replace_dead()
+            out = run(self._conn)
+        self._used = True
+        return out
 
     def execute(self, sql, params=()):
-        cur = Cursor(self._conn.cursor(row_factory=_row_factory), self._conn)
-        return cur.execute(sql, params)
+        return self._attempt(
+            lambda conn: Cursor(conn.cursor(row_factory=_row_factory),
+                                conn).execute(sql, params))
 
     def executemany(self, sql, seq):
-        cur = Cursor(self._conn.cursor(row_factory=_row_factory), self._conn)
-        return cur.executemany(sql, seq)
+        return self._attempt(
+            lambda conn: Cursor(conn.cursor(row_factory=_row_factory),
+                                conn).executemany(sql, seq))
 
     def executescript(self, script):
         """sqlite3 compatibility — runs a multi-statement script."""
@@ -210,6 +252,12 @@ class Connection:
             self._conn.commit()
         except Exception:
             self._conn.rollback()
+        # Stamped on the way back so _check_if_idle knows how long this
+        # connection has been sitting in the pool.
+        try:
+            self._conn._telos_returned_at = time.monotonic()
+        except Exception:
+            pass
         self._pool.putconn(self._conn)
 
     # context-manager support: `with get_db() as db:`
@@ -257,10 +305,40 @@ def _get_pool():
                     # pool and quietly replaces it if it is dead. The cost is a
                     # round-trip per checkout; the alternative is that waking
                     # the app looks like an outage.
-                    check=ConnectionPool.check_connection,
+                    check=_check_if_idle,
                     open=True,
                 )
     return _pool
+
+
+# A connection handed back a moment ago cannot have died of an idle timeout in
+# between, so testing it costs a round trip and proves nothing. One dashboard
+# render borrows a connection thirteen times within a few milliseconds; at
+# roughly 12ms a check that was about 158ms of pure overhead per page.
+#
+# 15 seconds is chosen against the failure this guards. Neon suspends after
+# minutes of inactivity, and the pool closes its own idle connections at
+# max_idle=300 — so in the scale-to-zero case a connection has always been idle
+# far longer than the grace and is still checked. What the grace gives up is
+# protection against a connection killed WITHIN 15 seconds of being used, which
+# is a restart or a network fault rather than a scale-to-zero. That case is
+# covered instead by the retry in Connection.execute: a dead connection found
+# on the first statement is replaced and the statement runs again.
+CHECK_GRACE_SECONDS = 15.0
+
+# Connection-level failures worth retrying. AdminShutdown — the exact error
+# Neon's shutdown produced — is an OperationalError; InterfaceError is a socket
+# already closed underneath us. A query that is simply wrong raises something
+# else and is never retried.
+DEAD_CONNECTION = (psycopg.OperationalError, psycopg.InterfaceError)
+
+
+def _check_if_idle(conn):
+    """Test a pooled connection, unless it was in use moments ago."""
+    last = getattr(conn, "_telos_returned_at", None)
+    if last is not None and (time.monotonic() - last) < CHECK_GRACE_SECONDS:
+        return
+    ConnectionPool.check_connection(conn)
 
 
 def get_db():

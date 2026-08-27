@@ -617,21 +617,40 @@ leftover under that email before inserting. Add a suite, use the helper.
   never-cache prefixes and the suite asserts every entry. Anything added to one
   list belongs in the other.
 
-**The dashboard makes 13 pool checkouts and `db.py` checks the connection on
-every one** — measured at 12.2ms each from a developer machine, so about 158ms
-of a dashboard render is checkout overhead before a single real query runs.
-`/papers` is 6 checkouts, `/heatmap` 5. This is the largest remaining slowness
-and it is NOT fixed: both routes to fixing it have real costs.
+**The checkout check now has a 15-second grace, and a retry that makes the
+grace safe** (2026-08-27, owner's call). Testing every checkout cost a round
+trip, and one dashboard render borrows a connection thirteen times within a few
+milliseconds — about 158ms of pure overhead per page.
 
-    sharing one connection per request  -> changes transaction boundaries for
-                                           every write path in the app
-    skipping the check when a connection
-    was used seconds ago               -> weakens the Neon-sleep resilience the
-                                           check exists for, which is the bug
-                                           that produced runs of 500s
+    page        check always   15s grace    saved
+    /               744 ms       600 ms     145 ms
+    /papers         318 ms       258 ms      60 ms
+    /heatmap        235 ms       187 ms      48 ms
 
-`db.py` is under the don't-touch-without-asking rule and neither option is
-obviously right, so it stays measured and unfixed rather than quietly changed.
+    empty checkout   12.2 ms  ->  0.5 ms
+
+**The grace on its own would have been a downgrade.** `test_db_resilience.py`
+kills a backend and re-checks out within milliseconds, so the kill lands inside
+the grace, the pre-emptive check is skipped, and the corpse is handed out. The
+suite would have failed — correctly.
+
+So `Connection.execute` replaces the connection and retries **once**, and only
+before any statement has succeeded: after that there is a transaction in
+progress, and replaying one statement of it against a fresh connection is worse
+than the error. `_used` is the flag that enforces it.
+
+The trade is therefore not "less safe, more fast". It is: stop paying a round
+trip on every checkout to PREDICT a dead connection, and instead pay nothing
+until one actually turns up, then recover. Strictly better than before.
+
+Fourteen checks pin it — an unstamped connection is checked, one returned
+moments ago is not, one idle past the grace is, a dead connection is retried,
+and a dead connection mid-transaction is not. Do not add the grace anywhere
+else without the matching retry.
+
+**What is left of dashboard latency is real queries.** ~600ms across 13 Neon
+round trips. Cutting it means reducing the NUMBER of queries — several helpers
+fetch overlapping data — which is an `app.py` refactor, not a config change.
 
 **Known good, don't "fix":**
 
