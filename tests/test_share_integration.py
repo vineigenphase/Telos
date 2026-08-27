@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
 from werkzeug.security import generate_password_hash  # noqa: E402
+from _fixtures import fresh_user, purge_user  # noqa: E402
 
 app = A.app
 app.debug = False
@@ -32,14 +33,10 @@ uid = other_uid = None
 tokens = []
 try:
     with get_db() as db:
-        uid = db.execute(
-            "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-            ("p9-test@telos.local", "p9test",
-             generate_password_hash("Passw0rd!x"))).lastrowid
-        other_uid = db.execute(
-            "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-            ("p9-other@telos.local", "p9other",
-             generate_password_hash("Passw0rd!x"))).lastrowid
+        uid = fresh_user(db, "p9-test@telos.local", "p9test",
+                         generate_password_hash("Passw0rd!x"))
+        other_uid = fresh_user(db, "p9-other@telos.local", "p9other",
+                               generate_password_hash("Passw0rd!x"))
         # Give the account a subject. Every app page redirects a signed-in
         # student with no subjects to setup, so a test user without one
         # never reaches the page it is trying to assert on.

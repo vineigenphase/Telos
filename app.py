@@ -110,7 +110,7 @@ DEFAULT_INTERVAL = "year"     # annual is preselected on purpose
 # default is the address the tutoring goes to, so the page works from a clean
 # checkout with nothing configured. Still an environment variable, so it can be
 # repointed without a deploy.
-TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "telostutor@gmail.com")
+TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "tutor.telos@gmail.com")
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files

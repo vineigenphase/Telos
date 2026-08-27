@@ -44,22 +44,69 @@
       </div>
     </div>
 
-    {# The paid plan carries a brass rule across its top and a brass border.
-       This is the one place in the app where the accent is allowed to outline
-       a whole element rather than mark a single control — it is the page whose
-       entire job is to distinguish two plans, and the distinction should not
-       depend on the reader noticing a slightly lighter grey. #}
+    {# One card per plan. The two paid tiers used to share a single card with
+       a radio pair inside it, which asked the reader to compare two prices
+       nested in the middle of a feature list. Three cards put the choice where
+       the eye already is.
+
+       Monthly and yearly are the same product — the feature list below is
+       identical on purpose, because it is identical in fact, and trimming it
+       on the monthly card to make yearly look richer would be a lie about what
+       £4.99 buys. #}
+    {% set monthly = pricing["month"] %}
+    {% set yearly  = pricing["year"] %}
+
+    <div class="plan-card">
+      <div class="plan-name">Pro Monthly</div>
+      <div class="plan-price">{{ monthly.label }}</div>
+      <div class="plan-period">{{ monthly.period }}</div>
+      <div class="plan-sub">
+        £{{ monthly.amount_pence * 12 // 100 }}.{{ '%02d' % (monthly.amount_pence * 12 % 100) }}
+        a year at this rate.
+      </div>
+
+      <div class="plan-features">
+        {% for f in pricing_features.pro %}
+        <div class="plan-feature{{ ' soon' if f.coming_soon }}">
+          {% if f.coming_soon %}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {% else %}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+          {% endif %}
+          {{ f.label }}
+          {% if f.coming_soon %}<span class="soon-tag">soon</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if not is_pro_user and stripe_enabled %}
+      <form method="POST" action="{{ url_for('create_checkout') }}" class="plan-form">
+        <input type="hidden" name="from" value="{{ came_from }}">
+        <input type="hidden" name="interval" value="month">
+        <button type="submit" class="btn btn-ghost btn-block">Choose monthly</button>
+        {# The saving, said once, next to the button it applies to. #}
+        <div class="plan-smallprint">
+          Yearly is {{ yearly.label }} — {{ yearly.sub }}
+        </div>
+      </form>
+      {% endif %}
+    </div>
+
+    {# The recommended plan carries a brass rule across its top and a brass
+       border. This is the one place in the app where the accent outlines a
+       whole element rather than marking a single control — it is the page whose
+       entire job is to distinguish plans, and the distinction should not depend
+       on the reader noticing a slightly lighter grey. #}
     <div class="plan-card pro">
       <div class="plan-name">
-        Telos Pro
+        Pro Yearly
         <span class="plan-flag">Recommended</span>
       </div>
-      {% set default_plan = pricing[default_interval] %}
-      <div class="plan-price">{{ default_plan.label }}</div>
-      <div class="plan-period">{{ default_plan.period }}</div>
+      <div class="plan-price">{{ yearly.label }}</div>
+      <div class="plan-period">{{ yearly.period }}</div>
       {# The saving is stated as a number rather than badged "BEST VALUE" —
          it is a fact the reader can check, which a badge is not. #}
-      <div class="plan-sub">{{ default_plan.sub }}</div>
+      <div class="plan-sub">{{ yearly.sub }}</div>
 
       <div class="plan-features">
         {% for f in pricing_features.pro %}
@@ -79,25 +126,11 @@
         {% if stripe_enabled %}
         <form method="POST" action="{{ url_for('create_checkout') }}" class="plan-form">
           <input type="hidden" name="from" value="{{ came_from }}">
-
-          {# Annual is preselected on purpose: A-level revision collapses in
-             June, so monthly billing gets ~7 payments then permanent churn. #}
-          <div class="interval-list">
-            {% for plan in plans %}
-            <label class="interval{{ ' selected' if plan.key == default_interval }}">
-              <input type="radio" name="interval" value="{{ plan.key }}"
-                     {% if plan.key == default_interval %}checked{% endif %}>
-              <span class="interval-body">
-                <span class="interval-head">
-                  <span class="interval-label">{{ plan.label }}</span>
-                  <span class="interval-period">{{ plan.period }}</span>
-                </span>
-                <span class="interval-sub">{{ plan.sub }}</span>
-              </span>
-            </label>
-            {% endfor %}
-          </div>
-
+          {# The interval is the card, so there is nothing left to choose here.
+             Annual leads for a reason worth keeping written down: A-level
+             revision collapses in June, so monthly billing takes about seven
+             payments and then churns permanently. #}
+          <input type="hidden" name="interval" value="year">
           <button type="submit" class="btn btn-primary btn-lg btn-block">Upgrade to Pro</button>
           <div class="plan-smallprint">
             Cancel any time from this page. Telos never stores your card details.

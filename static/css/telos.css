@@ -1179,11 +1179,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .plan-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
 
 .plan-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px 18px;
   text-align: left;
 }
+
+/* Features take the slack so the three call-to-action buttons land on the same
+   line. Three buttons at three heights reads as an accident. */
+.plan-card .plan-features { flex: 1 1 auto; }
+.plan-card .plan-form { margin-top: auto; }
 /* The paid plan is outlined in brass, with a rule across its top edge. The
    rest of the app keeps the accent to single controls; this is the deliberate
    exception, because distinguishing the two plans is the entire job of this
@@ -1846,7 +1853,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   /* stretch, not start: the two plans are a comparison, and cards that end
      at different heights read as an alignment bug rather than as a
      difference in what you get. */
-  .plan-grid  { grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+  /* Three plans now, not two. Left at 1fr 1fr the third wrapped underneath
+     and read as an afterthought rather than as one of three choices. */
+  .plan-grid  { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 
   /* Two-column: weakest-topics list on the left, the full grid on the right.
      iPad is where students actually revise, so it gets a real layout rather

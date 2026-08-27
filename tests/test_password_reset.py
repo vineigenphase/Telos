@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
 from werkzeug.security import check_password_hash, generate_password_hash  # noqa: E402
+from _fixtures import fresh_user, purge_user  # noqa: E402
 
 app = A.app
 app.debug = False
@@ -26,10 +27,8 @@ orig_hash = None
 try:
     # Throwaway account so the owner's password is never touched.
     with get_db() as db:
-        cur = db.execute(
-            "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-            ("reset-test@telos.local", "resettest", generate_password_hash("OriginalPw1!")))
-        uid = cur.lastrowid
+        uid = fresh_user(db, "reset-test@telos.local", "resettest",
+                         generate_password_hash("OriginalPw1!"))
         orig_hash = db.execute("SELECT password_hash FROM users WHERE id=?", (uid,)).fetchone()["password_hash"]
 
     # 1. Unknown address gets the same answer as a known one (no account oracle)

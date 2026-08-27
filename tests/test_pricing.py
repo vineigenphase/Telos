@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
 from werkzeug.security import generate_password_hash  # noqa: E402
+from _fixtures import fresh_user, purge_user  # noqa: E402
 
 app = A.app
 app.debug = False
@@ -39,11 +40,9 @@ CUST = "cus_phase5_test_donotmatch"
 c = app.test_client()
 try:
     with get_db() as db:
-        cur = db.execute("INSERT INTO users (email, username, password_hash, stripe_customer_id) "
-                         "VALUES (?,?,?,?)",
-                         ("p5-test@telos.local", "p5test",
-                          generate_password_hash("Passw0rd!x"), CUST))
-        uid = cur.lastrowid
+        uid = fresh_user(db, "p5-test@telos.local", "p5test",
+                         generate_password_hash("Passw0rd!x"),
+                         stripe_customer_id=CUST)
         # Every app page redirects a signed-in student with no subjects to
         # setup, so a test user without one never reaches the page under test.
         db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
@@ -93,9 +92,16 @@ try:
     check("shows £4.99", "£4.99" in html, True)
     check("shows the monthly equivalent", "£3.33/month" in html, True)
     check("shows the saving", "save £20" in html.lower(), True)
-    check("annual radio is preselected",
-          'value="year"' in html and 'value="year"\n                     checked' in html.replace("\r", "")
-          or 'value="year"' in html and "checked" in html.split('value="year"')[1][:120], True)
+    # The interval used to be a radio pair nested inside one Pro card. It is
+    # now one card per plan, each posting a fixed interval — so there is no
+    # preselection to get wrong, and nothing for a reader to mis-tick.
+    check("three plans are offered", html.count('class="plan-card'), 3)
+    check("monthly posts its own interval",
+          'name="interval" value="month"' in html, True)
+    check("yearly posts its own interval",
+          'name="interval" value="year"' in html, True)
+    check("the radio pair is gone", "interval-list" in html, False)
+    check("the yearly saving sits with the monthly button", "save £20" in html, True)
     check("no hardcoded old £2 upgrade button", "Upgrade — £2/month" in html, False)
     check("landing from a locked feature is logged",
           A.get_predictions is not None, True)   # placeholder to keep numbering

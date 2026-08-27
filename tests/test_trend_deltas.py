@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
 from werkzeug.security import generate_password_hash  # noqa: E402
+from _fixtures import fresh_user, purge_user  # noqa: E402
 
 app = A.app
 app.debug = False
@@ -29,10 +30,8 @@ uid = None
 pids = []
 try:
     with get_db() as db:
-        cur = db.execute("INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-                         ("delta-test@telos.local", "deltatest",
-                          generate_password_hash("Passw0rd!x")))
-        uid = cur.lastrowid
+        uid = fresh_user(db, "delta-test@telos.local", "deltatest",
+                         generate_password_hash("Passw0rd!x"))
         db.execute("UPDATE users SET grandfathered=true WHERE id=?", (uid,))
 
     # 1. Schema actually landed

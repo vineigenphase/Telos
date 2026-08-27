@@ -78,34 +78,30 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 1. **Phone test of Phase 0.6** — log an 8-question paper one-handed and time
    it; target is under 60 seconds. And with airplane mode on, entering a mark
    must show *"Not saved yet — will retry"*, never a false *"Saved"*.
-2. **Create the £39.99 annual price in Stripe and repoint
-   `STRIPE_PRICE_ANNUAL`.** This one blocks the others. The pricing table and
-   the landing page now say £39.99; Stripe still holds the £29 price, so the
-   page advertises one figure and would charge another. Leave existing £29
-   subscribers where they are.
-3. **Real Stripe checkout** with card `4242 4242 4242 4242` on the annual plan,
-   confirming the webhook grants Pro within seconds. Do this after item 2, or
-   it tests the old price.
-4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
-5. **Live-mode Stripe swap** when ready for real money: recreate product,
-   both prices and the webhook endpoint in live mode, update the four env vars.
-6. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
+2. **Real Stripe checkout** with card `4242 4242 4242 4242` on the annual plan,
+   confirming the webhook grants Pro within seconds. The £39.99 test price now
+   exists and is wired up (see below), so this tests the right figure.
+3. **Cancel → period-end → access-lost** path via Stripe clock simulation.
+4. **Live-mode Stripe swap** when ready for real money: recreate the product,
+   all three prices and the webhook endpoint in live mode, then update the four
+   env vars. Everything configured so far is test mode.
+5. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
    install to home screen on a real iPhone and a real iPad and confirm it
    opens without browser chrome, correct icon/splash; confirm an
    already-installed copy picks up a new deploy within one refresh
    (the "Update available" toast).
-7. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
+6. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
    iframe (no horizontal overflow, 76px question rows, the due row exactly at
    the 44px floor) but never opened on actual hardware. Also worth confirming
    the picks feel right against your own logged papers rather than seeded ones.
-8. **The Today panel's "Revision due" section is wired but unexercised.** It
+7. **The Today panel's "Revision due" section is wired but unexercised.** It
    only rendered during review because three synthetic `revision_queue` rows
    were inserted by hand. Nothing writes to that table until Phase 6, so in
    production the count is 0 and the section is hidden. Ready, not working.
-9. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+8. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
-10. **The UI overhaul on real hardware.** Every screen was reviewed in the
+9. **The UI overhaul on real hardware.** Every screen was reviewed in the
    browser (and at 390px in a same-origin iframe, per the auditing gotcha
    below), but none of it has been opened on an actual phone or tablet. Worth
    a pass over the dashboard, the phone mark-entry flow and the three admin
@@ -553,10 +549,46 @@ in prose — the eyebrow, the meta description, the mockups — has to move when
 catalogue does; none of it is generated.
 
 **`TUTORING_EMAIL`** drives the tutoring section's "book a free call" mailto.
-It defaults to `telostutor@gmail.com`, so the page works from a clean checkout
+It defaults to `tutor.telos@gmail.com`, so the page works from a clean checkout
 with nothing configured; the environment variable is there to repoint it
 without a deploy. The founder's personal address is deliberately not the
 fallback — a landing page publishes whatever it is given.
+
+**Stripe now matches the pricing table** (2026-08-26, test mode).
+
+    price_1U8pgMQh06XJIdap5l5YBVRy   £39.99 / year   <- STRIPE_PRICE_ANNUAL
+    price_1U5w6XQh06XJIdapt3F1kkuR   £29.00 / year      left active
+    price_1U5w6WQh06XJIdapQUfJRkQ2   £4.99  / month  <- STRIPE_PRICE_MONTHLY
+    price_1U3drKQh06XJIdapskilvmkh   £2.00  / month  <- STRIPE_PRICE_LEGACY
+
+- The £39.99 price sits on the **same product** as the old annual one
+  (`prod_V3lOOOHqOsq4IH`), so the billing portal, the webhook and plan changes
+  treat them as one product with several prices rather than unrelated things.
+  Create any future price the same way.
+- **The £29 price is still active and nobody was moved off it**, which is the
+  same rule the legacy £2 price has always had. Never migrate or cancel either.
+- Reversal, should it be wanted: archive `price_1U8pgM…` and set
+  `STRIPE_PRICE_ANNUAL` back to `price_1U5w6X…`.
+- **All of this is test mode.** `sk_test_…`. The live-mode swap remains a
+  separate job: recreate the product, all three prices and the webhook endpoint
+  in live mode, then update the four environment variables.
+
+**`/subscription` shows three cards, not two with a radio inside one.** Free,
+Pro Monthly and Pro Yearly. The two paid cards carry an **identical** feature
+list on purpose — the product is identical, and trimming the monthly list to
+flatter yearly would misrepresent what £4.99 buys. The interval is the card, so
+each posts a fixed `interval` to `create_checkout` and there is no radio left to
+mis-read. Annual still leads for the reason worth keeping written down: A-level
+revision collapses in June, so monthly billing takes about seven payments and
+then churns permanently.
+
+**Every suite that creates a throwaway user uses `tests/_fixtures.py`.** All
+eight, not the two that were converted when the helper was written. Leaving the
+rest on raw INSERTs was a mistake that cost a full suite run the first time a
+session was paused mid-flight: the killed suite's `finally` never ran, its user
+was left behind, and the next run died on a unique constraint in a suite that
+had nothing to do with what was being changed. `fresh_user()` clears any
+leftover under that email before inserting. Add a suite, use the helper.
 
 **Known good, don't "fix":**
 
