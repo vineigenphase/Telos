@@ -103,7 +103,48 @@ try:
 
     r = c.get(f"/papers/{pid}/enter")
     check("GET enter flow", r.status_code, 200)
-    check("enter flow has keypad", 'id="keypad"' in r.data.decode(), True)
+    _enter = r.data.decode()
+    check("enter flow has keypad", 'id="keypad"' in _enter, True)
+
+    # ── the offline promise ─────────────────────────────────────────────────
+    #
+    # Phase 0.6 says a mark entered with no connection must read "Not saved yet
+    # — will retry" and must never read "Saved". That is a correctness claim,
+    # not a matter of taste: a student who sees "Saved" and closes the app has
+    # lost the mark and does not know it.
+    #
+    # These check the shape of the code that makes the promise, since the flow
+    # itself only runs in a browser.
+    check("an unsaved mark says so, in those words",
+          "Not saved yet — will retry" in _enter, True)
+    check("...and a failed save marks the question unsaved",
+          "q.saved = false;" in _enter and "Pending.put(q)" in _enter, True)
+    check("...and retries on a timer rather than giving up",
+          "setTimeout(() => save(q), 4000)" in _enter, True)
+    check("...and again the moment the connection returns",
+          "addEventListener('online'" in _enter, True)
+    check("...and replays anything left over from a previous session",
+          "Pending.allForPaper()" in _enter, True)
+
+    # "Saved" must be reachable only from a response the server actually
+    # accepted. If setStatus('saved') ever appears outside that .then chain,
+    # this is the check that notices.
+    _saved_calls = _enter.count("setStatus('saved')")
+    check("'Saved' is set in exactly one place", _saved_calls, 1)
+    _after_ok = _enter.split("r.ok ? r.json() : Promise.reject")[1][:400]         if "r.ok ? r.json() : Promise.reject" in _enter else ""
+    check("...and that place is the success path of an accepted response",
+          "setStatus('saved')" in _after_ok, True)
+
+    # ── one-handed cost ─────────────────────────────────────────────────────
+    #
+    # The target is an eight-question paper in under a minute. The mark
+    # allocation carries from one question to the next because retyping it was
+    # nine taps of twenty-nine — at a realistic one-handed pace that is the
+    # difference between 30 seconds and 44.
+    check("the mark allocation carries to the next question",
+          "questions[idx].max = carried" in _enter, True)
+    check("...and only as a default, never overwriting one already set",
+          "questions[idx].max == null && carried != null" in _enter, True)
 
     # ── 5. heatmap topic rollup (0.6d) ─────────────────────────────────────
     with get_db() as db:

@@ -75,9 +75,12 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 
 **Needs a human (I can't do these):**
 
-1. **Phone test of Phase 0.6** — log an 8-question paper one-handed and time
-   it; target is under 60 seconds. And with airplane mode on, entering a mark
-   must show *"Not saved yet — will retry"*, never a false *"Saved"*.
+1. **Time an 8-question paper one-handed, with airplane mode.** The parts that
+   can be checked without a thumb are done (see below): the interaction is now
+   20 taps rather than 29, and the offline promise is asserted in
+   `test_mobile_first.py`. What is left is whether 20 taps *feels* like under a
+   minute with a real paper in the other hand, and whether the retry banner
+   actually appears on your device.
 2. **Re-test the cold open after the 800ms change.** Confirmed working at
    2500ms on 2026-08-27 — black screen, then the app at 2.5s. The timeout is
    now 800ms, so the same test should show the app in under a second.
@@ -681,6 +684,32 @@ asserts the page returned **200** first — a guard that tolerates any status
 would happily count the queries of a redirect and report a comfortable number
 that meant nothing. That is not hypothetical: the check failed on its first run
 because the fixture had no `user_subjects` row and the setup gate 302'd it.
+
+**Phase 0.6's one-handed target was marginal, and the reason was measurable**
+(2026-08-27). Simulating the keypad state machine against a realistic paper —
+marks 3/4, 5/2, 7/6, 9/11 across maxes 4, 4, 6, 6, 8, 8, 12, 12:
+
+    before   29 taps    44s at 1.5s/tap    58s at 2.0s/tap
+    after    20 taps    30s                40s
+
+**The mark allocation now carries to the next question.** Retyping "out of N"
+for every question was nine taps of twenty-nine — the single largest cost in
+the flow, and the difference between finishing inside a minute and not. Papers
+run in blocks (four fours, then two sixes), so carrying it is also closer to
+what a mark scheme looks like.
+
+It is a default, not a decision: it shows as "out of N", one tap on that button
+changes it, and `save()` returns early without a mark so nothing reaches the
+server until one is entered. It never overwrites a max already set.
+
+**"Saved" must be reachable from exactly one place.** A student who sees
+"Saved" and closes the app has lost the mark and does not know it, so this is
+correctness rather than wording. `test_mobile_first.py` asserts that
+`setStatus('saved')` appears exactly once and that the one place is inside the
+success path of a response the server accepted — plus that a failure marks the
+question unsaved, queues it, retries on a 4s timer, retries again on `online`,
+and replays from IndexedDB after the app was killed mid-outage. Do not add a
+second `setStatus('saved')` anywhere; the count is asserted for a reason.
 
 **Known good, don't "fix":**
 

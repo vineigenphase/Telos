@@ -301,7 +301,21 @@
 
   function advance() {
     commit();
-    if (idx < questions.length - 1) { idx++; buffer = ''; editingMax = false; render(); }
+    if (idx < questions.length - 1) {
+      // Carry the mark allocation forward. Papers run in blocks — four fours,
+      // then two sixes — and retyping "out of" for every question was the
+      // single largest cost in this flow: nine taps of twenty-nine on an
+      // eight-question paper, which is the difference between finishing inside
+      // a minute and not.
+      //
+      // A default, not a decision: it shows on screen as "out of N", one tap
+      // on that button changes it, and nothing is sent to the server until a
+      // mark is actually entered — save() returns early without one.
+      const carried = questions[idx].max;
+      idx++;
+      if (questions[idx].max == null && carried != null) questions[idx].max = carried;
+      buffer = ''; editingMax = false; render();
+    }
     else { render(); }
   }
 
