@@ -78,23 +78,16 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 1. **Phone test of Phase 0.6** — log an 8-question paper one-handed and time
    it; target is under 60 seconds. And with airplane mode on, entering a mark
    must show *"Not saved yet — will retry"*, never a false *"Saved"*.
-2. **The cold-open fix, on real hardware.** Leave Telos closed ~10 minutes so
-   Neon scales to zero, then open the installed PWA from the home screen and
-   watch the first paint. It used to be the manifest's black `background_color`
-   for the whole wake-up; it should now be your last-seen page within ~2.5s,
-   refreshing itself once the server answers. If it is still black, the new
-   worker had not activated on that device — refresh once and repeat. Then sign
-   out and back in, and confirm no stale data from the previous session appears.
-   The layouts and the worker's structure are tested; how it *feels* is not
-   testable from here.
-3. **Real Stripe checkout** with card `4242 4242 4242 4242`. Needs a SECOND
-   account: the founder account is grandfathered Pro, so `/subscription` offers
-   it "Manage billing" and never a purchase button. Register a throwaway, take
-   the yearly card, and confirm the charge is **£39.99** — not £29, which is
-   the whole point of the run. Pro should arrive within seconds, granted by the
-   webhook rather than by the redirect. Repeat on monthly for £4.99. If Pro
-   never appears, look at the webhook: entitlements are webhook-only by design,
-   so a missing webhook looks exactly like a failed payment from inside the app.
+2. **Re-test the cold open after the 800ms change.** Confirmed working at
+   2500ms on 2026-08-27 — black screen, then the app at 2.5s. The timeout is
+   now 800ms, so the same test should show the app in under a second.
+3. **Stripe checkout on the monthly plan.** The annual run is **done**
+   (2026-08-27) and charged £39.99, so the repricing is confirmed end to end.
+   Monthly at £4.99 is still untested. Note it needs a SECOND account: the
+   founder account is grandfathered Pro, so `/subscription` offers it "Manage
+   billing" and never a purchase button. If Pro never arrives, look at the
+   webhook rather than the payment — entitlements are webhook-only by design,
+   so a missing webhook is indistinguishable from a failed payment in the app.
 4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
 5. **Live-mode Stripe swap** when ready for real money: recreate the product,
    all three prices and the webhook endpoint in live mode, then update the four
@@ -603,6 +596,42 @@ session was paused mid-flight: the killed suite's `finally` never ran, its user
 was left behind, and the next run died on a unique constraint in a suite that
 had nothing to do with what was being changed. `fresh_user()` clears any
 leftover under that email before inserting. Add a suite, use the helper.
+
+**Perceived speed: what was actually wrong** (2026-08-27, measured).
+
+- **The cold-open black screen was 2500ms because that was the timeout, not
+  because anything was slow.** Warm production TTFB is 70-235ms, so the worker
+  was waiting roughly ten times longer than a healthy network ever needs, and
+  the only thing that patience bought was a longer black screen on the one
+  occasion the fallback matters. **Now 800ms.** `tests/test_pwa.py` pins it
+  between 500 and 1200: below 500 a healthy request starts losing the race to
+  its own timeout, above 1200 a person has already decided the app is broken.
+- **Nothing was prefetched.** Server-rendered means the browser cannot start
+  until the click completes. The page now fetches on `pointerdown` — a finger
+  is down about 100ms before it lifts and the server answers in about 200ms —
+  and the worker stores the response under its URL so the navigation finds it.
+  This is not stale caching: the copy is a few hundred milliseconds old and was
+  fetched because the user was already reaching for it.
+- **`/logout` answers GET as well as POST**, so prefetching it would sign a user
+  out for touching a link near it. `NO_PREFETCH` mirrors the worker's
+  never-cache prefixes and the suite asserts every entry. Anything added to one
+  list belongs in the other.
+
+**The dashboard makes 13 pool checkouts and `db.py` checks the connection on
+every one** — measured at 12.2ms each from a developer machine, so about 158ms
+of a dashboard render is checkout overhead before a single real query runs.
+`/papers` is 6 checkouts, `/heatmap` 5. This is the largest remaining slowness
+and it is NOT fixed: both routes to fixing it have real costs.
+
+    sharing one connection per request  -> changes transaction boundaries for
+                                           every write path in the app
+    skipping the check when a connection
+    was used seconds ago               -> weakens the Neon-sleep resilience the
+                                           check exists for, which is the bug
+                                           that produced runs of 500s
+
+`db.py` is under the don't-touch-without-asking rule and neither option is
+obviously right, so it stays measured and unfixed rather than quietly changed.
 
 **Known good, don't "fix":**
 

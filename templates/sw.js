@@ -19,7 +19,19 @@ const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout"];
 // sat unused because the old code only reached for it when fetch REJECTED.
 // Standalone PWAs make it worse: iOS holds the manifest's background_color over
 // the whole wait, so "slow" reads as "black screen for ages".
-const NAV_NETWORK_TIMEOUT = 2500;
+// Measured, not guessed: warm production TTFB is 70-235ms, so 2500 was about
+// ten times longer than the network ever needs when it is healthy. All that
+// extra patience bought was a longer black screen on the one occasion the
+// fallback matters — a cold open. At 800ms a healthy request still wins the
+// race comfortably and a sleeping backend gives up the wait in under a second.
+const NAV_NETWORK_TIMEOUT = 800;
+
+// A prefetch is a same-origin GET the page fires while a finger is still down
+// on a link. It is stored under the URL so the navigation that follows finds a
+// response that is a few hundred milliseconds old rather than making its own
+// request. Authenticated pages are sent no-store, so the HTTP cache will not
+// hold them and this is the only place a prefetch can live.
+const PREFETCH_HEADER = "X-Telos-Prefetch";
 
 const PRECACHE_URLS = [
   "/offline",
@@ -63,6 +75,20 @@ self.addEventListener("fetch", event => {
   if (url.origin !== self.location.origin || req.method !== "GET") return;
   if (neverCache(url)) return;
 
+  // A prefetch: fetch it, keep it, and hand it back to whoever asked.
+  if (req.headers.get(PREFETCH_HEADER)) {
+    event.respondWith(
+      fetch(req).then(res => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req.url, copy));
+        }
+        return res;
+      }).catch(() => new Response("", { status: 204 }))
+    );
+    return;
+  }
+
   // HTML navigations: network-first, but only for as long as the network is
   // actually being quick about it. See navigate() below.
   if (req.mode === "navigate") {
@@ -95,7 +121,9 @@ self.addEventListener("fetch", event => {
 // for one navigation is worth far more than a correct page nobody waited for.
 async function navigate(req) {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(req);
+  // Matched by URL, not by Request: a prefetch is stored under its URL and a
+  // navigation is a different Request object for the same page.
+  const cached = (await cache.match(req)) || (await cache.match(req.url));
 
   // Kept alive past the race so the cache still refreshes when the slow
   // response finally lands. Its rejection is handled here, not left dangling.

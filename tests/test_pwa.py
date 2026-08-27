@@ -77,8 +77,13 @@ check("sw.js claims clients", "clients.claim()" in sw, True)
 check("navigations have a network timeout at all",
       "NAV_NETWORK_TIMEOUT" in sw, True)
 _timeout = re.search(r"NAV_NETWORK_TIMEOUT\s*=\s*(\d+)", sw)
-check("...and it is short enough to beat a blank screen",
-      bool(_timeout) and 500 <= int(_timeout.group(1)) <= 5000, True)
+# Warm production TTFB is 70-235ms. The timeout has to sit clear of that so a
+# healthy request wins the race, and well under the couple of seconds a person
+# will stare at a blank screen before deciding the app is broken.
+check("...and it is comfortably above a healthy response",
+      bool(_timeout) and int(_timeout.group(1)) >= 500, True)
+check("...and short enough that a cold open is not a black screen",
+      bool(_timeout) and int(_timeout.group(1)) <= 1200, True)
 check("a navigation races the network against that timeout",
       "Promise.race" in sw, True)
 check("...and falls back to the cached page, not only to the offline shell",
@@ -89,6 +94,25 @@ check("a rejected fetch is handled, not left dangling",
       ".catch(() => null)" in sw, True)
 check("with nothing cached it still waits for the network",
       "if (!cached)" in sw, True)
+
+# ── prefetch ────────────────────────────────────────────────────────────────
+#
+# The page fetches a link while the finger is still down, and the worker keeps
+# the response under its URL so the navigation finds it. The exclusion list is
+# the part that matters: /logout answers GET as well as POST, so prefetching it
+# would sign a user out simply for touching a link near it.
+_js_pf = anon.get("/static/js/telos.js").data.decode()
+check("the worker understands a prefetch", "X-Telos-Prefetch" in sw, True)
+check("...and stores it under its URL so a navigation finds it",
+      "cache.put(req.url" in sw, True)
+check("...and a navigation looks there too",
+      "cache.match(req.url)" in sw, True)
+check("the page prefetches on pointerdown", "pointerdown" in _js_pf, True)
+for path in ("/logout", "/admin", "/subscription", "/stripe"):
+    check(f"{path} is never prefetched",
+          f"'{path}'" in _js_pf.split("NO_PREFETCH")[1][:200], True)
+check("a form submit drops the prefetch record",
+      "prefetched.clear()" in _js_pf, True)
 
 # Signing out must take the cached pages with it, or the next person to open
 # the app on this device could be served the previous account's dashboard.

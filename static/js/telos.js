@@ -423,6 +423,55 @@ const LOADER_DELAY = 180;
   window.addEventListener('pagehide', disarm);
 })();
 
+// ── Prefetch on touch ───────────────────────────────────────────────────────
+//
+// Telos is server-rendered, so every click is a full document navigation and
+// the browser cannot start until the click completes. A finger is down on a
+// link for roughly 100ms before it lifts, and the server answers in about
+// 200ms — so fetching at pointerdown means the response is usually already in
+// hand when the navigation begins.
+//
+// The service worker stores it under the URL and the navigation finds it
+// there. This is not caching stale content: the copy is a few hundred
+// milliseconds old and was fetched because the user was already reaching for
+// it. Authenticated pages are sent no-store, so the HTTP cache would refuse
+// to hold this and the worker is the only place it can live.
+//
+// NOTHING WITH SIDE EFFECTS IS EVER PREFETCHED. /logout answers GET as well as
+// POST, so prefetching it would sign the user out as they reached for a link.
+// The list mirrors the worker's own never-cache prefixes.
+const NO_PREFETCH = ['/logout', '/admin', '/subscription', '/stripe'];
+const prefetched = new Set();
+
+function prefetch(url) {
+  if (prefetched.has(url) || prefetched.size > 40) return;
+  prefetched.add(url);
+  fetch(url, {
+    credentials: 'same-origin',
+    headers: { 'X-Telos-Prefetch': '1' },
+  }).catch(() => { prefetched.delete(url); });
+}
+
+document.addEventListener('pointerdown', e => {
+  if (e.button !== undefined && e.button !== 0) return;
+  const a = e.target.closest('a');
+  if (!a || !a.href || a.target && a.target !== '_self') return;
+  if (a.hasAttribute('download') || a.origin !== location.origin) return;
+
+  const href = a.getAttribute('href') || '';
+  if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+  if (a.pathname === location.pathname && a.search === location.search) return;
+  if (NO_PREFETCH.some(p => a.pathname.startsWith(p))) return;
+
+  prefetch(a.href);
+}, { passive: true });
+
+// A page that has just been changed by a form must not be served from a copy
+// taken before the change. Clearing the prefetch record is enough — the worker
+// only serves a cached navigation when the network is too slow to answer, and
+// a stale prefetch is the one way it could hand back something genuinely wrong.
+document.addEventListener('submit', () => { prefetched.clear(); });
+
 // ── Sign-out clears the offline cache ───────────────────────────────────────
 //
 // The service worker serves a cached page when the network is slow, not only
