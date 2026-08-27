@@ -53,11 +53,50 @@ check("sw.js not cached by the browser", r.headers.get("Cache-Control"), "no-cac
 sw = r.data.decode()
 check("cache name is versioned (not a literal placeholder)",
       "{{ cache_version }}" in sw, False)
-for prefix in ("/admin", "/subscription", "/stripe"):
+# /logout answers GET as well as POST. Caching it would store the redirect to
+# the login page as the answer, and the stale-while-slow path could then hand
+# that back without the server ever ending the session.
+for prefix in ("/admin", "/subscription", "/stripe", "/logout"):
     check(f"sw.js never-caches {prefix}", f'"{prefix}"' in sw, True)
 check("sw.js precaches the offline shell", '"/offline"' in sw, True)
 check("sw.js skips waiting", "skipWaiting()" in sw, True)
 check("sw.js claims clients", "clients.claim()" in sw, True)
+
+# ── the cold-open fix ───────────────────────────────────────────────────────
+#
+# Navigations used to be network-first with no timeout: a cached copy of every
+# page existed but was reached only when fetch REJECTED, never when the network
+# was merely slow. A cold Railway container plus a Neon instance waking from
+# scale-to-zero therefore showed the manifest's background_color — a black
+# screen — for the whole wait, while a perfectly good page sat unused.
+#
+# These are structural checks on a file that only runs in a browser. They
+# cannot prove the race behaves; they do fail if the timeout, the fallback or
+# the background refresh is removed, which is what a later edit would do by
+# accident.
+check("navigations have a network timeout at all",
+      "NAV_NETWORK_TIMEOUT" in sw, True)
+_timeout = re.search(r"NAV_NETWORK_TIMEOUT\s*=\s*(\d+)", sw)
+check("...and it is short enough to beat a blank screen",
+      bool(_timeout) and 500 <= int(_timeout.group(1)) <= 5000, True)
+check("a navigation races the network against that timeout",
+      "Promise.race" in sw, True)
+check("...and falls back to the cached page, not only to the offline shell",
+      "return raced || cached" in sw, True)
+check("the slow response still refreshes the cache",
+      "cache.put(req, res.clone())" in sw, True)
+check("a rejected fetch is handled, not left dangling",
+      ".catch(() => null)" in sw, True)
+check("with nothing cached it still waits for the network",
+      "if (!cached)" in sw, True)
+
+# Signing out must take the cached pages with it, or the next person to open
+# the app on this device could be served the previous account's dashboard.
+check("sw.js clears its caches on sign-out",
+      "telos-signout" in sw, True)
+_js = anon.get("/static/js/telos.js").data.decode()
+check("...and the page asks it to when the logout form is submitted",
+      "telos-signout" in _js and "/logout" in _js, True)
 
 # Two different deploys must not collide on the same cache name.
 old_version = A.SW_CACHE_VERSION

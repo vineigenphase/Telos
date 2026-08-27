@@ -78,30 +78,44 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 1. **Phone test of Phase 0.6** — log an 8-question paper one-handed and time
    it; target is under 60 seconds. And with airplane mode on, entering a mark
    must show *"Not saved yet — will retry"*, never a false *"Saved"*.
-2. **Real Stripe checkout** with card `4242 4242 4242 4242` on the annual plan,
-   confirming the webhook grants Pro within seconds. The £39.99 test price now
-   exists and is wired up (see below), so this tests the right figure.
-3. **Cancel → period-end → access-lost** path via Stripe clock simulation.
-4. **Live-mode Stripe swap** when ready for real money: recreate the product,
+2. **The cold-open fix, on real hardware.** Leave Telos closed ~10 minutes so
+   Neon scales to zero, then open the installed PWA from the home screen and
+   watch the first paint. It used to be the manifest's black `background_color`
+   for the whole wake-up; it should now be your last-seen page within ~2.5s,
+   refreshing itself once the server answers. If it is still black, the new
+   worker had not activated on that device — refresh once and repeat. Then sign
+   out and back in, and confirm no stale data from the previous session appears.
+   The layouts and the worker's structure are tested; how it *feels* is not
+   testable from here.
+3. **Real Stripe checkout** with card `4242 4242 4242 4242`. Needs a SECOND
+   account: the founder account is grandfathered Pro, so `/subscription` offers
+   it "Manage billing" and never a purchase button. Register a throwaway, take
+   the yearly card, and confirm the charge is **£39.99** — not £29, which is
+   the whole point of the run. Pro should arrive within seconds, granted by the
+   webhook rather than by the redirect. Repeat on monthly for £4.99. If Pro
+   never appears, look at the webhook: entitlements are webhook-only by design,
+   so a missing webhook looks exactly like a failed payment from inside the app.
+4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
+5. **Live-mode Stripe swap** when ready for real money: recreate the product,
    all three prices and the webhook endpoint in live mode, then update the four
    env vars. Everything configured so far is test mode.
-5. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
+6. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
    install to home screen on a real iPhone and a real iPad and confirm it
    opens without browser chrome, correct icon/splash; confirm an
    already-installed copy picks up a new deploy within one refresh
    (the "Update available" toast).
-6. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
+7. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
    iframe (no horizontal overflow, 76px question rows, the due row exactly at
    the 44px floor) but never opened on actual hardware. Also worth confirming
    the picks feel right against your own logged papers rather than seeded ones.
-7. **The Today panel's "Revision due" section is wired but unexercised.** It
+8. **The Today panel's "Revision due" section is wired but unexercised.** It
    only rendered during review because three synthetic `revision_queue` rows
    were inserted by hand. Nothing writes to that table until Phase 6, so in
    production the count is 0 and the section is hidden. Ready, not working.
-8. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+9. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
-9. **The UI overhaul on real hardware.** Every screen was reviewed in the
+10. **The UI overhaul on real hardware.** Every screen was reviewed in the
    browser (and at 390px in a same-origin iframe, per the auditing gotcha
    below), but none of it has been opened on an actual phone or tablet. Worth
    a pass over the dashboard, the phone mark-entry flow and the three admin
