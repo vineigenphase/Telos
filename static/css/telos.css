@@ -2566,3 +2566,76 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .pick-module:hover { border-color: var(--border-2); }
   .pick-option:hover { border-color: var(--border-2); }
 }
+
+/* ── Revise — the spaced repetition queue ────────────────────────────────────
+   One card per question, worked through top to bottom on a phone. The three
+   outcome buttons are the whole interaction, so they get the width. */
+.revise-list { display: flex; flex-direction: column; gap: 12px; }
+
+.revise-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 16px 14px;
+}
+
+.revise-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.revise-topic {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.revise-source { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+
+/* The mark is the reason the question is here, so it is not decoration. */
+.revise-score {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.revise-streak {
+  margin-top: 8px;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Three across on a phone: each is comfortably past the 44px tap floor at
+   360px, and stacking them would put "Missed" below the fold. */
+.revise-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.revise-actions form { margin: 0; }
+
+/* Colour carries the meaning here rather than position, because all three are
+   the same size and a student is tapping quickly. */
+.revise-got     { border-color: var(--good, #5E9E6B); color: var(--good, #5E9E6B); }
+.revise-partly  { border-color: var(--border-2, var(--border)); color: var(--muted); }
+.revise-missed  { border-color: var(--bad, #B4574C); color: var(--bad, #B4574C); }
+
+.revise-actions .btn {
+  border-width: 1px;
+  border-style: solid;
+  background: transparent;
+}
+
+.revise-note {
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  max-width: 60ch;
+}

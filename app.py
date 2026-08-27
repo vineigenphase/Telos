@@ -18,6 +18,8 @@ from paper_templates import (TEMPLATES, get_paper_info, get_topics, all_combos,
                              qualification_level, paper_options, has_options,
                              top_grade, display_name, DEFAULT_LEVEL)
 from seed_boundaries import seed_boundaries
+import revision
+from prescription import WEAK_THRESHOLD
 from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
 from prescription import (prescribe, topic_stats,
@@ -961,11 +963,20 @@ def recompute_predictions(user_id):
     their papers or question marks — never on page load, so the dashboard costs
     a fixed number of queries no matter how many papers exist.
 
-    Also the hook where the per-request memo is dropped. This is already the
-    single place every paper and mark change funnels through, so a count
-    memoised earlier in the same request cannot outlive the write.
+    Also the hook where the per-request memo is dropped, and where the revision
+    queue is brought back in step. This is already the single place every paper
+    and mark change funnels through, which is exactly why both belong here: a
+    count memoised earlier in the same request cannot outlive the write, and a
+    question that just dropped below the redo threshold is queued the moment it
+    is entered rather than whenever someone next opens Revise.
     """
     _forget(("paper_count", user_id))
+    try:
+        sync_revision_queue(user_id)
+    except Exception:
+        # A queue that fails to update must never cost a student the mark they
+        # just entered. Predictions and the save itself matter more.
+        app.logger.exception("revision queue sync failed for user %s", user_id)
     with get_db() as db:
         papers = db.execute(
             "SELECT board, subject, paper_code, year, score, max_marks FROM papers "
@@ -1445,12 +1456,137 @@ def save_question(pid, q_num):
                     "pct": round(got / mx * 100, 1) if mx else None})
 
 
+# ── Spaced repetition — Phase 6 ──────────────────────────────────────────────
+
+def sync_revision_queue(user_id, paper_id=None):
+    """Keep the queue in step with the marks a student has entered.
+
+    Anything answered below the redo threshold joins it; anything no longer
+    below it, and never yet reviewed, leaves. That second half matters because
+    a mistyped mark — 2 where 20 was meant — would otherwise leave a question
+    the student knows perfectly well in the queue for good. A question that HAS
+    been reviewed keeps its place regardless: the review history says more
+    about whether it is understood than one corrected number does.
+
+    Idempotent by construction. The table's UNIQUE (user_id, source_type,
+    source_id) means re-saving a paper can never reset a schedule that reviews
+    have already moved.
+    """
+    scope = "AND q.paper_id=?" if paper_id else ""
+    args = [user_id] + ([paper_id] if paper_id else [])
+
+    with get_db() as db:
+        rows = db.execute(
+            "SELECT q.id, q.topic, q.obtained, q.max_marks "
+            "FROM question_marks q JOIN papers p ON p.id = q.paper_id "
+            "WHERE p.user_id=? AND q.max_marks > 0 " + scope,
+            tuple(args)
+        ).fetchall()
+
+        weak, strong = [], []
+        for r in rows:
+            ratio = float(r["obtained"]) / float(r["max_marks"])
+            (weak if ratio < WEAK_THRESHOLD else strong).append(r)
+
+        for r in weak:
+            db.execute(
+                "INSERT INTO revision_queue "
+                "(user_id, source_type, source_id, topic) VALUES (?,?,?,?) "
+                "ON CONFLICT (user_id, source_type, source_id) DO NOTHING",
+                (user_id, "attempt", r["id"], r["topic"]))
+
+        for r in strong:
+            db.execute(
+                "DELETE FROM revision_queue WHERE user_id=? AND source_type='attempt' "
+                "AND source_id=? AND last_reviewed_at IS NULL",
+                (user_id, r["id"]))
+
+    return len(weak)
+
+
+def due_revision_items(user_id):
+    """Everything due now, newest question first, with the paper it came from."""
+    with get_db() as db:
+        return [dict(r) for r in db.execute(
+            "SELECT rq.id, rq.topic, rq.ease, rq.interval_days, rq.repetitions, "
+            "       rq.due_at, rq.last_reviewed_at, "
+            "       q.q_num, q.obtained, q.max_marks, "
+            "       p.subject, p.board, p.paper_code, p.year "
+            "FROM revision_queue rq "
+            "JOIN question_marks q ON q.id = rq.source_id "
+            "JOIN papers p ON p.id = q.paper_id "
+            "WHERE rq.user_id=? AND rq.source_type='attempt' AND rq.due_at <= NOW() "
+            "ORDER BY rq.due_at, q.id DESC",
+            (user_id,)
+        ).fetchall()]
+
+
 @app.route("/revise")
 @login_required
+@requires_pro("Revise")
 def revise():
-    """Placeholder so the Revise tab isn't a dead link. The real spaced
-    repetition queue is Phase 6."""
-    return render_template("revise.html")
+    """The spaced repetition queue.
+
+    Capped at revision.DAILY_CAP. An uncapped backlog after a week away is how
+    people quit, so the queue shows the highest-priority items and says plainly
+    how many it is holding back.
+
+    Priority is the Phase 4 topic score, so the queue and "your next three
+    questions" agree about what matters instead of offering a student two
+    different answers to the same question.
+    """
+    sync_revision_queue(current_user.id)
+    due = due_revision_items(current_user.id)
+
+    scores = {}
+    pres = build_prescriptions(current_user.id)
+    for t in (pres or {}).get("topics", []):
+        scores[t["topic"]] = t.get("priority", 0)
+
+    shown, total = revision.cap_queue(
+        due, priority_of=lambda it: scores.get(it["topic"], 0))
+
+    return render_template(
+        "revise.html",
+        items=shown,
+        total_due=total,
+        message=revision.queue_message(len(shown), total),
+        outcomes=revision.OUTCOMES,
+        weak_threshold=WEAK_THRESHOLD,
+    )
+
+
+@app.route("/revise/<int:item_id>", methods=["POST"])
+@login_required
+@requires_pro("Revise")
+def review_revision_item(item_id):
+    """Record one review and reschedule it."""
+    outcome = (request.form.get("outcome") or "").strip()
+    if outcome not in revision.OUTCOMES:
+        flash("That is not a review outcome.", "error")
+        return redirect(url_for("revise"))
+
+    with get_db() as db:
+        row = db.execute(
+            "SELECT * FROM revision_queue WHERE id=? AND user_id=?",
+            (item_id, current_user.id)
+        ).fetchone()
+        if row is None:
+            # Someone else's item, or one already gone. Say nothing about which.
+            flash("That question is no longer in your queue.", "error")
+            return redirect(url_for("revise"))
+
+        nxt = revision.review(dict(row), outcome)
+        db.execute(
+            "UPDATE revision_queue SET repetitions=?, interval_days=?, ease=?, "
+            "       last_reviewed_at=NOW(), "
+            "       due_at = NOW() + (? || ' days')::interval "
+            "WHERE id=? AND user_id=?",
+            (nxt["repetitions"], nxt["interval_days"], nxt["ease"],
+             str(nxt["interval_days"]), item_id, current_user.id))
+
+    log_event("revision_reviewed", user_id=current_user.id, detail=outcome)
+    return redirect(url_for("revise"))
 
 
 @app.route("/heatmap")

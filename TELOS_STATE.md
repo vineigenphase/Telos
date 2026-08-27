@@ -66,7 +66,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | — | UI overhaul — Editorial treatment across all twelve screens, new stroke logo | `7df213d` | **live** |
 | 9 | Shareable card export — the growth engine | `0df51d7` | **live** |
 | — | Page loader — the mark charges during navigation | `0df51d7` | **live** |
-| 6, 7, 10 | Spaced repetition, percentile, simulator | — | not started |
+| 6 | Spaced repetition — queue fills itself, SM-2 simplified, daily cap | `pending` | **live** |
+| 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
 ---
@@ -104,10 +105,11 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    iframe (no horizontal overflow, 76px question rows, the due row exactly at
    the 44px floor) but never opened on actual hardware. Also worth confirming
    the picks feel right against your own logged papers rather than seeded ones.
-8. **The Today panel's "Revision due" section is wired but unexercised.** It
-   only rendered during review because three synthetic `revision_queue` rows
-   were inserted by hand. Nothing writes to that table until Phase 6, so in
-   production the count is 0 and the section is hidden. Ready, not working.
+8. **Decide whether spaced repetition goes back on the pricing page.**
+   `/revise` is `@requires_pro`, per the spec, but the feature was removed from
+   `PRICING_FEATURES["pro"]` on 2026-08-26 while it was still vapourware. It is
+   real now, so it is currently a Pro feature that is not being sold. Adding it
+   back is one line, with no `coming_soon` flag.
 9. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
@@ -710,6 +712,33 @@ success path of a response the server accepted — plus that a failure marks the
 question unsaved, queues it, retries on a 4s timer, retries again on `online`,
 and replays from IndexedDB after the app was killed mid-outage. Do not add a
 second `setStatus('saved')` anywhere; the count is asserted for a reason.
+
+**Phase 6 shipped 2026-08-27.** The `revision_queue` table and the due-count
+helper had existed since migration 001 while **nothing ever wrote a row**, so
+the Today panel counted zero forever and `/revise` was a placeholder. That is
+what this phase fixed; the scheduling was the easy half.
+
+- **`revision.py` is pure** — no Flask, no database — like `prediction.py` and
+  `prescription.py`. `review()` takes an item and an outcome and returns the
+  fields that changed; the caller sets `due_at`. That is why it can be tested
+  as plain data.
+- **`ease` is tracked and clamped but does not drive the interval.** The ladder
+  (1, 3, 7, 16, 35 by repetition count) does. That is the spec's
+  simplification, not an oversight: real SM-2 multiplies by ease, which makes
+  early intervals unpredictable when there is barely any evidence about the
+  student. Do not "fix" it into a multiplier without deciding to.
+- **The writer hangs off `recompute_predictions`**, already the single point
+  every paper and mark change funnels through — so a question is queued the
+  moment it is entered, not when someone next opens Revise. It is wrapped in a
+  try/except on purpose: a queue that fails to update must never cost a student
+  the mark they just typed.
+- **A corrected mark leaves the queue, but only if it has never been reviewed.**
+  Typing 2 where 20 was meant would otherwise strand a question the student
+  knows. Once reviewed, the history says more than one corrected number, so it
+  stays.
+- **The daily cap is ordered by the Phase 4 topic score**, so the queue and
+  "your next three questions" cannot give a student two different answers to
+  "what should I do next".
 
 **Known good, don't "fix":**
 

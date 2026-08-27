@@ -41,6 +41,8 @@ SUITES = [
     ("subject selection",          "test_subjects.py"),
     ("coursework components",      "test_coursework.py"),
     ("engine sweep — all subjects", "test_engine_sweep.py"),
+    ("revision engine (pure)",     "test_revision.py"),
+    ("revision integration",       "test_revision_integration.py"),
 ]
 
 

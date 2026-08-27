@@ -5,23 +5,72 @@
 <div class="page-header">
   <div>
     <div class="page-title">Revise</div>
-    <div class="page-subtitle">Spaced repetition queue</div>
+    <div class="page-subtitle">{{ message }}</div>
   </div>
 </div>
 
 <div class="page-body">
-  {# Deliberately still a placeholder. Phase 6 builds the queue; nothing writes
-     to revision_queue yet, and this page says so rather than showing an empty
-     list that looks broken. #}
+
+  {% if not items %}
+  {# An empty queue is the good state, not a broken one, so it reads as an
+     achievement with a next step rather than as an error. #}
   <div class="empty-state">
-    <div class="empty-title">Not switched on yet</div>
+    <div class="empty-title">Nothing due</div>
     <div class="empty-body">
-      Questions you score under 60% on will land here automatically, spaced so
-      they come back just before you would forget them. The queue builds itself
-      from marks you have already logged — nothing extra to set up.
+      Questions you score under {{ (weak_threshold * 100)|int }}% on land here
+      automatically, spaced so they come back just before you would forget them.
+      Log a paper and mark it question by question — anything you drop marks on
+      will appear here on its own.
     </div>
-    <a href="{{ url_for('papers') }}" class="btn btn-primary">Log a paper</a>
+    <a class="btn btn-primary" href="{{ url_for('papers') }}">Log a paper</a>
   </div>
+  {% else %}
+
+  {# One card per question. The mark is shown because the point of the queue is
+     the question you got 2/8 on, and hiding that makes it abstract. #}
+  <div class="revise-list">
+    {% for it in items %}
+    <div class="revise-card">
+      <div class="revise-head">
+        <div>
+          <div class="revise-topic">{{ it.topic or "Untagged question" }}</div>
+          <div class="revise-source">
+            {{ it.subject }} · {{ it.paper_code }} {{ it.year }} · Q{{ it.q_num }}
+          </div>
+        </div>
+        <div class="revise-score">
+          {{ it.obtained|int if it.obtained == it.obtained|int else it.obtained }}/{{ it.max_marks|int if it.max_marks == it.max_marks|int else it.max_marks }}
+        </div>
+      </div>
+
+      {% if it.repetitions %}
+      <div class="revise-streak">
+        Got it {{ it.repetitions }} time{{ 's' if it.repetitions != 1 }} in a row
+      </div>
+      {% endif %}
+
+      {# Three buttons, one form each. A radio plus submit would be two taps for
+         what is one decision, and this page is used on a phone. #}
+      <div class="revise-actions">
+        {% for outcome, label in [('got', 'Got it'), ('partly', 'Partly'), ('missed', 'Missed')] %}
+        <form method="POST" action="{{ url_for('review_revision_item', item_id=it.id) }}">
+          <input type="hidden" name="outcome" value="{{ outcome }}">
+          <button type="submit" class="btn btn-block revise-{{ outcome }}">{{ label }}</button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if total_due > items|length %}
+  <p class="revise-note">
+    Showing the {{ items|length }} worth doing first, by the same ranking the
+    dashboard uses. The other {{ total_due - items|length }} keep until tomorrow.
+  </p>
+  {% endif %}
+
+  {% endif %}
 </div>
 
 {% endblock %}
