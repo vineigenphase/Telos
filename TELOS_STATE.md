@@ -648,9 +648,39 @@ moments ago is not, one idle past the grace is, a dead connection is retried,
 and a dead connection mid-transaction is not. Do not add the grace anywhere
 else without the matching retry.
 
-**What is left of dashboard latency is real queries.** ~600ms across 13 Neon
-round trips. Cutting it means reducing the NUMBER of queries — several helpers
-fetch overlapping data — which is an `app.py` refactor, not a config change.
+**Then the query count came down too** (2026-08-27). 24 statements to render a
+dashboard became 20, and four things were wrong:
+
+- **`SELECT * FROM grade_boundaries` with no WHERE, in four places** — the whole
+  thousand-row table pulled to grade eight recent papers, and it grows with
+  every board added. `boundary_rows_for()` scopes it to the student's
+  `(board, subject)` pairs. **Scoped no further, deliberately:**
+  `select_boundaries` falls back WITHIN a subject — same paper other years,
+  then same subject same year — so narrowing to the exact papers logged would
+  change which fallback it finds and therefore change the grade.
+- `SELECT COUNT(*) FROM papers` ran **three times** with identical arguments.
+- `SELECT * FROM user_subjects` ran **twice**.
+- The accuracy aggregate scanned the same join **three times** for three date
+  windows. One pass with `FILTER` now.
+
+**The memo is per-request and the invalidation is the load-bearing part.**
+`_memo` hangs off `g`, so nothing survives a request or leaks between users.
+`set_user_subjects` drops its own key, and the paper count is dropped inside
+`recompute_predictions` — already the one hook every paper and mark change
+funnels through. Memoise nothing here whose answer a write in the same request
+can change without going through those.
+
+    page        before      after
+    /            744 ms     474 ms
+    /papers      318 ms     197 ms
+    /heatmap     235 ms    ~170 ms
+
+`tests/test_trend_deltas.py` holds the ceiling: at most 22 statements, no
+statement repeated verbatim, and no unscoped pull of `grade_boundaries`. It
+asserts the page returned **200** first — a guard that tolerates any status
+would happily count the queries of a redirect and report a comfortable number
+that meant nothing. That is not hypothetical: the check failed on its first run
+because the fixture had no `user_subjects` row and the setup gate 302'd it.
 
 **Known good, don't "fix":**
 

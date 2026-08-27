@@ -222,9 +222,7 @@ def nav_context():
     if not current_user.is_authenticated:
         return {"nav_visible": [], "is_pro_user": False, "papers_count": 0}
     is_admin = bool(getattr(current_user, "is_admin", False))
-    with get_db() as db:
-        n = db.execute("SELECT COUNT(*) AS n FROM papers WHERE user_id=?",
-                       (current_user.id,)).fetchone()["n"]
+    n = paper_count(current_user.id)
     return {
         "nav_visible": [i for i in NAV_ITEMS if not i.get("admin") or is_admin],
         "is_pro_user": bool(getattr(current_user, "is_premium", False)),
@@ -472,7 +470,7 @@ def paper_matrix(user_id):
             "SELECT subject, board, paper_code, year, id, score, max_marks "
             "FROM papers WHERE user_id=?", (user_id,)
         ).fetchall()
-        boundaries = db.execute("SELECT * FROM grade_boundaries").fetchall()
+        boundaries = boundary_rows_for(db, user_id)
 
     done_map = {}
     for p in done:
@@ -708,13 +706,10 @@ def dashboard():
             "FROM papers WHERE user_id=? AND score IS NOT NULL GROUP BY subject, board",
             (current_user.id,)
         ).fetchall()
-        total = db.execute(
-            "SELECT COUNT(*) as n FROM papers WHERE user_id=?",
-            (current_user.id,)
-        ).fetchone()["n"]
+        total = paper_count(current_user.id)
         boundaries = {
             (b["subject"], b["board"], b["paper_code"], b["year"]): b
-            for b in db.execute("SELECT * FROM grade_boundaries").fetchall()
+            for b in boundary_rows_for(db, current_user.id)
         }
 
     stats = {}
@@ -964,7 +959,13 @@ def log_event(event, user_id=None, detail=None):
 def recompute_predictions(user_id):
     """Recompute and cache this user's predictions. Called on every change to
     their papers or question marks — never on page load, so the dashboard costs
-    a fixed number of queries no matter how many papers exist."""
+    a fixed number of queries no matter how many papers exist.
+
+    Also the hook where the per-request memo is dropped. This is already the
+    single place every paper and mark change funnels through, so a count
+    memoised earlier in the same request cannot outlive the write.
+    """
+    _forget(("paper_count", user_id))
     with get_db() as db:
         papers = db.execute(
             "SELECT board, subject, paper_code, year, score, max_marks FROM papers "
@@ -977,7 +978,7 @@ def recompute_predictions(user_id):
         # how a set says it was computed rather than published, and — worse for
         # SQA — dropped the published D, leaving boundary_ladder to infer an E
         # for a qualification graded A-D that has no E grade at all.
-        bounds = db.execute("SELECT * FROM grade_boundaries").fetchall()
+        bounds = boundary_rows_for(db, user_id)
 
     boundary_rows = [dict(b) for b in bounds]
     groups = {}
@@ -1123,9 +1124,7 @@ def dashboard_stats(user_id):
     cutoff_date = (datetime.now(timezone.utc) - timedelta(days=w)).date().isoformat()
 
     with get_db() as db:
-        papers_total = db.execute(
-            "SELECT COUNT(*) AS n FROM papers WHERE user_id=?", (user_id,)
-        ).fetchone()["n"]
+        papers_total = paper_count(user_id)
         # date_completed is TEXT holding an ISO date (written by an
         # <input type="date">), so a lexicographic compare is a date compare.
         papers_recent = db.execute(
@@ -1134,27 +1133,37 @@ def dashboard_stats(user_id):
             (user_id, cutoff_date)
         ).fetchone()["n"]
 
-        totals = db.execute(
-            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
-            "       COALESCE(SUM(q.max_marks),0) AS mx "
+        # All three windows in one pass. These were three separate statements
+        # over the same join, differing only by a date filter — so the same rows
+        # were scanned three times and crossed the network three times for
+        # numbers that come out of one scan. FILTER is standard Postgres and
+        # keeps each window readable as its own expression.
+        agg = db.execute(
+            "SELECT COUNT(*) AS n_all, "
+            "       COALESCE(SUM(q.obtained),0) AS got_all, "
+            "       COALESCE(SUM(q.max_marks),0) AS mx_all, "
+            "       COUNT(*) FILTER (WHERE q.created_at >= NOW() - INTERVAL '%d days')"
+            "         AS n_this, "
+            "       COALESCE(SUM(q.obtained) FILTER "
+            "         (WHERE q.created_at >= NOW() - INTERVAL '%d days'),0) AS got_this, "
+            "       COALESCE(SUM(q.max_marks) FILTER "
+            "         (WHERE q.created_at >= NOW() - INTERVAL '%d days'),0) AS mx_this, "
+            "       COUNT(*) FILTER (WHERE q.created_at >= NOW() - INTERVAL '%d days' "
+            "         AND q.created_at < NOW() - INTERVAL '%d days') AS n_last, "
+            "       COALESCE(SUM(q.obtained) FILTER "
+            "         (WHERE q.created_at >= NOW() - INTERVAL '%d days' "
+            "          AND q.created_at < NOW() - INTERVAL '%d days'),0) AS got_last, "
+            "       COALESCE(SUM(q.max_marks) FILTER "
+            "         (WHERE q.created_at >= NOW() - INTERVAL '%d days' "
+            "          AND q.created_at < NOW() - INTERVAL '%d days'),0) AS mx_last "
             "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
-            "WHERE p.user_id=?", (user_id,)
-        ).fetchone()
-        this_week = db.execute(
-            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
-            "       COALESCE(SUM(q.max_marks),0) AS mx "
-            "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
-            f"WHERE p.user_id=? AND q.created_at >= NOW() - INTERVAL '{w} days'",
+            "WHERE p.user_id=?"
+            % (w, w, w, w * 2, w, w * 2, w, w * 2, w),
             (user_id,)
         ).fetchone()
-        last_week = db.execute(
-            "SELECT COUNT(*) AS n, COALESCE(SUM(q.obtained),0) AS got, "
-            "       COALESCE(SUM(q.max_marks),0) AS mx "
-            "FROM question_marks q JOIN papers p ON p.id=q.paper_id "
-            f"WHERE p.user_id=? AND q.created_at >= NOW() - INTERVAL '{w * 2} days' "
-            f"AND q.created_at < NOW() - INTERVAL '{w} days'",
-            (user_id,)
-        ).fetchone()
+        totals = {"n": agg["n_all"], "got": agg["got_all"], "mx": agg["mx_all"]}
+        this_week = {"n": agg["n_this"], "got": agg["got_this"], "mx": agg["mx_this"]}
+        last_week = {"n": agg["n_last"], "got": agg["got_last"], "mx": agg["mx_last"]}
 
         # One stat, but a student may have several subjects. Show the one they
         # have the most evidence for rather than an average across subjects,
@@ -1744,7 +1753,7 @@ def stats():
         ).fetchall()
         boundaries = {
             (b["subject"], b["board"], b["paper_code"], b["year"]): b
-            for b in db.execute("SELECT * FROM grade_boundaries").fetchall()
+            for b in boundary_rows_for(db, current_user.id)
         }
 
     by_subject = {}
@@ -2518,13 +2527,20 @@ def delete_share_card(token):
 # the app is about their subjects from the first screen rather than the tenth.
 
 def get_user_subjects(user_id):
-    """This student's chosen qualifications, in catalogue order."""
-    with get_db() as db:
-        rows = db.execute(
-            "SELECT * FROM user_subjects WHERE user_id=? ORDER BY subject, level, board",
-            (user_id,)
-        ).fetchall()
-    return [dict(r) for r in rows]
+    """This student's chosen qualifications, in catalogue order.
+
+    Memoised per request: the dashboard alone asked for this twice, and it
+    cannot change while one page is rendering. set_user_subjects drops the memo
+    so a save is never followed by a stale read.
+    """
+    def read():
+        with get_db() as db:
+            rows = db.execute(
+                "SELECT * FROM user_subjects WHERE user_id=? "
+                "ORDER BY subject, level, board", (user_id,)
+            ).fetchall()
+        return [dict(r) for r in rows]
+    return _memo(("user_subjects", user_id), read)
 
 
 def set_user_subjects(user_id, chosen):
@@ -2550,6 +2566,10 @@ def set_user_subjects(user_id, chosen):
                 "INSERT INTO user_subjects (user_id, board, subject, level) "
                 "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
                 (user_id, board, subject, level))
+    # The request that saves subjects usually goes on to read them back. The
+    # memo is per-request, so without this the save is followed by the list
+    # from before the save.
+    _forget(("user_subjects", user_id))
     return len(keep)
 
 
@@ -2617,6 +2637,75 @@ def set_user_papers(user_id, selections):
                 "VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
                 (user_id, board, subject, level, code))
     return len(keep)
+
+
+# ── Per-request memo ─────────────────────────────────────────────────────────
+#
+# A dashboard render asked for the same three things repeatedly: the paper count
+# three times with identical arguments, and the subject list twice. Each was a
+# separate round trip to Neon for an answer that cannot change mid-request.
+#
+# Scoped to the request via `g`, so nothing is cached between users or across a
+# write. Anything memoised here must be a pure read whose answer is fixed for
+# the duration of one request — never a count that a POST handler goes on to
+# change and then re-reads.
+def _memo(key, produce):
+    from flask import g, has_request_context
+
+    if not has_request_context():
+        return produce()
+    cache = getattr(g, "_telos_memo", None)
+    if cache is None:
+        cache = g._telos_memo = {}
+    if key not in cache:
+        cache[key] = produce()
+    return cache[key]
+
+
+def _forget(key):
+    """Drop one memoised answer, for a write that invalidates it."""
+    from flask import g, has_request_context
+
+    if has_request_context():
+        getattr(g, "_telos_memo", {}).pop(key, None)
+
+
+def paper_count(user_id):
+    """How many papers this student has logged."""
+    def read():
+        with get_db() as db:
+            return db.execute(
+                "SELECT COUNT(*) AS n FROM papers WHERE user_id=?", (user_id,)
+            ).fetchone()["n"]
+    return _memo(("paper_count", user_id), read)
+
+
+def boundary_rows_for(db, user_id):
+    """Boundary rows for the qualifications this student actually has.
+
+    The table is over a thousand rows and grows with every board added, while a
+    dashboard needs the few dozen belonging to this student. Pulling all of it
+    to grade eight recent papers was the largest single query on the page.
+
+    Scoped by (board, subject) and no further, because `select_boundaries`
+    falls back WITHIN a subject — same paper other years, then same subject
+    same year — and narrowing to the exact papers logged would change which
+    fallback it finds, and so change the grade.
+
+    A student with nothing chosen and nothing logged gets the whole table,
+    matching the "sees everything" fallback in paper_matrix.
+    """
+    pairs = {(r["board"], r["subject"]) for r in db.execute(
+        "SELECT DISTINCT board, subject FROM papers WHERE user_id=?", (user_id,)
+    ).fetchall()}
+    pairs |= subject_keys(user_id)
+    if not pairs:
+        return db.execute("SELECT * FROM grade_boundaries").fetchall()
+
+    where = " OR ".join(["(board=? AND subject=?)"] * len(pairs))
+    params = tuple(v for pair in sorted(pairs) for v in pair)
+    return db.execute(
+        "SELECT * FROM grade_boundaries WHERE " + where, params).fetchall()
 
 
 def subject_keys(user_id):

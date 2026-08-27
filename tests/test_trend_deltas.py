@@ -134,9 +134,66 @@ try:
     check("grade delta is positive after improving",
           s["grade"]["delta_letters"] > 0, True)
     check("grade names its subject", s["grade"]["subject"], "Further Maths")
+    # ── how many statements a dashboard costs ───────────────────────────────
+    #
+    # A ceiling, not a target. The page once ran 24 statements to render, of
+    # which several were the same query with the same arguments — the paper
+    # count three times, the subject list twice, and one aggregate scanned
+    # three times for three date windows. It also pulled the entire
+    # grade_boundaries table, over a thousand rows, to grade eight papers.
+    #
+    # The number matters because every statement is a round trip to Neon and
+    # the table grows with each board added. This fails when a helper starts
+    # re-reading something the request already knows, which is exactly how the
+    # duplicates arrived the first time.
+    import re as _re
+    import db as _D
+
+    statements = []
+    _real_execute = _D.Cursor.execute
+
+    def _counting(self, sql, params=()):
+        one = _re.sub(r"\s+", " ", sql).strip()
+        if not one.startswith(("SAVEPOINT", "RELEASE", "ROLLBACK")):
+            statements.append(one)
+        return _real_execute(self, sql, params)
+
+    # The setup gate redirects a signed-in student with no subjects, so this
+    # user needs the one its papers are logged against or the dashboard is a
+    # 302 and there is nothing to count.
+    with get_db() as db:
+        db.execute("INSERT INTO user_subjects (user_id, board, subject, level) "
+                   "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                   (uid, "Edexcel", "Further Maths", "A-Level"))
+
+    _D.Cursor.execute = _counting
+    try:
+        c = A.app.test_client()
+        with c.session_transaction() as sess:
+            sess["_user_id"] = str(uid); sess["_fresh"] = True
+        statements.clear()
+        r = c.get("/")
+        rendered = r.status_code
+    finally:
+        _D.Cursor.execute = _real_execute
+
+    check("the dashboard renders", rendered, 200)
+    check(f"a dashboard costs at most 22 statements "
+          f"(ran {len(statements)})", len(statements) <= 22, True)
+
+    dupes = [q for q in set(statements) if statements.count(q) > 1]
+    check(f"no statement runs twice with the same text "
+          f"({dupes[0][:60] if dupes else 'none'})", dupes, [])
+
+    unscoped = [q for q in statements
+                if "FROM grade_boundaries" in q and "WHERE" not in q]
+    check("the whole boundary table is never pulled to render a page",
+          unscoped, [])
+
 finally:
     with get_db() as db:
         if uid:
+            db.execute("DELETE FROM user_subjects WHERE user_id=?", (uid,))
             db.execute("DELETE FROM grade_prediction_history WHERE user_id=?", (uid,))
             db.execute("DELETE FROM grade_predictions WHERE user_id=?", (uid,))
             for pid in pids:
