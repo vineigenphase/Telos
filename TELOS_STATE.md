@@ -85,39 +85,32 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 2. **Re-test the cold open after the 800ms change.** Confirmed working at
    2500ms on 2026-08-27 — black screen, then the app at 2.5s. The timeout is
    now 800ms, so the same test should show the app in under a second.
-3. **Stripe checkout on the monthly plan.** The annual run is **done**
-   (2026-08-27) and charged £39.99, so the repricing is confirmed end to end.
-   Monthly at £4.99 is still untested. Note it needs a SECOND account: the
-   founder account is grandfathered Pro, so `/subscription` offers it "Manage
-   billing" and never a purchase button. If Pro never arrives, look at the
-   webhook rather than the payment — entitlements are webhook-only by design,
-   so a missing webhook is indistinguishable from a failed payment in the app.
-4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
-5. **Take the first live payment.** Live mode is configured and verified
-   (2026-08-28) — see below. What is left needs a real card, because Stripe
-   test cards do not work in live mode: register a SECOND account (the founder
-   account is grandfathered Pro and never sees a purchase button), buy the
-   yearly plan, confirm the charge reads £39.99 and that Pro arrives within
-   seconds, open Manage billing to check the portal loads, then refund yourself
-   from the dashboard.
-6. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
+3. **Monthly checkout at £4.99.** The yearly path is proven end to end with a
+   real card (see below) — charge, webhook, Pro granted, cancel, access
+   removed. Monthly is the same code with a different price id, so this is a
+   low-risk confirmation rather than an unknown. It needs a SECOND account: the
+   founder account is grandfathered Pro and is offered "Manage billing", never
+   a purchase button. If Pro never arrives, look at the webhook rather than the
+   payment — entitlements are webhook-only by design, so a missing webhook is
+   indistinguishable from a failed payment inside the app.
+4. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
    install to home screen on a real iPhone and a real iPad and confirm it
    opens without browser chrome, correct icon/splash; confirm an
    already-installed copy picks up a new deploy within one refresh
    (the "Update available" toast).
-7. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
+5. **Phase 4 on a real phone.** The Today panel was measured at 390px in an
    iframe (no horizontal overflow, 76px question rows, the due row exactly at
    the 44px floor) but never opened on actual hardware. Also worth confirming
    the picks feel right against your own logged papers rather than seeded ones.
-8. **Decide whether spaced repetition goes back on the pricing page.**
+6. **Decide whether spaced repetition goes back on the pricing page.**
    `/revise` is `@requires_pro`, per the spec, but the feature was removed from
    `PRICING_FEATURES["pro"]` on 2026-08-26 while it was still vapourware. It is
    real now, so it is currently a Pro feature that is not being sold. Adding it
    back is one line, with no `coming_soon` flag.
-9. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
+7. **2.5e, web push** — deliberately not built yet. Needs VAPID keys and a
    `push_subscriptions` table; the addendum says ship the rest of 2.5 first,
    which is what happened.
-10. **The UI overhaul on real hardware.** Every screen was reviewed in the
+8. **The UI overhaul on real hardware.** Every screen was reviewed in the
    browser (and at 390px in a same-origin iframe, per the auditing gotcha
    below), but none of it has been opened on an actual phone or tablet. Worth
    a pass over the dashboard, the phone mark-entry flow and the three admin
@@ -743,6 +736,25 @@ what this phase fixed; the scheduling was the easy half.
 - **The daily cap is ordered by the Phase 4 topic score**, so the queue and
   "your next three questions" cannot give a student two different answers to
   "what should I do next".
+
+**The live payment lifecycle is proven with a real card** (2026-08-28):
+
+    checkout  ->  charge £39.99 succeeded   ch_3U9Wr1...
+              ->  customer.subscription.created delivered
+              ->  user 679 plan=pro, status=active
+    cancel    ->  customer.subscription.deleted delivered
+              ->  user 679 plan=free, status=free
+
+Which demonstrates the thing this design exists for: entitlements move only
+when Stripe says so, never on a redirect. The founder account was untouched
+throughout — `grandfathered=True` is independent of any subscription.
+
+**Refunding a charge does not cancel the subscription.** They are separate
+objects in Stripe, and the refunded test subscription stayed active and would
+have rebilled in a year. Refund AND cancel, every time.
+
+3D Secure fired on the way through (`payment_intent.requires_action`) and
+completed, so UK cards requiring SCA work.
 
 **Stripe is live** (2026-08-28), verified by `scripts/check_stripe.py`:
 
