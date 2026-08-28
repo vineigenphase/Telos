@@ -842,6 +842,19 @@ user; use a Neon branch once there are real students.
 
 ## Gotchas that cost real debugging time
 
+- **The safe-area rules have to stay last in `telos.css`.** The standalone
+  block and the width blocks both style `.page-header` from inside a media
+  query, so specificity is identical and only source order separates them —
+  and the width blocks set `padding` as a SHORTHAND, which resets padding-top
+  and throws the inset away. Written above them, the fix worked in phone
+  portrait and did nothing on an installed iPad or a phone in landscape. The
+  `.sidebar` rule was inert at every width. Four checks in `test_mobile_first`
+  guard this; each was verified to fail when its bug is put back.
+- **The PWA serves CSS from the service-worker cache**, so a browser reload can
+  keep showing old styles after a deploy. `CACHE_VERSION` is the git commit and
+  `activate` drops old caches, so it corrects itself — but when verifying a CSS
+  change by hand, fetch with `cache: 'no-store'` or you will audit the old file
+  and conclude the deploy failed.
 - **`StripeObject.get()` raises.** It subclasses `dict` but routes attribute
   access through `__getattr__`, so `obj.get("x")` throws `AttributeError`
   instead of returning a default. Use `app._sget()` for webhook payloads.
