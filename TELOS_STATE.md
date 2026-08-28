@@ -93,9 +93,13 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    webhook rather than the payment — entitlements are webhook-only by design,
    so a missing webhook is indistinguishable from a failed payment in the app.
 4. **Cancel → period-end → access-lost** path via Stripe clock simulation.
-5. **Live-mode Stripe swap** when ready for real money: recreate the product,
-   all three prices and the webhook endpoint in live mode, then update the four
-   env vars. Everything configured so far is test mode.
+5. **Take the first live payment.** Live mode is configured and verified
+   (2026-08-28) — see below. What is left needs a real card, because Stripe
+   test cards do not work in live mode: register a SECOND account (the founder
+   account is grandfathered Pro and never sees a purchase button), buy the
+   yearly plan, confirm the charge reads £39.99 and that Pro arrives within
+   seconds, open Manage billing to check the portal loads, then refund yourself
+   from the dashboard.
 6. **Phase 2.5 device checks** — Lighthouse PWA audit on telosapp.co.uk;
    install to home screen on a real iPhone and a real iPad and confirm it
    opens without browser chrome, correct icon/splash; confirm an
@@ -740,6 +744,24 @@ what this phase fixed; the scheduling was the easy half.
   "your next three questions" cannot give a student two different answers to
   "what should I do next".
 
+**Stripe is live** (2026-08-28), verified by `scripts/check_stripe.py`:
+
+    STRIPE_PRICE_MONTHLY   £4.99  / month
+    STRIPE_PRICE_ANNUAL    £39.99 / year
+    product                prod_V9MGf8ekk9ZPDp   both prices, deliberately
+    webhook                /subscription/webhook, enabled, all 7 events
+    customer portal        active
+
+- **Both sellable prices must stay on one product.** The billing portal offers
+  plan switching only within a product, so splitting them would leave a
+  subscriber unable to move from monthly to yearly without cancelling. The
+  check fails if they drift apart.
+- **`STRIPE_PRICE_LEGACY` still points at a test price.** It is `hidden: True`
+  and renders nowhere, so this is stale config rather than a fault — the check
+  reports it as a note, not a problem.
+- **Test cards do not work in live mode.** The first real payment has to be a
+  real card, refunded afterwards.
+
 **Known good, don't "fix":**
 
 - **`users.parent_email` and `users.parent_report_optin` are dead columns.**
@@ -775,7 +797,21 @@ railway run .venv\Scripts\python.exe migrations\run_migrations.py
 
 # What boundary data is missing, per qualification, for 2019 and 2022-2025
 railway run .venv\Scripts\python.exe scripts\boundaries\audit.py
+
+# Does Stripe agree with the pricing page? Read-only; non-zero if not
+railway run .venv\Scripts\python.exe scripts\check_stripe.py
 ```
+
+**Run `scripts/check_stripe.py` after any change to a Stripe variable.** It
+reads the expected amounts from the app's own `PRICING` table, so it asks
+"does Stripe agree with the page" rather than comparing against a second
+copy that can drift. Every fault it looks for produces no error until a
+customer hits it: a price pointing at the wrong amount (the page advertised
+£39.99 against a £29 Stripe price for a while and nothing noticed), monthly
+and yearly swapped — both are valid IDs, so the app cannot tell — the two
+prices on different products so the portal cannot switch plans, a missing
+webhook event, and the customer portal left unactivated, which is fine in
+test and 500s in live.
 
 **`scripts/boundaries/` holds every loader that produced a boundary row**,
 with its own README covering the method, each board's document URLs, and the
