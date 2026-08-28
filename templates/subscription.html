@@ -83,10 +83,17 @@
       <form method="POST" action="{{ url_for('create_checkout') }}" class="plan-form">
         <input type="hidden" name="from" value="{{ came_from }}">
         <input type="hidden" name="interval" value="month">
-        <button type="submit" class="btn btn-ghost btn-block">Choose monthly</button>
-        {# The saving, said once, next to the button it applies to. #}
+        <button type="submit" class="btn btn-ghost btn-block">
+          Start {{ trial_days }}-day free trial
+        </button>
+        {# What actually happens, in the order it happens, next to the button
+           that starts it. A trial that takes a card and renews by itself has
+           to say so here — not in terms nobody opens. #}
         <div class="plan-smallprint">
-          Yearly is {{ yearly.label }} — {{ yearly.sub }}
+          Free for {{ trial_days }} days, then <strong>{{ monthly.label }} a month</strong>
+          automatically. Card required now. Cancel any time before
+          day {{ trial_days }} and you are not charged.
+          <br>Yearly is {{ yearly.label }} — {{ yearly.sub }}
         </div>
       </form>
       {% endif %}
@@ -131,7 +138,14 @@
              revision collapses in June, so monthly billing takes about seven
              payments and then churns permanently. #}
           <input type="hidden" name="interval" value="year">
-          <button type="submit" class="btn btn-primary btn-lg btn-block">Upgrade to Pro</button>
+          <button type="submit" class="btn btn-primary btn-lg btn-block">
+            Start {{ trial_days }}-day free trial
+          </button>
+          <div class="plan-smallprint">
+            Free for {{ trial_days }} days, then <strong>{{ yearly.label }} a year</strong>
+            automatically. Card required now. Cancel any time before
+            day {{ trial_days }} and you are not charged.
+          </div>
           <div class="plan-smallprint">
             Cancel any time from this page. Telos never stores your card details.
           </div>

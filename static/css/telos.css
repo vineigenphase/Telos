@@ -334,12 +334,27 @@ body {
 }
 
 .page-header {
-  padding: 16px 16px 0;
+  /* --safe-top was defined and then never used anywhere, while --safe-bottom
+     was applied six times for the tab bar. In a browser the inset is 0 and
+     nothing looked wrong; installed to a home screen there is no browser
+     chrome, the page starts at the physical top of the screen, and the title
+     sat under the status bar and the notch. */
+  padding: calc(16px + var(--safe-top)) 16px 0;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Installed to a home screen there is no browser chrome at all, so the page
+   begins at the physical top of the display and the title ends up level with
+   the clock and the notch. The safe-area inset alone stops it being covered;
+   this is the breathing room that stops it merely touching. Browser tabs are
+   unaffected — display-mode only matches once the app is installed. */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  .page-header { padding-top: calc(28px + var(--safe-top)); }
+  .sidebar     { padding-top: calc(12px + var(--safe-top)); }
 }
 
 .page-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
@@ -1796,6 +1811,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     width: var(--sidebar-w);
     background: var(--surface);
     border-right: 1px solid var(--border);
+    /* Same reason as .page-header: standalone has no browser chrome, so the
+       logo at the top of the sidebar was under the status bar. */
+    padding-top: var(--safe-top);
     flex-direction: column;
     position: fixed;
     top: 0; left: 0; bottom: 0;

@@ -6,6 +6,7 @@ there is nothing to compare against, never 0 — a new account has no trend, and
 rendering that as "+0 this week" is a lie the dashboard would tell every new
 user on their first day.
 """
+import datetime
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -55,7 +56,14 @@ try:
     check("no grade yet", s["grade"]["value"], None)
     check("no grade delta", s["grade"]["delta_letters"], None)
 
-    def add_paper(code, year, score, mx=75, date="2026-08-20"):
+    # Dated relative to now, not to a literal. This read "2026-08-20", which
+    # sat inside the seven-day trend window on the day it was written and fell
+    # outside it eight days later — the suite passed for a week and then began
+    # failing at midnight with nothing changed. A fixture that has to be inside
+    # a window measured from NOW has to be written from now.
+    RECENT = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+
+    def add_paper(code, year, score, mx=75, date=RECENT):
         with get_db() as db:
             cur = db.execute(
                 """INSERT INTO papers (user_id, subject, board, paper_code, year, series,

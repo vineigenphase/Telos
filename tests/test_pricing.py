@@ -103,6 +103,21 @@ try:
     check("the radio pair is gone", "interval-list" in html, False)
     check("the yearly saving sits with the monthly button", "save £20" in html, True)
     check("no hardcoded old £2 upgrade button", "Upgrade — £2/month" in html, False)
+
+    # ── the free trial ──────────────────────────────────────────────────────
+    #
+    # A trial that takes a card and renews by itself has to say so where the
+    # button is, not in terms nobody opens. These check the three facts a
+    # student needs before handing over a card: how long it is free, what they
+    # will be charged, and that it happens on its own.
+    check("a trial is configured", A.TRIAL_DAYS > 0, True)
+    check("the page offers it", f"{A.TRIAL_DAYS}-day free trial" in html, True)
+    check("...says a card is needed now", "Card required now" in html, True)
+    check("...says what happens at the end", "automatically" in html, True)
+    check("...and names the price that will be charged",
+          A.PRICING["year"]["label"] + " a year" in html, True)
+    check("...and says cancelling before the end costs nothing",
+          f"before" in html and "not charged" in html, True)
     check("landing from a locked feature is logged",
           A.get_predictions is not None, True)   # placeholder to keep numbering
     with get_db() as db:

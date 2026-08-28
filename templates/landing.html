@@ -70,7 +70,12 @@
         <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">Start free</a>
         <a class="btn btn-ghost btn-lg" href="{{ url_for('login') }}">I have an account</a>
       </div>
-      <p class="lp-cta-note">Free forever for tracking. No card to start.</p>
+      {# Two different things, and conflating them would be the dishonest
+         version: tracking really is free forever with no card, and Pro has a
+         {{ trial_days }}-day trial that does take one. #}
+      <p class="lp-cta-note">
+        Free forever for tracking, no card. Pro is free for {{ trial_days }} days.
+      </p>
     </div>
 
     {# The first sight of the product. Rises and flattens out of its tilt as
@@ -335,7 +340,13 @@
           {# Opens the comparison below rather than going straight to sign-up:
              at this price the yearly plan is better for almost everyone, and
              saying so once is worth more than a quiet default. #}
-          <button type="button" class="btn btn-ghost" id="lp-monthly-cta">Choose monthly</button>
+          <button type="button" class="btn btn-ghost" id="lp-monthly-cta">
+            Start {{ trial_days }}-day free trial
+          </button>
+          <p class="lp-plan-note">
+            Then {{ monthly.label }} a month automatically. Card required.
+            Cancel before day {{ trial_days }} and you are not charged.
+          </p>
         </div>
 
         <div class="lp-plan pro">
@@ -360,7 +371,13 @@
             </div>
             {% endfor %}
           </div>
-          <a class="btn btn-primary" href="{{ url_for('register') }}?plan=year">Get Telos Pro</a>
+          <a class="btn btn-primary" href="{{ url_for('register') }}?plan=year">
+            Start {{ trial_days }}-day free trial
+          </a>
+          <p class="lp-plan-note">
+            Then {{ yearly.label }} a year automatically. Card required.
+            Cancel before day {{ trial_days }} and you are not charged.
+          </p>
         </div>
       </div>
 

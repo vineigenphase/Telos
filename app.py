@@ -108,6 +108,20 @@ PRICING = {
 }
 DEFAULT_INTERVAL = "year"     # annual is preselected on purpose
 
+# Free trial, in days. A card is taken up front and charged automatically when
+# the trial ends, which is the arrangement that has to be stated plainly rather
+# than buried — see the copy on /subscription and the landing page.
+#
+# Seven, not five, and the reason is worth keeping: Stripe sends its
+# trial-ending reminder email only for trials of seven days or more. At five a
+# customer got no warning before the charge. This is the difference between a
+# renewal someone expected and a chargeback.
+#
+# Entitlement already handles it: Stripe reports the subscription as `trialing`,
+# and both user_is_pro() and _apply_subscription() have always counted that as
+# paying. Nothing else needed changing to make a trial grant Pro.
+TRIAL_DAYS = 7
+
 # Where the landing page's tutoring section sends a "book a free call". The
 # default is the address the tutoring goes to, so the page works from a clean
 # checkout with nothing configured. Still an environment variable, so it can be
@@ -693,6 +707,7 @@ def dashboard():
         return render_template(
             "landing.html",
             pricing=PRICING,
+            trial_days=TRIAL_DAYS,
             tutoring_email=TUTORING_EMAIL,
             default_interval=DEFAULT_INTERVAL,
             pricing_features=PRICING_FEATURES,
@@ -2071,6 +2086,7 @@ def subscription():
         # tell what's selling.
         log_event("upgrade_prompt_landed", user_id=current_user.id, detail=came)
     return render_template("subscription.html",
+                           trial_days=TRIAL_DAYS,
                            stripe_enabled=STRIPE_ENABLED,
                            stripe_pk=os.environ.get("STRIPE_PUBLISHABLE_KEY", ""),
                            pricing_features=PRICING_FEATURES,
@@ -2111,6 +2127,19 @@ def create_checkout():
             payment_method_types=["card"],
             line_items=[{"price": plan["price_id"], "quantity": 1}],
             mode="subscription",
+            subscription_data={
+                "trial_period_days": TRIAL_DAYS,
+                # If the card fails when the trial ends, cancel rather than
+                # leave a subscription in limbo. The student keeps nothing they
+                # have not paid for, and nobody is chased for a debt they did
+                # not knowingly take on.
+                "trial_settings": {
+                    "end_behavior": {"missing_payment_method": "cancel"},
+                },
+            },
+            # A card up front is the whole point — the trial converts by
+            # itself, so there is no second checkout to lose people at.
+            payment_method_collection="always",
             metadata={"user_id": str(current_user.id), "interval": interval},
             success_url=url_for("sub_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=url_for("subscription", _external=True),
