@@ -65,6 +65,48 @@ check("buttons get touch-action", "touch-action: manipulation" in css, True)
 check("tab bar padded by safe area", "padding-bottom: var(--safe-bottom)" in css, True)
 check("hover rules gated behind hover query", "@media (hover: hover)" in css, True)
 
+# ── 3b. the safe-area rules survive the cascade ─────────────────────────────
+#
+# --safe-top was defined at the top of this file and then used nowhere for
+# months, while --safe-bottom was applied six times. In a browser tab the inset
+# is 0, so the omission was invisible; installed to a home screen the logo sat
+# under the status bar.
+#
+# The follow-up bug was subtler and is the reason these are tests rather than a
+# comment. The standalone block and the width blocks both style .page-header
+# from inside a media query, so their specificity is identical and only source
+# order separates them. The width rules also set `padding` as a SHORTHAND,
+# which resets padding-top to a flat value and throws the inset away. With the
+# standalone block written above them it won on a phone in portrait and lost on
+# an installed iPad or a phone in landscape — the same bug, at a width nobody
+# had checked.
+check("--safe-top is actually used, not just defined", css.count("var(--safe-top)") >= 3, True)
+
+_ph_shorthand = re.findall(r"\.page-header \{ padding: ([^;]+);", css)
+check(f"no .page-header shorthand drops the inset ({len(_ph_shorthand)} found)",
+      [d for d in _ph_shorthand if "var(--safe-top)" not in d], [])
+
+check("standalone block exists once", css.count("display-mode: standalone"), 1)
+
+# It has to be last, or a later equal-specificity rule silently overrides it.
+# Walk the braces to find where the block ends, then require the rest of the
+# file to be blank. Verified empirically before the fix: forcing the media
+# query to match in a live page moved padding-top not at all, because the
+# 640px rule 1,500 lines below won on source order alone.
+_start = css.rindex("@media (display-mode: standalone)")
+_depth, _end = 0, None
+for _i in range(_start, len(css)):
+    if css[_i] == "{":
+        _depth += 1
+    elif css[_i] == "}":
+        _depth -= 1
+        if _depth == 0:
+            _end = _i + 1
+            break
+check("the standalone block closes", _end is not None, True)
+check(f"nothing follows the standalone block ({css[_end:].strip()[:40]!r})",
+      css[_end:].strip(), "")
+
 # ── 4. per-question save API ────────────────────────────────────────────────
 pid = None
 try:

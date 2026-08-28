@@ -347,15 +347,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Installed to a home screen there is no browser chrome at all, so the page
-   begins at the physical top of the display and the title ends up level with
-   the clock and the notch. The safe-area inset alone stops it being covered;
-   this is the breathing room that stops it merely touching. Browser tabs are
-   unaffected — display-mode only matches once the app is installed. */
-@media (display-mode: standalone), (display-mode: fullscreen) {
-  .page-header { padding-top: calc(28px + var(--safe-top)); }
-  .sidebar     { padding-top: calc(12px + var(--safe-top)); }
-}
 
 .page-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
 .page-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
@@ -1822,7 +1813,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
   .main { margin-left: var(--sidebar-w); flex: 1; }
 
-  .page-header { padding: 24px 24px 0; }
+  .page-header { padding: calc(24px + var(--safe-top)) 24px 0; }
   .page-body   { padding: 20px 24px 40px; }
   .flash-container { padding: 0 24px; }
 
@@ -1855,7 +1846,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
    ≥ 1024px — desktop and landscape iPad.
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1024px) {
-  .page-header { padding: 24px 32px 0; }
+  .page-header { padding: calc(24px + var(--safe-top)) 32px 0; }
   .page-body   { padding: 24px 32px 48px; }
   .flash-container { padding: 0 32px; }
 
@@ -2656,4 +2647,25 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   font-size: 0.82rem;
   color: var(--muted);
   max-width: 60ch;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Installed to a home screen — must stay LAST in this file.
+   ═══════════════════════════════════════════════════════════════════════════
+   In a browser tab the toolbar provides the gap and safe-area insets are 0, so
+   none of this is needed. Installed, there is no chrome at all: the page
+   begins at the physical top of the display and the title sits level with the
+   clock and the notch. The inset stops it being covered; these few extra
+   pixels stop it merely touching.
+
+   This block has to be last. Every rule here is a single class inside a media
+   query, which is exactly the specificity of the .page-header rules in the
+   width blocks above — so nothing but source order separates them, and placed
+   any earlier the ≥640px rule silently wins on an installed iPad or a phone in
+   landscape. The .sidebar rule in particular did nothing at all from further
+   up the file: the sidebar is display:none below 640px and has its own
+   padding-top from 640px up. */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  .page-header { padding-top: calc(28px + var(--safe-top)); }
+  .sidebar     { padding-top: calc(12px + var(--safe-top)); }
 }
