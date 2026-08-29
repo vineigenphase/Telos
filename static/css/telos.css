@@ -2650,6 +2650,175 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Legal documents — terms, privacy.
+   ═══════════════════════════════════════════════════════════════════════════
+   A long document is a reading problem, not a layout problem. The measure is
+   capped at 68ch and the type is a shade larger than the app's, because these
+   are the two pages someone reads in full rather than scans. Everything else
+   is restraint: no cards, no accents, no decoration competing with the words.
+
+   Inserted ABOVE the standalone block on purpose — see the note at the end of
+   this file for why nothing may follow it. */
+
+.legal-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: calc(28px + var(--safe-top)) 22px calc(48px + var(--safe-bottom));
+}
+
+.legal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.legal-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.legal-nav { display: flex; gap: 18px; }
+
+.legal-nav a {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.legal-nav a:hover { color: var(--text); }
+
+.legal-title {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-weight: 500;
+  color: var(--text);
+  margin: 36px 0 6px;
+  text-wrap: balance;
+}
+
+.legal-updated {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+
+/* The document body. Descendant selectors rather than a class on every
+   element: these pages are prose, and asking the author to remember a class
+   per paragraph is how a document ends up half-styled. */
+.legal-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 68ch;
+}
+
+.legal-body h2 {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 38px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.legal-body p { margin: 0 0 14px; color: var(--muted); }
+
+.legal-body ul {
+  margin: 0 0 16px;
+  padding-left: 22px;
+  color: var(--muted);
+}
+
+.legal-body li { margin-bottom: 7px; }
+
+.legal-body strong { color: var(--text); font-weight: 600; }
+
+.legal-body a { color: var(--accent, #D9B36C); }
+
+.legal-body code {
+  font-size: 0.86em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.legal-lead {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text) !important;
+  margin-bottom: 30px !important;
+}
+
+/* The clauses that cost money. Pulled out of the flow so someone skimming
+   cannot miss the trial converting or the fact we never see a card number. */
+.legal-callout {
+  border-left: 2px solid var(--accent, #D9B36C);
+  padding: 12px 0 12px 16px;
+  margin: 22px 0 !important;
+  color: var(--text) !important;
+}
+
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4px 0 20px;
+  font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.legal-table th,
+.legal-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.legal-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.legal-table td { color: var(--muted); }
+
+.legal-foot {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.legal-foot p { margin: 0 0 10px; }
+.legal-foot nav { display: flex; gap: 16px; flex-wrap: wrap; }
+.legal-foot a { color: var(--muted); }
+
+.auth-legal {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+@media (min-width: 640px) {
+  .legal-wrap { padding-left: 32px; padding-right: 32px; }
+  .legal-body { font-size: 1.02rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Installed to a home screen — must stay LAST in this file.
    ═══════════════════════════════════════════════════════════════════════════
    In a browser tab the toolbar provides the gap and safe-area insets are 0, so

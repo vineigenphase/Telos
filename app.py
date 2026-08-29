@@ -128,6 +128,23 @@ TRIAL_DAYS = 7
 # repointed without a deploy.
 TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "tutor.telos@gmail.com")
 
+# ── Legal ─────────────────────────────────────────────────────────────────────
+#
+# The terms name whoever is contracting with the student, and a sole trader
+# contracts under their own name. There is no sensible default for that, and a
+# wrong one would be worse than an obvious placeholder — so the placeholder is
+# deliberately conspicuous, and test_legal.py fails the suite if the deployed
+# environment has not set it.
+LEGAL_NAME  = os.environ.get("LEGAL_NAME",  "[FULL LEGAL NAME — set LEGAL_NAME]")
+LEGAL_EMAIL = os.environ.get("LEGAL_EMAIL", TUTORING_EMAIL)
+
+# The date shown as "last updated" on both documents. A hardcoded date rather
+# than today() on purpose: these pages must state when the TERMS last changed,
+# not when the page was rendered. A policy that redates itself every morning
+# tells a reader nothing and quietly destroys the audit trail of what they
+# agreed to. Change it by hand, in the same commit that changes the wording.
+LEGAL_UPDATED = "29 August 2026"
+
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
 MOCK_FOLDER   = os.path.join(STORAGE_DIR, "mocks")     # purchasable mock papers
@@ -323,6 +340,26 @@ def offline():
     """Cached shell fallback the service worker serves for failed navigations.
     Public and content-free by design — see TELOS_V2_ADDENDUM.md Phase 2.5b."""
     return render_template("offline.html")
+
+
+@app.route("/terms")
+def terms():
+    """Terms of service. Public, and deliberately reachable without an account:
+    somebody deciding whether to sign up has to be able to read what they would
+    be agreeing to. Prices are passed in from PRICING rather than written into
+    the template, so a repricing cannot leave this page lying."""
+    return render_template("terms.html", pricing=PRICING, trial_days=TRIAL_DAYS,
+                           legal_name=LEGAL_NAME, legal_email=LEGAL_EMAIL,
+                           legal_updated=LEGAL_UPDATED)
+
+
+@app.route("/privacy")
+def privacy():
+    """Privacy policy. Public for the same reason, and additionally because a
+    parent checking what their child's revision app collects should not have to
+    create an account to find out."""
+    return render_template("privacy.html", legal_name=LEGAL_NAME,
+                           legal_email=LEGAL_EMAIL, legal_updated=LEGAL_UPDATED)
 
 
 @app.route("/sw.js")

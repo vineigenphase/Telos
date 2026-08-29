@@ -1,0 +1,209 @@
+{# Privacy policy.
+
+   The data table below was written from the actual database schema, not from
+   memory — every field named is a column that exists and is populated. Two
+   things that came out of checking rather than assuming:
+
+     * password_resets stores requested_ip, so IP addresses ARE held, for that
+       one purpose. It is disclosed.
+     * users has parent_email and parent_report_optin columns, but nothing ever
+       writes to them — the weekly parent report was cut. A policy that claimed
+       we collect a parent's email would be describing a feature that does not
+       exist, so it is not mentioned.
+
+   Telos runs no third-party analytics or advertising trackers; log_event()
+   writes to our own table. That is worth stating plainly because it is
+   unusual, and because it means there is no cookie banner to click. #}
+{% extends "legal_base.html" %}
+
+{% block title %}Privacy Policy — Telos{% endblock %}
+{% block legal_title %}Privacy Policy{% endblock %}
+{% block legal_updated %}{{ legal_updated }}{% endblock %}
+
+{% block legal_content %}
+
+<p class="legal-lead">
+  This explains what Telos knows about you, why, and how to make us delete it.
+  The short version: we hold your email, the marks you type in, and whether you
+  are subscribed. We never see your card number, we run no advertising or
+  third-party trackers, and we do not sell anything to anyone.
+</p>
+
+<h2>1. Who is responsible for your data</h2>
+<p>
+  The data controller is <strong>{{ legal_name }}</strong>, a sole trader
+  trading as “Telos”. For anything on this page, including a request to see or
+  delete your data, email
+  <a href="mailto:{{ legal_email }}">{{ legal_email }}</a>.
+</p>
+
+<h2>2. What we collect</h2>
+<table class="legal-table">
+  <thead>
+    <tr><th>What</th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Your email and username</strong></td>
+      <td>To identify your account, sign you in, and send password resets and service messages.</td>
+    </tr>
+    <tr>
+      <td><strong>Your password</strong>, stored only as a hash</td>
+      <td>To sign you in. We cannot read it, and we cannot tell you what it is — only reset it.</td>
+    </tr>
+    <tr>
+      <td><strong>Your revision data</strong> — papers logged, marks per question, topics, notes, times, and your exam date if you set one</td>
+      <td>This is the service. Without it there is nothing to show you.</td>
+    </tr>
+    <tr>
+      <td><strong>Files you upload</strong></td>
+      <td>To store and show them back to you. Private to your account.</td>
+    </tr>
+    <tr>
+      <td><strong>Subscription status</strong>, and identifiers Stripe gives us for your customer and subscription</td>
+      <td>To know whether you have Pro, and to open your billing portal.</td>
+    </tr>
+    <tr>
+      <td><strong>Usage events</strong> — that a page was viewed or a checkout started, with your account id and a short label</td>
+      <td>To see which parts of Telos are used and which are broken. Stored in our own database.</td>
+    </tr>
+    <tr>
+      <td><strong>The IP address a password reset was requested from</strong></td>
+      <td>Security only — to spot someone attacking accounts. This is the only place we record an IP address.</td>
+    </tr>
+    <tr>
+      <td><strong>Share cards</strong> you choose to create</td>
+      <td>Only if you create one. It holds the figures shown on the card, and anyone with the link can see it — that is what the link is for. You can delete it.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="legal-callout">
+  <strong>We never receive your card details.</strong> Payment happens on
+  Stripe's own pages. We are told that a payment succeeded and given an
+  identifier — never a card number.
+</p>
+
+<h2>3. Cookies</h2>
+<p>
+  Telos sets one cookie: the session cookie that keeps you signed in. It is
+  marked <code>HttpOnly</code>, <code>Secure</code> and
+  <code>SameSite=Lax</code>. It is strictly necessary for the service to work,
+  which is why there is no cookie banner — there is nothing optional to
+  consent to.
+</p>
+<p>
+  There are no advertising cookies, no third-party analytics, no tracking
+  pixels and no social media trackers anywhere in Telos.
+</p>
+
+<h2>4. Why we are allowed to hold it</h2>
+<ul>
+  <li>
+    <strong>To perform our contract with you</strong> — your account, your
+    revision data, your subscription. Without these we cannot provide Telos.
+  </li>
+  <li>
+    <strong>Our legitimate interests</strong> — keeping the service secure
+    (the password-reset IP), and understanding which features are used
+    (usage events). We keep this to the minimum that answers the question.
+  </li>
+  <li>
+    <strong>Legal obligation</strong> — payment and tax records must be kept
+    for six years.
+  </li>
+</ul>
+
+<h2>5. Who else touches your data</h2>
+<p>
+  We do not sell your data and we do not share it for advertising. We use these
+  companies to run Telos, and each only handles what it needs:
+</p>
+<table class="legal-table">
+  <thead><tr><th>Who</th><th>What for</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>Neon</td><td>The database — everything in section 2</td><td>London, UK</td></tr>
+    <tr><td>Railway</td><td>Runs the application and stores uploaded files</td><td>EU West</td></tr>
+    <tr><td>Stripe</td><td>Takes payments and holds your card details</td><td>EU / USA</td></tr>
+    <tr><td>Resend</td><td>Sends password reset and service emails</td><td>EU / USA</td></tr>
+    <tr><td>Cloudflare</td><td>DNS for telosapp.co.uk</td><td>Global</td></tr>
+  </tbody>
+</table>
+<p>
+  Where a provider handles data outside the UK, that transfer is covered by the
+  UK's approved safeguards — an adequacy decision, or standard contractual
+  clauses with the UK addendum.
+</p>
+<p>
+  We would also disclose data if the law required it, or to protect someone's
+  safety.
+</p>
+
+<h2>6. How long we keep it</h2>
+<ul>
+  <li><strong>Your account and revision data</strong> — while your account exists. Delete the account and it goes.</li>
+  <li><strong>Password reset records</strong> — 30 days, then removed.</li>
+  <li><strong>Usage events</strong> — up to 24 months.</li>
+  <li><strong>Payment records</strong> — six years, because tax law requires it. This is the one thing we cannot delete on request.</li>
+</ul>
+
+<h2>7. If you are under 18</h2>
+<p>
+  Telos is built for students taking A-levels, Highers and Advanced Highers, so
+  we expect many of the people using it to be 16, 17 or 18. We take that
+  seriously:
+</p>
+<ul>
+  <li>You must be at least 13 to have an account.</li>
+  <li>If you are under 18, ask a parent or guardian before you subscribe to a paid plan.</li>
+  <li>We do not profile you for advertising, and we do not use your data to try to keep you on the service longer.</li>
+  <li>We collect the least we can. There is no address, no phone number, no date of birth, no location.</li>
+  <li>Nothing you log is public unless you choose to create a share card.</li>
+</ul>
+<p>
+  A parent or guardian can email
+  <a href="mailto:{{ legal_email }}">{{ legal_email }}</a> to ask what we hold
+  about their child, or to have it deleted.
+</p>
+
+<h2>8. Your rights</h2>
+<p>Under UK data protection law you can ask us to:</p>
+<ul>
+  <li><strong>show you</strong> the data we hold about you;</li>
+  <li><strong>correct</strong> anything wrong;</li>
+  <li><strong>delete</strong> your data — see section 6 for the one exception;</li>
+  <li><strong>give you a copy</strong> in a portable format;</li>
+  <li><strong>restrict or object to</strong> what we do with it, including anything we do on the basis of legitimate interests.</li>
+</ul>
+<p>
+  Email <a href="mailto:{{ legal_email }}">{{ legal_email }}</a>. We will reply
+  within one month, and it is free.
+</p>
+<p>
+  If you are not happy with how we have handled it, you can complain to the
+  Information Commissioner's Office at
+  <a href="https://ico.org.uk" rel="noopener">ico.org.uk</a> or on
+  0303 123 1113. We would rather you told us first so we can put it right.
+</p>
+
+<h2>9. How we protect it</h2>
+<ul>
+  <li>Everything is served over HTTPS.</li>
+  <li>Passwords are stored as salted hashes, never as text.</li>
+  <li>The session cookie is HttpOnly, Secure and SameSite=Lax.</li>
+  <li>Card details never reach our servers.</li>
+  <li>Access to the production database is limited to the operator.</li>
+</ul>
+<p>
+  No service can promise perfect security. If a breach ever affected your
+  rights, we would tell the ICO within 72 hours and tell you without undue
+  delay.
+</p>
+
+<h2>10. Changes</h2>
+<p>
+  If we change this policy in a way that materially affects you, we will email
+  you. The date at the top always shows when it last changed.
+</p>
+
+{% endblock %}

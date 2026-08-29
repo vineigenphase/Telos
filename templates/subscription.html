@@ -93,6 +93,8 @@
           Free for {{ trial_days }} days, then <strong>{{ monthly.label }} a month</strong>
           automatically. Card required now. Cancel any time before
           day {{ trial_days }} and you are not charged.
+          <br><a href="{{ url_for('terms') }}">Terms</a> ·
+          <a href="{{ url_for('privacy') }}">Privacy</a>
           <br>Yearly is {{ yearly.label }} — {{ yearly.sub }}
         </div>
       </form>
@@ -145,6 +147,8 @@
             Free for {{ trial_days }} days, then <strong>{{ yearly.label }} a year</strong>
             automatically. Card required now. Cancel any time before
             day {{ trial_days }} and you are not charged.
+          <br><a href="{{ url_for('terms') }}">Terms</a> ·
+          <a href="{{ url_for('privacy') }}">Privacy</a>
           </div>
           <div class="plan-smallprint">
             Cancel any time from this page. Telos never stores your card details.
