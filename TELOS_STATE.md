@@ -32,7 +32,7 @@ Pro tier = prediction and prescription.
 | Files | Railway volume `web-volume` at `/data`; `STORAGE_DIR` → `/data/uploads` and `/data/mocks` |
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
-| Payments | Stripe, **test mode** |
+| Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 
 ### Environment variables (values live in Railway, never in git)
@@ -578,9 +578,10 @@ fallback — a landing page publishes whatever it is given.
   same rule the legacy £2 price has always had. Never migrate or cancel either.
 - Reversal, should it be wanted: archive `price_1U8pgM…` and set
   `STRIPE_PRICE_ANNUAL` back to `price_1U5w6X…`.
-- **All of this is test mode.** `sk_test_…`. The live-mode swap remains a
-  separate job: recreate the product, all three prices and the webhook endpoint
-  in live mode, then update the four environment variables.
+- ~~**All of this is test mode.**~~ **Superseded 2026-08-28** — live mode is
+  configured and the full lifecycle is proven with a real card. The paragraph
+  is kept because the repricing above was carried out in test mode and the
+  price ids it names are the test ones.
 
 **`/subscription` shows three cards, not two with a radio inside one.** Free,
 Pro Monthly and Pro Yearly. The two paid cards carry an **identical** feature
