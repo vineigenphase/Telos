@@ -7,6 +7,9 @@ do not start changing code until you've reported back.
 
 1. Read `TELOS_STATE.md` in the repo root. That is the living handoff document:
    what's live, infrastructure, phase status, open items, gotchas, conventions.
+   It carries a one-line index of every settled decision; `TELOS_ARCHIVE.md`
+   holds the reasoning behind each, and is worth opening only when you are
+   about to reopen one of them.
 2. Skim `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` for the phase plan. The
    addendum reorders the phases and adds the mobile/PWA work, so it wins where
    they disagree.

@@ -4,6 +4,13 @@
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
+**`TELOS_ARCHIVE.md` holds the reasoning behind every settled decision.** This
+file lists them; that one says why, and what it cost to find out. It was split
+out on 2026-08-30 because the settled section had grown to 730 of this file's
+1,063 lines, which made the document you are meant to read first the one nobody
+finished. Archived means settled, not superseded — if the archive disagrees
+with the code or with this file, trust those and fix the archive.
+
 Update this file whenever a phase ships. It is the one thing that survives a
 wiped machine, because it lives in the GitHub repo.
 
@@ -143,760 +150,89 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    Facebook only caches a URL that has actually been shared into a Meta
    property, and the `og:image` did not exist before that day.
 
-**Settled — don't re-litigate:**
-
-**The 7-day free trial shipped 2026-08-28** (`e703cfd`). Checkout opens with
-`trial_period_days=7` and `payment_method_collection="always"`, so a card is
-taken up front and the subscription bills itself when the trial ends. Seven
-days rather than five because **Stripe only sends its trial-ending reminder for
-trials of 7 days or more** — at five, the first a student hears of the charge is
-the charge. `missing_payment_method: cancel` ends a subscription whose card
-fails rather than leaving a `past_due` account holding Pro. No entitlement
-change was needed: `trialing` already counted as paying.
-
-Both the landing page and `/subscription` state the same four facts at the
-point of purchase — how long it is free, what is charged, that it is automatic,
-and that cancelling first costs nothing. `test_pricing.py` asserts they are on
-screen, and `test_legal.py` asserts the terms agree with them **by meaning**
-rather than by exact wording, so the copy can be rewritten without silently
-dropping one.
-
-**The repository was made presentable 2026-08-29** (`0d3c253`, `9e57de0`,
-`54f93bf`). It had no README, no licence and no legal pages.
-
-- **`README.md`** — written from figures verified against the code and the
-  database, not from memory. One claim was corrected while writing it: the
-  first draft said boundary coverage is checked in both directions, but
-  `test_boundaries.py` asserts only that every paper the app OFFERS has
-  boundaries and deliberately *reports* the reverse without failing, because
-  Edexcel publishes boundaries for Further Maths option papers the catalogue
-  does not offer.
-- **`LICENSE`** — proprietary, all rights reserved. Telos is a live commercial
-  service; MIT would have let anyone clone it and launch a competitor. Reading
-  and short quotation for review are explicitly permitted. The exam boards'
-  boundary data is **disclaimed rather than licensed** — it is not ours.
-- **`/terms` and `/privacy`** — public by design, because someone deciding
-  whether to sign up, or a parent checking what their child's revision app
-  collects, should not need an account to read them. Both extend
-  `legal_base.html`. Prices and trial length come from `PRICING` and
-  `TRIAL_DAYS`, never typed into the template.
-- **`LEGAL_NAME`** is set in Railway to the owner's legal name. Unset, both
-  documents render a conspicuous placeholder, and `test_legal.py` fails in
-  production while only warning locally.
-- **`LEGAL_UPDATED`** is a hardcoded string, deliberately not `today()`. A
-  policy that redates itself every morning destroys the record of what a user
-  actually agreed to. **Change it by hand in the same commit that changes the
-  wording** — that rule is in a comment beside it and was followed when the
-  tutoring clause changed on 2026-08-30.
-
-Writing the privacy policy from the real schema changed it twice, and both
-would have been wrong from memory: `password_resets` stores `requested_ip`, so
-IP addresses **are** held (disclosed, with the narrow purpose), and `users` has
-`parent_email` / `parent_report_optin` columns that **nothing ever writes to**,
-because the parent report was cut — so the policy does not claim to collect it.
-
-**Two layout changes shipped alongside the trial** (`e703cfd`, `9bd8048`):
-
-- **The landing page went 1080px -> 1240px.** The prose does NOT stretch with
-  it — every text block keeps its own 54-58ch cap, so the measure stays
-  readable while the plan cards, tutoring grid and device mockups use the
-  window. Those two limits do different jobs and must not be collapsed into one.
-- **`--safe-top` was defined at the top of `telos.css` and used nowhere**,
-  while `--safe-bottom` was applied six times for the tab bar. In a browser tab
-  the inset is 0 so nothing looked wrong; installed to a home screen the logo
-  sat under the status bar. Fixing it exposed the cascade trap in the gotchas
-  below — worth reading before touching those rules again.
-
-**Revision mentoring was added to the tutoring section 2026-08-30**
-(`b706354`): reading a student's full analytics with them and turning a page of
-weak topics into a plan. It is a fourth card, so the grid goes two columns at
-860px and four only at 1180px — three columns would have stranded one card
-alone on a second row. Terms section 10 named only tutoring and
-personal-statement review, so it now names all three; a service the terms do
-not mention is a service sold without terms.
-
-**Repo metadata was set 2026-08-30.** The description read "STEP + A LEVELS",
-which is what a hiring manager sees first. Description, homepage and ten topics
-are now set, and a **social preview card** is uploaded (verified byte-identical
-by md5 against the local file). The same 1280x640 PNG is the landing page's
-`og:image`, which did not exist before — every link to telosapp.co.uk previewed
-as a blank grey box. It is **generated**, not hand-made:
-`scripts/build_social_preview.py` draws it from `brand.py`'s mark and
-`sharecards.py`'s fonts and palette, so a palette change carries into it.
-
-**Phase 4 shipped 2026-08-23**, signed off by the owner after a visual review.
-Two deliberate departures from the spec are baked in:
-
-- The spec sources questions from `bank_questions`. That table does not exist —
-  the real one is **`question_bank`**, it is per-user, and it was empty for
-  every user at launch. A spec-literal Phase 4 would have rendered an empty
-  panel on day one. It ships with two sources instead: unattempted
-  `question_bank` questions first, then re-doing sub-60% questions from
-  `question_marks`. The spec's own rule ("preferring unattempted questions,
-  then ones scored below 60%") already assumes attempt data, which only the
-  marks table has.
-- Prescriptions are computed on read, not cached like predictions. They depend
-  on the question bank as well as the marks, so a cache would need invalidating
-  from the `/bank` tag and delete routes too. See the docstring on
-  `build_prescriptions()`. Revisit only if the dashboard gets slow.
-
-**UI overhaul shipped 2026-08-24** (`7df213d`, merged straight to `main` after
-the owner reviewed the branch on GitHub). All twelve screens from the brief are
-on the Editorial treatment, plus the new stroke logo. Three things to know:
-
-- **The trend deltas read blank for the first week, on purpose.** Migration 005
-  added `question_marks.created_at` and `grade_prediction_history` because three
-  of the four headline deltas were not computable before it — there was no
-  timestamp on a mark, and `grade_predictions` was upserted in place so the
-  previous prediction was overwritten every recompute. Neither is backfillable.
-  The dashboard shows a bare stat rather than inventing a delta. Don't "fix"
-  the empty deltas; wait for the data.
-- **Five templates were never restructured** — `_upgrade_prompt`, `bank_tag`,
-  `bank_upload`, `papers_enter`, `papers_entry`. They carry no hardcoded hexes,
-  only CSS variables, so they picked up the new palette for free and nothing
-  renders the old purple. They do still lay out via inline styles if anyone
-  wants to finish the job.
-- **Pro Zone posts use `.post-*`, not `.entry-*`.** That namespace already
-  belongs to the phone mark-entry flow — fourteen classes of it.
-
-**Phase 9 shipped 2026-08-25** (`0df51d7`), together with the page loader. Two
-departures from the spec, both agreed with the owner before building:
-
-- **The card page is `noindex`.** A student chose to show a result to the people
-  they sent it to, which is not the same as agreeing to surface in a search for
-  their name. `/s/` is deliberately NOT disallowed in robots.txt: a crawler has
-  to be able to fetch the page to read the noindex.
-- **Cards can be revoked**, which the spec doesn't mention. A permanent public
-  page of your own grades that you can't take down is the wrong default.
-  Revoking deletes the row, so the link 404s rather than going blank.
-
-**The spec's "streak" card has no data behind it.** Phase 9's card types are
-listed as "predicted grade / heatmap snapshot / streak or papers-completed
-milestone". Nothing in Telos tracks consecutive days — there is no streak
-field anywhere in the schema — so the milestone card ships as papers-completed.
-`render_milestone` already takes `unit="days"` and will render a day streak the
-moment something computes one; per the UI brief's rule, this is flagged rather
-than faked with a placeholder number.
-
-**A free account cannot make the grade card**, and that is correct rather than
-a bug. Prediction is the Pro half of the free/Pro split, so a free user has
-accuracy and papers-logged to share but no predicted grade. The dashboard
-offers only the cards the data supports.
-
-**The page loader is deliberately shy, and deliberately inert until needed.** It
-waits 180ms before appearing, because a loader that flashes on every fast click
-makes an app feel less settled rather than more. It animates only transform and
-opacity — the charge is two counter-translated transforms, not an animated
-height or clip-path — because it plays exactly while the main thread is busy
-parsing the next document, which is when anything layout-driven would stutter.
-And it ships as an inert `<template>` that `telos.js` clones on first use: a
-`position:fixed inset:0` element in live markup becomes an opaque sheet over
-the whole app if its stylesheet ever fails to arrive. Don't "simplify" any of
-those three into the obvious version.
-
-**The Neon wake-up 500 is fixed** (2026-08-25, owner approved touching `db.py`).
-The pool now passes `check=ConnectionPool.check_connection`, which tests a
-connection on checkout and replaces a dead one. Note the old description of the
-symptom here was wrong in a way that mattered: it said the first request after
-an idle period fails and "the retry works". In practice the pool holds several
-connections and each request borrows a different one, so a wake-up could
-produce a *run* of 500s — the app looked broken rather than slow.
-`tests/test_db_resilience.py` reproduces it by killing a backend from a second
-connection, and was confirmed to fail without the argument. Cost is one
-round-trip per checkout.
-
-**Decisions waiting on the owner:**
-
-10. *(settled 2026-08-25 — see "Grade boundaries" below.)*
-
-**Grade boundaries were substantially wrong, and are now sourced from the
-boards' own PDFs** (2026-08-25, migrations 007-011).
-
-- **Physics predicted U on papers scoring 81-90%.** The rows held the OVERALL
-  qualification boundary — out of 270, all three papers summed — under the
-  paper code "Overall", while students log one paper at a time out of 100 or
-  70. `select_boundaries` cannot match "Paper 1", falls back to "same subject,
-  same year", and measured an 85/100 against an A boundary of 219. Every one of
-  those rows was *also* shifted a column, with the max mark sitting in `a_star`
-  — which is why `a_star` read 270 in all eight years. Replaced with OCR's
-  per-paper raw boundaries: Paper 1 = H556/01 (100), Paper 2 = H556/02 (100),
-  Paper 3 = H556/03 (70).
-- **Summer 2020 and 2021 boundaries were invented.** Those series were
-  cancelled; grades came from centre and teacher assessment and no boundaries
-  were published. All such rows are deleted, for every subject. A 2020 paper now
-  falls back to the median of real years.
-- **The Edexcel data was checked and is correct.** All 21 Further Maths and
-  Maths rows Pearson publishes notional component boundaries for across
-  2022-2025 match exactly, as do the 2019 rows' A/B/C. Only OCR was wrong.
-- **D and E are now the published values** where the board prints them (46 of
-  83 rows). `infer_de()` remains for the rest — hand-entered rows and medians
-  across years carry only four boundaries — but it is the fallback, not the
-  rule.
-
-**Don't hand-type boundary data.** Migrations 007, 010 and 011 were generated by
-scripts that parse the official PDFs, because eighteen rows of six numbers typed
-by hand is precisely how the Physics data came to be shifted a column. The
-generators also refuse to write: 011 re-reads each row's official A/B/C and
-declines unless they match what is stored, so a mis-parse produces nothing
-rather than something plausible.
-
-**`tests/test_boundaries.py` guards the class of fault, not the instance.** No
-boundary may exceed or equal its paper's max mark (a 270 against a 100-mark
-paper is invisible when reading numbers and obvious when comparing them to the
-paper), A*>A>B>C must hold, C>D>E>0 wherever D/E exist, every offered paper
-needs data, and no cancelled series may reappear.
-
-**Pearson's 2019 file uses two layouts.** Most sections print
-"Max Mark A* A B C D E U"; Mathematics and Further Mathematics print
-"Max Mark A B C D E U" with no A* at component level, and zero-padded paper
-labels. The A* figures stored for 2019 did not come from that document and are
-left as they are.
-
-**Six Further Maths papers have boundaries but cannot be logged.** Edexcel
-publishes FP1, FP2, FS2, FM2, D1 and D2; `paper_templates.py` offers only CP1,
-CP2, FM1, FS1. Students on those options have nowhere to put them. Real data,
-missing feature — `test_boundaries.py` prints it as a NOTE on every run.
-
-**The subject catalogue now covers 21 qualifications across five boards**
-(2026-08-25/26, migrations 012-033). Every board was onboarded the same way,
-and the method is the point:
-
-> download the board's own PDFs -> write or extend a parser for that board's
-> layout -> **validate every component against its own expected max mark** ->
-> generate the migration SQL *by script, never by hand* -> cross-check against a
-> second source where one exists -> author topics from the specification ->
-> run the suites -> deploy.
-
-The expected-max guard has caught a genuine fault on **every** board it was
-pointed at. It is not ceremony.
-
-- **Each board prints boundaries differently, and all the layouts are handled.**
-  OCR uses three table layouts. Pearson uses four, including one with a single
-  number per line (2024) and one row whose paper label is simply missing
-  (Physics 2019 Paper 2, where the label line reads `9PE0`) — that one is placed
-  only when exactly one paper is unaccounted for and exactly one unlabelled row
-  of that max mark remains, and it prints a note when it fires. AQA scales its
-  language components and publishes both a raw and a scaled row, so taking the
-  last match would double every boundary.
-- **Students see only the modules they chose.** `visible_papers()` returns the
-  compulsory papers always, and an optional paper only if that student picked
-  it. A student who has picked nothing sees the compulsory papers alone, not
-  every option in the catalogue. `paper_options()` is the single source for
-  which is which.
-- **A signed-in student with no subjects is redirected to choose them**
-  (`_require_subject_setup`, with `SETUP_EXEMPT` for the routes that must stay
-  reachable). This broke four integration suites whose throwaway users had no
-  subjects; each now gets a `user_subjects` row, which is a more honest fixture
-  anyway.
-
-**Coursework and speaking components count toward the grade, and were missing**
-(2026-08-26, migration 033). Geography's fieldwork investigation (7037/C, 60
-marks) and the three MFL speaking exams (7652/3T, 7662/3T, 7692/3T, 60 each)
-were excluded under the rule *"a paper belongs here if a student can sit and
-mark it alone."* That rule was wrong for these four: a Geography prediction was
-being built from 80% of the qualification and an MFL prediction from 70%, and
-nothing said so.
-
-- **The OCR Practical Endorsements stay out, and that is the same rule applied
-  correctly.** They are reported separately and contribute nothing to the grade,
-  so a prediction has nothing to do with them. Don't "finish the job" by adding
-  them.
-- **The form asks for one mark, not a breakdown.** A catalogue paper may carry
-  `"assessment": "coursework"` or `"oral"` (default `"exam"`). `applyAssessment()`
-  in `telos.js` reads it off `/api/template-info`, hides `#q-breakdown`, and
-  clears any rows already there so nothing hidden gets posted. A 3,000-word
-  investigation has no question numbers to enter.
-- **Speaking is stored from the teacher-conducted variant.** AQA publishes 3T
-  and 3V separately and their boundaries are identical in every series checked,
-  so one row serves both and a student need not know which their centre used.
-- **`tests/test_coursework.py` guards the omission, not the fix.** It sums each
-  qualification's components against the total the board actually grades out of.
-  That is the only check that sees a missing component — the papers that *are*
-  there look perfectly correct on their own. Physics counts one 35-mark option
-  because a student sits exactly one.
-
-**AS-levels are a separate qualification, not half an A-level** (2026-08-26,
-migrations 034-036). 20 AS qualifications across AQA, OCR A and Edexcel, taking
-the catalogue to 41 and the boundary table to 676 rows.
-
-The engine had to change before any of it could be loaded, because it assumed
-every grade ladder ends at A*:
-
-- **`boundary_ladder` now accepts `a_star = NULL` and ends at A** (point 5).
-  `attempt_grade_score` and `marks_for_score` read the ceiling from
-  `ladder[-1]` instead of hardcoding 6, `infer_de` derives D/E from the gaps
-  that exist, and `next_grade` caps at the qualification's own top. Without
-  this an AS student scoring 95% was predicted **A***, a grade their
-  certificate cannot carry.
-- **`_median_set` returns `a_star = None` unless every row in the set has one.**
-  A median over the rows that happen to have an A* would invent a top grade for
-  a qualification that has none.
-- **`get_grade`'s percentage fallback awarded A* at >=90% regardless.** With no
-  boundary row at all, `a_star` is None whether the qualification has no A* or
-  simply has no data, and those are not the same thing — hence the explicit
-  `top` argument, passed from `top_grade(qualification_level(...))` at all
-  three call sites.
-
-**A catalogue key is a storage identity, not a label.** AQA Mathematics exists
-at A-level and at AS, and `papers`, `grade_boundaries` and `user_subjects` are
-all keyed by that string — so the AS entry's key is `"Maths (AS)"` and it
-carries a `"name"` field with what a student reads. `display_name()` falls back
-to the key, so every A-level entry needs neither. Don't "tidy" the suffix away.
-
-**Three things about the data that could not have been guessed:**
-
-- **AQA's A-level documents contain no AS tables at all.** They are separate
-  PDFs. Assuming the files already downloaded covered AS would have produced
-  nothing, silently.
-- **An AS paper is not the A-level paper at a smaller total.** Edexcel AS Maths
-  Paper 2 is 60 marks against the A-level's 100; AQA's AS MFL writing paper is
-  50 against 80; AS Maths Paper 1 is Pure *and Mechanics* where the A-level
-  Paper 1 is Pure alone. Each was read from the specification, and
-  `test_coursework.py` checks all 21 AS totals against what the board grades.
-- **Pearson zero-pads paper labels to three digits in 2019** (`Paper 021`) where
-  every other series writes `Paper 21`. The label regex rejected them, so AS
-  Further Maths silently lost a whole series. After widening it, the three
-  A-level Edexcel migrations were regenerated and confirmed byte-identical
-  before the change was trusted.
-
-**AS rows carry six numbers, A-level rows carry seven**, so each board's AS
-tables are parsed by their own reader rather than a widened one. A parser
-reading both would, on a near-miss, store an A boundary in the A* column — the
-exact shape of the fault that made Physics predict U on an 85%.
-
-**Gaps, stated rather than papered over:** there is no AS Philosophy (AQA does
-not award one). OCR and AQA published AS boundaries separately before 2022 and
-those documents are not to hand, so AS carries 2022-2025 only — Edexcel also
-has 2019. SQA Advanced Highers and Highers are **not loaded**: `LEVELS` lists
-them and `top_grade()` already returns A for both, but no data exists yet and
-SQA uses course-level cut-off scores rather than the per-component model, which
-needs a design decision first.
-
-**The subject picker nests subject -> level -> board.** One subject is offered
-at several levels and a student takes one of them, so a flat list would put
-"AQA A-Level" and "AQA AS-Level" side by side reading as near-duplicates.
-`all_qualifications()` is sorted by (name, level, board) and the template opens
-a new heading whenever either changes — keep that sort and that grouping
-together.
-
-**SQA is the one board whose boundaries Telos derives rather than reads**
-(2026-08-26, migrations 037-039). Nine Advanced Highers and nine Highers, taking
-the catalogue to 59 qualifications and the boundary table to 792 rows.
-
-- **SQA publishes grade boundaries for the WHOLE COURSE only** — one maximum
-  mark and A/B/C/D cut-offs — and never per component, in any subject, in any
-  year. So a component's boundary is its share of the course cut-off:
-  `round(course_boundary * component_max / course_max)`.
-- **Migration 037 adds `derived_from_course`**, TRUE on every SQA row and false
-  everywhere else, because an estimate that looks like published data is a trap
-  for whoever reads the table next. `test_boundaries.py` asserts it both ways.
-  Don't load anything else with that flag without meaning it.
-- **The component structures are NOT derived.** SQA publishes component names
-  and max marks in a *separate* release ("Assessment and Component Marks"), and
-  the loaders refuse unless each course's components sum to the course maximum
-  — cross-checked against the grade-boundary release, since the two are
-  different publications that could drift apart.
-- **The approximation's limit, stated:** it assumes a component is as hard as
-  the course as a whole. Projects and multiple-choice papers generally score
-  higher than that, so the estimate reads slightly harsh on those and slightly
-  generous on the long written paper. Fine for a prediction, not a published
-  boundary — which is what the flag is for.
-
-**An SQA course is graded A-D, so the ladder needed a bottom as well as a top.**
-`boundary_ladder` used to require D and E together, which would have thrown away
-a published D to infer a pair *and* invented an E grade that does not exist. The
-bottom is now data-driven exactly as the top is:
-
-| a_star | d / e | ladder |
-|---|---|---|
-| present | both | E..A* — an A-level |
-| absent | both | E..A — an AS-level |
-| absent | D, no E | D..A — an SQA course; below D is No Award |
-| either | neither | D and E inferred — hand-entered and median rows |
-
-A-level ladders are unchanged and tested for it: still six grades, still from E.
-
-**Only 2024 and 2025 are stored, for both SQA levels.** In 2022 and 2023 these
-courses ran in a modified form with the coursework removed — Advanced Higher
-Biology was 120 marks rather than 160, Higher Geography 70 rather than 110.
-That is a different set of components, not the same course with different
-numbers, so those years are left out rather than bent to fit.
-
-**Two things that would have shipped wrong without a second source:**
-
-- **The Advanced Higher Chemistry and Biology course specifications give totals
-  of 134 and 122, not the 160 SQA's own boundary tables show** — those PDFs
-  describe a future revision. The component-marks release gave the structure
-  actually in force. Never take a course spec as evidence of what a past series
-  contained.
-- **SQA is inconsistent about its own component names between years.** Higher
-  German's coursework is "Assignment: Writing" in 2024 and "Assignment -
-  Writing" in 2025. Names are normalised before comparison so a punctuation
-  change does not read as a course restructure.
-
-**SQA component order is SQA's, not a student's** — it lists Paper 2 before
-Paper 1 for the sciences. The loader reorders to written papers, then oral, then
-coursework. Don't sort these alphabetically; "Assignment" would lead.
-
-**Higher English is the first subject with no sibling at any other level.**
-Every other subject in the catalogue exists at A-level and is joined there by an
-AS or an SQA course; English exists only as `SQA / English (H)`. The picker
-copes — it groups by subject name and English simply has one level under it —
-but a reader expecting the A-level to be the anchor of every subject should know
-this one isn't. Advanced Higher English is *not* loaded; adding it is one entry
-in `gen_sqa_ah.py` and a rerun.
-
-**Coverage target is 2019 + 2022-2025, and 2020/2021 will never exist**
-(2026-08-26). Both series were cancelled across every board — grades came from
-centre and teacher assessment and no boundaries were published — so "every year
-since 2019" is five series, not seven. `test_boundaries.py` fails if a
-2020 or 2021 row ever reappears.
-
-Coverage now stands at **1001 rows, 49 of 61 qualifications complete**. Every
-A-level and every AS-level is complete. What is left is SQA only, and each gap
-has a reason:
-
-- **SQA 2019 borrows the 2022 component structure** (owner's call, 2026-08-26).
-  SQA's component-marks publication begins in 2022, so 2019 has published
-  course boundaries and no published structure. The 2022 shape stands in — but
-  only where it can be shown to fit, and the check is the course maximum: if
-  the 2022 components sum to the course maximum SQA published for 2019, the
-  course had the same shape that year.
-
-  That passed for 13 of 20 SQA qualifications and refused 7, because 2022 was
-  itself a modified year for several courses. Higher Biology was a 150-mark
-  course in 2019 and 120 in 2022; Advanced Higher Physics 130 against 155.
-  Those get no 2019 rows rather than components that do not add up to the
-  course they claim to describe. Individual components are refused the same
-  way — Higher MFL "Directed Writing" was 30 marks in 2019 and is 15 now — so
-  a subject can carry 2019 for its unchanged papers and not for the rest.
-
-  `BORROWED = {"2019": "2022"}` in both SQA generators is the whole mechanism.
-  Do not extend it to another year without the same sum check: it is the only
-  thing separating a defensible substitution from an invented one.
-- **SQA 2022 and 2023 are partial on purpose.** Those courses ran in a modified
-  form: coursework withdrawn and several question papers resized. A component
-  earns a row for a year only when it was the same paper that year — same code,
-  same max mark. Advanced Higher Physics' question paper was 155 marks in 2022
-  and 2023 against 120 now, so it gets no row for those years rather than a
-  boundary computed for a paper of a different length. The generators print
-  every skip with both max marks, so the gaps are visible on each run.
-- Each year is pro-rated against **its own** course total. In 2023 Higher
-  Biology Paper 2 was 95 marks of a 120-mark course, not 95 of 150 — using the
-  current total would have made a modified year unusable rather than partial.
-
-**Three more document quirks, all found by refusing to guess:**
-
-- **AQA's AS documents for 2018/2019 need `cryptography` installed** alongside
-  `pypdf` — they are encrypted where the later ones are not, and pypdf fails
-  with an opaque traceback rather than saying so.
-- **OCR published AS boundaries as their own document in 2019** ("Reformed AS
-  Levels"), with no AS section heading because the whole file is AS. The
-  extractor recognises an AS-only file by content — AS headings and no A-level
-  ones — rather than by title, so a combined document whose heading wording
-  changes again cannot have its A-level half read as AS.
-- **SQA renames its own components between years, again.** Beyond the
-  "Assignment: Writing" / "Assignment - Writing" case, 2023 writes "Reading for
-  Understanding  Analysis and Evaluation" with a double space where every other
-  year uses a comma. The normaliser now collapses commas too. Expect more of
-  this; normalise before comparing, never match SQA's names literally.
-
-**The component-marks reader handles four spreadsheet layouts.** 2022 leads
-with a Qualification Number column and heads on row 1; 2023 has no such column
-and heads on row 2; 2024 and 2025 head on row 3 and add an "Assessment Maximum
-Mark". The header row is found by looking for the Subject cell. Where a file
-carries no assessment total the components are summed and checked against the
-grade boundary release instead — a stronger check than reading a total from the
-same file it is meant to validate.
-
-**A migration's DELETE must never be wider than its INSERT** (found
-2026-08-26). Migration 038 opened with `DELETE FROM grade_boundaries WHERE
-board = 'SQA'` and then inserted only the Advanced Highers. That was correct
-when it was written, because SQA meant only Advanced Highers — and it silently
-became destructive the moment migration 039 added the Highers. Re-running 038
-took the boundary table from 947 rows to 849 and deleted every Higher row.
-
-A fresh install in numeric order never sees it: 039 runs after 038 and puts them
-back. It only bites on a re-run, which is exactly why it would have sat there.
-Both are scoped by subject suffix now — `LIKE '% (AH)'` and `LIKE '% (H)'` —
-and the fix was verified by running 038 alone against a populated table and
-confirming all 114 Higher rows survived.
-
-**Indentation inside a dict literal is not load-bearing, and that is a trap.**
-`"Biology (H)"` sat at twelve spaces rather than eight in `paper_templates.py`
-for two commits. Python accepted it, the catalogue loaded correctly, every suite
-passed — and it was invisible to any edit that located entries by their indent,
-which silently dropped it. Anything editing that file structurally should match
-on `^\s+"[^"]+": \{` and never assume the indent. Two related traps in the same
-family: that pattern also matches the board line `    "SQA": {` itself, so a
-search for the first entry must start past the block's opening brace, and
-truncating a block at its first entry removes the indent belonging to its own
-closing brace.
-
-**The landing page and pricing were reworked** (2026-08-26, owner's brief).
-
-- **Three plans, not two:** Free £0, Pro Monthly £4.99, Pro Yearly £39.99.
-  Clicking *Choose monthly* reveals an "Are you sure?" panel with the yearly
-  figure rather than navigating — an argument the student can walk past, with
-  two real exits. It is not a modal and it traps nobody.
-- **The advertised figures are derived, not typed.** £39.99 / 12 = £3.33 and
-  £4.99 x 12 - £39.99 = £19.89 -> "save £20". `tests/test_pricing.py` asserts
-  the label matches `amount_pence`, that the per-month figure and the saving in
-  `sub` are the real ones, and that yearly actually beats twelve months of
-  monthly. Change a price and the suite tells you which words now lie.
-- **`STRIPE_PRICE_ANNUAL` MUST BE REPOINTED.** The table says £39.99; Stripe
-  still holds the £29 price until a new one is created in the dashboard and the
-  env var updated. Until then the page advertises one figure and charges
-  another. Existing £29 subscribers stay on their price, exactly as the legacy
-  £2 subscribers do — never migrate or cancel them.
-- **`/stats` is now `@requires_pro`.** It was `@login_required` only while being
-  sold as a Pro feature. That is the same class of untruth as the `coming_soon`
-  flags that outlived their features. One line to revert — but then "Full stats
-  & topic analytics" has to come out of the Pro list at the same time.
-- **The spaced repetition queue was removed from the offer**, not left flagged.
-  A "soon" that never arrives is worse than an absence. Nothing in the Pro list
-  carries `coming_soon` any more, and the suite fails if anything does.
-
-**The eyebrow read "A-level past papers" while the catalogue carried four
-levels.** It told a Scottish or AS student, in the line above the headline, that
-this was not for them. It now names all four. Anything that describes coverage
-in prose — the eyebrow, the meta description, the mockups — has to move when the
-catalogue does; none of it is generated.
-
-**`TUTORING_EMAIL`** drives the tutoring section's "book a free call" mailto.
-It defaults to `tutor.telos@gmail.com`, so the page works from a clean checkout
-with nothing configured; the environment variable is there to repoint it
-without a deploy. The founder's personal address is deliberately not the
-fallback — a landing page publishes whatever it is given.
-
-**Stripe now matches the pricing table** (2026-08-26, test mode).
-
-    price_1U8pgMQh06XJIdap5l5YBVRy   £39.99 / year   <- STRIPE_PRICE_ANNUAL
-    price_1U5w6XQh06XJIdapt3F1kkuR   £29.00 / year      left active
-    price_1U5w6WQh06XJIdapQUfJRkQ2   £4.99  / month  <- STRIPE_PRICE_MONTHLY
-    price_1U3drKQh06XJIdapskilvmkh   £2.00  / month  <- STRIPE_PRICE_LEGACY
-
-- The £39.99 price sits on the **same product** as the old annual one
-  (`prod_V3lOOOHqOsq4IH`), so the billing portal, the webhook and plan changes
-  treat them as one product with several prices rather than unrelated things.
-  Create any future price the same way.
-- **The £29 price is still active and nobody was moved off it**, which is the
-  same rule the legacy £2 price has always had. Never migrate or cancel either.
-- Reversal, should it be wanted: archive `price_1U8pgM…` and set
-  `STRIPE_PRICE_ANNUAL` back to `price_1U5w6X…`.
-- ~~**All of this is test mode.**~~ **Superseded 2026-08-28** — live mode is
-  configured and the full lifecycle is proven with a real card. The paragraph
-  is kept because the repricing above was carried out in test mode and the
-  price ids it names are the test ones.
-
-**`/subscription` shows three cards, not two with a radio inside one.** Free,
-Pro Monthly and Pro Yearly. The two paid cards carry an **identical** feature
-list on purpose — the product is identical, and trimming the monthly list to
-flatter yearly would misrepresent what £4.99 buys. The interval is the card, so
-each posts a fixed `interval` to `create_checkout` and there is no radio left to
-mis-read. Annual still leads for the reason worth keeping written down: A-level
-revision collapses in June, so monthly billing takes about seven payments and
-then churns permanently.
-
-**Every suite that creates a throwaway user uses `tests/_fixtures.py`.** All
-eight, not the two that were converted when the helper was written. Leaving the
-rest on raw INSERTs was a mistake that cost a full suite run the first time a
-session was paused mid-flight: the killed suite's `finally` never ran, its user
-was left behind, and the next run died on a unique constraint in a suite that
-had nothing to do with what was being changed. `fresh_user()` clears any
-leftover under that email before inserting. Add a suite, use the helper.
-
-**Perceived speed: what was actually wrong** (2026-08-27, measured).
-
-- **The cold-open black screen was 2500ms because that was the timeout, not
-  because anything was slow.** Warm production TTFB is 70-235ms, so the worker
-  was waiting roughly ten times longer than a healthy network ever needs, and
-  the only thing that patience bought was a longer black screen on the one
-  occasion the fallback matters. **Now 800ms.** `tests/test_pwa.py` pins it
-  between 500 and 1200: below 500 a healthy request starts losing the race to
-  its own timeout, above 1200 a person has already decided the app is broken.
-- **Nothing was prefetched.** Server-rendered means the browser cannot start
-  until the click completes. The page now fetches on `pointerdown` — a finger
-  is down about 100ms before it lifts and the server answers in about 200ms —
-  and the worker stores the response under its URL so the navigation finds it.
-  This is not stale caching: the copy is a few hundred milliseconds old and was
-  fetched because the user was already reaching for it.
-- **`/logout` answers GET as well as POST**, so prefetching it would sign a user
-  out for touching a link near it. `NO_PREFETCH` mirrors the worker's
-  never-cache prefixes and the suite asserts every entry. Anything added to one
-  list belongs in the other.
-
-**The checkout check now has a 15-second grace, and a retry that makes the
-grace safe** (2026-08-27, owner's call). Testing every checkout cost a round
-trip, and one dashboard render borrows a connection thirteen times within a few
-milliseconds — about 158ms of pure overhead per page.
-
-    page        check always   15s grace    saved
-    /               744 ms       600 ms     145 ms
-    /papers         318 ms       258 ms      60 ms
-    /heatmap        235 ms       187 ms      48 ms
-
-    empty checkout   12.2 ms  ->  0.5 ms
-
-**The grace on its own would have been a downgrade.** `test_db_resilience.py`
-kills a backend and re-checks out within milliseconds, so the kill lands inside
-the grace, the pre-emptive check is skipped, and the corpse is handed out. The
-suite would have failed — correctly.
-
-So `Connection.execute` replaces the connection and retries **once**, and only
-before any statement has succeeded: after that there is a transaction in
-progress, and replaying one statement of it against a fresh connection is worse
-than the error. `_used` is the flag that enforces it.
-
-The trade is therefore not "less safe, more fast". It is: stop paying a round
-trip on every checkout to PREDICT a dead connection, and instead pay nothing
-until one actually turns up, then recover. Strictly better than before.
-
-Fourteen checks pin it — an unstamped connection is checked, one returned
-moments ago is not, one idle past the grace is, a dead connection is retried,
-and a dead connection mid-transaction is not. Do not add the grace anywhere
-else without the matching retry.
-
-**Then the query count came down too** (2026-08-27). 24 statements to render a
-dashboard became 20, and four things were wrong:
-
-- **`SELECT * FROM grade_boundaries` with no WHERE, in four places** — the whole
-  thousand-row table pulled to grade eight recent papers, and it grows with
-  every board added. `boundary_rows_for()` scopes it to the student's
-  `(board, subject)` pairs. **Scoped no further, deliberately:**
-  `select_boundaries` falls back WITHIN a subject — same paper other years,
-  then same subject same year — so narrowing to the exact papers logged would
-  change which fallback it finds and therefore change the grade.
-- `SELECT COUNT(*) FROM papers` ran **three times** with identical arguments.
-- `SELECT * FROM user_subjects` ran **twice**.
-- The accuracy aggregate scanned the same join **three times** for three date
-  windows. One pass with `FILTER` now.
-
-**The memo is per-request and the invalidation is the load-bearing part.**
-`_memo` hangs off `g`, so nothing survives a request or leaks between users.
-`set_user_subjects` drops its own key, and the paper count is dropped inside
-`recompute_predictions` — already the one hook every paper and mark change
-funnels through. Memoise nothing here whose answer a write in the same request
-can change without going through those.
-
-    page        before      after
-    /            744 ms     474 ms
-    /papers      318 ms     197 ms
-    /heatmap     235 ms    ~170 ms
-
-`tests/test_trend_deltas.py` holds the ceiling: at most 22 statements, no
-statement repeated verbatim, and no unscoped pull of `grade_boundaries`. It
-asserts the page returned **200** first — a guard that tolerates any status
-would happily count the queries of a redirect and report a comfortable number
-that meant nothing. That is not hypothetical: the check failed on its first run
-because the fixture had no `user_subjects` row and the setup gate 302'd it.
-
-**Phase 0.6's one-handed target was marginal, and the reason was measurable**
-(2026-08-27). Simulating the keypad state machine against a realistic paper —
-marks 3/4, 5/2, 7/6, 9/11 across maxes 4, 4, 6, 6, 8, 8, 12, 12:
-
-    before   29 taps    44s at 1.5s/tap    58s at 2.0s/tap
-    after    20 taps    30s                40s
-
-**The mark allocation now carries to the next question.** Retyping "out of N"
-for every question was nine taps of twenty-nine — the single largest cost in
-the flow, and the difference between finishing inside a minute and not. Papers
-run in blocks (four fours, then two sixes), so carrying it is also closer to
-what a mark scheme looks like.
-
-It is a default, not a decision: it shows as "out of N", one tap on that button
-changes it, and `save()` returns early without a mark so nothing reaches the
-server until one is entered. It never overwrites a max already set.
-
-**"Saved" must be reachable from exactly one place.** A student who sees
-"Saved" and closes the app has lost the mark and does not know it, so this is
-correctness rather than wording. `test_mobile_first.py` asserts that
-`setStatus('saved')` appears exactly once and that the one place is inside the
-success path of a response the server accepted — plus that a failure marks the
-question unsaved, queues it, retries on a 4s timer, retries again on `online`,
-and replays from IndexedDB after the app was killed mid-outage. Do not add a
-second `setStatus('saved')` anywhere; the count is asserted for a reason.
-
-**Phase 6 shipped 2026-08-27.** The `revision_queue` table and the due-count
-helper had existed since migration 001 while **nothing ever wrote a row**, so
-the Today panel counted zero forever and `/revise` was a placeholder. That is
-what this phase fixed; the scheduling was the easy half.
-
-- **`revision.py` is pure** — no Flask, no database — like `prediction.py` and
-  `prescription.py`. `review()` takes an item and an outcome and returns the
-  fields that changed; the caller sets `due_at`. That is why it can be tested
-  as plain data.
-- **`ease` is tracked and clamped but does not drive the interval.** The ladder
-  (1, 3, 7, 16, 35 by repetition count) does. That is the spec's
-  simplification, not an oversight: real SM-2 multiplies by ease, which makes
-  early intervals unpredictable when there is barely any evidence about the
-  student. Do not "fix" it into a multiplier without deciding to.
-- **The writer hangs off `recompute_predictions`**, already the single point
-  every paper and mark change funnels through — so a question is queued the
-  moment it is entered, not when someone next opens Revise. It is wrapped in a
-  try/except on purpose: a queue that fails to update must never cost a student
-  the mark they just typed.
-- **A corrected mark leaves the queue, but only if it has never been reviewed.**
-  Typing 2 where 20 was meant would otherwise strand a question the student
-  knows. Once reviewed, the history says more than one corrected number, so it
-  stays.
-- **The daily cap is ordered by the Phase 4 topic score**, so the queue and
-  "your next three questions" cannot give a student two different answers to
-  "what should I do next".
-
-**The live payment lifecycle is proven with a real card** (2026-08-28):
-
-    checkout  ->  charge £39.99 succeeded   ch_3U9Wr1...
-              ->  customer.subscription.created delivered
-              ->  user 679 plan=pro, status=active
-    cancel    ->  customer.subscription.deleted delivered
-              ->  user 679 plan=free, status=free
-
-Which demonstrates the thing this design exists for: entitlements move only
-when Stripe says so, never on a redirect. The founder account was untouched
-throughout — `grandfathered=True` is independent of any subscription.
-
-**Refunding a charge does not cancel the subscription.** They are separate
-objects in Stripe, and the refunded test subscription stayed active and would
-have rebilled in a year. Refund AND cancel, every time.
-
-3D Secure fired on the way through (`payment_intent.requires_action`) and
-completed, so UK cards requiring SCA work.
-
-**Stripe is live** (2026-08-28), verified by `scripts/check_stripe.py`:
-
-    STRIPE_PRICE_MONTHLY   £4.99  / month
-    STRIPE_PRICE_ANNUAL    £39.99 / year
-    product                prod_V9MGf8ekk9ZPDp   both prices, deliberately
-    webhook                /subscription/webhook, enabled, all 7 events
-    customer portal        active
-
-- **Both sellable prices must stay on one product.** The billing portal offers
-  plan switching only within a product, so splitting them would leave a
-  subscriber unable to move from monthly to yearly without cancelling. The
-  check fails if they drift apart.
-- **`STRIPE_PRICE_LEGACY` still points at a test price.** It is `hidden: True`
-  and renders nowhere, so this is stale config rather than a fault — the check
-  reports it as a note, not a problem.
-- **Test cards do not work in live mode.** The first real payment has to be a
-  real card, refunded afterwards.
-
-**Known good, don't "fix":**
-
-- **`users.parent_email` and `users.parent_report_optin` are dead columns.**
-  Migration 001 created them for the weekly parent report, which was cut on
-  2026-08-25. Zero rows have either set and nothing outside that migration
-  touches them. Left in place on purpose — dropping a column is destructive and
-  irreversible, and two unused nullable columns cost nothing. Don't "tidy" them
-  away without deciding to.
-
-- Founder account (`svinujan10@gmail.com`, user 1) is `grandfathered=true` on
-  purpose — permanent free Pro. It also means that account never sees the
-  checkout UI.
-- The legacy £2 Stripe price stays **active and unsellable**. Never migrate or
-  cancel those subscribers.
-
----
+**Settled — don't re-litigate.** Each line below is a decision that has
+already been argued out. The reasoning, and what it cost to find out, is in
+**`TELOS_ARCHIVE.md`** — read it before reopening any of these.
+
+*The last session — trial, licence, legal pages, presentation (2026-08-28..30)*
+
+- The 7-day free trial shipped 2026-08-28.
+- The repository was made presentable 2026-08-29.
+- Two layout changes shipped alongside the trial.
+- Revision mentoring was added to the tutoring section 2026-08-30.
+- Repo metadata was set 2026-08-30.
+
+*Phases 4, 9, the UI overhaul, and the Neon wake-up*
+
+- Phase 4 shipped 2026-08-23.
+- UI overhaul shipped 2026-08-24.
+- Phase 9 shipped 2026-08-25.
+- The spec's "streak" card has no data behind it.
+- A free account cannot make the grade card.
+- The page loader is deliberately shy, and deliberately inert until needed.
+- The Neon wake-up 500 is fixed.
+
+*Grade boundaries, and the subject catalogue*
+
+- Grade boundaries were substantially wrong, and are now sourced from the
+  boards' own PDFs.
+- Don't hand-type boundary data.
+- `tests/test_boundaries.py` guards the class of fault, not the instance.
+- Pearson's 2019 file uses two layouts.
+- Six Further Maths papers have boundaries but cannot be logged.
+- The subject catalogue now covers 21 qualifications across five boards.
+- Coursework and speaking components count toward the grade, and were missing.
+- AS-levels are a separate qualification, not half an A-level.
+- A catalogue key is a storage identity, not a label.
+- Three things about the data that could not have been guessed.
+- AS rows carry six numbers, A-level rows carry seven.
+- Gaps, stated rather than papered over.
+- The subject picker nests subject -> level -> board.
+- SQA is the one board whose boundaries Telos derives rather than reads.
+- An SQA course is graded A-D, so the ladder needed a bottom as well as a top.
+- Only 2024 and 2025 are stored, for both SQA levels.
+- Two things that would have shipped wrong without a second source.
+- SQA component order is SQA's, not a student's.
+- Higher English is the first subject with no sibling at any other level.
+- Coverage target is 2019 + 2022-2025, and 2020/2021 will never exist.
+- Three more document quirks, all found by refusing to guess.
+- The component-marks reader handles four spreadsheet layouts.
+- A migration's DELETE must never be wider than its INSERT.
+- Indentation inside a dict literal is not load-bearing, and that is a trap.
+
+*The landing page, pricing, and the subscription screen*
+
+- The landing page and pricing were reworked.
+- The eyebrow read "A-level past papers" while the catalogue carried four
+  levels.
+- `TUTORING_EMAIL` drives the tutoring section's "book a free call" mailto.
+- Stripe now matches the pricing table.
+- `/subscription` shows three cards, not two with a radio inside one.
+- Every suite that creates a throwaway user uses `tests/_fixtures.py`.
+
+*Perceived speed, and the query count*
+
+- Perceived speed: what was actually wrong.
+- The checkout check now has a 15-second grace, and a retry that makes the
+  grace safe.
+- The grace on its own would have been a downgrade.
+- Then the query count came down too — 24 statements to render a dashboard,
+  now capped at 22 by a test.
+- The memo is per-request and the invalidation is the load-bearing part.
+
+*Phase 0.6 mark entry, and Phase 6 spaced repetition*
+
+- Phase 0.6's one-handed target was marginal, and the reason was measurable.
+- The mark allocation now carries to the next question.
+- "Saved" must be reachable from exactly one place.
+- Phase 6 shipped 2026-08-27.
+
+*Payments, proven live*
+
+- The live payment lifecycle is proven with a real card.
+- Refunding a charge does not cancel the subscription.
+- Stripe is live.
+- Known good, don't "fix" — the dead parent-report columns, and the rest.
 
 ## Running it
 
@@ -1058,6 +394,11 @@ user; use a Neon branch once there are real students.
   `run_all.py` — an unregistered suite never runs and looks like coverage.
 - **`LEGAL_UPDATED` changes by hand, in the same commit that changes the terms
   or privacy wording.** Never `today()`.
+- **A newly settled decision goes in two places**: one line in the index above,
+  and the reasoning in `TELOS_ARCHIVE.md`. Putting the paragraph here is how
+  this file grew to a thousand lines the first time; putting only the paragraph
+  in the archive is how a decision gets quietly re-litigated, because nobody
+  scanning this file ever learns it was decided.
 - Postgres `LIKE` is case-sensitive; use `ILIKE` for anything user-facing.
 - Don't touch `db.py`, `migrate_to_postgres.py` or `scan_sqliteisms.py` without
   asking.
