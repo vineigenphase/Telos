@@ -39,8 +39,8 @@ Three questions, in order:
 | Components | 199 papers and coursework units |
 | Routes | 51 |
 | Tables | 20, under 40 numbered migrations |
-| Tests | 21 suites, 593 assertions |
-| Code | ~28,000 lines across 175 tracked files |
+| Tests | 22 suites, ~610 assertions |
+| Code | ~28,000 lines across 176 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if **any**
 paper the app offers lacks boundaries — a qualification a student can select
@@ -56,7 +56,7 @@ every run rather than hiding it or treating it as an error.
 ## Architecture
 
 ```
-app.py            Flask routes, session, entitlement gates      (2,997 lines)
+app.py            Flask routes, session, entitlement gates      (~3,000 lines)
 db.py             psycopg3 shim — Postgres behind a sqlite3 API
 prediction.py     grade engine        — pure, no Flask, no DB
 prescription.py   "your next 3 questions" — pure
@@ -65,8 +65,8 @@ sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  61 qualifications, 199 components
 migrations/       40 numbered idempotent SQL migrations
-tests/            21 standalone suites
-scripts/boundaries/  36 board-document loaders
+tests/            22 standalone suites
+scripts/boundaries/  36 board-document scripts
 ```
 
 ### The engines are pure functions
@@ -177,7 +177,8 @@ creates — is now the rule the rest follow.
 
 ### Boundary data is loaded by script, never by hand
 
-36 loaders under `scripts/boundaries/`, one per board document. Every extractor
+36 scripts under `scripts/boundaries/` — extractors, generators and
+verifiers. Every extractor
 validates each component against **its own maximum mark** before emitting SQL.
 That guard exists because a mis-parsed PDF column silently produces boundaries
 that are plausible, wrong, and would quietly mis-grade every student who sat
@@ -191,7 +192,7 @@ application has no reason to be able to read a PDF.
 
 No pytest. Each suite is a Python file that runs top to bottom, prints
 `PASS`/`FAIL` per assertion, and exits non-zero on failure; `tests/run_all.py`
-runs all 21. The integration suites create and destroy their own fixture users
+runs all 22. The integration suites create and destroy their own fixture users
 through `tests/_fixtures.py`, which exists because killed runs used to leave
 orphans behind that broke the next run.
 
@@ -233,7 +234,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 
 railway run .venv\Scripts\python.exe app.py                     # dev server :5000
-railway run .venv\Scripts\python.exe tests\run_all.py           # all 21 suites
+railway run .venv\Scripts\python.exe tests\run_all.py           # all 22 suites
 railway run .venv\Scripts\python.exe migrations\run_migrations.py
 ```
 
@@ -259,7 +260,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — 3,300 lines of hand-written CSS and 530 of vanilla JS.
+no CSS framework — ~3,500 lines of hand-written CSS and 530 of vanilla JS.
 
 ---
 
@@ -289,10 +290,10 @@ app.py  db.py  auth.py  mailer.py  brand.py       core application
 prediction.py  prescription.py  revision.py       pure engines
 sharecards.py  paper_templates.py                 rendering, catalogue
 migrations/          40 numbered SQL migrations
-scripts/boundaries/  36 board-document loaders
+scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
-tests/               21 suites, 593 assertions
+tests/               22 suites, ~610 assertions
 templates/           33 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker
