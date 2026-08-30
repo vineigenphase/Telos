@@ -71,6 +71,36 @@ check("it carries a meta description", 'name="description"' in body, True)
 check("sitemap still lists /",
       "<loc>" + canonical + "</loc>" in anon.get("/sitemap.xml").get_data(as_text=True),
       True)
+# ── the social preview card ────────────────────────────────────────────────
+#
+# A relative og:image is silently IGNORED by every consumer rather than
+# reported, so the failure looks exactly like having no image at all: the link
+# previews as a blank grey box and nothing anywhere says why. The absolute-URL
+# check is the point of this block; the rest just stops the tag pointing at a
+# file that is not there.
+import re as _re
+
+_og = _re.search(r'<meta property="og:image" content="([^"]+)"', body)
+check("the landing page declares an og:image", _og is not None, True)
+if _og:
+    _url = _og.group(1)
+    check(f"og:image is absolute ({_url[:52]})", _url.startswith("http"), True)
+    _path = _url.split("/static/", 1)[-1]
+    _file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                         "static", _path)
+    check(f"the image it points at exists ({_path})", os.path.isfile(_file), True)
+    if os.path.isfile(_file):
+        # GitHub rejects a social preview over 1MB, and the same file is used
+        # for both, so the ceiling belongs here.
+        _kb = os.path.getsize(_file) / 1024
+        check(f"it is under GitHub's 1MB limit ({_kb:.0f}KB)", _kb < 1024, True)
+
+check("og:image carries its dimensions",
+      'property="og:image:width"' in body and 'property="og:image:height"' in body, True)
+check("it has alt text", 'property="og:image:alt"' in body, True)
+check("twitter renders it large",
+      'name="twitter:card" content="summary_large_image"' in body, True)
+
 robots = anon.get("/robots.txt").get_data(as_text=True)
 check("robots does not disallow the whole site",
       any(line.strip() == "Disallow: /" for line in robots.splitlines()), False)
