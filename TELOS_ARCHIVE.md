@@ -77,8 +77,9 @@ because the parent report was cut — so the policy does not claim to collect it
 - **`--safe-top` was defined at the top of `telos.css` and used nowhere**,
   while `--safe-bottom` was applied six times for the tab bar. In a browser tab
   the inset is 0 so nothing looked wrong; installed to a home screen the logo
-  sat under the status bar. Fixing it exposed the cascade trap in the gotchas
-  below — worth reading before touching those rules again.
+  sat under the status bar. Fixing it exposed the cascade trap recorded under
+  "Gotchas that cost real debugging time" in `TELOS_STATE.md` — worth reading
+  before touching those rules again.
 
 **Revision mentoring was added to the tutoring section 2026-08-30**
 (`b706354`): reading a student's full analytics with them and turning a page of

@@ -73,7 +73,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 1 | Schema for tiers/plans, migrations framework | `edc6343` | **live** |
 | 2 | Access control, `user_is_pro` single source of truth | `616346b` | **live** |
 | 3 | Predicted grade engine | `36cdb62` | **live** |
-| 5 | £4.99/mo + £39.99/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** (yearly repriced 2026-08-26 — see below) |
+| 5 | £4.99/mo + £39.99/yr, webhook-only entitlements, billing portal, analytics | `da0b797` | **live** (yearly repriced 2026-08-26 — `TELOS_ARCHIVE.md`, "The landing page, pricing") |
 | — | Password reset via emailed single-use link | `34faf81` | **live** |
 | 2.5 | PWA — manifest, service worker, install prompt, offline shell (a-d; 2.5e web push deferred) | `891147a` | **live** |
 | 4 | Prescriptions — "your next 3 questions", Today panel | `98c0589` | **live** |
@@ -95,7 +95,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 **Needs a human (I can't do these):**
 
 1. **Time an 8-question paper one-handed, with airplane mode.** The parts that
-   can be checked without a thumb are done (see below): the interaction is now
+   can be checked without a thumb are done (`TELOS_ARCHIVE.md`, "Phase 0.6
+   mark entry"): the interaction is now
    20 taps rather than 29, and the offline promise is asserted in
    `test_mobile_first.py`. What is left is whether 20 taps *feels* like under a
    minute with a real paper in the other hand, and whether the retry banner
@@ -104,7 +105,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    2500ms on 2026-08-27 — black screen, then the app at 2.5s. The timeout is
    now 800ms, so the same test should show the app in under a second.
 3. **Monthly checkout at £4.99.** The yearly path is proven end to end with a
-   real card (see below) — charge, webhook, Pro granted, cancel, access
+   real card (`TELOS_ARCHIVE.md`, "Payments, proven live") — charge, webhook,
+   Pro granted, cancel, access
    removed. Monthly is the same code with a different price id, so this is a
    low-risk confirmation rather than an unknown. It needs a SECOND account: the
    founder account is grandfathered Pro and is offered "Manage billing", never
@@ -286,8 +288,8 @@ layout quirks that cost real time to find. The documents are gitignored
 `scripts/boundaries/documents/`. `pypdf`, `cryptography` and `openpyxl` are
 installed only while running a loader and are deliberately not in
 `requirements.txt` — the app never parses a PDF. Read that README before
-adding a board: the "don't hand-type boundary data" rule above is the whole
-reason it exists.
+adding a board: the "don't hand-type boundary data" rule — indexed above,
+reasoned out in `TELOS_ARCHIVE.md` — is the whole reason it exists.
 
 Local dev runs against the **production** database. Fine while there's one
 user; use a Neon branch once there are real students.
