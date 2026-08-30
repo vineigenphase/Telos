@@ -37,10 +37,10 @@ Three questions, in order:
 | Grade boundary rows | **1,001** real published boundaries |
 | Levels | A-Level, AS-Level, Higher, Advanced Higher |
 | Components | 199 papers and coursework units |
-| Routes | 49 |
+| Routes | 51 |
 | Tables | 20, under 40 numbered migrations |
 | Tests | 21 suites, 593 assertions |
-| Code | ~27,000 lines across 169 tracked files |
+| Code | ~28,000 lines across 175 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if **any**
 paper the app offers lacks boundaries — a qualification a student can select
