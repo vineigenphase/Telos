@@ -617,8 +617,15 @@
   margin-top: 30px;
 }
 
+/* Four cards, so three columns would strand one alone on a second row. Two
+   columns from 860px gives a tidy 2x2 on a tablet; four across only once
+   there is room for the cards not to be cramped. */
 @media (min-width: 860px) {
-  .lp-tutor-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-tutor-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1180px) {
+  .lp-tutor-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .lp-tutor-card {

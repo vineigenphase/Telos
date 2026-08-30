@@ -143,7 +143,7 @@ LEGAL_EMAIL = os.environ.get("LEGAL_EMAIL", TUTORING_EMAIL)
 # not when the page was rendered. A policy that redates itself every morning
 # tells a reader nothing and quietly destroys the audit trail of what they
 # agreed to. Change it by hand, in the same commit that changes the wording.
-LEGAL_UPDATED = "29 August 2026"
+LEGAL_UPDATED = "30 August 2026"
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
