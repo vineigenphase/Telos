@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-25.** Living handoff document. Read this first, then
+**Last updated: 2026-08-30.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -40,7 +40,14 @@ Pro tier = prediction and prescription.
 `DATABASE_URL`, `SECRET_KEY`, `STORAGE_DIR`, `CANONICAL_HOST`,
 `RESEND_API_KEY`, `MAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`,
 `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`,
-`STRIPE_PRICE_LEGACY`, `STRIPE_PRICE_ID` (old name for legacy).
+`STRIPE_PRICE_LEGACY`, `STRIPE_PRICE_ID` (old name for legacy),
+`TUTORING_EMAIL`, `LEGAL_NAME`, `LEGAL_EMAIL`.
+
+`LEGAL_NAME` is the one with no sensible default — the terms name whoever is
+contracting with the student, and Telos is run by a sole trader, so it is a
+person's legal name. It is set in Railway. Unset, `/terms` and `/privacy`
+render a conspicuous placeholder and `test_legal.py` fails in production while
+only warning locally. `LEGAL_EMAIL` falls back to `TUTORING_EMAIL`.
 
 See `.env.example`. Pull real values with `railway variables`.
 
@@ -67,6 +74,10 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 9 | Shareable card export — the growth engine | `0df51d7` | **live** |
 | — | Page loader — the mark charges during navigation | `0df51d7` | **live** |
 | 6 | Spaced repetition — queue fills itself, SM-2 simplified, daily cap | `pending` | **live** |
+| — | 7-day free trial — card up front, converts automatically | `e703cfd` | **live** |
+| — | README, proprietary LICENSE, `/terms`, `/privacy` | `9e57de0` | **live** |
+| — | Social preview card + landing `og:image` | `e60265b` | **live** |
+| — | Revision mentoring added to the tutoring section | `b706354` | **live** |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -116,7 +127,102 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    a pass over the dashboard, the phone mark-entry flow and the three admin
    screens, since those were the last built and got the least eyes.
 
+9. **Have a solicitor read `/terms` and `/privacy`.** They are careful and
+   specific — written from the real schema, with the statutory 14-day right
+   preserved and non-excludable liability left alone — but they were not
+   written by a lawyer. Worth an hour of one's time now that live money is
+   moving through a trial that converts by itself.
+10. **There is no way to email all subscribers.** Section 7 of the terms
+   promises 30 days' notice by email before a price change, and section 14
+   promises the same for material changes to the terms. `mailer.py` sends one
+   message at a time and nothing iterates the user table. That promise cannot
+   currently be kept — build the path before the first repricing, not during.
+11. **Facebook's cache, only if it matters.** LinkedIn was re-scraped on
+   2026-08-30 and shows the new card. The Facebook Sharing Debugger needs a
+   Facebook login, so it was skipped — and it is probably a no-op, because
+   Facebook only caches a URL that has actually been shared into a Meta
+   property, and the `og:image` did not exist before that day.
+
 **Settled — don't re-litigate:**
+
+**The 7-day free trial shipped 2026-08-28** (`e703cfd`). Checkout opens with
+`trial_period_days=7` and `payment_method_collection="always"`, so a card is
+taken up front and the subscription bills itself when the trial ends. Seven
+days rather than five because **Stripe only sends its trial-ending reminder for
+trials of 7 days or more** — at five, the first a student hears of the charge is
+the charge. `missing_payment_method: cancel` ends a subscription whose card
+fails rather than leaving a `past_due` account holding Pro. No entitlement
+change was needed: `trialing` already counted as paying.
+
+Both the landing page and `/subscription` state the same four facts at the
+point of purchase — how long it is free, what is charged, that it is automatic,
+and that cancelling first costs nothing. `test_pricing.py` asserts they are on
+screen, and `test_legal.py` asserts the terms agree with them **by meaning**
+rather than by exact wording, so the copy can be rewritten without silently
+dropping one.
+
+**The repository was made presentable 2026-08-29** (`0d3c253`, `9e57de0`,
+`54f93bf`). It had no README, no licence and no legal pages.
+
+- **`README.md`** — written from figures verified against the code and the
+  database, not from memory. One claim was corrected while writing it: the
+  first draft said boundary coverage is checked in both directions, but
+  `test_boundaries.py` asserts only that every paper the app OFFERS has
+  boundaries and deliberately *reports* the reverse without failing, because
+  Edexcel publishes boundaries for Further Maths option papers the catalogue
+  does not offer.
+- **`LICENSE`** — proprietary, all rights reserved. Telos is a live commercial
+  service; MIT would have let anyone clone it and launch a competitor. Reading
+  and short quotation for review are explicitly permitted. The exam boards'
+  boundary data is **disclaimed rather than licensed** — it is not ours.
+- **`/terms` and `/privacy`** — public by design, because someone deciding
+  whether to sign up, or a parent checking what their child's revision app
+  collects, should not need an account to read them. Both extend
+  `legal_base.html`. Prices and trial length come from `PRICING` and
+  `TRIAL_DAYS`, never typed into the template.
+- **`LEGAL_NAME`** is set in Railway to the owner's legal name. Unset, both
+  documents render a conspicuous placeholder, and `test_legal.py` fails in
+  production while only warning locally.
+- **`LEGAL_UPDATED`** is a hardcoded string, deliberately not `today()`. A
+  policy that redates itself every morning destroys the record of what a user
+  actually agreed to. **Change it by hand in the same commit that changes the
+  wording** — that rule is in a comment beside it and was followed when the
+  tutoring clause changed on 2026-08-30.
+
+Writing the privacy policy from the real schema changed it twice, and both
+would have been wrong from memory: `password_resets` stores `requested_ip`, so
+IP addresses **are** held (disclosed, with the narrow purpose), and `users` has
+`parent_email` / `parent_report_optin` columns that **nothing ever writes to**,
+because the parent report was cut — so the policy does not claim to collect it.
+
+**Two layout changes shipped alongside the trial** (`e703cfd`, `9bd8048`):
+
+- **The landing page went 1080px -> 1240px.** The prose does NOT stretch with
+  it — every text block keeps its own 54-58ch cap, so the measure stays
+  readable while the plan cards, tutoring grid and device mockups use the
+  window. Those two limits do different jobs and must not be collapsed into one.
+- **`--safe-top` was defined at the top of `telos.css` and used nowhere**,
+  while `--safe-bottom` was applied six times for the tab bar. In a browser tab
+  the inset is 0 so nothing looked wrong; installed to a home screen the logo
+  sat under the status bar. Fixing it exposed the cascade trap in the gotchas
+  below — worth reading before touching those rules again.
+
+**Revision mentoring was added to the tutoring section 2026-08-30**
+(`b706354`): reading a student's full analytics with them and turning a page of
+weak topics into a plan. It is a fourth card, so the grid goes two columns at
+860px and four only at 1180px — three columns would have stranded one card
+alone on a second row. Terms section 10 named only tutoring and
+personal-statement review, so it now names all three; a service the terms do
+not mention is a service sold without terms.
+
+**Repo metadata was set 2026-08-30.** The description read "STEP + A LEVELS",
+which is what a hiring manager sees first. Description, homepage and ten topics
+are now set, and a **social preview card** is uploaded (verified byte-identical
+by md5 against the local file). The same 1280x640 PNG is the landing page's
+`og:image`, which did not exist before — every link to telosapp.co.uk previewed
+as a blank grey box. It is **generated**, not hand-made:
+`scripts/build_social_preview.py` draws it from `brand.py`'s mark and
+`sharecards.py`'s fonts and palette, so a palette change carries into it.
 
 **Phase 4 shipped 2026-08-23**, signed off by the owner after a visual review.
 Two deliberate departures from the spec are baked in:
@@ -813,7 +919,18 @@ railway run .venv\Scripts\python.exe scripts\boundaries\audit.py
 
 # Does Stripe agree with the pricing page? Read-only; non-zero if not
 railway run .venv\Scripts\python.exe scripts\check_stripe.py
+
+# The whole codebase as one annotated file (gitignored output, ~1.6MB)
+.venv\Scripts\python.exe scripts\build_source_dump.py
+
+# The social preview card — GitHub's repo image and the landing og:image
+.venv\Scripts\python.exe scripts\build_social_preview.py
 ```
+
+**22 suites as of 2026-08-30.** `test_legal.py` and `test_readme.py` are the
+two newest and neither tests behaviour: the first checks the legal documents
+agree with the code about money, the second recounts every figure the README
+states as fact.
 
 **Run `scripts/check_stripe.py` after any change to a Stripe variable.** It
 reads the expected amounts from the app's own `PRICING` table, so it asks
@@ -856,6 +973,19 @@ user; use a Neon branch once there are real students.
   `activate` drops old caches, so it corrects itself — but when verifying a CSS
   change by hand, fetch with `cache: 'no-store'` or you will audit the old file
   and conclude the deploy failed.
+- **Text written into a file by a script can reach an API double-encoded.**
+  The GitHub repo description went up as `â€”` instead of an em-dash: the
+  generating script held the literal and was decoded as cp1252 on the way out.
+  Caught only because the value was READ BACK rather than trusting the 200.
+  Write non-ASCII as an escape (`—`) from ASCII-only source, and verify
+  by reading, not by status code.
+- **A relative `og:image` is silently ignored**, not reported. The failure is
+  indistinguishable from having no image at all — the link previews blank and
+  nothing anywhere says why. `test_landing.py` asserts the URL is absolute.
+- **LinkedIn caches on inspection as well as on sharing**, and copies the image
+  onto its own CDN. Re-run Post Inspector after changing `og-preview.png` or it
+  will keep serving the old copy. X's Card Validator was retired; X re-fetches
+  on first share.
 - **`StripeObject.get()` raises.** It subclasses `dict` but routes attribute
   access through `__getattr__`, so `obj.get("x")` throws `AttributeError`
   instead of returning a default. Use `app._sget()` for webhook payloads.
@@ -875,7 +1005,7 @@ user; use a Neon branch once there are real students.
   display width. Load the page in a same-origin iframe at the target width
   instead, and strip the `(hover:hover)` media rule before measuring tap
   targets or you measure mouse-sized controls.
-- **`railway run tests\run_all.py` used to fail 5 of 6 suites** on any
+- **`railway run tests\run_all.py` used to fail most suites** on any
   machine, because `railway run` injects the real production `CANONICAL_HOST`
   into every subprocess, and the Flask test client's default Host header
   ("localhost") then gets 301'd by the canonical-redirect hook — which
@@ -915,6 +1045,19 @@ user; use a Neon branch once there are real students.
   (merging auto-deploys).
 - Schema changes only via numbered files in `migrations/`, each idempotent.
 - Never hardcode a price in a template — read from `PRICING` in `app.py`.
+  The same rule now covers the legal pages and the social card: `/terms` reads
+  `PRICING` and `TRIAL_DAYS`, and `build_social_preview.py` counts the
+  catalogue at render time.
+- **The README states about twenty numbers as fact, and `test_readme.py`
+  recounts every one.** Adding a route or a template will fail the build until
+  the README is updated — that is deliberate. Two rules keep it honest: a claim
+  whose pattern stops matching FAILS rather than silently checking nothing, and
+  the check enforces the precision the README claims (plain figures exactly,
+  `~`-prefixed ones to the rounding they imply). Both failure modes were
+  confirmed by mutation. It also asserts every file in `tests/` is registered in
+  `run_all.py` — an unregistered suite never runs and looks like coverage.
+- **`LEGAL_UPDATED` changes by hand, in the same commit that changes the terms
+  or privacy wording.** Never `today()`.
 - Postgres `LIKE` is case-sensitive; use `ILIKE` for anything user-facing.
 - Don't touch `db.py`, `migrate_to_postgres.py` or `scan_sqliteisms.py` without
   asking.
