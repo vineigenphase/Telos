@@ -33,14 +33,14 @@ Three questions, in order:
 
 | | |
 |---|---|
-| Qualifications | **63** — 61 graded across AQA, Edexcel, OCR A and SQA, plus TMUA and ESAT |
+| Qualifications | **67** — 61 graded across AQA, Edexcel, OCR A and SQA, plus 6 admissions tests |
 | Grade boundary rows | **1,001** real published boundaries |
 | Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
-| Components | 206 papers, modules and coursework units |
+| Components | 219 papers, modules, parts and coursework units |
 | Routes | 51 |
 | Tables | 20, under 40 numbered migrations |
 | Tests | 22 suites, ~610 assertions |
-| Code | ~29,000 lines across 179 tracked files |
+| Code | ~29,000 lines across 180 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -69,7 +69,7 @@ prescription.py   "your next 3 questions" — pure
 revision.py       spaced repetition   — pure
 sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
-paper_templates.py  63 qualifications, 206 components
+paper_templates.py  67 qualifications, 219 components
 migrations/       40 numbered idempotent SQL migrations
 tests/            22 standalone suites
 scripts/boundaries/  36 board-document scripts
@@ -148,7 +148,8 @@ never replay a partial write.
 - Unlimited paper logging, per-question mark entry
 - Per-topic heatmap
 - 61 graded qualifications with real boundary data
-- TMUA and ESAT tracked as admissions tests — marks and topics, never an invented grade
+- TMUA, ESAT and the ENGAA/NSAA back-catalogue tracked as admissions tests —
+  marks and topics, never an invented grade
 - File uploads
 
 **Pro — prediction and prescription**

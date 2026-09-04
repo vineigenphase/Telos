@@ -1948,6 +1948,61 @@ TEMPLATES = {
                 ],
             },
         },
+        "ENGAA (2016-2018)": {
+            "color": "#C2643B",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "ENGAA 2016-2018",
+            # 54 questions in 80 minutes. Section 1 only — Section 2 was never published.
+            "papers": [
+                {"code": 'Part A', "name": 'Mathematics and Physics', "max_marks": 28},
+                {"code": 'Part B', "name": 'Advanced Mathematics and Advanced Physics', "max_marks": 26},
+            ],
+            "years": ['2016', '2017', '2018'],
+        },
+        "ENGAA (2019-2023)": {
+            "color": "#C2643B",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "ENGAA 2019-2023",
+            # 40 questions in 60 minutes, after the 2019 reduction from 54.
+            "papers": [
+                {"code": 'Part A', "name": 'Mathematics and Physics', "max_marks": 20},
+                {"code": 'Part B', "name": 'Advanced Mathematics and Advanced Physics', "max_marks": 20},
+            ],
+            "years": ['2019', '2020', '2021', '2022', '2023'],
+        },
+        "NSAA (2016-2019)": {
+            "color": "#3B7FC2",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "NSAA 2016-2019",
+            # Part A plus TWO others, 18 questions each, 80 minutes.
+            "papers": [
+                {"code": 'Part A', "name": 'Mathematics', "max_marks": 18},
+                {"code": 'Part B', "name": 'Physics', "max_marks": 18, "optional": True},
+                {"code": 'Part C', "name": 'Chemistry', "max_marks": 18, "optional": True},
+                {"code": 'Part D', "name": 'Biology', "max_marks": 18, "optional": True},
+                {"code": 'Part E', "name": 'Advanced Mathematics and Advanced Physics', "max_marks": 18, "optional": True},
+            ],
+            "years": ['2016', '2017', '2018', '2019'],
+            "choose_optional": 2,
+        },
+        "NSAA (2020-2023)": {
+            "color": "#3B7FC2",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "NSAA 2020-2023",
+            # Part A plus ONE other, 20 questions each, 60 minutes. Part E was dropped in 2020.
+            "papers": [
+                {"code": 'Part A', "name": 'Mathematics', "max_marks": 20},
+                {"code": 'Part B', "name": 'Physics', "max_marks": 20, "optional": True},
+                {"code": 'Part C', "name": 'Chemistry', "max_marks": 20, "optional": True},
+                {"code": 'Part D', "name": 'Biology', "max_marks": 20, "optional": True},
+            ],
+            "years": ['2020', '2021', '2022', '2023'],
+            "choose_optional": 1,
+        },
         "ESAT": {
             "color": "#0F9D8C",
             "level": "Admissions test",
@@ -2049,6 +2104,42 @@ LEVELS = [
 ]
 
 DEFAULT_LEVEL = "A-Level"
+
+# ── Historic admissions-test topics ─────────────────────────────────────────
+#
+# ENGAA and NSAA specifications are no longer published — ESAT replaced both,
+# and UAT-UK's position is that the historic papers carry questions of the type
+# found in the ESAT. So their topic lists are built from the ESAT module lists
+# above rather than restated, which means a correction to an ESAT list reaches
+# the historic papers too instead of leaving them behind.
+#
+# The mapping is each part's own title, read off the paper covers.
+def _esat_topics(*modules):
+    out, seen = [], set()
+    for m in modules:
+        for t in TEMPLATES["UAT-UK"]["ESAT"]["topics"][m]:
+            if t not in seen:
+                seen.add(t)
+                out.append(t)
+    return out
+
+
+_ENGAA_A = _esat_topics("Mathematics 1", "Physics")
+_ENGAA_B = _esat_topics("Mathematics 2", "Physics")
+
+for _key in ("ENGAA (2016-2018)", "ENGAA (2019-2023)"):
+    TEMPLATES["UAT-UK"][_key]["topics"] = {"Part A": _ENGAA_A, "Part B": _ENGAA_B}
+
+_NSAA_COMMON = {
+    "Part A": _esat_topics("Mathematics 1"),
+    "Part B": _esat_topics("Physics"),
+    "Part C": _esat_topics("Chemistry"),
+    "Part D": _esat_topics("Biology"),
+}
+TEMPLATES["UAT-UK"]["NSAA (2020-2023)"]["topics"] = dict(_NSAA_COMMON)
+TEMPLATES["UAT-UK"]["NSAA (2016-2019)"]["topics"] = dict(
+    _NSAA_COMMON, **{"Part E": _esat_topics("Mathematics 2", "Physics")})
+
 
 # Only a full A-level awards A*. AS is graded A-E, and the SQA Highers are
 # graded A-D. A qualification's ceiling is a property of the level, not of the
