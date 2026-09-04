@@ -16,7 +16,7 @@ import stripe
 from paper_templates import (TEMPLATES, get_paper_info, get_topics, all_combos,
                              all_qualifications, available_levels,
                              qualification_level, paper_options, has_options,
-                             top_grade, display_name, DEFAULT_LEVEL)
+                             top_grade, display_name, DEFAULT_LEVEL, is_graded)
 from seed_boundaries import seed_boundaries
 import revision
 from prescription import WEAK_THRESHOLD
@@ -1050,6 +1050,16 @@ def recompute_predictions(user_id):
 
     with get_db() as db:
         for (board, subject), attempts in groups.items():
+            # An admissions test has no grade to predict. Without this the call
+            # still behaves — every attempt is skipped for "no boundaries
+            # available" and the result comes back not-ready — but it comes
+            # back carrying "Log 2 more papers to unlock your predicted grade",
+            # which is a promise that can never be kept for a 1-9 scale test.
+            # Nothing renders that string today; this is so nothing can.
+            if not is_graded(board, subject):
+                db.execute("DELETE FROM grade_predictions WHERE user_id=? AND board=? "
+                           "AND subject=?", (user_id, board, subject))
+                continue
             result = predict_grade(attempts, boundary_rows)
             if not result.get("ready"):
                 # Not enough data is a state, not a stale prediction to keep.

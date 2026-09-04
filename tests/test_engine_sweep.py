@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import get_db  # noqa: E402
 from paper_templates import (TEMPLATES, qualification_level, top_grade,  # noqa: E402
-                             paper_options)
+                             paper_options, is_graded)
 from prediction import (attempt_grade_score, boundary_ladder,  # noqa: E402
                         score_to_grade, select_boundaries, MissingBoundaries)
 
@@ -43,15 +43,24 @@ with get_db() as db:
     rows = [dict(r) for r in db.execute("SELECT * FROM grade_boundaries").fetchall()]
 
 # Every paper the app offers, with the years it offers them for.
-offered = []
+#
+# Ungraded qualifications are held out: this sweep walks a grade ladder and
+# checks that sitting exactly on a boundary produces that grade, and an
+# admissions test has neither. They are counted rather than dropped, so the
+# output still accounts for every paper in the catalogue.
+offered, ungraded_papers = [], 0
 for board, subjects in TEMPLATES.items():
     for subject, cfg in subjects.items():
+        if not is_graded(board, subject):
+            ungraded_papers += len(cfg["papers"])
+            continue
         for p in cfg["papers"]:
             offered.append((board, subject, p["code"], p["max_marks"],
                             [y for y in cfg["years"] if y.isdigit()]))
 
 print(f"sweeping {len(offered)} papers across "
-      f"{sum(len(s) for s in TEMPLATES.values())} qualifications")
+      f"{sum(len(s) for s in TEMPLATES.values())} qualifications "
+      f"({ungraded_papers} ungraded papers not swept)")
 
 no_boundaries, fell_back, wrong_grade, wrong_top, above_max = [], [], [], [], []
 

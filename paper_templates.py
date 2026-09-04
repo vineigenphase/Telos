@@ -1912,6 +1912,98 @@ TEMPLATES = {
             },
         },
     },
+    "UAT-UK": {
+        # Admissions tests, not qualifications. Reported on a 1-9 scale to one
+        # decimal place, so `graded: False` — Telos tracks every mark and topic
+        # and refuses to name a grade. See is_graded().
+        "TMUA": {
+            "color": "#7A5AF8",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "TMUA",
+            "papers": [
+                {"code": "Paper 1", "name": "Applications of Mathematical Knowledge",
+                 "max_marks": 20},
+                {"code": "Paper 2", "name": "Mathematical Reasoning",
+                 "max_marks": 20},
+            ],
+            # Official papers run 2016-2023. UAT-UK does not release the live
+            # questions from 2024 onward, so those years are deliberately absent
+            # rather than listed and unloggable.
+            "years": ['SPEC', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+            "topics": {
+                "Paper 1": [
+                    "Algebra and functions", "Sequences and series",
+                    "Coordinate geometry", "Trigonometry",
+                    "Exponentials and logarithms", "Differentiation",
+                    "Integration", "Graphs of functions",
+                    "Number and place value", "Probability", "Statistics",
+                ],
+                "Paper 2": [
+                    "Logic and proof", "Mathematical reasoning",
+                    "Necessary and sufficient conditions", "Proof by contradiction",
+                    "Proof by counterexample", "Proof by induction",
+                    "Identifying flawed arguments", "Algebra and functions",
+                    "Sequences and series", "Number theory", "Geometry",
+                ],
+            },
+        },
+        "ESAT": {
+            "color": "#0F9D8C",
+            "level": "Admissions test",
+            "graded": False,
+            "name": "ESAT",
+            # Each module is 27 multiple-choice questions in 40 minutes, and is
+            # scored separately. Mathematics 1 is compulsory; most candidates
+            # sit it plus two more, but which two is set by the course applied
+            # for, so no choose_optional is declared here.
+            "papers": [
+                {"code": "Mathematics 1", "name": "Mathematics 1 (compulsory)",
+                 "max_marks": 27},
+                {"code": "Mathematics 2", "name": "Mathematics 2", "max_marks": 27},
+                {"code": "Biology", "name": "Biology", "max_marks": 27},
+                {"code": "Chemistry", "name": "Chemistry", "max_marks": 27},
+                {"code": "Physics", "name": "Physics", "max_marks": 27},
+            ],
+            # First sat in 2024. UAT-UK publishes no ESAT past or specimen
+            # papers at all — only subject guides — so the years here are the
+            # sittings themselves, for a student logging a test they took. The
+            # practice corpus is ENGAA and NSAA, which are separate entries.
+            "years": ["2024", "2025"],
+            "topics": {
+                "Mathematics 1": [
+                    "Units", "Number", "Ratio and proportion", "Algebra",
+                    "Sequences", "Graphs of functions", "Coordinate geometry",
+                    "Trigonometry", "Geometry", "Statistics", "Probability",
+                ],
+                "Mathematics 2": [
+                    "Algebra and functions", "Sequences and series",
+                    "Coordinate geometry", "Trigonometry",
+                    "Exponentials and logarithms", "Differentiation",
+                    "Integration", "Vectors", "Proof",
+                ],
+                "Biology": [
+                    "Cells", "Movement across membranes", "Cell division and sex determination",
+                    "Inheritance", "DNA", "Gene technologies", "Variation",
+                    "Enzymes", "Animal physiology", "Ecosystems", "Plant physiology",
+                ],
+                "Chemistry": [
+                    "Atomic structure", "The Periodic Table", "Chemical reactions",
+                    "Quantitative chemistry", "Oxidation and reduction",
+                    "Chemical bonding, structure and properties",
+                    "Group chemistry", "Separation techniques",
+                    "Acids, bases and salts", "Rates of reaction",
+                    "Energetics", "Electrolysis", "Organic chemistry",
+                    "Metals", "Kinetic theory", "Chemical tests", "Air and water",
+                ],
+                "Physics": [
+                    "Electricity", "Magnetism", "Mechanics", "Thermal physics",
+                    "Matter", "Waves", "Radioactivity", "Subatomic physics",
+                    "Units",
+                ],
+            },
+        },
+    },
 }
 
 
@@ -1970,6 +2062,29 @@ LEVELS_WITH_A_STAR = {"A-Level"}
 # The convention is a suffixed key with a "name" field carrying what a student
 # should actually read. A-level entries need neither, so they carry no suffix
 # and their key is already the name.
+
+
+def is_graded(board, subject):
+    """Whether this qualification awards a grade Telos can predict.
+
+    False for admissions tests. TMUA and ESAT report a 1-9 scale score, and
+    ENGAA/NSAA reported raw marks against a published distribution — none of
+    them has an A*-E ladder, and no amount of data would give them one. Telos
+    still tracks every mark and topic; it just refuses to name a grade.
+
+    Defaults to True, so a qualification is graded unless it says otherwise and
+    a typo cannot silently turn grading off for a real A-level.
+    """
+    try:
+        return TEMPLATES[board][subject].get("graded", True)
+    except KeyError:
+        return True
+
+
+def ungraded_keys():
+    """Every (board, subject) that is tracked but not graded."""
+    return {(b, s) for b, subs in TEMPLATES.items() for s in subs
+            if not subs[s].get("graded", True)}
 
 
 def qualification_level(board, subject):

@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import app as A  # noqa: E402
 from db import get_db  # noqa: E402
-from paper_templates import TEMPLATES, qualification_level, top_grade  # noqa: E402
+from paper_templates import (TEMPLATES, qualification_level, top_grade,  # noqa: E402
+                             is_graded)
 
 fails = []
 
@@ -30,11 +31,18 @@ def ok(label, cond, detail=""):
 
 
 # Max marks for every paper the app offers, keyed the way boundaries are.
+#
+# Ungraded qualifications are held out. An admissions test reports a 1-9 scale
+# score (TMUA, ESAT) or a raw mark against a published distribution (ENGAA,
+# NSAA); none has an A*-E ladder, and requiring boundaries for them would force
+# somebody to invent the rows. They are checked separately, and harder, below.
 max_marks = {}
+ungraded_marks = {}
 for board, subjects in TEMPLATES.items():
     for subject, cfg in subjects.items():
+        target = max_marks if is_graded(board, subject) else ungraded_marks
         for paper in cfg["papers"]:
-            max_marks[(board, subject, paper["code"])] = paper["max_marks"]
+            target[(board, subject, paper["code"])] = paper["max_marks"]
 
 with get_db() as db:
     rows = [dict(r) for r in db.execute("SELECT * FROM grade_boundaries").fetchall()]
@@ -45,8 +53,18 @@ ok("there are boundaries at all", bool(rows), f"{len(rows)} rows")
 #    back to a median of other papers without anyone noticing.
 offered_without = sorted(k for k in max_marks
                          if not any((r["board"], r["subject"], r["paper_code"]) == k for r in rows))
-ok("every paper the app offers has boundaries", not offered_without,
+ok("every graded paper the app offers has boundaries", not offered_without,
    "" if not offered_without else f"{offered_without}")
+
+# The other half of the exemption, and the half that makes it safe. Marking a
+# qualification ungraded must not become a way to add papers without data: an
+# ungraded qualification is required to have NO boundary rows at all. A row for
+# a 1-9 scale test is somebody's invention, and this is where it surfaces.
+_ungraded_with = sorted({(r["board"], r["subject"], r["paper_code"]) for r in rows
+                         if (r["board"], r["subject"], r["paper_code"]) in ungraded_marks})
+ok(f"no ungraded qualification has invented boundaries "
+   f"({len(ungraded_marks)} ungraded papers offered)",
+   not _ungraded_with, "" if not _ungraded_with else f"{_ungraded_with}")
 
 # The reverse is informational. Edexcel publishes boundaries for Further Maths
 # option papers (FP1, FP2, FS2, FM2, D1, D2) that paper_templates.py does not

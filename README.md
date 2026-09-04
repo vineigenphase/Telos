@@ -33,18 +33,24 @@ Three questions, in order:
 
 | | |
 |---|---|
-| Qualifications | **61**, across AQA, Edexcel, OCR A and SQA |
+| Qualifications | **63** — 61 graded across AQA, Edexcel, OCR A and SQA, plus TMUA and ESAT |
 | Grade boundary rows | **1,001** real published boundaries |
-| Levels | A-Level, AS-Level, Higher, Advanced Higher |
-| Components | 199 papers and coursework units |
+| Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
+| Components | 206 papers, modules and coursework units |
 | Routes | 51 |
 | Tables | 20, under 40 numbered migrations |
 | Tests | 22 suites, ~610 assertions |
-| Code | ~28,000 lines across 179 tracked files |
+| Code | ~29,000 lines across 179 tracked files |
 
-Coverage is not approximate. `test_boundaries.py` fails the build if **any**
-paper the app offers lacks boundaries — a qualification a student can select
-but cannot be graded on is a bug, not a gap.
+Coverage is not approximate. `test_boundaries.py` fails the build if any
+**graded** paper the app offers lacks boundaries — a qualification a student can
+select but cannot be graded on is a bug, not a gap.
+
+The exemption for ungraded qualifications is two-sided, so it cannot become a
+loophole. TMUA and ESAT report a 1–9 scale score and have no A*–E ladder at all,
+so they are not required to have boundaries — and they are required *not* to
+have any. A boundary row for a 1–9 scale test is somebody's invention, and the
+same test catches it.
 
 The reverse direction is reported but deliberately not failed on: Edexcel
 publishes boundaries for Further Maths option papers the catalogue does not yet
@@ -63,7 +69,7 @@ prescription.py   "your next 3 questions" — pure
 revision.py       spaced repetition   — pure
 sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
-paper_templates.py  61 qualifications, 199 components
+paper_templates.py  63 qualifications, 206 components
 migrations/       40 numbered idempotent SQL migrations
 tests/            22 standalone suites
 scripts/boundaries/  36 board-document scripts
@@ -141,7 +147,8 @@ never replay a partial write.
 **Free — diagnosis**
 - Unlimited paper logging, per-question mark entry
 - Per-topic heatmap
-- 61 qualifications with real boundary data
+- 61 graded qualifications with real boundary data
+- TMUA and ESAT tracked as admissions tests — marks and topics, never an invented grade
 - File uploads
 
 **Pro — prediction and prescription**
