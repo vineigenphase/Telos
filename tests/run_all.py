@@ -44,6 +44,7 @@ SUITES = [
     ("revision engine (pure)",     "test_revision.py"),
     ("revision integration",       "test_revision_integration.py"),
     ("terms, privacy, licence",    "test_legal.py"),
+    ("admissions scoring (pure)", "test_admissions.py"),
     ("README counts",             "test_readme.py"),
 ]
 

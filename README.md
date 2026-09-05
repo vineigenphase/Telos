@@ -39,7 +39,7 @@ Three questions, in order:
 | Components | 219 papers, modules, parts and coursework units |
 | Routes | 51 |
 | Tables | 20, under 40 numbered migrations |
-| Tests | 22 suites, ~610 assertions |
+| Tests | 23 suites, ~660 assertions |
 | Code | ~29,000 lines across 182 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
@@ -71,7 +71,7 @@ sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  67 qualifications, 219 components
 migrations/       40 numbered idempotent SQL migrations
-tests/            22 standalone suites
+tests/            23 standalone suites
 scripts/boundaries/  36 board-document scripts
 ```
 
@@ -200,7 +200,7 @@ application has no reason to be able to read a PDF.
 
 No pytest. Each suite is a Python file that runs top to bottom, prints
 `PASS`/`FAIL` per assertion, and exits non-zero on failure; `tests/run_all.py`
-runs all 22. The integration suites create and destroy their own fixture users
+runs all 23. The integration suites create and destroy their own fixture users
 through `tests/_fixtures.py`, which exists because killed runs used to leave
 orphans behind that broke the next run.
 
@@ -242,7 +242,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 
 railway run .venv\Scripts\python.exe app.py                     # dev server :5000
-railway run .venv\Scripts\python.exe tests\run_all.py           # all 22 suites
+railway run .venv\Scripts\python.exe tests\run_all.py           # all 23 suites
 railway run .venv\Scripts\python.exe migrations\run_migrations.py
 ```
 
@@ -301,7 +301,7 @@ migrations/          40 numbered SQL migrations
 scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
-tests/               22 suites, ~610 assertions
+tests/               23 suites, ~660 assertions
 templates/           33 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker
