@@ -229,6 +229,122 @@ def equate(raw, source, target):
     }
 
 
+# ---------------------------------------------------------------------------
+# The 1-9 scale, as UAT-UK defines it
+# ---------------------------------------------------------------------------
+#
+# Response data is analysed with the Rasch item-response model, differences in
+# difficulty between forms are removed by equating, and the resulting ability
+# scale is mapped to 1.0-9.0 by fixing two percentiles of the cohort.
+#
+# The anchors have been re-set four times, so a scaled score only means
+# something alongside the regime it was issued under. Each line is the awarding
+# body's own wording:
+#
+#   TMUA 2016         "approximately 50% ... higher than 5.0", "approximately
+#                     10% ... higher than 7.5"
+#   TMUA 2017-2023    "approximately one third of candidates will achieve
+#                     overall scores higher than 6.5. High scores are capped
+#                     at 9.0."
+#   ENGAA / NSAA      "typical applicants will score around 4.0. Approximately
+#                     10% of applicants will achieve scores higher than 7.0."
+#   TMUA/ESAT 2024+   "typical candidates will score around 4.5. Approximately
+#                     10% of candidates will achieve scores higher than 7.0."
+#
+# CURRENT is the 2024+ regime, which is what "on today's scale" means. It is
+# corroborated three ways: the Explanation of Results wording above; the
+# TMUA 2024-25 Technical Report, which says the median theta "should be fixed
+# to a scaled score of 4.5 and the candidate ability corresponding to the 90th
+# percentile should be fixed to a scaled score of 7.0"; and the published
+# summary statistics, where P50 is 4.5 and P90 is 7.0 in every module of both
+# cycles.
+#
+# NOTE. An earlier draft of this module used 9.0 for the 90th percentile, taken
+# from a summary of the public results page. It was wrong, and it would have
+# inflated every score this module produced. The percentile tables settle it.
+#
+# The useful consequence: the reported scale is DEFINED by percentiles, so the
+# target end of an equating needs no published conversion table — a percentile
+# is all it takes. Which is just as well, because no raw-to-scale table has
+# ever been published for TMUA or ESAT, in any year.
+#
+# And the reason this module exists at all: the awarding body explicitly
+# DISCLAIMS cross-year comparison. "This scaling process has been revised for
+# 2024/25, and scores should not be compared directly with TMUA scores from
+# earlier years", and "as the scaling is calculated independently for each
+# admissions cycle, the scaled score summaries cannot be directly compared
+# across admissions cycles". So a student cannot read their 2019 result against
+# today's scale, and equating is the only honest way to answer the question.
+SCALE_REGIMES = {
+    "2016":     ((50.0, 5.0), (90.0, 7.5)),
+    "2017-2023": ((66.7, 6.5), (90.0, 8.0)),   # one third above 6.5; see below
+    "engaa-nsaa": ((50.0, 4.0), (90.0, 7.0)),
+    "current":  ((50.0, 4.5), (90.0, 7.0)),
+}
+# The 2017-2023 TMUA wording gives only ONE anchor — a third above 6.5 — and a
+# 9.0 cap. The second point here is an inference, not a published figure, and
+# is why nothing in this module converts a 2017-2023 TMUA scaled score without
+# being told to. It is recorded so the gap is visible rather than forgotten.
+SCALE_ANCHORS = SCALE_REGIMES["current"]
+SCALE_MIN, SCALE_MAX = 1.0, 9.0
+
+
+def scale_from_percentile(pct):
+    """A 1-9 reported score for a candidate standing at `pct` in the cohort.
+
+    Interpolating straight down the percentile axis between the two anchors
+    would be wrong: the underlying scale is a Rasch ability scale, which is
+    roughly linear in z, not in percentile. So the percentile is converted to a
+    z-score first and the anchors are applied there, which keeps the spacing
+    right away from the middle. Straight-line interpolation on percentiles
+    would compress the top end badly, exactly where candidates care.
+
+    Clamped to 1.0-9.0. The scale has a real ceiling and a real floor, and a
+    98th-percentile candidate is a 9.0 rather than an 11.
+    """
+    (p_lo, s_lo), (p_hi, s_hi) = SCALE_ANCHORS
+    z_lo = _inv_phi(p_lo / 100.0)
+    z_hi = _inv_phi(p_hi / 100.0)
+
+    pct = max(0.01, min(float(pct), 99.99))
+    z = _inv_phi(pct / 100.0)
+
+    score = s_lo + (s_hi - s_lo) * ((z - z_lo) / (z_hi - z_lo))
+    return round(max(SCALE_MIN, min(score, SCALE_MAX)), 1)
+
+
+def equate_to_scale(raw, source):
+    """A raw mark on an old paper, as a 1-9 score on today's reported scale.
+
+    This is the whole point of the module for a student working through the
+    ENGAA/NSAA back-catalogue: raw mark -> standing in that paper's cohort ->
+    the reported score that standing is worth.
+
+    A caveat that belongs in the result rather than a footnote, and is returned
+    in `caveat` so the interface has to deal with it. The 1-9 anchors are fixed
+    to the ESAT/TMUA cohort. ENGAA was sat by Cambridge engineering applicants
+    and NSAA by Cambridge natural-scientists — narrower, stronger populations
+    than the ESAT cohort, which spans several universities. So the 70th
+    percentile of ENGAA 2019 is NOT the same ability as the 70th percentile of
+    ESAT today, and the number here reads a little low for that reason. It is
+    indicative, and must be shown as indicative.
+    """
+    if source is None:
+        raise MissingDistribution("no distribution for this paper and year")
+    pct = percentile_of(raw, source)
+    return {
+        "raw": float(raw),
+        "of": source.max_marks,
+        "percentile": round(pct, 1),
+        "scale_score": scale_from_percentile(pct),
+        "quality": source.quality,
+        "paper": f"{source.test} {source.year} {source.part}",
+        "source": source.source,
+        "caveat": "cohort-relative: the 1-9 anchors are fixed to the ESAT/TMUA "
+                  "cohort, which is broader than the one that sat this paper",
+    }
+
+
 def scale_score(raw, dist, table):
     """Convert a raw mark to a 1-9 scaled score using a published table.
 

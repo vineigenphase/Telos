@@ -1,0 +1,67 @@
+{
+ "_about": "Published score distributions for the UAT-UK admissions tests. Every figure here was read off an official UAT-UK technical report; nothing is estimated, interpolated or inferred. Percentiles are of the SCALED (1-9) score, not of raw marks — no raw-to-scale conversion table has ever been published for TMUA or ESAT in any year.",
+ "_use": "These are the TARGET end of an equating: they describe today's curve. The source end — a raw mark's standing in its own year's cohort — is NOT available for most papers. See _gaps.",
+ "_gaps": {
+  "raw_to_scale_tables": "None exist, for any test, in any year. Confirmed by enumerating every PDF on the archived Cambridge Assessment Admissions Testing site and the UAT-UK bucket. Anything circulating as a 'TMUA score conversion table' is a tutoring company's reconstruction, not an official document, and is not used here.",
+  "engaa_nsaa_statistics": "No mean, SD, median, quartile or candidate count was ever published for ENGAA or NSAA, in any year. Explanation-of-Results documents exist only for November 2021 and November 2023, and both give distributions as unlabelled bar charts with no numbers on them.",
+  "tmua_2016_2023": "Distributions published as unlabelled charts only. No summary statistics in any year.",
+  "consequence": "Telos cannot honestly equate an ENGAA, NSAA or pre-2024 TMUA raw mark onto today's scale from published data alone. The intended route is Telos's own cohort once enough students have logged these papers — the same idea as the planned percentile phase."
+ },
+ "_scale_regimes": {
+  "_note": "The 1-9 scale is norm-referenced and has been re-anchored four times, so a scaled score means nothing without knowing which regime issued it. Quotes are the awarding body's own wording.",
+  "TMUA 2016": "approximately 50% of candidates will achieve overall scores higher than 5.0 ... approximately 10% of applicants will achieve overall scores higher than 7.5",
+  "TMUA 2017-2023": "approximately one third of candidates will achieve overall scores higher than 6.5. High scores are capped at 9.0.",
+  "ENGAA/NSAA": "typical applicants will score around 4.0. Approximately 10% of applicants will achieve scores higher than 7.0. Low scores are capped at 1.0.",
+  "TMUA/ESAT 2024 onward": "typical candidates will score around 4.5. Approximately 10% of candidates will achieve scores higher than 7.0. Low scores are capped at 1.0 and high scores are capped at 9.0."
+ },
+ "_cross_year_warning": "The awarding body explicitly disclaims cross-year comparison. TMUA October 2024 Explanation of Results: 'This scaling process has been revised for 2024/25, and scores should not be compared directly with TMUA scores from earlier years.' ESAT 2025-26 Technical Report: 'as the scaling is calculated independently for each admissions cycle, the scaled score summaries cannot be directly compared across admissions cycles.' This is the reason Telos equates rather than compares.",
+
+ "TMUA": {
+  "2024-25": {
+   "source": "UAT-UK TMUA Technical Report 2024-25, Table 4",
+   "events": {
+    "October 2024": {"n": 8987, "mean": 4.58, "sd": 1.76, "min": 1.0, "max": 9.0, "p25": 3.3, "p50": 4.5, "p75": 5.7, "p90": 7.0},
+    "January 2025": {"n": 4868, "mean": 3.51, "sd": 1.56, "min": 1.0, "max": 9.0, "p25": 2.4, "p50": 3.3, "p75": 4.4, "p90": 5.4},
+    "All": {"n": 13855, "mean": 4.20, "sd": 1.77, "min": 1.0, "max": 9.0, "p25": 2.9, "p50": 4.0, "p75": 5.2, "p90": 6.5}
+   },
+   "scaling": {"constant": 4.4897, "multiplier": 1.7998, "theta_p50": 0.0057, "theta_p90": 1.3947}
+  },
+  "2025-26": {
+   "source": "UAT-UK TMUA Technical Report 2025-26, Table 4",
+   "events": {
+    "October 2025": {"n": 9685, "mean": 4.62, "sd": 1.77, "min": 1.0, "max": 9.0, "p25": 3.3, "p50": 4.5, "p75": 5.8, "p90": 7.0},
+    "January 2026": {"n": 6407, "mean": 3.78, "sd": 1.57, "min": 1.0, "max": 9.0, "p25": 2.7, "p50": 3.6, "p75": 4.6, "p90": 5.9},
+    "All": {"n": 16092, "mean": 4.28, "sd": 1.74, "min": 1.0, "max": 9.0, "p25": 3.0, "p50": 4.1, "p75": 5.3, "p90": 6.7}
+   },
+   "scaling": {"constant": 4.6046, "multiplier": 1.6369, "theta_p50": -0.0639, "theta_p90": 1.4634}
+  }
+ },
+
+ "ESAT": {
+  "2024-25": {
+   "source": "UAT-UK ESAT Technical Report 2024-25, Table 5",
+   "modules": {
+    "Mathematics 1": {"October 2024": {"n": 9141, "mean": 4.59, "sd": 1.76, "p25": 3.4, "p50": 4.5, "p75": 5.7, "p90": 7.0}},
+    "Biology":       {"October 2024": {"n": 1428, "mean": 4.72, "sd": 1.74, "p25": 3.6, "p50": 4.5, "p75": 5.9, "p90": 7.0}},
+    "Chemistry":     {"October 2024": {"n": 2570, "mean": 4.70, "sd": 1.73, "p25": 3.4, "p50": 4.5, "p75": 5.8, "p90": 7.0}},
+    "Physics":       {"October 2024": {"n": 6853, "mean": 4.65, "sd": 1.70, "p25": 3.4, "p50": 4.5, "p75": 5.6, "p90": 7.0}},
+    "Mathematics 2": {"October 2024": {"n": 7303, "mean": 4.66, "sd": 1.75, "p25": 3.6, "p50": 4.5, "p75": 5.6, "p90": 7.0}}
+   }
+  },
+  "2025-26": {
+   "source": "UAT-UK ESAT Technical Report 2025-26, Table 5",
+   "modules": {
+    "Mathematics 1": {"October 2025": {"n": 10116, "mean": 4.73, "sd": 1.59, "p25": 3.6, "p50": 4.5, "p75": 5.6, "p90": 7.0}},
+    "Biology":       {"October 2025": {"n": 1531, "mean": 4.46, "sd": 1.86, "p25": 3.2, "p50": 4.5, "p75": 5.7, "p90": 7.0}},
+    "Chemistry":     {"October 2025": {"n": 2814, "mean": 4.72, "sd": 1.72, "p25": 3.5, "p50": 4.5, "p75": 5.7, "p90": 7.0}},
+    "Physics":       {"October 2025": {"n": 7717, "mean": 4.58, "sd": 1.70, "p25": 3.4, "p50": 4.5, "p75": 5.6, "p90": 7.0}},
+    "Mathematics 2": {"October 2025": {"n": 8082, "mean": 4.73, "sd": 1.66, "p25": 3.6, "p50": 4.5, "p75": 5.7, "p90": 7.0}}
+   },
+   "module_combinations_2024": {
+    "Maths1+Maths2+Physics": 8564, "Maths1+Biology+Chemistry": 1201,
+    "Maths1+Maths2+Chemistry": 1043, "Maths1+Chemistry+Physics": 566,
+    "Maths1+Maths2": 276, "Maths1+Biology+Maths2": 153, "Other": 116
+   }
+  }
+ }
+}

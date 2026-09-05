@@ -136,6 +136,39 @@ close("the top of the scale is a ceiling", scale_score(20, TABLE, SCALE), 9.0, 0
 close("and is not exceeded", scale_score(25, TABLE, SCALE), 9.0, 0.01)
 close("the bottom is a floor", scale_score(-3, TABLE, SCALE), 1.0, 0.01)
 
+# ── 8. the published 1-9 scale anchors ─────────────────────────────────────
+#
+# These are the numbers the whole module rests on, so they are asserted rather
+# than trusted. An earlier draft used 9.0 for the 90th percentile, taken from a
+# summary of the public results page; the technical report and the published
+# percentile tables both say 7.0, and that error would have inflated every
+# score. A test is cheaper than finding out from a student.
+from admissions import (SCALE_ANCHORS, SCALE_REGIMES,  # noqa: E402
+                        scale_from_percentile, equate_to_scale)
+
+check("the current regime anchors the median at 4.5", SCALE_ANCHORS[0], (50.0, 4.5))
+check("and the 90th percentile at 7.0, not 9.0", SCALE_ANCHORS[1], (90.0, 7.0))
+close("so the median scores 4.5", scale_from_percentile(50), 4.5, 0.05)
+close("and the 90th scores 7.0", scale_from_percentile(90), 7.0, 0.05)
+
+# Monotonic, and clamped to the real ends of the scale.
+seq = [scale_from_percentile(p) for p in range(1, 100)]
+check("a higher percentile never scores lower", seq == sorted(seq), True)
+check("nothing exceeds 9.0", max(seq) <= 9.0, True)
+check("nothing falls below 1.0", min(seq) >= 1.0, True)
+
+# The four regimes are recorded, because a scaled score means nothing without
+# knowing which one issued it.
+check("all four scale regimes are recorded", sorted(SCALE_REGIMES),
+      ["2016", "2017-2023", "current", "engaa-nsaa"])
+
+# equate_to_scale must carry the cohort caveat, not bury it.
+r = equate_to_scale(15, TABLE)
+close("a 90th-percentile raw mark reaches 7.0", r["scale_score"], 7.0, 0.1)
+check("and the result states the cohort caveat", "cohort-relative" in r["caveat"], True)
+check("and cites where its distribution came from", r["source"], TABLE.source)
+
+
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
 sys.exit(1 if fails else 0)
