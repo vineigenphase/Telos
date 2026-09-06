@@ -1,0 +1,110 @@
+{# Exam Mode — the paper list.
+
+   Free users see this page in full. Section 3 is explicit: the tab and the
+   list are visible, and only the start action is gated. Showing a student what
+   they would get is the point; hiding it would make the upgrade abstract. #}
+{% extends "base.html" %}
+{% block title %}Exam Mode — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Exam Mode</div>
+    <div class="page-subtitle">
+      Original TMUA and ESAT papers, sat under real test conditions.
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+
+  {% if not is_pro %}
+  <div class="card" style="border-color:var(--accent);">
+    <div class="card-title">Sitting a paper is a Pro feature</div>
+    <p class="hint" style="margin:0;">
+      You can see every paper below. Starting one needs Telos Pro.
+      <a href="{{ url_for('subscription', **{'from': 'exam-mode'}) }}">See plans</a>.
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Papers</div>
+    {% if papers %}
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr><th>Paper</th><th>Test</th><th>Questions</th><th>Time</th>
+              <th>Best</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for p in papers %}
+          <tr>
+            <td>{{ p.title }}<div class="mk-row-sub">{{ p.series }}</div></td>
+            <td>{{ p.family }} · {{ p.module }}</td>
+            <td>{{ p.question_count }}</td>
+            <td>{{ p.duration_sec // 60 }} min</td>
+            <td>
+              {% if best.get(p.id) is not none %}
+                <strong>{{ '%.1f'|format(best[p.id]) }}</strong>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              <button class="btn btn-primary btn-sm js-start"
+                      data-paper="{{ p.paper_code }}">Sit paper</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty">No papers published yet.</p>
+    {% endif %}
+  </div>
+
+  {% if attempts %}
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Your attempts</div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr><th>Paper</th><th>Started</th><th>Status</th><th>Raw</th>
+              <th>Estimated score</th></tr>
+        </thead>
+        <tbody>
+          {% for a in attempts %}
+          <tr>
+            <td>{{ a.title }}</td>
+            <td>{{ a.started_at.strftime('%d %b %Y') }}</td>
+            <td>{{ a.status }}</td>
+            <td>{% if a.raw is not none %}{{ a.raw }}/{{ a.question_count }}{% else %}—{% endif %}</td>
+            <td>{% if a.scaled is not none %}{{ '%.1f'|format(a.scaled) }}{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+/* The start action is a POST, and a free user gets a 402 back rather than a
+   redirect — section 3. The player itself arrives in phase 3; for now this
+   surfaces the gate and the attempt id honestly rather than pretending. */
+document.querySelectorAll('.js-start').forEach(function (b) {
+  b.addEventListener('click', async function () {
+    b.disabled = true;
+    try {
+      const r = await fetch('/exam/' + b.dataset.paper + '/start', { method: 'POST' });
+      const d = await r.json();
+      if (r.status === 402) { window.location = d.upgrade_url; return; }
+      if (!r.ok) { alert(d.message || 'Could not start that paper.'); return; }
+      window.location = '/exam/attempt/' + d.attempt_id;
+    } finally { b.disabled = false; }
+  });
+});
+</script>
+{% endblock %}

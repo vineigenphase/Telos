@@ -46,6 +46,8 @@ SUITES = [
     ("terms, privacy, licence",    "test_legal.py"),
     ("admissions scoring (pure)", "test_admissions.py"),
     ("exam paper loader",         "test_exam_loader.py"),
+    ("exam scoring (pure)",       "test_exam_scoring.py"),
+    ("exam attempt lifecycle",    "test_exam_attempts.py"),
     ("README counts",             "test_readme.py"),
 ]
 

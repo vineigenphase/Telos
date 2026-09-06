@@ -61,6 +61,18 @@ def spec_group(ref):
     return m.group(1) if m else None
 
 
+# The mark basis a scaled score is computed against: 40 for a TMUA sitting of
+# two papers, 27 for an ESAT module. Carried in every paper JSON, so it is read
+# from the file and only falls back to the family default when absent — the
+# file is the author's statement of intent, and deriving it would silently
+# ignore a paper that says something different.
+FAMILY_MARKS = {"TMUA": 40, "ESAT": 27}
+
+
+def family_marks_of(paper):
+    return paper.get("family_marks") or FAMILY_MARKS.get(paper.get("family"), 0)
+
+
 class PaperInvalid(Exception):
     """Carries every problem found, not just the first."""
 
@@ -96,6 +108,14 @@ def _check_shape(paper, errors, warnings):
         if paper.get("duration_sec") and paper["duration_sec"] != want["duration_sec"]:
             warnings.append(f"{family} runs {want['duration_sec']}s, "
                             f"this paper says {paper['duration_sec']}s")
+        # family_marks drives the scaling, so a wrong one silently mis-scores
+        # every attempt rather than failing visibly.
+        fm = paper.get("family_marks")
+        if fm is not None and fm != FAMILY_MARKS[family]:
+            warnings.append(f"{family} scales against {FAMILY_MARKS[family]} marks, "
+                            f"this paper says family_marks={fm}")
+        if fm is not None and (not isinstance(fm, int) or fm <= 0):
+            errors.append(f"family_marks must be a positive integer, got {fm!r}")
 
     ns = [q.get("n") for q in qs]
     if qs and sorted(n for n in ns if isinstance(n, int)) != list(range(1, len(qs) + 1)):
@@ -248,17 +268,18 @@ def upsert(db, paper):
     row = db.execute(
         """INSERT INTO exam_papers
              (paper_code, family, module, title, series, spec_version,
-              duration_sec, question_count, is_published)
-           VALUES (?,?,?,?,?,?,?,?,FALSE)
+              duration_sec, question_count, is_published, family_marks)
+           VALUES (?,?,?,?,?,?,?,?,FALSE,?)
            ON CONFLICT (paper_code) DO UPDATE SET
              family=EXCLUDED.family, module=EXCLUDED.module, title=EXCLUDED.title,
              series=EXCLUDED.series, spec_version=EXCLUDED.spec_version,
              duration_sec=EXCLUDED.duration_sec,
-             question_count=EXCLUDED.question_count
+             question_count=EXCLUDED.question_count,
+             family_marks=EXCLUDED.family_marks
            RETURNING id""",
         (paper["paper_code"], paper["family"], paper["module"], paper["title"],
          paper.get("series"), paper.get("spec_version"), paper["duration_sec"],
-         len(paper["questions"]))).fetchone()
+         len(paper["questions"]), family_marks_of(paper))).fetchone()
     paper_id = row["id"]
 
     db.execute("DELETE FROM exam_questions WHERE paper_id=?", (paper_id,))

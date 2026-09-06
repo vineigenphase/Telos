@@ -20,14 +20,26 @@ from __future__ import annotations
 
 import json
 
-from flask import (Blueprint, abort, flash, redirect, render_template,
+from flask import (Blueprint, abort, flash, jsonify, redirect, render_template,
                    request, url_for)
-from flask_login import login_required
+from flask_login import current_user, login_required
 
-from auth import requires_admin
+from auth import requires_admin, user_is_pro
 from db import get_db
+from exam_scoring import DEFAULT_ANCHORS, compute_metrics
 
 exam = Blueprint("exam", __name__)
+
+# Shown verbatim on every results page (section 4). UAT-UK equates each real
+# sitting with a Rasch model against that year's own cohort and has never
+# published a raw-to-scale table, so a Telos score is a modelled estimate and
+# has to say so where the student reads it.
+ESTIMATE_DISCLAIMER = (
+    "This score is an estimate. UAT-UK scales each real sitting against that "
+    "year's candidates and does not publish a raw-to-score table, so Telos "
+    "models the conversion. Treat it as a guide to where you stand, not as a "
+    "predicted result."
+)
 
 
 # ---------------------------------------------------------------------------
@@ -180,3 +192,307 @@ def admin_anchors():
     with get_db() as db:
         sets = _anchor_sets(db)
     return render_template("admin_exam_anchors.html", anchor_sets=sets)
+
+
+# ---------------------------------------------------------------------------
+# Attempt lifecycle — engine spec section 4
+# ---------------------------------------------------------------------------
+#
+# Timing is server-authoritative throughout. The client counts down from a
+# `remaining_sec` the server computed, but every write revalidates against
+# `ends_at`, so a refresh, a closed tab, a second device or a doctored clock
+# cannot buy a student more time.
+
+def _anchors_for(db, family, module=None):
+    """The active anchor set, most specific first, falling back to the spec's
+    published defaults if the row is somehow missing."""
+    row = db.execute(
+        "SELECT anchors FROM exam_scale_anchors WHERE family=? AND active "
+        "  AND (module = ? OR module IS NULL) "
+        "ORDER BY module NULLS LAST LIMIT 1", (family, module)).fetchone()
+    if row:
+        return [list(p) for p in row["anchors"]]
+    return DEFAULT_ANCHORS.get(family) or DEFAULT_ANCHORS["TMUA"]
+
+
+def _attempt_or_404(db, attempt_id):
+    """An attempt belonging to the CURRENT user, or 404.
+
+    404 rather than 403 on someone else's attempt: whether an attempt id exists
+    is not something another user should be able to probe.
+    """
+    row = db.execute(
+        "SELECT a.*, p.paper_code, p.family, p.module, p.title, p.duration_sec, "
+        "       p.question_count, p.family_marks "
+        "FROM exam_attempts a JOIN exam_papers p ON p.id = a.paper_id "
+        "WHERE a.id = ? AND a.user_id = ?", (attempt_id, current_user.id)).fetchone()
+    if not row:
+        abort(404)
+    return row
+
+
+def _remaining_sec(attempt):
+    delta = (attempt["ends_at"] - _utcnow()).total_seconds()
+    return max(0, int(delta))
+
+
+def _utcnow():
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc)
+
+
+def _expire_if_overdue(db, attempt):
+    """Lazily close an attempt whose clock ran out while nobody was looking.
+
+    The spec allows a cron for this; a lazy check on next touch is enough and
+    has no moving parts. A tab closed at question 3 and reopened next week must
+    not still be live.
+    """
+    if attempt["status"] == "live" and _remaining_sec(attempt) <= 0:
+        _finalise(db, attempt, expired=True)
+        return True
+    return False
+
+
+def _pro_or_402():
+    """Section 3: free users see the tab and the paper list, and every start
+    action returns 402. A JSON 402 rather than the usual redirect, because the
+    client turns it into an upgrade modal without losing the page."""
+    if not user_is_pro(current_user):
+        return jsonify({
+            "error": "pro_required",
+            "message": "Exam Mode is a Telos Pro feature.",
+            "upgrade_url": url_for("subscription", **{"from": "exam-mode"}),
+        }), 402
+    return None
+
+
+def _finalise(db, attempt, expired=False):
+    """Mark, scale and store. The one place an attempt stops being live.
+
+    Metrics are computed here and STORED rather than recomputed on each view of
+    the results. The anchors are editable by design, so recomputing would let a
+    student's recorded score move under them months later — a result is a
+    record of a sitting, not a live query.
+    """
+    rows = db.execute(
+        "SELECT question_id, selected, flagged, time_sec, change_count "
+        "FROM exam_responses WHERE attempt_id=?", (attempt["id"],)).fetchall()
+    questions = db.execute(
+        "SELECT id, n, topic, spec_refs, answer FROM exam_questions "
+        "WHERE paper_id=? ORDER BY n", (attempt["paper_id"],)).fetchall()
+
+    anchors = _anchors_for(db, attempt["family"], attempt["module"])
+    metrics = compute_metrics(
+        [dict(r) for r in rows],
+        [{"id": q["id"], "n": q["n"], "topic": q["topic"],
+          "spec_refs": list(q["spec_refs"] or []), "answer": q["answer"]}
+         for q in questions],
+        attempt["family_marks"], anchors)
+
+    db.execute(
+        "UPDATE exam_attempts SET status=?, submitted_at=NOW(), raw=?, scaled=?, "
+        "metrics=? WHERE id=?",
+        ("expired" if expired else "submitted", metrics["raw"], metrics["scaled"],
+         json.dumps(metrics), attempt["id"]))
+    return metrics
+
+
+# ---------------------------------------------------------------------------
+# Routes — engine spec section 4
+# ---------------------------------------------------------------------------
+
+@exam.route("/exam")
+@login_required
+def index():
+    """The tab. Visible to free users, who see the papers and cannot start one."""
+    with get_db() as db:
+        papers = db.execute(
+            "SELECT id, paper_code, family, module, title, series, question_count, "
+            "       duration_sec FROM exam_papers WHERE is_published "
+            "ORDER BY family, module, paper_code").fetchall()
+        attempts = db.execute(
+            "SELECT a.id, a.paper_id, a.status, a.raw, a.scaled, a.started_at, "
+            "       a.submitted_at, p.paper_code, p.title, p.question_count "
+            "FROM exam_attempts a JOIN exam_papers p ON p.id=a.paper_id "
+            "WHERE a.user_id=? ORDER BY a.started_at DESC LIMIT 50",
+            (current_user.id,)).fetchall()
+    best = {}
+    for a in attempts:
+        if a["scaled"] is not None:
+            cur = best.get(a["paper_id"])
+            if cur is None or a["scaled"] > cur:
+                best[a["paper_id"]] = a["scaled"]
+    return render_template("exam_index.html", papers=papers, attempts=attempts,
+                           best=best, is_pro=user_is_pro(current_user))
+
+
+@exam.route("/exam/<paper_code>/start", methods=["POST"])
+@login_required
+def start(paper_code):
+    """Begin an attempt, or resume the live one.
+
+    Idempotent by design (section 4): a second start while an attempt is live
+    returns that attempt rather than a fresh one. Otherwise a double-tap, or a
+    student reopening the tab, would silently discard the work already done and
+    hand them a new clock.
+    """
+    gate = _pro_or_402()
+    if gate:
+        return gate
+
+    with get_db() as db:
+        paper = db.execute(
+            "SELECT * FROM exam_papers WHERE paper_code=? AND is_published",
+            (paper_code,)).fetchone()
+        if not paper:
+            abort(404)
+
+        live = db.execute(
+            "SELECT a.*, p.paper_code, p.family, p.module, p.title, p.duration_sec, "
+            "       p.question_count, p.family_marks "
+            "FROM exam_attempts a JOIN exam_papers p ON p.id=a.paper_id "
+            "WHERE a.user_id=? AND a.paper_id=? AND a.status='live' "
+            "ORDER BY a.id DESC LIMIT 1", (current_user.id, paper["id"])).fetchone()
+
+        if live:
+            # A live attempt whose clock already ran out is closed rather than
+            # resumed — resuming would hand back a dead timer.
+            if not _expire_if_overdue(db, live):
+                return jsonify({"attempt_id": live["id"], "resumed": True,
+                                "remaining_sec": _remaining_sec(live)})
+
+        row = db.execute(
+            "INSERT INTO exam_attempts (user_id, paper_id, ends_at, client_meta) "
+            "VALUES (?,?, NOW() + (? || ' seconds')::interval, ?) RETURNING id",
+            (current_user.id, paper["id"], str(paper["duration_sec"]),
+             json.dumps({"ua": (request.headers.get("User-Agent") or "")[:300]}))
+        ).fetchone()
+        return jsonify({"attempt_id": row["id"], "resumed": False,
+                        "remaining_sec": paper["duration_sec"]})
+
+
+@exam.route("/exam/attempt/<int:attempt_id>/answer", methods=["POST"])
+@login_required
+def answer(attempt_id):
+    """Record one answer. Refused once the attempt is no longer live.
+
+    change_count increments only when the letter actually changes, so it counts
+    a student changing their mind rather than the autosave firing.
+    """
+    data = request.get_json(silent=True) or {}
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        if _expire_if_overdue(db, attempt) or attempt["status"] != "live":
+            return jsonify({"error": "attempt_not_live"}), 409
+
+        qid = data.get("question_id")
+        q = db.execute("SELECT id FROM exam_questions WHERE id=? AND paper_id=?",
+                       (qid, attempt["paper_id"])).fetchone()
+        if not q:
+            return jsonify({"error": "unknown_question"}), 400
+
+        selected = data.get("selected")
+        if selected is not None:
+            selected = str(selected).upper()[:1]
+            if selected not in "ABCDEFGH":
+                return jsonify({"error": "bad_option"}), 400
+        flagged = bool(data.get("flagged", False))
+
+        db.execute(
+            "INSERT INTO exam_responses (attempt_id, question_id, selected, flagged) "
+            "VALUES (?,?,?,?) "
+            "ON CONFLICT (attempt_id, question_id) DO UPDATE SET "
+            "  change_count = exam_responses.change_count + "
+            "    CASE WHEN exam_responses.selected IS DISTINCT FROM EXCLUDED.selected "
+            "         AND EXCLUDED.selected IS NOT NULL THEN 1 ELSE 0 END, "
+            "  selected = EXCLUDED.selected, "
+            "  flagged = EXCLUDED.flagged, "
+            "  updated_at = NOW()",
+            (attempt_id, qid, selected, flagged))
+        return jsonify({"ok": True, "remaining_sec": _remaining_sec(attempt)})
+
+
+@exam.route("/exam/attempt/<int:attempt_id>/time", methods=["POST"])
+@login_required
+def record_time(attempt_id):
+    """Batched per-question time, sent every 10s by the client.
+
+    The increment is clamped to the attempt's own window, so a client reporting
+    an hour on one question cannot inflate the totals past the time the paper
+    actually ran for.
+    """
+    data = request.get_json(silent=True) or {}
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        if attempt["status"] != "live":
+            return jsonify({"error": "attempt_not_live"}), 409
+        try:
+            delta = int(data.get("delta_sec") or 0)
+        except (TypeError, ValueError):
+            return jsonify({"error": "bad_delta"}), 400
+        delta = max(0, min(delta, int(attempt["duration_sec"])))
+        qid = data.get("question_id")
+        db.execute(
+            "INSERT INTO exam_responses (attempt_id, question_id, time_sec) "
+            "VALUES (?,?,?) ON CONFLICT (attempt_id, question_id) DO UPDATE SET "
+            "  time_sec = LEAST(exam_responses.time_sec + EXCLUDED.time_sec, ?), "
+            "  updated_at = NOW()",
+            (attempt_id, qid, delta, int(attempt["duration_sec"])))
+        return jsonify({"ok": True, "remaining_sec": _remaining_sec(attempt)})
+
+
+@exam.route("/exam/attempt/<int:attempt_id>/submit", methods=["POST"])
+@login_required
+def submit(attempt_id):
+    """End the attempt and mark it.
+
+    A submit arriving after ends_at is ACCEPTED and stamped `expired` rather
+    than refused: the work was done inside the window and only the last packet
+    was late. Refusing it would throw away a completed paper over latency.
+    """
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        if attempt["status"] != "live":
+            # Already finished — usually because the clock ran out and an
+            # earlier request closed it. Return the score anyway rather than a
+            # bare acknowledgement: a client whose submit lost the race to
+            # auto-expiry still needs the number to show.
+            m = attempt["metrics"] or {}
+            return jsonify({"attempt_id": attempt_id, "status": attempt["status"],
+                            "already_submitted": True,
+                            "raw": attempt["raw"], "scaled": float(attempt["scaled"])
+                            if attempt["scaled"] is not None else None,
+                            "metrics": m})
+        expired = _remaining_sec(attempt) <= 0
+        metrics = _finalise(db, attempt, expired=expired)
+    return jsonify({"attempt_id": attempt_id,
+                    "status": "expired" if expired else "submitted",
+                    "raw": metrics["raw"], "scaled": metrics["scaled"]})
+
+
+@exam.route("/exam/attempt/<int:attempt_id>/results.json")
+@login_required
+def results_json(attempt_id):
+    """Full results, answers and all. Only for a finished attempt (section 6)."""
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        if _expire_if_overdue(db, attempt):
+            attempt = _attempt_or_404(db, attempt_id)
+        if attempt["status"] == "live":
+            return jsonify({"error": "attempt_still_live"}), 409
+
+        questions = db.execute(
+            "SELECT " + GRADED_QUESTION_COLUMNS + " FROM exam_questions "
+            "WHERE paper_id=? ORDER BY n", (attempt["paper_id"],)).fetchall()
+        return jsonify({
+            "attempt_id": attempt["id"],
+            "paper": {"code": attempt["paper_code"], "title": attempt["title"],
+                      "family": attempt["family"], "module": attempt["module"],
+                      "question_count": attempt["question_count"],
+                      "duration_sec": attempt["duration_sec"]},
+            "status": attempt["status"],
+            "metrics": attempt["metrics"],
+            "questions": [dict(q) for q in questions],
+            "disclaimer": ESTIMATE_DISCLAIMER,
+        })
