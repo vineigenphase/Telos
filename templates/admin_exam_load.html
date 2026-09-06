@@ -1,0 +1,85 @@
+{# Exam Mode — load a paper JSON.
+
+   The validation report is the point of this screen, not the upload. A paper
+   is rejected whole or loaded whole, so what the author needs back is every
+   problem at once plus the difficulty ramp, which is the thing no automated
+   check can judge for them. #}
+{% extends "base.html" %}
+{% block title %}Exam papers — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Exam papers</div>
+    <div class="page-subtitle">Admin only. Upload a paper JSON; it loads only if it validates.</div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.admin_anchors') }}">Scale anchors</a>
+</div>
+
+<div class="page-body page-narrow">
+
+  <form method="post" enctype="multipart/form-data" class="card">
+    <div class="form-row">
+      <label class="label" for="file">Paper JSON</label>
+      <input class="input" type="file" name="file" id="file" accept=".json,application/json" required>
+      <p class="hint">
+        20 questions for TMUA, 27 for ESAT. Every wrong option needs a trap, and
+        every spec reference must be one the module is allowed to draw on —
+        MM4 (sine and cosine rules) is rejected in ESAT Maths 1.
+      </p>
+    </div>
+    <button class="btn btn-primary" type="submit">Validate and load</button>
+  </form>
+
+  {% if report %}
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">{{ 'Loaded' if loaded else 'Rejected' }}</div>
+    <pre class="exam-report">{{ report }}</pre>
+  </div>
+  {% endif %}
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Papers</div>
+    {% if papers %}
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th><th>Family</th><th>Module</th><th>Title</th>
+            <th>Qs</th><th>Time</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in papers %}
+          <tr>
+            <td><code>{{ p.paper_code }}</code></td>
+            <td>{{ p.family }}</td>
+            <td>{{ p.module }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.question_count }}</td>
+            <td>{{ (p.duration_sec // 60) }} min</td>
+            <td>{{ 'Published' if p.is_published else 'Draft' }}</td>
+            <td>
+              {# Papers load unpublished on purpose, so a half-checked paper
+                 cannot reach students the moment it is uploaded. #}
+              <form method="post"
+                    action="{{ url_for('exam.admin_publish', paper_id=p.id) }}"
+                    style="display:inline;">
+                <input type="hidden" name="publish" value="{{ '0' if p.is_published else '1' }}">
+                <button class="btn btn-ghost btn-sm" type="submit">
+                  {{ 'Unpublish' if p.is_published else 'Publish' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty">No papers loaded yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

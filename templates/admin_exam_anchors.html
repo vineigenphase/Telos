@@ -1,0 +1,64 @@
+{# Exam Mode — the raw-to-scale anchor sets.
+
+   These exist as an editable screen rather than a constant in code because
+   they are an estimate and will need recalibrating. No raw-to-scale conversion
+   has ever been published for TMUA or ESAT, in any year, so there is no
+   official table to check them against — which is the whole reason they must
+   be easy to change. #}
+{% extends "base.html" %}
+{% block title %}Scale anchors — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Scale anchors</div>
+    <div class="page-subtitle">Admin only. Raw mark to estimated 1–9 score.</div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.admin_load') }}">Papers</a>
+</div>
+
+<div class="page-body page-narrow">
+
+  <div class="card">
+    <p class="hint" style="margin:0;">
+      A list of <code>[raw mark, scaled score]</code> pairs, both ascending.
+      Scores between anchors are interpolated. TMUA anchors are on the 40-mark
+      full-sitting basis, so a single 20-question paper is scaled by 40/20
+      first; ESAT modules are 27 marks and scored separately, as in the real
+      test.
+    </p>
+    <p class="hint">
+      These are <strong>estimates</strong>. UAT-UK equates each sitting with a
+      Rasch model and anchors the reported scale to that year's cohort — median
+      at 4.5, roughly 10% above 7.0 — but publishes no raw-to-scale table. Every
+      score Telos shows from these must be labelled an estimate.
+    </p>
+  </div>
+
+  {% for a in anchor_sets %}
+  <form method="post" class="card" style="margin-top:16px;">
+    <input type="hidden" name="id" value="{{ a.id }}">
+    <div class="card-title">
+      {{ a.family }}{% if a.module %} · {{ a.module }}{% else %} · all modules{% endif %}
+      {% if not a.active %}<span class="pill">inactive</span>{% endif %}
+    </div>
+
+    <div class="form-row">
+      <label class="label" for="anchors-{{ a.id }}">Anchors</label>
+      <textarea class="input" id="anchors-{{ a.id }}" name="anchors" rows="3"
+                spellcheck="false">{{ a.anchors | tojson }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <label class="label" for="note-{{ a.id }}">Note</label>
+      <input class="input" id="note-{{ a.id }}" name="note" value="{{ a.note or '' }}">
+    </div>
+
+    <button class="btn btn-primary btn-sm" type="submit">Save</button>
+  </form>
+  {% else %}
+  <p class="empty">No anchor sets — migration 041 seeds two.</p>
+  {% endfor %}
+
+</div>
+{% endblock %}

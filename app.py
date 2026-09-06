@@ -24,7 +24,7 @@ from mailer import send_email, MAIL_ENABLED
 from prediction import predict as predict_grade
 from prescription import (prescribe, topic_stats,
                           RECENCY_WINDOW as PRESCRIPTION_RECENCY_WINDOW)
-from auth import requires_pro, user_is_pro
+from auth import requires_admin, requires_pro, user_is_pro
 import sharecards
 
 import json as _json
@@ -438,14 +438,8 @@ def inject_globals():
 # ── Access control ────────────────────────────────────────────────────────────
 # requires_pro + user_is_pro now live in auth.py (single source of truth).
 
-def requires_admin(view):
-    """Gate a route behind the admin flag (content management)."""
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not getattr(current_user, "is_admin", False):
-            abort(403)
-        return view(*args, **kwargs)
-    return wrapped
+# requires_admin now lives in auth.py alongside requires_pro, so the exam
+# blueprint can import it without a circular import back through app.py.
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -3032,6 +3026,17 @@ def subjects():
                                    for s in mine},
                            mine=mine,
                            orphaned=orphaned)
+
+
+# ── Blueprints ────────────────────────────────────────────────────────────────
+#
+# Registered last, after every helper and decorator this module defines, so the
+# import order is unambiguous. The exam blueprint takes requires_admin from
+# auth.py rather than from here — importing back into app.py would be circular,
+# since this is the module that registers it.
+from exam import exam as exam_blueprint  # noqa: E402
+
+app.register_blueprint(exam_blueprint)
 
 
 # ── Boot ──────────────────────────────────────────────────────────────────────

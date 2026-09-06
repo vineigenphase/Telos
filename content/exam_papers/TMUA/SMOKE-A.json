@@ -1,0 +1,553 @@
+{
+ "paper_code": "TMUA-SMOKE-A",
+ "family": "TMUA",
+ "module": "P1",
+ "title": "Loader smoke test \u2014 not a real paper",
+ "series": "Telos internal",
+ "spec_version": "2026-27",
+ "duration_sec": 4500,
+ "marks_per_question": 1,
+ "target_note": "Exercises the loader end to end. Never published.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 1,
+   "stem_html": "<p>Smoke-test question 1. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q1",
+    "B": "option B for q1",
+    "C": "option C for q1",
+    "D": "option D for q1",
+    "E": "option E for q1",
+    "F": "option F for q1"
+   },
+   "answer": "B",
+   "solution_html": "<p>The answer is B.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 2,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 1,
+   "stem_html": "<p>Smoke-test question 2. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q2",
+    "B": "option B for q2",
+    "C": "option C for q2",
+    "D": "option D for q2",
+    "E": "option E for q2",
+    "F": "option F for q2"
+   },
+   "answer": "C",
+   "solution_html": "<p>The answer is C.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 3,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 1,
+   "stem_html": "<p>Smoke-test question 3. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q3",
+    "B": "option B for q3",
+    "C": "option C for q3",
+    "D": "option D for q3",
+    "E": "option E for q3",
+    "F": "option F for q3"
+   },
+   "answer": "D",
+   "solution_html": "<p>The answer is D.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 4,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 1,
+   "stem_html": "<p>Smoke-test question 4. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q4",
+    "B": "option B for q4",
+    "C": "option C for q4",
+    "D": "option D for q4",
+    "E": "option E for q4",
+    "F": "option F for q4"
+   },
+   "answer": "E",
+   "solution_html": "<p>The answer is E.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 5,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>Smoke-test question 5. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q5",
+    "B": "option B for q5",
+    "C": "option C for q5",
+    "D": "option D for q5",
+    "E": "option E for q5",
+    "F": "option F for q5"
+   },
+   "answer": "F",
+   "solution_html": "<p>The answer is F.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong"
+   }
+  },
+  {
+   "n": 6,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>Smoke-test question 6. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q6",
+    "B": "option B for q6",
+    "C": "option C for q6",
+    "D": "option D for q6",
+    "E": "option E for q6",
+    "F": "option F for q6"
+   },
+   "answer": "A",
+   "solution_html": "<p>The answer is A.</p>",
+   "traps": {
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 7,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>Smoke-test question 7. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q7",
+    "B": "option B for q7",
+    "C": "option C for q7",
+    "D": "option D for q7",
+    "E": "option E for q7",
+    "F": "option F for q7"
+   },
+   "answer": "B",
+   "solution_html": "<p>The answer is B.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 8,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>Smoke-test question 8. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q8",
+    "B": "option B for q8",
+    "C": "option C for q8",
+    "D": "option D for q8",
+    "E": "option E for q8",
+    "F": "option F for q8"
+   },
+   "answer": "C",
+   "solution_html": "<p>The answer is C.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 9,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>Smoke-test question 9. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q9",
+    "B": "option B for q9",
+    "C": "option C for q9",
+    "D": "option D for q9",
+    "E": "option E for q9",
+    "F": "option F for q9"
+   },
+   "answer": "D",
+   "solution_html": "<p>The answer is D.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 10,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>Smoke-test question 10. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q10",
+    "B": "option B for q10",
+    "C": "option C for q10",
+    "D": "option D for q10",
+    "E": "option E for q10",
+    "F": "option F for q10"
+   },
+   "answer": "E",
+   "solution_html": "<p>The answer is E.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 11,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>Smoke-test question 11. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q11",
+    "B": "option B for q11",
+    "C": "option C for q11",
+    "D": "option D for q11",
+    "E": "option E for q11",
+    "F": "option F for q11"
+   },
+   "answer": "F",
+   "solution_html": "<p>The answer is F.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong"
+   }
+  },
+  {
+   "n": 12,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>Smoke-test question 12. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q12",
+    "B": "option B for q12",
+    "C": "option C for q12",
+    "D": "option D for q12",
+    "E": "option E for q12",
+    "F": "option F for q12"
+   },
+   "answer": "A",
+   "solution_html": "<p>The answer is A.</p>",
+   "traps": {
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 13,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 4,
+   "stem_html": "<p>Smoke-test question 13. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q13",
+    "B": "option B for q13",
+    "C": "option C for q13",
+    "D": "option D for q13",
+    "E": "option E for q13",
+    "F": "option F for q13"
+   },
+   "answer": "B",
+   "solution_html": "<p>The answer is B.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 14,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 4,
+   "stem_html": "<p>Smoke-test question 14. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q14",
+    "B": "option B for q14",
+    "C": "option C for q14",
+    "D": "option D for q14",
+    "E": "option E for q14",
+    "F": "option F for q14"
+   },
+   "answer": "C",
+   "solution_html": "<p>The answer is C.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 15,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 4,
+   "stem_html": "<p>Smoke-test question 15. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q15",
+    "B": "option B for q15",
+    "C": "option C for q15",
+    "D": "option D for q15",
+    "E": "option E for q15",
+    "F": "option F for q15"
+   },
+   "answer": "D",
+   "solution_html": "<p>The answer is D.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 16,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 4,
+   "stem_html": "<p>Smoke-test question 16. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q16",
+    "B": "option B for q16",
+    "C": "option C for q16",
+    "D": "option D for q16",
+    "E": "option E for q16",
+    "F": "option F for q16"
+   },
+   "answer": "E",
+   "solution_html": "<p>The answer is E.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 17,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 5,
+   "stem_html": "<p>Smoke-test question 17. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q17",
+    "B": "option B for q17",
+    "C": "option C for q17",
+    "D": "option D for q17",
+    "E": "option E for q17",
+    "F": "option F for q17"
+   },
+   "answer": "F",
+   "solution_html": "<p>The answer is F.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong"
+   }
+  },
+  {
+   "n": 18,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 5,
+   "stem_html": "<p>Smoke-test question 18. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q18",
+    "B": "option B for q18",
+    "C": "option C for q18",
+    "D": "option D for q18",
+    "E": "option E for q18",
+    "F": "option F for q18"
+   },
+   "answer": "A",
+   "solution_html": "<p>The answer is A.</p>",
+   "traps": {
+    "B": "why B is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 19,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "MM1.1"
+   ],
+   "difficulty": 5,
+   "stem_html": "<p>Smoke-test question 19. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q19",
+    "B": "option B for q19",
+    "C": "option C for q19",
+    "D": "option D for q19",
+    "E": "option E for q19",
+    "F": "option F for q19"
+   },
+   "answer": "B",
+   "solution_html": "<p>The answer is B.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "C": "why C is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  },
+  {
+   "n": 20,
+   "topic": "Loader smoke test",
+   "spec_refs": [
+    "M2.1"
+   ],
+   "difficulty": 5,
+   "stem_html": "<p>Smoke-test question 20. Not a real question.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "option A for q20",
+    "B": "option B for q20",
+    "C": "option C for q20",
+    "D": "option D for q20",
+    "E": "option E for q20",
+    "F": "option F for q20"
+   },
+   "answer": "C",
+   "solution_html": "<p>The answer is C.</p>",
+   "traps": {
+    "A": "why A is wrong",
+    "B": "why B is wrong",
+    "D": "why D is wrong",
+    "E": "why E is wrong",
+    "F": "why F is wrong"
+   }
+  }
+ ]
+}

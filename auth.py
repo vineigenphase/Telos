@@ -1,5 +1,5 @@
 """
-Access control — the single source of truth for paid (Pro) access.
+Access control — the single source of truth for paid (Pro) and admin access.
 
 user_is_pro() is deliberately generous around billing hiccups: `past_due` keeps
 access (Stripe retries a failed card for ~2 weeks; a student mid-revision should
@@ -9,7 +9,7 @@ passes. Only `canceled` / `unpaid` cut access.
 from datetime import datetime, timezone
 from functools import wraps
 
-from flask import flash, redirect, url_for
+from flask import abort, flash, redirect, url_for
 from flask_login import current_user
 
 
@@ -50,3 +50,20 @@ def requires_pro(feature="This feature"):
             return view(*args, **kwargs)
         return wrapped
     return decorator
+
+
+def requires_admin(view):
+    """Gate a route behind the admin flag (content management).
+
+    Lives here rather than in app.py because the exam blueprint needs it and
+    app.py registers that blueprint — importing back the other way would be
+    circular. A bare 403 is right here in a way it is not for Pro gating: an
+    admin screen is not a feature to upsell, it is one a normal user should not
+    know exists.
+    """
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not getattr(current_user, "is_admin", False):
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapped
