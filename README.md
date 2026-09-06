@@ -40,7 +40,7 @@ Three questions, in order:
 | Routes | 62 |
 | Tables | 26, under 42 numbered migrations |
 | Tests | 26 suites, ~740 assertions |
-| Code | ~35,000 lines across 215 tracked files |
+| Code | ~35,000 lines across 217 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -268,7 +268,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~3,700 lines of hand-written CSS and 937 of vanilla JS.
+no CSS framework — ~3,800 lines of hand-written CSS and 1122 of vanilla JS.
 
 ---
 

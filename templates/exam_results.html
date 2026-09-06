@@ -1,42 +1,73 @@
-{# Exam Mode results — SHELL ONLY.
+{# Exam Mode results — engine spec section 5, item 7.
 
-   Phase 4 builds this properly: the scaled-score hero, the grade ladder, the
-   by-topic breakdown and the per-question rows expanding to full solutions.
+   Extends base.html, unlike the player. The test is over by this point and the
+   student is back in the product, so they get the navigation back — and the
+   spec asks for Telos black and gold here rather than the plain test player.
 
-   It exists now because the player redirects here the moment a paper ends, and
-   a redirect to a 500 would be worse than a plain page. Everything shown is
-   read from the stored metrics, so a student who finishes a paper today gets a
-   real score rather than a placeholder. #}
+   Everything is read from /results.json, which is served only for a finished
+   attempt belonging to the requesting user. The metrics were computed at
+   submit and stored, so this page reads a record of the sitting rather than
+   recomputing against anchors that may have been recalibrated since. #}
 {% extends "base.html" %}
 {% block title %}Results — {{ attempt.title }} — Telos{% endblock %}
+
+{% block head %}
+  {# Only the #results rules. exam_player.css also carries bare html/body rules
+     with a white ground, and loading it here would repaint the whole app. #}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/exam_results.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <div class="page-header">
   <div>
     <div class="page-title">{{ attempt.title }}</div>
-    <div class="page-subtitle">{{ attempt.paper_code }} · {{ attempt.status }}</div>
+    <div class="page-subtitle">
+      {{ attempt.paper_code }} · {{ attempt.family }} {{ attempt.module }}
+      {%- if attempt.status == 'expired' %} · time expired{% endif %}
+    </div>
   </div>
   <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
 </div>
 
-<div class="page-body page-narrow">
-  <div class="card">
-    <div class="card-title">Estimated score</div>
-    <div class="mk-stat-value" style="font-size:2.6rem;">
-      {{ '%.1f'|format(attempt.scaled) if attempt.scaled is not none else '—' }}
+<div class="page-body" id="results"
+     data-attempt="{{ attempt.id }}">
+
+  {# Rendered by exam_results.js from /results.json. The shell is here rather
+     than built entirely in script so the page has structure before the fetch
+     lands, and so a failed fetch shows a message instead of a blank page. #}
+  <div class="score">
+    <div class="big"><span id="scaled">—</span><small>estimated score</small></div>
+    <div class="facts">
+      <div><b id="raw">—</b><span id="rawLbl">raw marks</span></div>
+      <div><b id="toNext">—</b><span id="toNextLbl">marks to the next whole grade</span></div>
+      <div><b id="to7">—</b><span>marks to 7.0</span></div>
+      <div><b id="timeUsed">—</b><span>time used</span></div>
     </div>
-    <p class="hint">
-      {{ attempt.raw }} out of {{ attempt.question_count }} raw marks.
-    </p>
-    <p class="hint">{{ disclaimer }}</p>
   </div>
 
-  <div class="card" style="margin-top:16px;">
-    <div class="card-title">Full breakdown</div>
-    <p class="hint" style="margin:0;">
-      The detailed results screen — grade ladder, by-topic, and every question
-      with its worked solution — is the next phase of Exam Mode.
-    </p>
+  <p class="estnote" id="estnote">{{ disclaimer }}</p>
+
+  <div class="ladder">
+    <h2>Where the whole scores sit on this paper</h2>
+    <div class="rungs" id="rungs"></div>
   </div>
+
+  <h2 class="sec">By topic</h2>
+  <div class="bytopic" id="bytopic"></div>
+
+  <h2 class="sec">Every question</h2>
+  <div id="qlist"></div>
+
+  <div class="acts">
+    <button id="retry" type="button">Sit this paper again</button>
+    <button id="expandAll" type="button">Open all solutions</button>
+  </div>
+
+  <p id="loadError" class="estnote hidden"></p>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/exam_results.js') }}"></script>
 {% endblock %}

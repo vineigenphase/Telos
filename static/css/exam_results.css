@@ -1,0 +1,69 @@
+/* Exam Mode results — the Telos-side half of the reference player.
+
+   Split out of exam_player.css on purpose. That file styles the test itself and
+   carries bare `html`, `body` and `*` rules with a white Pearson-plain ground;
+   loading it on a page that extends base.html would repaint the whole
+   application white. Only the #results rules and the tokens they read are here.
+
+   Section 5: the player is deliberately plain and the results are deliberately
+   Telos — black and gold. The student has finished the test by this point and
+   is back in the product.
+*/
+
+:root {
+  --t-black: #0b0b0d; --t-ink: #15151a; --t-gold: #c9a227;
+  --t-gold-soft: #e6cd73; --t-text: #f2f0e8; --t-muted: #9a978c;
+  --t-line: #2a2a31; --t-good: #7fc97f; --t-bad: #e07a6a;
+}
+
+#results{background:var(--t-black);color:var(--t-text);font-family:var(--font)}
+#results .tbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--t-line)}
+#results .logo{font-family:var(--serif);font-size:24px;letter-spacing:.5px}
+#results .logo em{color:var(--t-gold);font-style:italic}
+#results .tbar .meta{color:var(--t-muted);font-size:14px}
+#results .body{max-width:1040px;margin:0 auto;padding:30px 24px 80px}
+#results .score{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:start;border:1px solid var(--t-line);padding:28px;background:var(--t-ink)}
+#results .big{font-family:var(--serif);font-size:96px;line-height:.9;color:var(--t-gold);font-variant-numeric:tabular-nums}
+#results .big small{font-size:22px;color:var(--t-muted);font-family:var(--font);display:block;margin-top:10px;font-style:normal}
+#results .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;align-self:center}
+#results .facts div{border-left:2px solid var(--t-gold);padding-left:12px}
+#results .facts b{display:block;font-size:24px;font-family:var(--serif);color:var(--t-text)}
+#results .facts span{color:var(--t-muted);font-size:14px}
+#results .estnote{color:var(--t-muted);font-size:13px;margin-top:14px;max-width:80ch}
+#results .ladder{margin-top:26px;border:1px solid var(--t-line);padding:18px 22px;background:var(--t-ink)}
+#results .ladder h2{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 12px;color:var(--t-gold-soft)}
+#results .rungs{display:flex;gap:6px;flex-wrap:wrap}
+#results .rung{flex:1;min-width:64px;text-align:center;padding:10px 4px;border:1px solid var(--t-line);font-variant-numeric:tabular-nums}
+#results .rung b{display:block;font-size:20px;font-family:var(--serif)}
+#results .rung span{font-size:12px;color:var(--t-muted)}
+#results .rung.here{border-color:var(--t-gold);background:rgba(201,162,39,.12)}
+#results .rung.next{border-color:var(--t-gold-soft);border-style:dashed}
+#results h2.sec{font-family:var(--serif);font-weight:400;font-size:22px;margin:36px 0 12px;color:var(--t-gold-soft)}
+#results .bytopic{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+#results .bytopic div{border:1px solid var(--t-line);padding:10px 12px;font-size:14px;display:flex;justify-content:space-between}
+#results .bytopic div b{color:var(--t-gold-soft)}
+#results .qrow{border:1px solid var(--t-line);margin-bottom:10px;background:var(--t-ink)}
+#results .qrow summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto auto auto;gap:14px;align-items:center;padding:12px 16px}
+#results .qrow summary::-webkit-details-marker{display:none}
+#results .qrow .n{font-family:var(--serif);font-size:20px;color:var(--t-gold)}
+#results .qrow .t{font-size:14px;color:var(--t-muted)}
+#results .qrow .t b{color:var(--t-text);font-weight:600;display:block;font-size:15px}
+#results .qrow .mark{font-weight:700;font-size:14px;padding:3px 9px;border-radius:2px}
+#results .qrow .mark.ok{color:var(--t-good);border:1px solid var(--t-good)}
+#results .qrow .mark.no{color:var(--t-bad);border:1px solid var(--t-bad)}
+#results .qrow .mark.skip{color:var(--t-muted);border:1px solid var(--t-muted)}
+#results .qrow .time{font-size:13px;color:var(--t-muted);font-variant-numeric:tabular-nums}
+#results .qrow .time.slow{color:var(--t-bad)}
+#results .qrow .ans{font-size:13px;color:var(--t-muted)}
+#results .qrow .sol{padding:6px 18px 20px;border-top:1px solid var(--t-line);line-height:1.7;max-width:80ch}
+#results .qrow .sol p{margin:10px 0}
+#results .qrow .sol .trap{border-left:2px solid var(--t-bad);padding-left:12px;color:var(--t-muted);font-size:14px}
+#results .qrow .sol .opt{font-size:14px;color:var(--t-muted)}
+#results .qrow .sol .key{color:var(--t-gold-soft);font-weight:700}
+#results .qrow .sol svg{max-width:360px;background:#fff;padding:6px;border-radius:2px}
+#results .acts{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+#results .acts button{background:transparent;color:var(--t-gold);border:1px solid var(--t-gold);padding:10px 18px;font-weight:600}
+
+/* The results page extends base.html, which does not define .hidden — the
+   player's stylesheet does, and that one is deliberately not loaded here. */
+#results .hidden { display: none !important; }
