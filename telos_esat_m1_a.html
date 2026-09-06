@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telos Exam Mode</title>
+<style>
+/* ---------- Player: Pearson-plain by design. Results: Telos black/gold. ---------- */
+:root{
+  --pv-bar:#1f4e8c; --pv-bar-text:#fff; --pv-bg:#ffffff; --pv-panel:#f3f5f8; --pv-text:#111;
+  --pv-muted:#5b6470; --pv-line:#c9d1dc; --pv-accent:#1f4e8c; --pv-flag:#c27a00; --pv-btn:#e9edf3;
+  --pv-btn-text:#111; --pv-answered:#2e7d32; --pv-hover:#eef3fa;
+  --t-black:#0b0b0d; --t-ink:#15151a; --t-gold:#c9a227; --t-gold-soft:#e6cd73; --t-text:#f2f0e8;
+  --t-muted:#9a978c; --t-line:#2a2a31; --t-good:#7fc97f; --t-bad:#e07a6a;
+  --font:Arial, Helvetica, sans-serif; --serif:Georgia, "Times New Roman", serif;
+}
+[data-theme="dark"]{
+  --pv-bar:#101a2b; --pv-bar-text:#f2f2f2; --pv-bg:#15181e; --pv-panel:#1d2129; --pv-text:#ececec;
+  --pv-muted:#a9b0bb; --pv-line:#353b47; --pv-accent:#6ea2e6; --pv-flag:#e0a33a; --pv-btn:#262b35;
+  --pv-btn-text:#ececec; --pv-answered:#63c46b; --pv-hover:#222833;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--font);font-size:16px;line-height:1.5;color:var(--pv-text);background:var(--pv-bg)}
+button{font-family:inherit;font-size:15px;cursor:pointer}
+button:focus-visible,label:focus-within,a:focus-visible{outline:3px solid var(--pv-flag);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.hidden{display:none!important}
+sup{font-size:.72em;vertical-align:.45em;line-height:0}
+sub{font-size:.72em;vertical-align:-.3em;line-height:0}
+.rt{white-space:nowrap}
+.rt .ov{border-top:1.5px solid currentColor;padding-top:1px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.15;margin:0 3px;font-size:.92em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+.fr>span:last-child{padding:0 4px}
+.math{font-family:var(--serif);font-style:italic}
+.mr{font-style:normal}
+.deg{font-style:normal}
+.int{font-family:var(--serif);font-size:1.35em;font-style:italic;vertical-align:-.1em}
+.lim{display:inline-flex;flex-direction:column;font-size:.7em;font-style:normal;line-height:1.05;vertical-align:middle;margin-right:2px}
+.int-wrap{white-space:nowrap}
+
+/* ---------- Shared screens ---------- */
+.screen{min-height:100vh;display:flex;flex-direction:column}
+.pvbar{background:var(--pv-bar);color:var(--pv-bar-text);display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:15px}
+.pvbar .cand{display:flex;gap:26px;align-items:center}
+.pvbar strong{font-weight:700}
+.pvbar .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:17px;padding:4px 12px;border:1.5px solid rgba(255,255,255,.55);border-radius:3px}
+.pvbar .timer.warn{background:#b71c1c;border-color:#b71c1c}
+.pvbar .theme{background:transparent;color:inherit;border:1.5px solid rgba(255,255,255,.45);padding:4px 10px;border-radius:3px;font-size:13px}
+
+/* ---------- Intro ---------- */
+#intro .body{max-width:760px;margin:0 auto;padding:40px 24px 60px;flex:1}
+#intro h1{font-size:26px;margin:0 0 6px}
+#intro h2{font-size:17px;color:var(--pv-muted);font-weight:400;margin:0 0 28px}
+#intro .rules{border:1px solid var(--pv-line);background:var(--pv-panel);padding:18px 22px;border-radius:4px;margin:18px 0}
+#intro .rules p{margin:8px 0}
+#intro .go{background:var(--pv-accent);color:#fff;border:0;padding:12px 26px;border-radius:3px;font-size:16px;font-weight:700;margin-top:10px}
+#intro .fine{font-size:13px;color:var(--pv-muted);margin-top:26px}
+
+/* ---------- Exam ---------- */
+#exam .main{flex:1;display:grid;grid-template-columns:1fr;max-width:1100px;width:100%;margin:0 auto;padding:22px 24px 120px}
+#exam .qhead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--pv-line);padding-bottom:10px;margin-bottom:18px;font-size:15px;color:var(--pv-muted)}
+#exam .qhead .flagged{color:var(--pv-flag);font-weight:700}
+#exam .stem{font-size:17px;line-height:1.7;max-width:74ch}
+#exam .stem p{margin:0 0 12px}
+#exam .diagram{margin:14px 0 18px}
+#exam .diagram svg{max-width:100%;height:auto;display:block}
+#exam .opts{list-style:none;padding:0;margin:20px 0 0;max-width:74ch}
+#exam .opts li{border:1px solid var(--pv-line);border-radius:3px;margin-bottom:8px;background:var(--pv-bg)}
+#exam .opts label{display:flex;gap:14px;align-items:center;padding:11px 14px;cursor:pointer;font-size:17px}
+#exam .opts label:hover{background:var(--pv-hover)}
+#exam .opts input{width:18px;height:18px;accent-color:var(--pv-accent);flex:none}
+#exam .opts .key{font-weight:700;width:1.2em;flex:none}
+#exam .nav{position:fixed;left:0;right:0;bottom:0;background:var(--pv-panel);border-top:1px solid var(--pv-line);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#exam .nav .grp{display:flex;gap:10px;flex-wrap:wrap}
+#exam .nav button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:9px 16px;border-radius:3px;font-weight:600}
+#exam .nav button.primary{background:var(--pv-accent);color:#fff;border-color:var(--pv-accent)}
+#exam .nav button.flag.on{background:var(--pv-flag);color:#fff;border-color:var(--pv-flag)}
+#exam .nav button:disabled{opacity:.45;cursor:not-allowed}
+
+/* navigator drawer */
+#navdrawer{position:fixed;right:0;top:0;bottom:0;width:300px;max-width:90vw;background:var(--pv-bg);border-left:1px solid var(--pv-line);box-shadow:-6px 0 20px rgba(0,0,0,.18);padding:18px;overflow:auto;z-index:20}
+#navdrawer h3{margin:0 0 4px;font-size:16px}
+#navdrawer .legend{font-size:13px;color:var(--pv-muted);margin-bottom:12px}
+#navdrawer .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+#navdrawer .grid button{aspect-ratio:1;border:1.5px solid var(--pv-line);background:var(--pv-bg);color:var(--pv-text);border-radius:3px;font-weight:700;position:relative}
+#navdrawer .grid button.ans{border-color:var(--pv-answered);background:color-mix(in srgb,var(--pv-answered) 14%,transparent)}
+#navdrawer .grid button.cur{outline:3px solid var(--pv-accent);outline-offset:1px}
+#navdrawer .grid button.flg::after{content:"";position:absolute;top:3px;right:3px;width:8px;height:8px;background:var(--pv-flag);border-radius:1px}
+#navdrawer .close{margin-top:16px;width:100%;padding:9px;border:1px solid var(--pv-line);background:var(--pv-btn);color:var(--pv-btn-text);border-radius:3px}
+
+/* ---------- Review screen ---------- */
+#review .body{max-width:860px;margin:0 auto;padding:30px 24px 120px;flex:1}
+#review h1{font-size:22px;margin:0 0 4px}
+#review .summary{color:var(--pv-muted);margin-bottom:18px}
+#review .filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+#review .filters button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:7px 12px;border-radius:3px}
+#review .filters button.on{background:var(--pv-accent);color:#fff;border-color:var(--pv-accent)}
+#review table{width:100%;border-collapse:collapse;font-size:15px}
+#review th,#review td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--pv-line)}
+#review th{color:var(--pv-muted);font-weight:600;font-size:13px}
+#review td button{background:none;border:0;color:var(--pv-accent);text-decoration:underline;padding:0;font-size:15px}
+#review .status.un{color:#b71c1c;font-weight:700}
+#review .status.fl{color:var(--pv-flag);font-weight:700}
+#review .nav{position:fixed;left:0;right:0;bottom:0;background:var(--pv-panel);border-top:1px solid var(--pv-line);padding:12px 20px;display:flex;justify-content:space-between;gap:10px}
+#review .nav button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:9px 16px;border-radius:3px;font-weight:600}
+#review .nav button.end{background:#b71c1c;color:#fff;border-color:#b71c1c}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal .box{background:var(--pv-bg);color:var(--pv-text);max-width:480px;width:100%;padding:24px;border-radius:4px;border-top:6px solid #b71c1c}
+.modal h2{margin:0 0 10px;font-size:19px}
+.modal p{margin:8px 0}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.modal .acts button{padding:9px 16px;border-radius:3px;border:1px solid var(--pv-line);background:var(--pv-btn);color:var(--pv-btn-text);font-weight:600}
+.modal .acts button.danger{background:#b71c1c;color:#fff;border-color:#b71c1c}
+
+/* ---------- Results (Telos) ---------- */
+#results{background:var(--t-black);color:var(--t-text);font-family:var(--font)}
+#results .tbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--t-line)}
+#results .logo{font-family:var(--serif);font-size:24px;letter-spacing:.5px}
+#results .logo em{color:var(--t-gold);font-style:italic}
+#results .tbar .meta{color:var(--t-muted);font-size:14px}
+#results .body{max-width:1040px;margin:0 auto;padding:30px 24px 80px}
+#results .score{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:start;border:1px solid var(--t-line);padding:28px;background:var(--t-ink)}
+#results .big{font-family:var(--serif);font-size:96px;line-height:.9;color:var(--t-gold);font-variant-numeric:tabular-nums}
+#results .big small{font-size:22px;color:var(--t-muted);font-family:var(--font);display:block;margin-top:10px;font-style:normal}
+#results .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;align-self:center}
+#results .facts div{border-left:2px solid var(--t-gold);padding-left:12px}
+#results .facts b{display:block;font-size:24px;font-family:var(--serif);color:var(--t-text)}
+#results .facts span{color:var(--t-muted);font-size:14px}
+#results .estnote{color:var(--t-muted);font-size:13px;margin-top:14px;max-width:80ch}
+#results .ladder{margin-top:26px;border:1px solid var(--t-line);padding:18px 22px;background:var(--t-ink)}
+#results .ladder h2{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 12px;color:var(--t-gold-soft)}
+#results .rungs{display:flex;gap:6px;flex-wrap:wrap}
+#results .rung{flex:1;min-width:64px;text-align:center;padding:10px 4px;border:1px solid var(--t-line);font-variant-numeric:tabular-nums}
+#results .rung b{display:block;font-size:20px;font-family:var(--serif)}
+#results .rung span{font-size:12px;color:var(--t-muted)}
+#results .rung.here{border-color:var(--t-gold);background:rgba(201,162,39,.12)}
+#results .rung.next{border-color:var(--t-gold-soft);border-style:dashed}
+#results h2.sec{font-family:var(--serif);font-weight:400;font-size:22px;margin:36px 0 12px;color:var(--t-gold-soft)}
+#results .bytopic{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+#results .bytopic div{border:1px solid var(--t-line);padding:10px 12px;font-size:14px;display:flex;justify-content:space-between}
+#results .bytopic div b{color:var(--t-gold-soft)}
+#results .qrow{border:1px solid var(--t-line);margin-bottom:10px;background:var(--t-ink)}
+#results .qrow summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto auto auto;gap:14px;align-items:center;padding:12px 16px}
+#results .qrow summary::-webkit-details-marker{display:none}
+#results .qrow .n{font-family:var(--serif);font-size:20px;color:var(--t-gold)}
+#results .qrow .t{font-size:14px;color:var(--t-muted)}
+#results .qrow .t b{color:var(--t-text);font-weight:600;display:block;font-size:15px}
+#results .qrow .mark{font-weight:700;font-size:14px;padding:3px 9px;border-radius:2px}
+#results .qrow .mark.ok{color:var(--t-good);border:1px solid var(--t-good)}
+#results .qrow .mark.no{color:var(--t-bad);border:1px solid var(--t-bad)}
+#results .qrow .mark.skip{color:var(--t-muted);border:1px solid var(--t-muted)}
+#results .qrow .time{font-size:13px;color:var(--t-muted);font-variant-numeric:tabular-nums}
+#results .qrow .time.slow{color:var(--t-bad)}
+#results .qrow .ans{font-size:13px;color:var(--t-muted)}
+#results .qrow .sol{padding:6px 18px 20px;border-top:1px solid var(--t-line);line-height:1.7;max-width:80ch}
+#results .qrow .sol p{margin:10px 0}
+#results .qrow .sol .trap{border-left:2px solid var(--t-bad);padding-left:12px;color:var(--t-muted);font-size:14px}
+#results .qrow .sol .opt{font-size:14px;color:var(--t-muted)}
+#results .qrow .sol .key{color:var(--t-gold-soft);font-weight:700}
+#results .qrow .sol svg{max-width:360px;background:#fff;padding:6px;border-radius:2px}
+#results .acts{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+#results .acts button{background:transparent;color:var(--t-gold);border:1px solid var(--t-gold);padding:10px 18px;font-weight:600}
+@media (max-width:640px){
+  #results .score{grid-template-columns:1fr}
+  #results .big{font-size:72px}
+  #results .qrow summary{grid-template-columns:36px 1fr;gap:8px}
+  #results .qrow .time,#results .qrow .ans{grid-column:2}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= INTRO ================= -->
+<section id="intro" class="screen">
+  <div class="pvbar"><div class="cand"><strong id="famName"></strong><span>Candidate: Telos Pro</span></div><button class="theme" id="themeBtn1">Dark player</button></div>
+  <div class="body">
+    <h1 id="paperTitle"></h1>
+    <h2 id="paperSub"></h2>
+    <div class="rules">
+      <p><strong id="paperFmt"></strong> Every question carries one mark. There is no penalty for a wrong answer, so answer every question.</p>
+      <p>No calculator. No formula booklet. Use the paper provided at the test centre for working; here, use rough paper.</p>
+      <p>The timer starts when you click Start and does not pause. When it reaches zero the test is submitted automatically.</p>
+      <p>Use <strong>Flag for review</strong> to mark a question you want to return to, and <strong>Review</strong> to see every question's status before you finish. You can change any answer until you end the test.</p>
+    </div>
+    <p id="targetNote"></p>
+    <button class="go" id="startBtn">Start test</button>
+    <p class="fine">Scaled scores shown at the end are Telos estimates. UAT-UK does not publish a raw-to-scale conversion; live scores are Rasch-equated against the October cohort with the median fixed at 4.5 and roughly 10% of candidates above 7.0.</p>
+  </div>
+</section>
+
+<!-- ================= EXAM ================= -->
+<section id="exam" class="screen hidden">
+  <div class="pvbar">
+    <div class="cand"><strong class="shortName"></strong><span id="qcount">Question 1 of 20</span></div>
+    <div class="cand"><button class="theme" id="themeBtn2">Dark player</button><span>Time remaining</span><span class="timer" id="timer">--:--</span></div>
+  </div>
+  <div class="main">
+    <div class="qhead"><span id="qnum">Question 1</span><span id="flagState"></span></div>
+    <div class="stem" id="stem"></div>
+    <div class="diagram" id="diagram"></div>
+    <ul class="opts" id="opts"></ul>
+  </div>
+  <div class="nav">
+    <div class="grp"><button id="prevBtn">◀ Previous</button><button id="nextBtn">Next ▶</button></div>
+    <div class="grp"><button id="flagBtn" class="flag">Flag for review</button><button id="navBtn">Navigator</button><button id="reviewBtn" class="primary">Review</button></div>
+  </div>
+  <aside id="navdrawer" class="hidden" aria-label="Question navigator">
+    <h3>Questions</h3>
+    <div class="legend">Green border: answered. Orange corner: flagged. Blue ring: current.</div>
+    <div class="grid" id="navgrid"></div>
+    <button class="close" id="navClose">Close</button>
+  </aside>
+</section>
+
+<!-- ================= REVIEW ================= -->
+<section id="review" class="screen hidden">
+  <div class="pvbar"><div class="cand"><strong class="shortName"></strong><span>Review</span></div><div class="cand"><span>Time remaining</span><span class="timer" id="timer2">--:--</span></div></div>
+  <div class="body">
+    <h1>Review your answers</h1>
+    <div class="summary" id="revSummary"></div>
+    <div class="filters"><button class="on" data-f="all">All</button><button data-f="un">Unanswered</button><button data-f="fl">Flagged</button></div>
+    <table><thead><tr><th>Question</th><th>Status</th><th>Your answer</th><th></th></tr></thead><tbody id="revBody"></tbody></table>
+  </div>
+  <div class="nav"><button id="revBack">◀ Back to test</button><button class="end" id="endBtn">End test</button></div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results" class="screen hidden">
+  <div class="tbar"><div class="logo">Tel<em>os</em></div><div class="meta" id="resMeta"></div></div>
+  <div class="body">
+    <div class="score">
+      <div class="big"><span id="scaled">—</span><small>estimated TMUA score</small></div>
+      <div class="facts">
+        <div><b id="raw">—</b><span>raw marks, out of 20</span></div>
+        <div><b id="toNext">—</b><span id="toNextLbl">marks to next whole grade</span></div>
+                <div><b id="timeUsed">—</b><span>time used</span></div>
+      </div>
+    </div>
+    <p class="estnote" id="estnote"></p>
+    <div class="ladder">
+      <h2>Where the whole grades sit on this paper</h2>
+      <div class="rungs" id="rungs"></div>
+    </div>
+    <h2 class="sec">By topic</h2>
+    <div class="bytopic" id="bytopic"></div>
+    <h2 class="sec">Every question, with full solution</h2>
+    <div id="qlist"></div>
+    <div class="acts"><button id="retry">Sit this paper again</button><button id="expandAll">Open all solutions</button></div>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   QUESTION BANK — TMUA Paper 1, Telos Mock A
+   Every question is original. spec = UAT-UK 2026/27 TMUA Section 1 reference.
+   Answers verified by full working in `sol`. `traps` explains each wrong option.
+   ===================================================================== */
+const PAPER={"paper_code": "ESAT-M1-A", "family": "ESAT", "module": "M1", "short": "ESAT Mathematics 1", "title": "Mathematics 1", "series": "Telos Mock A", "spec_version": "2026-27", "duration_sec": 2400, "marks_per_question": 1, "family_marks": 27, "target_note": "About 90 seconds a question. Nothing beyond GCSE technique; every mark is in the reading and the setup.", "questions": [{"n": 1, "topic": "Density & similar solids", "spec_refs": ["M1.1", "M3.10"], "difficulty": 2, "stem_html": "<p>A solid cube of side 2 cm has mass 40 g. A larger solid cube of the same material has mass 5 kg.</p><p>What is the side length of the larger cube?</p>", "diagram_svg": null, "options": {"A": "10 cm", "B": "5 cm", "C": "20 cm", "D": "25 cm", "E": "50 cm"}, "answer": "A", "solution_html": "<p>Density = 40/8 = 5 g/cm<sup>3</sup>. Volume of larger cube = 5000/5 = 1000 cm<sup>3</sup>, so side = <span class=\"key\">10 cm</span>.</p><p>Or: mass ratio 125 = 5<sup>3</sup>, so lengths scale by 5.</p>", "traps": {"B": "5 is the length scale factor, not the side length.", "C": "Used volume ratio 1000 for the length scale.", "D": "Used mass ratio 125 \u00f7 5.", "E": "Confused grams and kilograms by a factor of 10."}}, {"n": 2, "topic": "Standard form", "spec_refs": ["M2.8"], "difficulty": 1, "stem_html": "<p>Work out <span class=\"fr\"><span>(3 \u00d7 10<sup>8</sup>)<sup>2</sup></span><span>6 \u00d7 10<sup>5</sup></span></span>, giving your answer in standard form.</p>", "diagram_svg": null, "options": {"A": "1.5 \u00d7 10<sup>10</sup>", "B": "1.5 \u00d7 10<sup>11</sup>", "C": "4.5 \u00d7 10<sup>11</sup>", "D": "1.5 \u00d7 10<sup>12</sup>", "E": "15 \u00d7 10<sup>10</sup>"}, "answer": "B", "solution_html": "<p>9 \u00d7 10<sup>16</sup> \u00f7 6 \u00d7 10<sup>5</sup> = 1.5 \u00d7 10<sup>11</sup>. <span class=\"key\">1.5 \u00d7 10<sup>11</sup></span></p>", "traps": {"A": "Power slip: 16 \u2212 5 = 11.", "C": "Divided 9 by 2.", "D": "Power slip.", "E": "Equal in value but not in standard form (needs 1 \u2264 a < 10)."}}, {"n": 3, "topic": "Recurring decimals", "spec_refs": ["M2.9"], "difficulty": 2, "stem_html": "<p>Express 0.2777\u2026 (with the 7 recurring) as a fraction in its lowest terms.</p>", "diagram_svg": null, "options": {"A": "<span class=\"fr\"><span>5</span><span>18</span></span>", "B": "<span class=\"fr\"><span>3</span><span>11</span></span>", "C": "<span class=\"fr\"><span>27</span><span>100</span></span>", "D": "<span class=\"fr\"><span>7</span><span>25</span></span>", "E": "<span class=\"fr\"><span>5</span><span>19</span></span>"}, "answer": "A", "solution_html": "<p>Let <span class=\"math\">x</span> = 0.2777\u2026; 10<span class=\"math\">x</span> = 2.777\u2026, 100<span class=\"math\">x</span> = 27.777\u2026, so 90<span class=\"math\">x</span> = 25 and <span class=\"math\">x</span> = 25/90 = <span class=\"key\">5/18</span>.</p>", "traps": {"B": "3/11 = 0.272727\u2026, both digits recurring.", "C": "Terminating 0.27.", "D": "0.28.", "E": "Arithmetic slip in 25/90."}}, {"n": 4, "topic": "HCF and LCM", "spec_refs": ["M2.3"], "difficulty": 3, "stem_html": "<p>Two positive integers <span class=\"math\">a</span> and <span class=\"math\">b</span> with <span class=\"math\">a</span> &lt; <span class=\"math\">b</span> have highest common factor 6 and lowest common multiple 180.</p><p>How many such pairs (<span class=\"math\">a</span>, <span class=\"math\">b</span>) are there?</p>", "diagram_svg": null, "options": {"A": "1", "B": "2", "C": "3", "D": "4", "E": "8"}, "answer": "D", "solution_html": "<p>Write <span class=\"math\">a</span> = 6<span class=\"math\">p</span>, <span class=\"math\">b</span> = 6<span class=\"math\">q</span> with <span class=\"math\">p</span>, <span class=\"math\">q</span> coprime. Then LCM = 6<span class=\"math\">pq</span> = 180, so <span class=\"math\">pq</span> = 30 = 2 \u00d7 3 \u00d7 5.</p><p>Coprime splits of 30 with <span class=\"math\">p</span> &lt; <span class=\"math\">q</span>: (1, 30), (2, 15), (3, 10), (5, 6). <span class=\"key\">4</span> pairs.</p>", "traps": {"A": "Assumed one number must be 6.", "B": "Missed the splits that move a single prime.", "C": "Missed one coprime split.", "E": "8 counts ordered pairs (a, b) and (b, a) separately."}}, {"n": 5, "topic": "Upper and lower bounds", "spec_refs": ["M2.12"], "difficulty": 3, "stem_html": "<p><span class=\"math\">x</span> = 4.5 and <span class=\"math\">y</span> = 2.0, both correct to 1 decimal place.</p><p>What is the upper bound of <span class=\"fr\"><span><span class=\"math\">x</span></span><span><span class=\"math\">y</span></span></span>?</p>", "diagram_svg": null, "options": {"A": "2.25", "B": "<span class=\"fr\"><span>91</span><span>41</span></span>", "C": "<span class=\"fr\"><span>89</span><span>39</span></span>", "D": "<span class=\"fr\"><span>7</span><span>3</span></span>", "E": "<span class=\"fr\"><span>89</span><span>41</span></span>"}, "answer": "D", "solution_html": "<p>Largest <span class=\"math\">x</span> over smallest <span class=\"math\">y</span>: 4.55/1.95 = 455/195 = 91/39 = <span class=\"key\">7/3</span>.</p>", "traps": {"A": "4.5/2.0 with no bounds.", "B": "4.55/2.05, the upper bound of x over the upper bound of y.", "C": "4.45/1.95, lower over lower.", "E": "4.45/2.05, lower over upper: the lower bound of the quotient."}}, {"n": 6, "topic": "Reverse percentages", "spec_refs": ["M3.8"], "difficulty": 2, "stem_html": "<p>A price is reduced by 20% and then increased by <span class=\"math\">p</span>%. The final price is 10% more than the original.</p><p>What is <span class=\"math\">p</span>?</p>", "diagram_svg": null, "options": {"A": "30", "B": "32.5", "C": "35", "D": "37.5", "E": "40"}, "answer": "D", "solution_html": "<p>0.8(1 + <span class=\"math\">p</span>/100) = 1.1, so 1 + <span class=\"math\">p</span>/100 = 1.375. <span class=\"key\">p = 37.5</span>.</p>", "traps": {"A": "20 + 10 added.", "B": "Arithmetic slip in 1.1/0.8.", "C": "Guessed the midpoint.", "E": "Assumed the 20% cut needs a 25% rise to undo, then added 10 + 5."}}, {"n": 7, "topic": "Inverse proportion with powers", "spec_refs": ["M3.9"], "difficulty": 2, "stem_html": "<p><span class=\"math\">y</span> is inversely proportional to <span class=\"math\">x</span><sup>2</sup>. When <span class=\"math\">x</span> increases by 25%, by what percentage does <span class=\"math\">y</span> decrease?</p>", "diagram_svg": null, "options": {"A": "25%", "B": "36%", "C": "44%", "D": "56%", "E": "64%"}, "answer": "B", "solution_html": "<p><span class=\"math\">x</span> \u2192 1.25<span class=\"math\">x</span>, so <span class=\"math\">y</span> \u2192 <span class=\"math\">y</span>/1.25<sup>2</sup> = <span class=\"math\">y</span>/1.5625 = 0.64<span class=\"math\">y</span>. Decrease of <span class=\"key\">36%</span>.</p>", "traps": {"A": "25% is the change in x, not in y.", "C": "44% comes from 1 \u2212 0.56, a mis-squared 1.25.", "D": "1.25\u00b2 \u2212 1 = 0.5625, the increase in x\u00b2, not the decrease in y.", "E": "0.64 is the multiplier, not the decrease."}}, {"n": 8, "topic": "Decay & iteration", "spec_refs": ["M3.11"], "difficulty": 3, "stem_html": "<p>A quantity decreases by 10% every hour. After how many whole hours is it first less than half its starting value?</p>", "diagram_svg": null, "options": {"A": "7", "B": "6", "C": "5", "D": "8", "E": "10"}, "answer": "A", "solution_html": "<p>0.9<sup>2</sup> = 0.81, 0.9<sup>4</sup> = 0.6561, 0.9<sup>6</sup> = 0.6561 \u00d7 0.81 \u2248 0.531, 0.9<sup>7</sup> \u2248 0.478. First below 0.5 after <span class=\"key\">7</span> hours.</p>", "traps": {"B": "0.9\u2076 \u2248 0.53, still above half.", "C": "Linear thinking: 5 \u00d7 10% = 50%.", "D": "One too many.", "E": "Linear thinking with 5% steps."}}, {"n": 9, "topic": "Algebraic fractions", "spec_refs": ["M4.6"], "difficulty": 2, "stem_html": "<p>Simplify fully</p><p style=\"text-align:center\"><span class=\"fr\"><span><span class=\"math\">x</span><sup>2</sup> \u2212 9</span><span><span class=\"math\">x</span><sup>2</sup> \u2212 <span class=\"math\">x</span> \u2212 6</span></span> \u00f7 <span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span><sup>2</sup> \u2212 4</span></span></p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">x</span> \u2212 2", "B": "1", "C": "<span class=\"math\">x</span> + 2", "D": "<span class=\"fr\"><span><span class=\"math\">x</span> \u2212 2</span><span><span class=\"math\">x</span> + 2</span></span>", "E": "<span class=\"math\">x</span> + 3"}, "answer": "A", "solution_html": "<p><span class=\"fr\"><span>(<span class=\"math\">x</span> \u2212 3)(<span class=\"math\">x</span> + 3)</span><span>(<span class=\"math\">x</span> \u2212 3)(<span class=\"math\">x</span> + 2)</span></span> \u00d7 <span class=\"fr\"><span>(<span class=\"math\">x</span> \u2212 2)(<span class=\"math\">x</span> + 2)</span><span><span class=\"math\">x</span> + 3</span></span> = <span class=\"key\">x \u2212 2</span>.</p>", "traps": {"B": "Over-cancelled.", "C": "Cancelled the wrong factor of x\u00b2 \u2212 4.", "D": "Forgot to invert the second fraction properly.", "E": "Left the x + 3 in the numerator."}}, {"n": 10, "topic": "Changing the subject", "spec_refs": ["M4.7"], "difficulty": 2, "stem_html": "<p>Make <span class=\"math\">a</span> the subject of <span class=\"math\">v</span> = <span class=\"rt\">\u221a<span class=\"ov\"><span class=\"fr\"><span><span class=\"math\">a</span> + <span class=\"math\">b</span></span><span><span class=\"math\">a</span> \u2212 <span class=\"math\">b</span></span></span></span></span>.</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1)</span><span><span class=\"math\">v</span><sup>2</sup> \u2212 1</span></span>", "B": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> \u2212 1)</span><span><span class=\"math\">v</span><sup>2</sup> + 1</span></span>", "C": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span> + 1)</span><span><span class=\"math\">v</span> \u2212 1</span></span>", "D": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">v</span><sup>2</sup> + <span class=\"math\">b</span></span><span><span class=\"math\">v</span><sup>2</sup> \u2212 1</span></span>", "E": "<span class=\"math\">a</span> = <span class=\"math\">b</span><span class=\"math\">v</span><sup>2</sup> + <span class=\"math\">b</span>"}, "answer": "A", "solution_html": "<p><span class=\"math\">v</span><sup>2</sup>(<span class=\"math\">a</span> \u2212 <span class=\"math\">b</span>) = <span class=\"math\">a</span> + <span class=\"math\">b</span>, so <span class=\"math\">a</span>(<span class=\"math\">v</span><sup>2</sup> \u2212 1) = <span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1). <span class=\"key\">a = b(v\u00b2 + 1)/(v\u00b2 \u2212 1)</span></p>", "traps": {"B": "Signs swapped.", "C": "Forgot to square.", "D": "Did not factor b out correctly.", "E": "Dropped the a on the right."}}, {"n": 11, "topic": "Linear\u2013quadratic simultaneous equations", "spec_refs": ["M4.15"], "difficulty": 2, "stem_html": "<p>The line <span class=\"math\">y</span> = 2<span class=\"math\">x</span> \u2212 1 meets the circle <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 13 at two points.</p><p>What is the sum of the <span class=\"math\">x</span>-coordinates of these points?</p>", "diagram_svg": null, "options": {"A": "\u2212<span class=\"fr\"><span>6</span><span>5</span></span>", "B": "\u2212<span class=\"fr\"><span>4</span><span>5</span></span>", "C": "<span class=\"fr\"><span>4</span><span>5</span></span>", "D": "2", "E": "4"}, "answer": "C", "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> + 4<span class=\"math\">x</span><sup>2</sup> \u2212 4<span class=\"math\">x</span> + 1 = 13, so 5<span class=\"math\">x</span><sup>2</sup> \u2212 4<span class=\"math\">x</span> \u2212 12 = 0, (5<span class=\"math\">x</span> + 6)(<span class=\"math\">x</span> \u2212 2) = 0. Sum = 2 \u2212 6/5 = <span class=\"key\">4/5</span>.</p>", "traps": {"A": "One of the roots.", "B": "Sign error.", "D": "The other root.", "E": "Used the y-coordinates' difference or a factorisation slip."}}, {"n": 12, "topic": "Quadratic graphs & completing the square", "spec_refs": ["M4.11", "M5.6"], "difficulty": 2, "stem_html": "<p>The curve <span class=\"math\">y</span> = 2<span class=\"math\">x</span><sup>2</sup> \u2212 8<span class=\"math\">x</span> + 5 is reflected in the <span class=\"math\">x</span>-axis.</p><p>What is the maximum value of <span class=\"math\">y</span> on the reflected curve?</p>", "diagram_svg": null, "options": {"A": "\u22125", "B": "\u22123", "C": "2", "D": "3", "E": "5"}, "answer": "D", "solution_html": "<p>2<span class=\"math\">x</span><sup>2</sup> \u2212 8<span class=\"math\">x</span> + 5 = 2(<span class=\"math\">x</span> \u2212 2)<sup>2</sup> \u2212 3, minimum \u22123. Reflection gives maximum <span class=\"key\">3</span>.</p>", "traps": {"A": "The negated y-intercept.", "B": "The original minimum.", "C": "The x-coordinate of the vertex.", "E": "The y-intercept."}}, {"n": 13, "topic": "Quadratic sequences", "spec_refs": ["M4.19"], "difficulty": 2, "stem_html": "<p>The first five terms of a quadratic sequence are 2, 7, 16, 29, 46. What is the 20th term?</p>", "diagram_svg": null, "options": {"A": "761", "B": "780", "C": "781", "D": "801", "E": "821"}, "answer": "C", "solution_html": "<p>Second differences are 4, so the <span class=\"math\">n</span><sup>2</sup> coefficient is 2. Subtracting 2<span class=\"math\">n</span><sup>2</sup> leaves 0, \u22121, \u22122, \u22123, \u22124 = 1 \u2212 <span class=\"math\">n</span>. Term = 2<span class=\"math\">n</span><sup>2</sup> \u2212 <span class=\"math\">n</span> + 1. <span class=\"math\">n</span> = 20: 800 \u2212 20 + 1 = <span class=\"key\">781</span>.</p>", "traps": {"A": "2n\u00b2 \u2212 2n + 1.", "B": "Forgot the +1.", "D": "2n\u00b2 + 1.", "E": "2n\u00b2 + n + 1."}}, {"n": 14, "topic": "Integer points in a region", "spec_refs": ["M4.17", "M2.5"], "difficulty": 3, "stem_html": "<p>How many pairs of positive integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy 2<span class=\"math\">x</span> + 3<span class=\"math\">y</span> \u2264 12 ?</p>", "diagram_svg": null, "options": {"A": "6", "B": "7", "C": "8", "D": "9", "E": "10"}, "answer": "C", "solution_html": "<p><span class=\"math\">y</span> = 1: 2<span class=\"math\">x</span> \u2264 9, <span class=\"math\">x</span> = 1, 2, 3, 4. <span class=\"math\">y</span> = 2: 2<span class=\"math\">x</span> \u2264 6, three values. <span class=\"math\">y</span> = 3: 2<span class=\"math\">x</span> \u2264 3, one value. <span class=\"math\">y</span> = 4: none. Total <span class=\"key\">8</span>.</p>", "traps": {"A": "Missed two boundary points.", "B": "Missed (3, 2), the boundary point.", "D": "Included (0, 4) or (6, 0); positive means \u2265 1.", "E": "Included both axis points."}}, {"n": 15, "topic": "Perpendicular lines", "spec_refs": ["M4.10"], "difficulty": 2, "stem_html": "<p>The line through (2, 3) perpendicular to 3<span class=\"math\">x</span> \u2212 2<span class=\"math\">y</span> = 7 crosses the <span class=\"math\">x</span>-axis at (<span class=\"math\">k</span>, 0). What is <span class=\"math\">k</span>?</p>", "diagram_svg": null, "options": {"A": "2", "B": "4", "C": "<span class=\"fr\"><span>9</span><span>2</span></span>", "D": "<span class=\"fr\"><span>11</span><span>2</span></span>", "E": "<span class=\"fr\"><span>13</span><span>2</span></span>"}, "answer": "E", "solution_html": "<p>Given line has gradient 3/2, so the perpendicular has gradient \u22122/3: <span class=\"math\">y</span> \u2212 3 = \u2212(2/3)(<span class=\"math\">x</span> \u2212 2). <span class=\"math\">y</span> = 0 gives <span class=\"math\">x</span> \u2212 2 = 9/2, <span class=\"math\">x</span> = <span class=\"key\">13/2</span>.</p>", "traps": {"A": "The x-coordinate of the given point.", "B": "Used gradient \u22123/2.", "C": "Forgot to add the 2.", "D": "Arithmetic slip."}}, {"n": 16, "topic": "Angles in polygons", "spec_refs": ["M5.2"], "difficulty": 2, "stem_html": "<p>Each interior angle of a regular polygon is 4 times each exterior angle. What is the sum of the interior angles of the polygon?</p>", "diagram_svg": null, "options": {"A": "1080<span class=\"deg\">\u00b0</span>", "B": "1260<span class=\"deg\">\u00b0</span>", "C": "1620<span class=\"deg\">\u00b0</span>", "D": "1440<span class=\"deg\">\u00b0</span>", "E": "1800<span class=\"deg\">\u00b0</span>"}, "answer": "D", "solution_html": "<p>Interior + exterior = 180<span class=\"deg\">\u00b0</span>, so exterior = 36<span class=\"deg\">\u00b0</span>, giving 360/36 = 10 sides. Sum = 180 \u00d7 8 = <span class=\"key\">1440\u00b0</span>.</p>", "traps": {"A": "8 sides (from 180 \u00d7 6).", "B": "9 sides.", "C": "11 sides.", "E": "12 sides (exterior 30\u00b0)."}}, {"n": 17, "topic": "Alternate segment theorem", "spec_refs": ["M5.9"], "difficulty": 3, "stem_html": "<p>In the diagram, the line through <span class=\"math\">A</span> is a tangent to the circle at <span class=\"math\">A</span>. <span class=\"math\">B</span> and <span class=\"math\">C</span> lie on the circle with <span class=\"math\">AB</span> = <span class=\"math\">AC</span>, and the angle between the tangent and <span class=\"math\">AB</span> is 65<span class=\"deg\">\u00b0</span>.</p><p>What is angle <span class=\"math\">BAC</span>?</p>", "diagram_svg": "<svg viewBox=\"0 0 320 220\" width=\"330\" role=\"img\" aria-label=\"Circle with tangent at A, chord AB, point C on the circle, AB = AC, angle between tangent and AB is 65 degrees\">\n<circle cx=\"160\" cy=\"120\" r=\"70\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<line x1=\"40\" y1=\"190\" x2=\"290\" y2=\"190\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<g stroke=\"#111\" stroke-width=\"1.5\"><line x1=\"160\" y1=\"190\" x2=\"222.8\" y2=\"87.7\"/><line x1=\"160\" y1=\"190\" x2=\"97.2\" y2=\"87.7\"/><line x1=\"222.8\" y1=\"87.7\" x2=\"97.2\" y2=\"87.7\"/></g>\n<path d=\"M 186 190 A 26 26 0 0 0 173.6 168\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.2\"/>\n<g fill=\"#111\"><circle cx=\"160\" cy=\"190\" r=\"2.6\"/><circle cx=\"222.8\" cy=\"87.7\" r=\"2.6\"/><circle cx=\"97.2\" cy=\"87.7\" r=\"2.6\"/></g>\n<g font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"15\" fill=\"#111\"><text x=\"154\" y=\"210\">A</text><text x=\"230\" y=\"84\">B</text><text x=\"82\" y=\"84\">C</text></g>\n<text x=\"190\" y=\"180\" font-family=\"Arial\" font-size=\"13\" fill=\"#111\">65\u00b0</text>\n<text x=\"112\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text><text x=\"200\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text></svg>", "options": {"A": "40<span class=\"deg\">\u00b0</span>", "B": "65<span class=\"deg\">\u00b0</span>", "C": "60<span class=\"deg\">\u00b0</span>", "D": "50<span class=\"deg\">\u00b0</span>", "E": "115<span class=\"deg\">\u00b0</span>"}, "answer": "D", "solution_html": "<p>Alternate segment theorem: angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">\u00b0</span>. <span class=\"math\">AB</span> = <span class=\"math\">AC</span> so angle <span class=\"math\">ABC</span> = angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">\u00b0</span>. Then angle <span class=\"math\">BAC</span> = 180 \u2212 130 = <span class=\"key\">50\u00b0</span>.</p>", "traps": {"A": "Used 70\u00b0 for the base angles.", "B": "This is angle ACB, not BAC.", "C": "Assumed the triangle is equilateral.", "E": "Supplement of 65\u00b0, the angle in the other segment."}}, {"n": 18, "topic": "Similar solids: area and volume scale factors", "spec_refs": ["M5.17", "M3.10"], "difficulty": 2, "stem_html": "<p>Two similar cones have surface areas in the ratio 4 : 9. The smaller cone has volume 16 cm<sup>3</sup>. What is the volume of the larger cone?</p>", "diagram_svg": null, "options": {"A": "24 cm<sup>3</sup>", "B": "36 cm<sup>3</sup>", "C": "54 cm<sup>3</sup>", "D": "64 cm<sup>3</sup>", "E": "81 cm<sup>3</sup>"}, "answer": "C", "solution_html": "<p>Length ratio 2 : 3, volume ratio 8 : 27. 16 \u00d7 27/8 = <span class=\"key\">54</span>.</p>", "traps": {"A": "Used the length ratio 2 : 3 for volumes.", "B": "Used the area ratio 4 : 9.", "D": "64 = 16 \u00d7 4, using the area ratio squared.", "E": "81 = 16 \u00d7 81/16, using 9\u00b2 as the volume factor."}}, {"n": 19, "topic": "Pythagoras in 3D", "spec_refs": ["M5.7"], "difficulty": 3, "stem_html": "<p>The diagram shows a cube of side 2. <span class=\"math\">A</span> is a vertex and <span class=\"math\">M</span> is the midpoint of the vertical edge furthest from <span class=\"math\">A</span>.</p><p>What is the length <span class=\"math\">AM</span>?</p>", "diagram_svg": "<svg viewBox=\"0 0 300 230\" width=\"300\" role=\"img\" aria-label=\"Cube of side 2 with vertex A at the bottom front left and M the midpoint of the vertical edge at the back right\">\n<g fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"><polygon points=\"60,190 180,190 180,70 60,70\"/><polygon points=\"180,190 240,150 240,30 180,70\"/><polygon points=\"60,70 180,70 240,30 120,30\"/></g>\n<g fill=\"none\" stroke=\"#777\" stroke-width=\"1.2\" stroke-dasharray=\"4 3\"><line x1=\"60\" y1=\"190\" x2=\"120\" y2=\"150\"/><line x1=\"120\" y1=\"150\" x2=\"240\" y2=\"150\"/><line x1=\"120\" y1=\"150\" x2=\"120\" y2=\"30\"/></g>\n<line x1=\"60\" y1=\"190\" x2=\"240\" y2=\"90\" stroke=\"#1f4e8c\" stroke-width=\"1.8\"/>\n<g fill=\"#111\"><circle cx=\"60\" cy=\"190\" r=\"2.8\"/><circle cx=\"240\" cy=\"90\" r=\"2.8\"/></g>\n<g font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"15\" fill=\"#111\"><text x=\"44\" y=\"206\">A</text><text x=\"248\" y=\"95\">M</text></g>\n<g font-family=\"Arial\" font-size=\"13\" fill=\"#111\"><text x=\"112\" y=\"208\">2</text><text x=\"264\" y=\"70\">2</text></g></svg>", "options": {"A": "<span class=\"rt\">\u221a<span class=\"ov\">5</span></span>", "B": "2<span class=\"rt\">\u221a<span class=\"ov\">2</span></span>", "C": "3", "D": "<span class=\"rt\">\u221a<span class=\"ov\">10</span></span>", "E": "2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>"}, "answer": "C", "solution_html": "<p>Put <span class=\"math\">A</span> at (0, 0, 0). The far vertical edge runs from (2, 2, 0) to (2, 2, 2), so <span class=\"math\">M</span> = (2, 2, 1). <span class=\"math\">AM</span> = <span class=\"rt\">\u221a<span class=\"ov\">4 + 4 + 1</span></span> = <span class=\"key\">3</span>.</p>", "traps": {"A": "\u221a(4 + 1): forgot one horizontal dimension.", "B": "The face diagonal.", "D": "Used the far vertex's height 2 with one dimension dropped.", "E": "The space diagonal to the far vertex, not its midpoint edge."}}, {"n": 20, "topic": "Exact trig values in a composite triangle", "spec_refs": ["M5.18"], "difficulty": 3, "stem_html": "<p>In triangle <span class=\"math\">ABC</span>, angle <span class=\"math\">B</span> = 45<span class=\"deg\">\u00b0</span> and angle <span class=\"math\">C</span> = 60<span class=\"deg\">\u00b0</span>. The perpendicular from <span class=\"math\">A</span> to <span class=\"math\">BC</span> has length 6.</p><p>What is the length of <span class=\"math\">BC</span>?</p>", "diagram_svg": null, "options": {"A": "12", "B": "6 + 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>", "C": "6 + 3<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>", "D": "6 + 6<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>", "E": "6<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> + 4<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>"}, "answer": "B", "solution_html": "<p>Let the foot be <span class=\"math\">D</span>. In the 45<span class=\"deg\">\u00b0</span> triangle, <span class=\"math\">BD</span> = 6. In the 60<span class=\"deg\">\u00b0</span> triangle, <span class=\"math\">DC</span> = 6/tan 60<span class=\"deg\">\u00b0</span> = 6/<span class=\"rt\">\u221a<span class=\"ov\">3</span></span> = 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>. <span class=\"math\">BC</span> = <span class=\"key\">6 + 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span></span>.</p>", "traps": {"A": "Assumed both parts are 6.", "C": "Used 6 \u00d7 tan 30\u00b0 = 2\u221a3 correctly but then added 3\u221a3 by a slip.", "D": "Used tan 30\u00b0 instead of tan 60\u00b0.", "E": "Used the slant sides AB and AC instead of the base."}}, {"n": 21, "topic": "Sectors and cones", "spec_refs": ["M5.15", "M5.16"], "difficulty": 3, "stem_html": "<p>A sector of a circle of radius 12 cm with angle 120<span class=\"deg\">\u00b0</span> is folded to make a cone (the two straight edges are joined). What is the vertical height of the cone?</p>", "diagram_svg": null, "options": {"A": "4 cm", "B": "4<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> cm", "C": "4<span class=\"rt\">\u221a<span class=\"ov\">5</span></span> cm", "D": "8 cm", "E": "8<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> cm"}, "answer": "E", "solution_html": "<p>Arc length = (120/360) \u00d7 2\u03c0 \u00d7 12 = 8\u03c0 = circumference of the base, so base radius = 4. Slant height = 12. Height = <span class=\"rt\">\u221a<span class=\"ov\">144 \u2212 16</span></span> = <span class=\"rt\">\u221a<span class=\"ov\">128</span></span> = <span class=\"key\">8<span class=\"rt\">\u221a<span class=\"ov\">2</span></span></span> cm.</p>", "traps": {"A": "This is the base radius.", "B": "\u221a32 from 144 \u2212 16 misread as 32.", "C": "\u221a80 from an arc-length slip giving radius 8.", "D": "Used 12 \u2212 4."}}, {"n": 22, "topic": "Vectors", "spec_refs": ["M5.19"], "difficulty": 3, "stem_html": "<p><b>OA</b> = <b>a</b> and <b>OB</b> = <b>b</b>. <span class=\"math\">M</span> is the midpoint of <span class=\"math\">AB</span> and <span class=\"math\">P</span> lies on <span class=\"math\">OM</span> with <span class=\"math\">OP</span> : <span class=\"math\">PM</span> = 2 : 1.</p><p>Express <b>AP</b> in terms of <b>a</b> and <b>b</b>.</p>", "diagram_svg": null, "options": {"A": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>a</b> + <b>b</b>)", "B": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>b</b> \u2212 2<b>a</b>)", "C": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>b</b> \u2212 <b>a</b>)", "D": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>a</b> \u2212 <b>b</b>)", "E": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>a</b> \u2212 <b>b</b>)"}, "answer": "B", "solution_html": "<p><b>OM</b> = \u00bd(<b>a</b> + <b>b</b>), <b>OP</b> = \u2154<b>OM</b> = \u2153(<b>a</b> + <b>b</b>). <b>AP</b> = <b>OP</b> \u2212 <b>a</b> = <span class=\"key\">\u2153(b \u2212 2a)</span>.</p>", "traps": {"A": "This is OP.", "C": "Subtracted \u2153a instead of a.", "D": "AM direction with the wrong scale.", "E": "PA, the reverse vector."}}, {"n": 23, "topic": "Means of subsets", "spec_refs": ["M6.3"], "difficulty": 2, "stem_html": "<p>The mean of 10 numbers is 6. The mean of the 4 smallest is 2 and the mean of the 4 largest is 11. What is the mean of the other 2 numbers?</p>", "diagram_svg": null, "options": {"A": "3", "B": "4", "C": "5", "D": "6", "E": "8"}, "answer": "B", "solution_html": "<p>Total 60. Smallest four sum to 8, largest four to 44. Remaining two sum to 8, mean <span class=\"key\">4</span>.</p>", "traps": {"A": "Slip in 60 \u2212 52.", "C": "Averaged 2 and 11 with weighting error.", "D": "Assumed the middle pair has the overall mean.", "E": "The sum of the remaining two, not the mean."}}, {"n": 24, "topic": "Probability without replacement", "spec_refs": ["M7.7"], "difficulty": 3, "stem_html": "<p>A bag has 5 red and 3 blue counters. Three are taken at random without replacement. What is the probability that exactly two are red?</p>", "diagram_svg": null, "options": {"A": "<span class=\"fr\"><span>5</span><span>28</span></span>", "B": "<span class=\"fr\"><span>15</span><span>56</span></span>", "C": "<span class=\"fr\"><span>5</span><span>14</span></span>", "D": "<span class=\"fr\"><span>25</span><span>56</span></span>", "E": "<span class=\"fr\"><span>15</span><span>28</span></span>"}, "answer": "E", "solution_html": "<p>P(RRB in a given order) = (5/8)(4/7)(3/6) = 60/336 = 5/28. Three orders: <span class=\"key\">15/28</span>.</p>", "traps": {"A": "One order only.", "B": "Used 5/8 \u00b7 4/7 \u00b7 3/8 (replaced the last counter).", "C": "Two orders.", "D": "Miscounted the blue as 5/8."}}, {"n": 25, "topic": "Conditional probability from a two-way table", "spec_refs": ["M7.7", "M7.5"], "difficulty": 2, "stem_html": "<p>In a class of 30, 18 study French, 15 study Spanish and 5 study neither. A student who studies French is chosen at random. What is the probability that they also study Spanish?</p>", "diagram_svg": null, "options": {"A": "<span class=\"fr\"><span>4</span><span>9</span></span>", "B": "<span class=\"fr\"><span>8</span><span>25</span></span>", "C": "<span class=\"fr\"><span>4</span><span>15</span></span>", "D": "<span class=\"fr\"><span>1</span><span>2</span></span>", "E": "<span class=\"fr\"><span>8</span><span>15</span></span>"}, "answer": "A", "solution_html": "<p>Both = 18 + 15 + 5 \u2212 30 = 8. P = 8/18 = <span class=\"key\">4/9</span>.</p>", "traps": {"B": "8/25, conditioned on 'studies at least one'.", "C": "8/30, not conditioned on French.", "D": "Guess.", "E": "8/15, conditioned on Spanish instead."}}, {"n": 26, "topic": "Possibility spaces", "spec_refs": ["M7.6", "M2.5"], "difficulty": 3, "stem_html": "<p>Two fair six-sided dice are rolled. What is the probability that the product of the two scores is a multiple of 6?</p>", "diagram_svg": null, "options": {"A": "<span class=\"fr\"><span>1</span><span>4</span></span>", "B": "<span class=\"fr\"><span>11</span><span>36</span></span>", "C": "<span class=\"fr\"><span>1</span><span>3</span></span>", "D": "<span class=\"fr\"><span>7</span><span>18</span></span>", "E": "<span class=\"fr\"><span>5</span><span>12</span></span>"}, "answer": "E", "solution_html": "<p>Pairs containing a 6: 6 + 6 \u2212 1 = 11. Pairs with no 6 whose product is a multiple of 6 need a 3 and an even number from {2, 4}: (2, 3), (3, 2), (4, 3), (3, 4): 4 more. 15/36 = <span class=\"key\">5/12</span>.</p>", "traps": {"A": "9/36: missed some pairs.", "B": "Only counted pairs with a 6.", "C": "12/36: missed one pair.", "D": "14/36: missed one pair."}}, {"n": 27, "topic": "Prime factorisation: squares and cubes", "spec_refs": ["M2.3", "M2.6"], "difficulty": 4, "stem_html": "<p><span class=\"math\">N</span> is the smallest positive integer such that 2<span class=\"math\">N</span> is a square number and 3<span class=\"math\">N</span> is a cube number. What is <span class=\"math\">N</span>?</p>", "diagram_svg": null, "options": {"A": "18", "B": "36", "C": "72", "D": "108", "E": "144"}, "answer": "C", "solution_html": "<p>Let <span class=\"math\">N</span> = 2<sup><span class=\"math\">a</span></sup>3<sup><span class=\"math\">b</span></sup>. 2<span class=\"math\">N</span> square: <span class=\"math\">a</span> + 1 even, <span class=\"math\">b</span> even. 3<span class=\"math\">N</span> cube: <span class=\"math\">a</span> a multiple of 3, <span class=\"math\">b</span> + 1 a multiple of 3.</p><p>Smallest: <span class=\"math\">a</span> = 3, <span class=\"math\">b</span> = 2. <span class=\"math\">N</span> = 8 \u00d7 9 = <span class=\"key\">72</span>. Check: 144 = 12<sup>2</sup>, 216 = 6<sup>3</sup>.</p>", "traps": {"A": "2 \u00d7 18 = 36 is square but 3 \u00d7 18 = 54 is not a cube.", "B": "2 \u00d7 36 = 72 is not a square.", "D": "3 \u00d7 108 = 324 is not a cube.", "E": "2 \u00d7 144 = 288 is not a square."}}], "rebalanced": true};
+const QUESTIONS=PAPER.questions;
+/* =====================================================================
+   SCALING — Telos estimate. UAT-UK publishes no raw→scale table.
+   Anchors are on a 40-mark (two-paper) basis; a single paper is doubled.
+   Calibrated to: median ≈ 4.5, ~10% ≥ 7.0, cap 9.0.  Recalibrate from Telos data.
+   ===================================================================== */
+const SCALE_ANCHORS=[[0,1.0],[8,2.0],[14,3.3],[20,4.5],[26,6.0],[30,7.0],[34,8.0],[38,8.8],[40,9.0]];
+const ANCH=PAPER.family==='ESAT'?[[0,1.0],[5,2.0],[9,3.3],[13,4.5],[17,6.0],[20,7.0],[23,8.0],[26,8.8],[27,9.0]]:SCALE_ANCHORS;
+function scaledFrom40(m){
+  m=Math.max(0,Math.min(ANCH[ANCH.length-1][0],m));
+  for(let i=1;i<ANCH.length;i++){const [m0,s0]=ANCH[i-1],[m1,s1]=ANCH[i];
+    if(m<=m1){return Math.round((s0+(s1-s0)*(m-m0)/(m1-m0))*10)/10;}}
+  return 9.0;
+}
+const N=QUESTIONS.length, PAPER_MARKS=PAPER.family_marks, DURATION=PAPER.duration_sec;
+const scaledForRaw=(r)=>scaledFrom40(r*PAPER.family_marks/N);
+function minRawFor(target){for(let r=0;r<=N;r++){if(scaledForRaw(r)>=target-1e-9)return r;}return null;}
+
+/* =====================================================================
+   PLAYER STATE
+   ===================================================================== */
+const state={cur:0,answers:Array(N).fill(null),flags:Array(N).fill(false),time:Array(N).fill(0),started:0,remaining:DURATION,tick:null,lastSwitch:0,submitted:false};
+const $=(s)=>document.querySelector(s);
+const show=(id)=>{['intro','exam','review','results'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));window.scrollTo(0,0);};
+function setTheme(dark){document.documentElement.dataset.theme=dark?'dark':'';['#themeBtn1','#themeBtn2'].forEach(s=>{$(s).textContent=dark?'Light player (authentic)':'Dark player';});}
+let dark=false;
+(function init(){const fam=PAPER.family==='TMUA'?'Test of Mathematics for University Admission':'Engineering and Science Admissions Test';
+ $('#famName').textContent=fam;$('#paperTitle').textContent=PAPER.title;$('#paperSub').textContent=`${PAPER.series} — original questions written to the October 2026 / January 2027 content specification`;
+ $('#paperFmt').textContent=`${QUESTIONS.length} questions. ${Math.round(PAPER.duration_sec/60)} minutes.`;$('#targetNote').textContent=PAPER.target_note||'';
+ document.querySelectorAll('.shortName').forEach(e=>e.textContent=PAPER.short);document.title=`Telos Exam Mode — ${PAPER.short} ${PAPER.series}`;
+ $('#timer').textContent=fmt(PAPER.duration_sec);$('#timer2').textContent=fmt(PAPER.duration_sec);})();
+['#themeBtn1','#themeBtn2'].forEach(s=>$(s).addEventListener('click',()=>{dark=!dark;setTheme(dark);}));
+
+function fmt(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(){
+  state.started=Date.now();state.lastSwitch=Date.now();
+  state.tick=setInterval(()=>{
+    state.remaining=DURATION-(Date.now()-state.started)/1000;
+    const t=fmt(state.remaining);$('#timer').textContent=t;$('#timer2').textContent=t;
+    const warn=state.remaining<=5*60;$('#timer').classList.toggle('warn',warn);$('#timer2').classList.toggle('warn',warn);
+    if(state.remaining<=0){submit(true);}
+  },250);
+}
+function stampTime(){const now=Date.now();state.time[state.cur]+=(now-state.lastSwitch)/1000;state.lastSwitch=now;}
+
+function render(){
+  const q=QUESTIONS[state.cur];
+  $('#qcount').textContent=`Question ${state.cur+1} of ${N}`;$('#qnum').textContent=`Question ${state.cur+1}`;
+  $('#flagState').textContent=state.flags[state.cur]?'Flagged for review':'';$('#flagState').className=state.flags[state.cur]?'flagged':'';
+  $('#stem').innerHTML=q.stem_html;
+  $('#diagram').innerHTML=q.diagram_svg||'';
+  $('#opts').innerHTML=Object.entries(q.options).map(([k,v])=>`<li><label><input type="radio" name="q${q.id}" value="${k}" ${state.answers[state.cur]===k?'checked':''}><span class="key">${k}</span><span>${v}</span></label></li>`).join('');
+  $('#opts').querySelectorAll('input').forEach(i=>i.addEventListener('change',e=>{state.answers[state.cur]=e.target.value;renderNav();}));
+  $('#prevBtn').disabled=state.cur===0;$('#nextBtn').textContent=state.cur===N-1?'Review ▶':'Next ▶';
+  $('#flagBtn').classList.toggle('on',state.flags[state.cur]);$('#flagBtn').textContent=state.flags[state.cur]?'Unflag':'Flag for review';
+  renderNav();
+}
+function go(i){stampTime();state.cur=i;render();window.scrollTo(0,0);}
+function renderNav(){
+  $('#navgrid').innerHTML=QUESTIONS.map((q,i)=>`<button class="${state.answers[i]?'ans':''} ${state.flags[i]?'flg':''} ${i===state.cur?'cur':''}" data-i="${i}" aria-label="Question ${i+1}${state.answers[i]?', answered':''}${state.flags[i]?', flagged':''}">${i+1}</button>`).join('');
+  $('#navgrid').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{go(+b.dataset.i);$('#navdrawer').classList.add('hidden');}));
+}
+$('#startBtn').addEventListener('click',()=>{show('exam');startTimer();render();});
+$('#prevBtn').addEventListener('click',()=>go(state.cur-1));
+$('#nextBtn').addEventListener('click',()=>{if(state.cur===N-1)openReview();else go(state.cur+1);});
+$('#flagBtn').addEventListener('click',()=>{state.flags[state.cur]=!state.flags[state.cur];render();});
+$('#navBtn').addEventListener('click',()=>$('#navdrawer').classList.toggle('hidden'));
+$('#navClose').addEventListener('click',()=>$('#navdrawer').classList.add('hidden'));
+$('#reviewBtn').addEventListener('click',openReview);
+
+let revFilter='all';
+function openReview(){stampTime();show('review');renderReview();}
+function renderReview(){
+  const un=state.answers.filter(a=>!a).length,fl=state.flags.filter(Boolean).length;
+  $('#revSummary').textContent=`${N-un} answered, ${un} unanswered, ${fl} flagged.`;
+  $('#revBody').innerHTML=QUESTIONS.map((q,i)=>({q,i})).filter(({i})=>revFilter==='all'||(revFilter==='un'&&!state.answers[i])||(revFilter==='fl'&&state.flags[i]))
+   .map(({i})=>`<tr><td>Question ${i+1}</td><td class="status ${!state.answers[i]?'un':state.flags[i]?'fl':''}">${!state.answers[i]?'Unanswered':'Answered'}${state.flags[i]?' · Flagged':''}</td><td>${state.answers[i]||'—'}</td><td><button data-i="${i}">Go to question</button></td></tr>`).join('');
+  $('#revBody').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{show('exam');state.lastSwitch=Date.now();state.cur=+b.dataset.i;render();}));
+  $('#review .filters button').forEach(b=>b.classList.toggle('on',b.dataset.f===revFilter));
+}
+$('#review .filters').addEventListener('click',e=>{if(e.target.dataset.f){revFilter=e.target.dataset.f;renderReview();}});
+$('#revBack').addEventListener('click',()=>{show('exam');state.lastSwitch=Date.now();render();});
+$('#endBtn').addEventListener('click',()=>{
+  const un=state.answers.filter(a=>!a).length;
+  const box=document.createElement('div');box.className='modal';
+  box.innerHTML=`<div class="box" role="dialog" aria-modal="true"><h2>End the test?</h2>${un?`<p>You have <strong>${un} unanswered question${un>1?'s':''}</strong>. There is no penalty for a wrong answer.</p>`:'<p>All questions are answered.</p>'}<p>Once you end the test you cannot return to it.</p><div class="acts"><button id="mCancel">Return to review</button><button class="danger" id="mEnd">End test</button></div></div>`;
+  document.body.appendChild(box);$('#mCancel').addEventListener('click',()=>box.remove());$('#mEnd').addEventListener('click',()=>{box.remove();submit(false);});
+});
+
+/* =====================================================================
+   MARKING, GRADING, RESULTS
+   ===================================================================== */
+function submit(timedOut){
+  if(state.submitted)return;state.submitted=true;clearInterval(state.tick);
+  if(!$('#exam').classList.contains('hidden'))stampTime();
+  const used=Math.min(DURATION,(Date.now()-state.started)/1000);
+  const raw=QUESTIONS.reduce((s,q,i)=>s+(state.answers[i]===q.answer?1:0),0);
+  const scaled=scaledForRaw(raw);
+  const nextWhole=scaled>=9?null:Math.floor(scaled)+1;
+  const rawNext=nextWhole?minRawFor(nextWhole):null;
+  $('#resMeta').textContent=`${PAPER.short} · ${PAPER.series} · ${timedOut?'time expired':'ended by candidate'}`;
+  $('#scaled').textContent=scaled.toFixed(1);
+  $('#raw').textContent=`${raw} / ${N}`;
+  if(nextWhole){$('#toNext').textContent=`${rawNext-raw} mark${rawNext-raw===1?'':'s'}`;$('#toNextLbl').textContent=`to reach ${nextWhole.toFixed(1)} (needs ${rawNext}/${N})`;}
+  else{$('#toNext').textContent='—';$('#toNextLbl').textContent='top of the scale';}
+  $('#timeUsed').textContent=`${fmt(used)} of ${fmt(DURATION)}`;
+  $('#estnote').textContent=`Estimate only. Live scores are Rasch-equated against the cohort (median fixed at 4.5, about 10% above 7.0, capped at 9.0). This mapping interpolates between Telos anchor points; it will be recalibrated as Telos collects results.`;
+  // ladder
+  $('#rungs').innerHTML=[2,3,4,5,6,7,8,9].map(g=>{const r=minRawFor(g);const cls=(raw>=r&&(g===9||raw<minRawFor(g+1)))?'here':(g===nextWhole?'next':'');return `<div class="rung ${cls}"><b>${g}.0</b><span>${r}/${N}</span></div>`;}).join('');
+  // topic rollup
+  const byT={};QUESTIONS.forEach((q,i)=>{const ok=state.answers[i]===q.answer;byT[q.topic]=byT[q.topic]||{ok:0,n:0};byT[q.topic].n++;if(ok)byT[q.topic].ok++;});
+  $('#bytopic').innerHTML=Object.entries(byT).map(([t,v])=>`<div><span>${t}</span><b>${v.ok}/${v.n}</b></div>`).join('');
+  // per-question
+  const avg=used/N;
+  $('#qlist').innerHTML=QUESTIONS.map((q,i)=>{const a=state.answers[i];const ok=a===q.answer;const cls=!a?'skip':ok?'ok':'no';const tag=!a?'No answer':ok?'Correct':'Wrong';
+    const tsec=Math.round(state.time[i]);const slow=tsec>avg*1.8;
+    const trap=(!ok&&a&&q.traps[a])?`<p class="trap"><strong>Why ${a} is wrong:</strong> ${q.traps[a]}</p>`:'';
+    const opts=Object.entries(q.options).map(([k,v])=>`<span class="opt">${k}) ${v}</span>`).join(' &nbsp; ');
+    return `<details class="qrow"><summary><span class="n">${i+1}</span><span class="t"><b>${q.topic}</b>${q.spec_refs.join(', ')}</span><span class="mark ${cls}">${tag}</span><span class="ans">You: ${a||'—'} · Key: ${q.answer}</span><span class="time ${slow?'slow':''}">${fmt(tsec)}${slow?' slow':''}</span></summary>
+      <div class="sol">${q.stem_html}${q.diagram_svg||''}<p>${opts}</p><hr style="border:0;border-top:1px solid var(--t-line)">${q.solution_html}${trap}</div></details>`;}).join('');
+  show('results');
+}
+$('#retry').addEventListener('click',()=>location.reload());
+$('#expandAll').addEventListener('click',()=>document.querySelectorAll('#results details').forEach(d=>d.open=true));
+</script>
+</body>
+</html>

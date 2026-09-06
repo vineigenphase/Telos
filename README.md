@@ -39,8 +39,8 @@ Three questions, in order:
 | Components | 219 papers, modules, parts and coursework units |
 | Routes | 54 |
 | Tables | 26, under 41 numbered migrations |
-| Tests | 24 suites, ~650 assertions |
-| Code | ~31,000 lines across 192 tracked files |
+| Tests | 24 suites, ~660 assertions |
+| Code | ~33,000 lines across 206 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -301,7 +301,7 @@ migrations/          41 numbered SQL migrations
 scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
-tests/               24 suites, ~650 assertions
+tests/               24 suites, ~660 assertions
 templates/           35 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker

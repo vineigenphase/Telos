@@ -1,0 +1,729 @@
+{
+ "paper_code": "ESAT-PHY-A",
+ "family": "ESAT",
+ "module": "PHY",
+ "short": "ESAT Physics",
+ "title": "Physics",
+ "series": "Telos Mock A",
+ "spec_version": "2026-27",
+ "duration_sec": 2400,
+ "marks_per_question": 1,
+ "family_marks": 27,
+ "target_note": "g = 10 N/kg throughout. About 90 seconds a question; two-step calculations are the norm.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Electrostatics: charge and electrons",
+   "spec_refs": [
+    "P1.1",
+    "P1.2d"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A polythene rod is rubbed with a cloth. The rod gains 5 \u00d7 10<sup>12</sup> electrons. The charge on an electron is \u22121.6 \u00d7 10<sup>\u221219</sup> C.</p><p>What is the charge on the cloth afterwards?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "\u22128 \u00d7 10<sup>\u22127</sup> C",
+    "B": "+8 \u00d7 10<sup>\u22127</sup> C",
+    "C": "\u22128 \u00d7 10<sup>\u221231</sup> C",
+    "D": "+8 \u00d7 10<sup>\u221231</sup> C",
+    "E": "0 C"
+   },
+   "answer": "B",
+   "solution_html": "<p>The cloth <em>loses</em> the electrons the rod gains, so it is left positive. Magnitude 5 \u00d7 10<sup>12</sup> \u00d7 1.6 \u00d7 10<sup>\u221219</sup> = 8 \u00d7 10<sup>\u22127</sup> C. <span class=\"key\">+8 \u00d7 10\u207b\u2077 C</span></p>",
+   "traps": {
+    "A": "This is the rod's charge.",
+    "C": "Powers of ten added wrongly (12 \u2212 19 = \u22127).",
+    "D": "Powers of ten added wrongly.",
+    "E": "Charge is conserved overall, but it is separated: the cloth is not neutral."
+   }
+  },
+  {
+   "n": 2,
+   "topic": "Charge, energy and power",
+   "spec_refs": [
+    "P1.2d",
+    "P1.2l",
+    "P1.2m"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A 12 V battery drives 3 C of charge through a lamp in 5 s. What is the power of the lamp?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.6 W",
+    "B": "2.4 W",
+    "C": "7.2 W",
+    "D": "36 W",
+    "E": "180 W"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">E</span> = <span class=\"math\">QV</span> = 36 J. <span class=\"math\">P</span> = <span class=\"math\">E</span>/<span class=\"math\">t</span> = <span class=\"key\">7.2 W</span>. (Or <span class=\"math\">I</span> = 0.6 A, <span class=\"math\">P</span> = <span class=\"math\">IV</span>.)</p>",
+   "traps": {
+    "A": "This is the current in amps.",
+    "B": "12/5.",
+    "D": "The energy in joules, not the power.",
+    "E": "Multiplied by t instead of dividing."
+   }
+  },
+  {
+   "n": 3,
+   "topic": "Series\u2013parallel circuit",
+   "spec_refs": [
+    "P1.2i",
+    "P1.2j",
+    "P1.2k",
+    "P1.2m"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>The circuit shows a 12 V cell of negligible internal resistance, a 3 \u03a9 resistor, and two 6 \u03a9 resistors in parallel.</p><p>What is the power dissipated in <strong>one</strong> of the 6 \u03a9 resistors?</p>",
+   "diagram_svg": "<svg viewBox=\"0 0 380 200\" width=\"360\" role=\"img\" aria-label=\"12 volt cell in series with a 3 ohm resistor and a parallel pair of 6 ohm resistors\">\n<g fill=\"none\" stroke=\"#111\" stroke-width=\"1.8\">\n<path d=\"M40 92 V40 H120\"/><rect x=\"120\" y=\"32\" width=\"40\" height=\"16\"/><path d=\"M160 40 H300 V60\"/>\n<path d=\"M300 60 H270 V80\"/><rect x=\"262\" y=\"80\" width=\"16\" height=\"40\"/><path d=\"M270 120 V140 H300\"/>\n<path d=\"M300 60 H330 V80\"/><rect x=\"322\" y=\"80\" width=\"16\" height=\"40\"/><path d=\"M330 120 V140 H300\"/>\n<path d=\"M300 140 V160 H40 V108\"/>\n<line x1=\"26\" y1=\"92\" x2=\"54\" y2=\"92\" stroke-width=\"2.4\"/><line x1=\"33\" y1=\"108\" x2=\"47\" y2=\"108\" stroke-width=\"1.4\"/>\n</g>\n<g fill=\"#111\"><circle cx=\"300\" cy=\"60\" r=\"2.5\"/><circle cx=\"300\" cy=\"140\" r=\"2.5\"/></g>\n<g font-family=\"Arial\" font-size=\"13\" fill=\"#111\"><text x=\"128\" y=\"26\">3 \u03a9</text><text x=\"236\" y=\"104\">6 \u03a9</text><text x=\"344\" y=\"104\">6 \u03a9</text><text x=\"4\" y=\"84\">12 V</text></g></svg>",
+   "options": {
+    "A": "2 W",
+    "B": "3 W",
+    "C": "6 W",
+    "D": "12 W",
+    "E": "24 W"
+   },
+   "answer": "C",
+   "solution_html": "<p>Parallel pair: 3 \u03a9. Total 6 \u03a9, so the main current is 2 A. Voltage across the pair = 2 \u00d7 3 = 6 V, so each 6 \u03a9 resistor carries 1 A.</p><p><span class=\"math\">P</span> = <span class=\"math\">I</span><sup>2</sup><span class=\"math\">R</span> = 1 \u00d7 6 = <span class=\"key\">6 W</span>.</p>",
+   "traps": {
+    "A": "Used 1 A but divided by 3.",
+    "B": "Used V\u00b2/R with V = 6 V but R = 12 \u03a9.",
+    "D": "Used the full 2 A through one 6 \u03a9 branch (I\u00b2R = 24) halved.",
+    "E": "Used 2 A through a 6 \u03a9 resistor: the current splits."
+   }
+  },
+  {
+   "n": 4,
+   "topic": "Filament lamp resistance",
+   "spec_refs": [
+    "P1.2f",
+    "P1.2g",
+    "P1.2m"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A filament lamp is rated 12 V, 24 W. When connected to a 6 V supply it draws 1.5 A.</p><p>What is the ratio (resistance at 12 V) : (resistance at 6 V)?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3 : 2",
+    "B": "2 : 3",
+    "C": "4 : 3",
+    "D": "1 : 1",
+    "E": "2 : 1"
+   },
+   "answer": "A",
+   "solution_html": "<p>At 12 V: <span class=\"math\">I</span> = 2 A, <span class=\"math\">R</span> = 6 \u03a9. At 6 V: <span class=\"math\">R</span> = 6/1.5 = 4 \u03a9. Ratio <span class=\"key\">3 : 2</span>. Resistance rises with temperature, as the V\u2013I curve for a filament shows.</p>",
+   "traps": {
+    "B": "Ratio inverted.",
+    "C": "Applied V\u00b2/R with mismatched values.",
+    "D": "Assumes ohmic behaviour; a filament is not.",
+    "E": "Guessed from 12 : 6."
+   }
+  },
+  {
+   "n": 5,
+   "topic": "Thermistor in a potential divider",
+   "spec_refs": [
+    "P1.2h",
+    "P1.2i"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A fixed 2 k\u03a9 resistor is in series with an NTC thermistor across a 6 V supply. At 20 \u00b0C the thermistor has resistance 4 k\u03a9; at 60 \u00b0C it has resistance 1 k\u03a9.</p><p>By how much does the voltage across the <strong>thermistor</strong> change when the temperature rises from 20 \u00b0C to 60 \u00b0C?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "It falls by 2 V",
+    "B": "It falls by 1 V",
+    "C": "It does not change",
+    "D": "It rises by 1 V",
+    "E": "It rises by 2 V"
+   },
+   "answer": "A",
+   "solution_html": "<p>Voltage divides in proportion to resistance. At 20 \u00b0C: 6 \u00d7 4/6 = 4 V. At 60 \u00b0C: 6 \u00d7 1/3 = 2 V. <span class=\"key\">Falls by 2 V</span>.</p>",
+   "traps": {
+    "B": "Arithmetic slip in the second divider.",
+    "C": "The supply is fixed but the share across the thermistor is not.",
+    "D": "Read the change across the fixed resistor with the wrong sign.",
+    "E": "This is the change across the fixed resistor (2 V to 4 V)."
+   }
+  },
+  {
+   "n": 6,
+   "topic": "Transformers",
+   "spec_refs": [
+    "P2.5b",
+    "P2.5c"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A transformer is 100% efficient. The primary is connected to 230 V and the secondary supplies 11.5 V to a device drawing 4 A.</p><p>What is the current in the primary coil?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.05 A",
+    "B": "0.2 A",
+    "C": "4 A",
+    "D": "20 A",
+    "E": "80 A"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">V</span><sub>p</sub><span class=\"math\">I</span><sub>p</sub> = <span class=\"math\">V</span><sub>s</sub><span class=\"math\">I</span><sub>s</sub>: 230 \u00d7 <span class=\"math\">I</span><sub>p</sub> = 11.5 \u00d7 4 = 46, so <span class=\"math\">I</span><sub>p</sub> = <span class=\"key\">0.2 A</span>.</p>",
+   "traps": {
+    "A": "Divided by 20 twice.",
+    "C": "Assumed current is unchanged.",
+    "D": "This is the turns ratio.",
+    "E": "Multiplied by the turns ratio instead of dividing."
+   }
+  },
+  {
+   "n": 7,
+   "topic": "Power transmission losses",
+   "spec_refs": [
+    "P2.5d",
+    "P1.2m"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A power station transmits 1 MW along cables of total resistance 5 \u03a9. Initially it transmits at 10 kV. The transmission voltage is then raised to 100 kV, with the power transmitted unchanged.</p><p>By what factor is the power lost in the cables reduced?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "5",
+    "B": "10",
+    "C": "20",
+    "D": "100",
+    "E": "1000"
+   },
+   "answer": "D",
+   "solution_html": "<p>Current = <span class=\"math\">P</span>/<span class=\"math\">V</span>: 100 A then 10 A. Loss = <span class=\"math\">I</span><sup>2</sup><span class=\"math\">R</span>: 50 kW then 500 W. Factor <span class=\"key\">100</span>. Ten times the voltage, a tenth the current, a hundredth the loss.</p>",
+   "traps": {
+    "A": "The cable resistance, irrelevant to the ratio.",
+    "B": "The current ratio; loss goes as the square.",
+    "C": "No route.",
+    "E": "Cubed the ratio."
+   }
+  },
+  {
+   "n": 8,
+   "topic": "Force on a current-carrying wire",
+   "spec_refs": [
+    "P2.3c",
+    "P2.3d"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A straight wire at right angles to a uniform magnetic field experiences a force of 0.3 N. The field strength is doubled, the current is halved and the length of wire in the field is tripled.</p><p>What is the new force?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.1 N",
+    "B": "0.3 N",
+    "C": "0.45 N",
+    "D": "1.8 N",
+    "E": "0.9 N"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">F</span> = <span class=\"math\">BIL</span>: factor 2 \u00d7 \u00bd \u00d7 3 = 3. <span class=\"key\">0.9 N</span>.</p>",
+   "traps": {
+    "A": "Divided by 3.",
+    "B": "Forgot the length change.",
+    "C": "Used factor 1.5.",
+    "D": "Used factor 6 (forgot the halved current)."
+   }
+  },
+  {
+   "n": 9,
+   "topic": "AC generator output",
+   "spec_refs": [
+    "P2.4b",
+    "P2.4d",
+    "P2.4e"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>An ac generator produces a voltage with peak value 6 V and period 40 ms. The coil is then rotated at twice the speed.</p><p>What are the new peak voltage and period?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "6 V, 20 ms",
+    "B": "12 V, 20 ms",
+    "C": "12 V, 40 ms",
+    "D": "12 V, 80 ms",
+    "E": "3 V, 80 ms"
+   },
+   "answer": "B",
+   "solution_html": "<p>Faster rotation cuts field lines faster, doubling the induced voltage, and halves the time per cycle. <span class=\"key\">12 V, 20 ms</span>.</p>",
+   "traps": {
+    "A": "Forgot that the rate of cutting flux (and so the voltage) also doubles.",
+    "C": "Forgot the period changes.",
+    "D": "Doubled the period instead of halving it.",
+    "E": "Inverted both."
+   }
+  },
+  {
+   "n": 10,
+   "topic": "Velocity\u2013time graph",
+   "spec_refs": [
+    "P3.1e",
+    "P3.1f",
+    "P3.1g"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>The graph shows the velocity of a vehicle over 12 s. What is its average speed over the 12 s?</p>",
+   "diagram_svg": "<svg viewBox=\"0 0 300 190\" width=\"320\" role=\"img\" aria-label=\"Velocity-time graph: velocity rises from 0 to 12 metres per second in 4 seconds, constant until 10 seconds, falls to 0 at 12 seconds\">\n <polyline points=\"50,150 110,54 200,54 230,150\" fill=\"#bcd4f5\" opacity=\".7\" stroke=\"none\"/><polyline points=\"50,150 110,54 200,54 230,150\" fill=\"none\" stroke=\"#111\" stroke-width=\"2\"/>\n <line x1=\"30\" y1=\"150\" x2=\"280\" y2=\"150\" stroke=\"#111\" stroke-width=\"1.4\"/><line x1=\"50\" y1=\"20\" x2=\"50\" y2=\"170\" stroke=\"#111\" stroke-width=\"1.4\"/>\n <g font-family=\"Arial\" font-size=\"12\" fill=\"#111\"><text x=\"105\" y=\"166\">4</text><text x=\"195\" y=\"166\">10</text><text x=\"225\" y=\"166\">12</text><text x=\"28\" y=\"58\">12</text><text x=\"250\" y=\"180\">t / s</text><text x=\"56\" y=\"30\">v / m s\u207b\u00b9</text></g>\n <g stroke=\"#777\" stroke-width=\"1\" stroke-dasharray=\"3 3\"><line x1=\"50\" y1=\"54\" x2=\"110\" y2=\"54\"/><line x1=\"110\" y1=\"54\" x2=\"110\" y2=\"150\"/><line x1=\"200\" y1=\"54\" x2=\"200\" y2=\"150\"/></g></svg>",
+   "options": {
+    "A": "9 m s<sup>\u22121</sup>",
+    "B": "8 m s<sup>\u22121</sup>",
+    "C": "6 m s<sup>\u22121</sup>",
+    "D": "10 m s<sup>\u22121</sup>",
+    "E": "12 m s<sup>\u22121</sup>"
+   },
+   "answer": "A",
+   "solution_html": "<p>Distance = area: \u00bd \u00d7 4 \u00d7 12 + 6 \u00d7 12 + \u00bd \u00d7 2 \u00d7 12 = 24 + 72 + 12 = 108 m. Average speed = 108/12 = <span class=\"key\">9 m s\u207b\u00b9</span>.</p>",
+   "traps": {
+    "B": "Forgot one of the triangles.",
+    "C": "Half the peak velocity.",
+    "D": "Used 120/12 (rectangle only, 10 s \u00d7 12).",
+    "E": "The peak velocity, not the average."
+   }
+  },
+  {
+   "n": 11,
+   "topic": "Equation of motion under gravity",
+   "spec_refs": [
+    "P3.1h",
+    "P3.5d"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A ball is thrown vertically upwards at 20 m s<sup>\u22121</sup>. Ignoring air resistance and taking <span class=\"math\">g</span> = 10 m s<sup>\u22122</sup>, at what height above the launch point is its speed 10 m s<sup>\u22121</sup>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "5 m",
+    "B": "10 m",
+    "C": "15 m",
+    "D": "20 m",
+    "E": "30 m"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">v</span><sup>2</sup> \u2212 <span class=\"math\">u</span><sup>2</sup> = 2<span class=\"math\">as</span>: 100 \u2212 400 = 2(\u221210)<span class=\"math\">s</span>, so <span class=\"math\">s</span> = <span class=\"key\">15 m</span>.</p>",
+   "traps": {
+    "A": "Used v\u00b2 = 2gs with v = 10.",
+    "B": "Halved the max height (20 m) by assuming linear energy.",
+    "D": "The maximum height, where the speed is zero.",
+    "E": "Sign error: 100 + 400 = 2 \u00d7 10 \u00d7 s gives 25, then a slip."
+   }
+  },
+  {
+   "n": 12,
+   "topic": "Newton's second law: connected bodies",
+   "spec_refs": [
+    "P3.4c",
+    "P3.2d"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A 4 kg block and a 6 kg block are connected by a light string on a smooth horizontal surface. A horizontal force of 30 N pulls the 6 kg block, so the string pulls the 4 kg block along behind it.</p><p>What is the tension in the string?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "7.5 N",
+    "B": "12 N",
+    "C": "18 N",
+    "D": "20 N",
+    "E": "30 N"
+   },
+   "answer": "B",
+   "solution_html": "<p>Whole system: <span class=\"math\">a</span> = 30/10 = 3 m s<sup>\u22122</sup>. The string is the only horizontal force on the 4 kg block: <span class=\"math\">T</span> = 4 \u00d7 3 = <span class=\"key\">12 N</span>.</p>",
+   "traps": {
+    "A": "30/4.",
+    "C": "6 \u00d7 3, the net force on the 6 kg block, not the tension.",
+    "D": "30 \u00d7 4/6 with a slip.",
+    "E": "Assumed the tension equals the pull."
+   }
+  },
+  {
+   "n": 13,
+   "topic": "Inelastic collision: momentum and energy",
+   "spec_refs": [
+    "P3.6b",
+    "P3.7d",
+    "P3.7f"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A 2 kg trolley moving at 6 m s<sup>\u22121</sup> collides with a stationary 4 kg trolley and they move off together.</p><p>How much kinetic energy is lost in the collision?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "6 J",
+    "B": "12 J",
+    "C": "18 J",
+    "D": "24 J",
+    "E": "36 J"
+   },
+   "answer": "D",
+   "solution_html": "<p>Momentum: 12 = 6<span class=\"math\">v</span>, <span class=\"math\">v</span> = 2 m s<sup>\u22121</sup>. KE before = \u00bd \u00d7 2 \u00d7 36 = 36 J; after = \u00bd \u00d7 6 \u00d7 4 = 12 J. Lost <span class=\"key\">24 J</span>.</p>",
+   "traps": {
+    "A": "No route.",
+    "B": "The final KE, not the loss.",
+    "C": "Half the initial KE.",
+    "E": "The initial KE; momentum is conserved, KE is not, but not all of it is lost."
+   }
+  },
+  {
+   "n": 14,
+   "topic": "Force as rate of change of momentum",
+   "spec_refs": [
+    "P3.6c"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A 0.05 kg ball hits a wall at 20 m s<sup>\u22121</sup> and rebounds along the same line at 15 m s<sup>\u22121</sup>. The contact lasts 0.01 s.</p><p>What is the average force on the ball?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "25 N",
+    "B": "75 N",
+    "C": "100 N",
+    "D": "350 N",
+    "E": "175 N"
+   },
+   "answer": "E",
+   "solution_html": "<p>Velocity changes from +20 to \u221215, a change of 35 m s<sup>\u22121</sup>. \u0394<span class=\"math\">p</span> = 0.05 \u00d7 35 = 1.75 kg m s<sup>\u22121</sup>. <span class=\"math\">F</span> = 1.75/0.01 = <span class=\"key\">175 N</span>.</p>",
+   "traps": {
+    "A": "Used the change in speed 5 m s\u207b\u00b9.",
+    "B": "Used 15 only.",
+    "C": "Used 20 only (ball stopping, no rebound).",
+    "D": "Doubled the correct answer."
+   }
+  },
+  {
+   "n": 15,
+   "topic": "Energy stored in a spring",
+   "spec_refs": [
+    "P3.3c",
+    "P3.3d"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A spring of stiffness 200 N m<sup>\u22121</sup> obeys Hooke's law throughout. It is already extended by 0.1 m. How much additional work is needed to extend it to 0.3 m?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "8 J",
+    "B": "4 J",
+    "C": "6 J",
+    "D": "2 J",
+    "E": "9 J"
+   },
+   "answer": "A",
+   "solution_html": "<p><span class=\"math\">E</span> = \u00bd<span class=\"math\">kx</span><sup>2</sup>: at 0.1 m, 1 J; at 0.3 m, 9 J. Additional work <span class=\"key\">8 J</span>.</p>",
+   "traps": {
+    "B": "\u00bd \u00d7 200 \u00d7 0.2\u00b2 treats the 0.2 m increase as if from zero.",
+    "C": "No route.",
+    "D": "Assumed energy is linear in extension.",
+    "E": "The total energy at 0.3 m, forgetting the 1 J already stored."
+   }
+  },
+  {
+   "n": 16,
+   "topic": "Energy conservation with air resistance",
+   "spec_refs": [
+    "P3.7c",
+    "P3.7d",
+    "P3.7f"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A 2 kg object is dropped from rest at a height of 20 m and hits the ground at 15 m s<sup>\u22121</sup>. How much energy is transferred to the surroundings by air resistance during the fall?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "25 J",
+    "B": "100 J",
+    "C": "175 J",
+    "D": "225 J",
+    "E": "400 J"
+   },
+   "answer": "C",
+   "solution_html": "<p>GPE lost = 2 \u00d7 10 \u00d7 20 = 400 J. KE gained = \u00bd \u00d7 2 \u00d7 225 = 225 J. Difference <span class=\"key\">175 J</span>.</p>",
+   "traps": {
+    "A": "No route.",
+    "B": "Used v = 20 m s\u207b\u00b9 for a 200 J KE.",
+    "D": "The KE, not the loss.",
+    "E": "The GPE, not the loss."
+   }
+  },
+  {
+   "n": 17,
+   "topic": "Power and efficiency",
+   "spec_refs": [
+    "P3.7e",
+    "P3.7h"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A crane lifts a 500 kg load through 12 m in 20 s. The crane motor is 60% efficient. What is the electrical input power to the motor?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "5 kW",
+    "B": "3 kW",
+    "C": "1.8 kW",
+    "D": "8.3 kW",
+    "E": "30 kW"
+   },
+   "answer": "A",
+   "solution_html": "<p>Useful energy = 500 \u00d7 10 \u00d7 12 = 60 kJ. Useful power = 3 kW. Input = 3/0.6 = <span class=\"key\">5 kW</span>.</p>",
+   "traps": {
+    "B": "The useful output power.",
+    "C": "Multiplied by 0.6 instead of dividing.",
+    "D": "Divided by 0.36.",
+    "E": "Forgot the 20 s, then halved."
+   }
+  },
+  {
+   "n": 18,
+   "topic": "Terminal velocity and parachutes",
+   "spec_refs": [
+    "P3.5e",
+    "P3.5f",
+    "P3.4a"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A skydiver is falling at terminal velocity and then opens the parachute. Which statement is correct for the instant just after the parachute opens?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "The skydiver moves upwards because drag exceeds weight.",
+    "B": "The skydiver decelerates because drag exceeds weight.",
+    "C": "The skydiver's velocity is unchanged because drag equals weight.",
+    "D": "The skydiver accelerates downwards because weight exceeds drag.",
+    "E": "The skydiver decelerates because weight has decreased."
+   },
+   "answer": "B",
+   "solution_html": "<p>Opening the parachute suddenly increases drag while the speed is still high, so drag &gt; weight: resultant force upwards, so the downward velocity <em>decreases</em>. The skydiver keeps moving downwards, just more slowly, until a new lower terminal velocity is reached. <span class=\"key\">B</span></p>",
+   "traps": {
+    "A": "An upward resultant force does not mean upward motion; velocity is still downward.",
+    "C": "Drag equalled weight before the parachute opened, not after.",
+    "D": "That describes the start of the fall, not the parachute opening.",
+    "E": "Weight does not change."
+   }
+  },
+  {
+   "n": 19,
+   "topic": "Specific heat capacity",
+   "spec_refs": [
+    "P4.4b",
+    "P3.7e"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A 2 kW kettle heats 0.5 kg of water from 20 \u00b0C to 100 \u00b0C. Specific heat capacity of water = 4200 J kg<sup>\u22121</sup> \u00b0C<sup>\u22121</sup>. Assuming all the energy goes into the water, how long does this take?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "8.4 s",
+    "B": "21 s",
+    "C": "42 s",
+    "D": "84 s",
+    "E": "168 s"
+   },
+   "answer": "D",
+   "solution_html": "<p><span class=\"math\">E</span> = 0.5 \u00d7 4200 \u00d7 80 = 168 000 J. <span class=\"math\">t</span> = 168 000/2000 = <span class=\"key\">84 s</span>.</p>",
+   "traps": {
+    "A": "Power taken as 20 kW.",
+    "B": "A mass of 0.125 kg was used.",
+    "C": "Used 40 \u00b0C rise.",
+    "E": "Used a 1 kW kettle."
+   }
+  },
+  {
+   "n": 20,
+   "topic": "Latent heat and specific heat",
+   "spec_refs": [
+    "P5.3c",
+    "P4.4b"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>0.2 kg of ice at 0 \u00b0C is turned into water at 20 \u00b0C. Specific latent heat of fusion of ice = 340 000 J kg<sup>\u22121</sup>; specific heat capacity of water = 4200 J kg<sup>\u22121</sup> \u00b0C<sup>\u22121</sup>.</p><p>How much energy is required?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "16 800 J",
+    "B": "68 000 J",
+    "C": "84 800 J",
+    "D": "101 600 J",
+    "E": "152 000 J"
+   },
+   "answer": "C",
+   "solution_html": "<p>Melting: 0.2 \u00d7 340 000 = 68 000 J. Warming: 0.2 \u00d7 4200 \u00d7 20 = 16 800 J. Total <span class=\"key\">84 800 J</span>.</p>",
+   "traps": {
+    "A": "Forgot the melting.",
+    "B": "Forgot the warming.",
+    "D": "Warmed through 40 \u00b0C.",
+    "E": "Warmed the water through 100 \u00b0C."
+   }
+  },
+  {
+   "n": 21,
+   "topic": "Hydrostatic pressure and Boyle's law",
+   "spec_refs": [
+    "P5.5b",
+    "P5.2b"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>An air bubble of volume 2 cm<sup>3</sup> is released at a depth of 20 m in a lake. Atmospheric pressure is 100 kPa, the density of water is 1000 kg m<sup>\u22123</sup> and <span class=\"math\">g</span> = 10 N kg<sup>\u22121</sup>. The temperature is constant.</p><p>What is the volume of the bubble just before it reaches the surface?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>2</span><span>3</span></span> cm<sup>3</sup>",
+    "B": "3 cm<sup>3</sup>",
+    "C": "4 cm<sup>3</sup>",
+    "D": "12 cm<sup>3</sup>",
+    "E": "6 cm<sup>3</sup>"
+   },
+   "answer": "E",
+   "solution_html": "<p>Pressure at 20 m = 100 kPa + <span class=\"math\">h\u03c1g</span> = 100 + 200 = 300 kPa. <span class=\"math\">PV</span> constant: 300 \u00d7 2 = 100 \u00d7 <span class=\"math\">V</span>, <span class=\"math\">V</span> = <span class=\"key\">6 cm\u00b3</span>.</p>",
+   "traps": {
+    "A": "Inverted the ratio.",
+    "B": "Used h\u03c1g = 50 kPa.",
+    "C": "Forgot atmospheric pressure (200/100 \u00d7 2).",
+    "D": "Used 600 kPa at depth."
+   }
+  },
+  {
+   "n": 22,
+   "topic": "Density of a mixture",
+   "spec_refs": [
+    "P5.4a"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>200 cm<sup>3</sup> of liquid A (density 0.8 g cm<sup>\u22123</sup>) is mixed with 300 cm<sup>3</sup> of liquid B (density 1.2 g cm<sup>\u22123</sup>). The volumes simply add. What is the density of the mixture?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.96 g cm<sup>\u22123</sup>",
+    "B": "1.00 g cm<sup>\u22123</sup>",
+    "C": "1.20 g cm<sup>\u22123</sup>",
+    "D": "1.10 g cm<sup>\u22123</sup>",
+    "E": "1.04 g cm<sup>\u22123</sup>"
+   },
+   "answer": "E",
+   "solution_html": "<p>Mass = 160 + 360 = 520 g. Volume = 500 cm<sup>3</sup>. Density = <span class=\"key\">1.04 g cm\u207b\u00b3</span>.</p>",
+   "traps": {
+    "A": "Weighted the wrong way round.",
+    "B": "Averaged the densities.",
+    "C": "Took the denser liquid's value.",
+    "D": "No route."
+   }
+  },
+  {
+   "n": 23,
+   "topic": "Pressure from a solid",
+   "spec_refs": [
+    "P5.5a",
+    "P5.4a",
+    "P3.5c"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A solid cuboid measures 0.5 m \u00d7 0.2 m \u00d7 0.1 m and is made of material of density 2000 kg m<sup>\u22123</sup>. What is the greatest pressure it can exert when resting on one face on a horizontal floor?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2 kPa",
+    "B": "4 kPa",
+    "C": "5 kPa",
+    "D": "10 kPa",
+    "E": "20 kPa"
+   },
+   "answer": "D",
+   "solution_html": "<p>Volume 0.01 m<sup>3</sup>, mass 20 kg, weight 200 N. Smallest face 0.2 \u00d7 0.1 = 0.02 m<sup>2</sup>. Pressure = 200/0.02 = <span class=\"key\">10 kPa</span>.</p>",
+   "traps": {
+    "A": "Used the largest face (0.1 m\u00b2).",
+    "B": "Used the middle face (0.05 m\u00b2).",
+    "C": "Used 200/0.04, a face that does not exist.",
+    "E": "Doubled the weight."
+   }
+  },
+  {
+   "n": 24,
+   "topic": "Echoes and wavelength",
+   "spec_refs": [
+    "P6.1g",
+    "P6.1h",
+    "P6.4e"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>A person claps and hears the echo from a wall 0.5 s later. The speed of sound is 340 m s<sup>\u22121</sup>. A sound of frequency 1700 Hz is then produced. How many wavelengths of this sound fit between the person and the wall?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "42.5",
+    "B": "170",
+    "C": "212.5",
+    "D": "850",
+    "E": "425"
+   },
+   "answer": "E",
+   "solution_html": "<p>Distance to wall = 340 \u00d7 0.5/2 = 85 m (the sound goes there and back). Wavelength = 340/1700 = 0.2 m. 85/0.2 = <span class=\"key\">425</span>.</p>",
+   "traps": {
+    "A": "Used 8.5 m.",
+    "B": "No route.",
+    "C": "Used a 42.5 m distance (halved twice).",
+    "D": "Forgot to halve the round-trip distance."
+   }
+  },
+  {
+   "n": 25,
+   "topic": "Refraction: speed, frequency, wavelength",
+   "spec_refs": [
+    "P6.2b",
+    "P6.2c",
+    "P6.1h"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>Light of wavelength 600 nm in air enters glass, where its wavelength becomes 400 nm. The speed of light in air is 3 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>. What is the speed of light in the glass?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1.5 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>",
+    "B": "2 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>",
+    "C": "2.25 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>",
+    "D": "3 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>",
+    "E": "4.5 \u00d7 10<sup>8</sup> m s<sup>\u22121</sup>"
+   },
+   "answer": "B",
+   "solution_html": "<p>Frequency is unchanged at a boundary, so <span class=\"math\">v</span> \u221d <span class=\"math\">\u03bb</span>: 3 \u00d7 10<sup>8</sup> \u00d7 400/600 = <span class=\"key\">2 \u00d7 10\u2078 m s\u207b\u00b9</span>.</p>",
+   "traps": {
+    "A": "Halved the speed.",
+    "C": "Multiplied 3 \u00d7 10\u2078 by 0.75.",
+    "D": "Assumed speed is unchanged; it is frequency that stays the same.",
+    "E": "Inverted the ratio; light slows down in glass."
+   }
+  },
+  {
+   "n": 26,
+   "topic": "Nuclear equations",
+   "spec_refs": [
+    "P7.2e",
+    "P7.2f",
+    "P7.1f"
+   ],
+   "difficulty": 2,
+   "stem_html": "<p>A nucleus of bismuth-212 (atomic number 83) emits an alpha particle, and the product then emits a beta-minus particle.</p><p>What are the mass number and atomic number of the final nucleus?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "208, 81",
+    "B": "208, 82",
+    "C": "208, 84",
+    "D": "210, 82",
+    "E": "212, 84"
+   },
+   "answer": "B",
+   "solution_html": "<p>Alpha: mass \u22124, atomic \u22122 \u2192 208, 81. Beta-minus: mass unchanged, atomic +1 \u2192 <span class=\"key\">208, 82</span>.</p>",
+   "traps": {
+    "A": "After the alpha only.",
+    "C": "Alpha decay applied to the atomic number with the wrong sign.",
+    "D": "Mass number changed by 2 instead of 4.",
+    "E": "Beta applied to the mass number."
+   }
+  },
+  {
+   "n": 27,
+   "topic": "Half-life",
+   "spec_refs": [
+    "P7.4b",
+    "P7.4c"
+   ],
+   "difficulty": 3,
+   "stem_html": "<p>The activity of a sample falls from 800 Bq to 100 Bq in 36 minutes. How long after the start does the activity first reach 25 Bq?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "45 min",
+    "B": "48 min",
+    "C": "96 min",
+    "D": "72 min",
+    "E": "60 min"
+   },
+   "answer": "E",
+   "solution_html": "<p>800 \u2192 100 is three halvings in 36 min, so the half-life is 12 min. 100 \u2192 25 is two more halvings: 24 min. Total from the start: 36 + 24 = <span class=\"key\">60 min</span>.</p>",
+   "traps": {
+    "A": "No route.",
+    "B": "Four half-lives, i.e. from 800 to 50.",
+    "C": "Eight half-lives.",
+    "D": "Six half-lives (800 \u2192 12.5)."
+   }
+  }
+ ],
+ "rebalanced": true
+}

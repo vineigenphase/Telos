@@ -43,11 +43,17 @@ FAMILY_SHAPE = {
 VALID_MODULES = {"P1", "P2", "M1", "M2", "PHY", "CHM", "BIO"}
 OPTION_LETTERS = "ABCDEFGH"
 
-# "MM4.1" -> "MM4"; "Arg1" -> "Arg1"; "M5.18" -> "M5". The group is what the
-# seeded spec table holds, because the awarding body's full sub-point lists are
-# not in the repo and inventing them would be worse than validating one level
-# up. See the note in migration 041.
-_GROUP = re.compile(r"^([A-Za-z]+\d+)(?:\.\d+)*$")
+# "MM4.1" -> "MM4"; "Arg1" -> "Arg1"; "M5.18" -> "M5"; "P1.2d" -> "P1". The
+# group is what the seeded spec table holds, because the awarding body's full
+# sub-point lists are not in the repo and inventing them would be worse than
+# validating one level up. See the note in migration 041.
+#
+# The trailing letter matters. The maths specifications number sub-points
+# numerically (M5.18), and the physics specification suffixes them with a
+# letter (P1.2d, P3.7h, P6.1g). An earlier version of this pattern allowed only
+# the numeric form and rejected all 64 references in the Physics mock as
+# unrecognisable — the papers were right and the pattern was wrong.
+_GROUP = re.compile(r"^([A-Za-z]+\d+)(?:\.\d+[a-z]?)*$", re.IGNORECASE)
 
 
 def spec_group(ref):
@@ -205,8 +211,15 @@ def report(paper, errors, warnings):
             g = spec_group(ref)
             groups[g] = groups.get(g, 0) + 1
     if groups:
+        # Sorted by a string key, not the raw one. An unrecognisable reference
+        # yields a group of None, and sorting None against a string raises —
+        # which crashed the report before it could print the errors that were
+        # about to name the bad reference. The report has to survive the very
+        # thing it exists to tell you about.
         lines.append("spec coverage: " +
-                     ", ".join(f"{g} x{n}" for g, n in sorted(groups.items())))
+                     ", ".join(f"{g or '(unrecognised)'} x{n}"
+                               for g, n in sorted(groups.items(),
+                                                  key=lambda kv: (kv[0] is None, kv[0] or ""))))
 
     for w in warnings:
         lines.append(f"WARNING  {w}")

@@ -197,6 +197,36 @@ txt = report(paper(count=19), *validate(paper(count=19), SPEC))
 check("a rejected paper says nothing was written",
       "REJECTED — nothing was written" in txt, True)
 
+# ── sub-point forms, both specifications ───────────────────────────────────
+#
+# The maths specs number sub-points numerically; the physics spec suffixes them
+# with a letter. An earlier pattern allowed only the numeric form and rejected
+# all 64 references in the Physics mock as unrecognisable — the papers were
+# right and the pattern was wrong, which is what these pin down.
+check("P1.2d belongs to group P1", spec_group("P1.2d"), "P1")
+check("P3.7h belongs to group P3", spec_group("P3.7h"), "P3")
+check("P6.1g belongs to group P6", spec_group("P6.1g"), "P6")
+check("a numeric sub-point still works", spec_group("M5.18"), "M5")
+check("a bare group still works", spec_group("P1"), "P1")
+
+# A real ESAT Physics paper's references must validate against module PHY.
+p = paper(count=27, family="ESAT", module="PHY")
+for i, q in enumerate(p["questions"]):
+    q["spec_refs"] = ["P1.2d", "P3.7h"] if i % 2 else ["P6.1g"]
+errors, _ = validate(p, SPEC)
+check("letter-suffixed physics refs validate in PHY", errors, [])
+
+# And the report must survive an unrecognisable reference rather than crashing
+# on the very thing it is meant to name.
+p = paper()
+p["questions"][0]["spec_refs"] = ["not a ref at all"]
+errors, warnings = validate(p, SPEC)
+txt = report(p, errors, warnings)
+check("the report survives an unrecognisable ref", "(unrecognised)" in txt, True)
+check("and still names it as an error",
+      any("not a recognisable reference" in e for e in errors), True)
+
+
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
 sys.exit(1 if fails else 0)

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telos Exam Mode</title>
+<style>
+/* ---------- Player: Pearson-plain by design. Results: Telos black/gold. ---------- */
+:root{
+  --pv-bar:#1f4e8c; --pv-bar-text:#fff; --pv-bg:#ffffff; --pv-panel:#f3f5f8; --pv-text:#111;
+  --pv-muted:#5b6470; --pv-line:#c9d1dc; --pv-accent:#1f4e8c; --pv-flag:#c27a00; --pv-btn:#e9edf3;
+  --pv-btn-text:#111; --pv-answered:#2e7d32; --pv-hover:#eef3fa;
+  --t-black:#0b0b0d; --t-ink:#15151a; --t-gold:#c9a227; --t-gold-soft:#e6cd73; --t-text:#f2f0e8;
+  --t-muted:#9a978c; --t-line:#2a2a31; --t-good:#7fc97f; --t-bad:#e07a6a;
+  --font:Arial, Helvetica, sans-serif; --serif:Georgia, "Times New Roman", serif;
+}
+[data-theme="dark"]{
+  --pv-bar:#101a2b; --pv-bar-text:#f2f2f2; --pv-bg:#15181e; --pv-panel:#1d2129; --pv-text:#ececec;
+  --pv-muted:#a9b0bb; --pv-line:#353b47; --pv-accent:#6ea2e6; --pv-flag:#e0a33a; --pv-btn:#262b35;
+  --pv-btn-text:#ececec; --pv-answered:#63c46b; --pv-hover:#222833;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--font);font-size:16px;line-height:1.5;color:var(--pv-text);background:var(--pv-bg)}
+button{font-family:inherit;font-size:15px;cursor:pointer}
+button:focus-visible,label:focus-within,a:focus-visible{outline:3px solid var(--pv-flag);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.hidden{display:none!important}
+sup{font-size:.72em;vertical-align:.45em;line-height:0}
+sub{font-size:.72em;vertical-align:-.3em;line-height:0}
+.rt{white-space:nowrap}
+.rt .ov{border-top:1.5px solid currentColor;padding-top:1px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.15;margin:0 3px;font-size:.92em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+.fr>span:last-child{padding:0 4px}
+.math{font-family:var(--serif);font-style:italic}
+.mr{font-style:normal}
+.deg{font-style:normal}
+.int{font-family:var(--serif);font-size:1.35em;font-style:italic;vertical-align:-.1em}
+.lim{display:inline-flex;flex-direction:column;font-size:.7em;font-style:normal;line-height:1.05;vertical-align:middle;margin-right:2px}
+.int-wrap{white-space:nowrap}
+
+/* ---------- Shared screens ---------- */
+.screen{min-height:100vh;display:flex;flex-direction:column}
+.pvbar{background:var(--pv-bar);color:var(--pv-bar-text);display:flex;align-items:center;justify-content:space-between;padding:10px 20px;font-size:15px}
+.pvbar .cand{display:flex;gap:26px;align-items:center}
+.pvbar strong{font-weight:700}
+.pvbar .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:17px;padding:4px 12px;border:1.5px solid rgba(255,255,255,.55);border-radius:3px}
+.pvbar .timer.warn{background:#b71c1c;border-color:#b71c1c}
+.pvbar .theme{background:transparent;color:inherit;border:1.5px solid rgba(255,255,255,.45);padding:4px 10px;border-radius:3px;font-size:13px}
+
+/* ---------- Intro ---------- */
+#intro .body{max-width:760px;margin:0 auto;padding:40px 24px 60px;flex:1}
+#intro h1{font-size:26px;margin:0 0 6px}
+#intro h2{font-size:17px;color:var(--pv-muted);font-weight:400;margin:0 0 28px}
+#intro .rules{border:1px solid var(--pv-line);background:var(--pv-panel);padding:18px 22px;border-radius:4px;margin:18px 0}
+#intro .rules p{margin:8px 0}
+#intro .go{background:var(--pv-accent);color:#fff;border:0;padding:12px 26px;border-radius:3px;font-size:16px;font-weight:700;margin-top:10px}
+#intro .fine{font-size:13px;color:var(--pv-muted);margin-top:26px}
+
+/* ---------- Exam ---------- */
+#exam .main{flex:1;display:grid;grid-template-columns:1fr;max-width:1100px;width:100%;margin:0 auto;padding:22px 24px 120px}
+#exam .qhead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--pv-line);padding-bottom:10px;margin-bottom:18px;font-size:15px;color:var(--pv-muted)}
+#exam .qhead .flagged{color:var(--pv-flag);font-weight:700}
+#exam .stem{font-size:17px;line-height:1.7;max-width:74ch}
+#exam .stem p{margin:0 0 12px}
+#exam .diagram{margin:14px 0 18px}
+#exam .diagram svg{max-width:100%;height:auto;display:block}
+#exam .opts{list-style:none;padding:0;margin:20px 0 0;max-width:74ch}
+#exam .opts li{border:1px solid var(--pv-line);border-radius:3px;margin-bottom:8px;background:var(--pv-bg)}
+#exam .opts label{display:flex;gap:14px;align-items:center;padding:11px 14px;cursor:pointer;font-size:17px}
+#exam .opts label:hover{background:var(--pv-hover)}
+#exam .opts input{width:18px;height:18px;accent-color:var(--pv-accent);flex:none}
+#exam .opts .key{font-weight:700;width:1.2em;flex:none}
+#exam .nav{position:fixed;left:0;right:0;bottom:0;background:var(--pv-panel);border-top:1px solid var(--pv-line);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#exam .nav .grp{display:flex;gap:10px;flex-wrap:wrap}
+#exam .nav button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:9px 16px;border-radius:3px;font-weight:600}
+#exam .nav button.primary{background:var(--pv-accent);color:#fff;border-color:var(--pv-accent)}
+#exam .nav button.flag.on{background:var(--pv-flag);color:#fff;border-color:var(--pv-flag)}
+#exam .nav button:disabled{opacity:.45;cursor:not-allowed}
+
+/* navigator drawer */
+#navdrawer{position:fixed;right:0;top:0;bottom:0;width:300px;max-width:90vw;background:var(--pv-bg);border-left:1px solid var(--pv-line);box-shadow:-6px 0 20px rgba(0,0,0,.18);padding:18px;overflow:auto;z-index:20}
+#navdrawer h3{margin:0 0 4px;font-size:16px}
+#navdrawer .legend{font-size:13px;color:var(--pv-muted);margin-bottom:12px}
+#navdrawer .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+#navdrawer .grid button{aspect-ratio:1;border:1.5px solid var(--pv-line);background:var(--pv-bg);color:var(--pv-text);border-radius:3px;font-weight:700;position:relative}
+#navdrawer .grid button.ans{border-color:var(--pv-answered);background:color-mix(in srgb,var(--pv-answered) 14%,transparent)}
+#navdrawer .grid button.cur{outline:3px solid var(--pv-accent);outline-offset:1px}
+#navdrawer .grid button.flg::after{content:"";position:absolute;top:3px;right:3px;width:8px;height:8px;background:var(--pv-flag);border-radius:1px}
+#navdrawer .close{margin-top:16px;width:100%;padding:9px;border:1px solid var(--pv-line);background:var(--pv-btn);color:var(--pv-btn-text);border-radius:3px}
+
+/* ---------- Review screen ---------- */
+#review .body{max-width:860px;margin:0 auto;padding:30px 24px 120px;flex:1}
+#review h1{font-size:22px;margin:0 0 4px}
+#review .summary{color:var(--pv-muted);margin-bottom:18px}
+#review .filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+#review .filters button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:7px 12px;border-radius:3px}
+#review .filters button.on{background:var(--pv-accent);color:#fff;border-color:var(--pv-accent)}
+#review table{width:100%;border-collapse:collapse;font-size:15px}
+#review th,#review td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--pv-line)}
+#review th{color:var(--pv-muted);font-weight:600;font-size:13px}
+#review td button{background:none;border:0;color:var(--pv-accent);text-decoration:underline;padding:0;font-size:15px}
+#review .status.un{color:#b71c1c;font-weight:700}
+#review .status.fl{color:var(--pv-flag);font-weight:700}
+#review .nav{position:fixed;left:0;right:0;bottom:0;background:var(--pv-panel);border-top:1px solid var(--pv-line);padding:12px 20px;display:flex;justify-content:space-between;gap:10px}
+#review .nav button{background:var(--pv-btn);color:var(--pv-btn-text);border:1px solid var(--pv-line);padding:9px 16px;border-radius:3px;font-weight:600}
+#review .nav button.end{background:#b71c1c;color:#fff;border-color:#b71c1c}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal .box{background:var(--pv-bg);color:var(--pv-text);max-width:480px;width:100%;padding:24px;border-radius:4px;border-top:6px solid #b71c1c}
+.modal h2{margin:0 0 10px;font-size:19px}
+.modal p{margin:8px 0}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.modal .acts button{padding:9px 16px;border-radius:3px;border:1px solid var(--pv-line);background:var(--pv-btn);color:var(--pv-btn-text);font-weight:600}
+.modal .acts button.danger{background:#b71c1c;color:#fff;border-color:#b71c1c}
+
+/* ---------- Results (Telos) ---------- */
+#results{background:var(--t-black);color:var(--t-text);font-family:var(--font)}
+#results .tbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--t-line)}
+#results .logo{font-family:var(--serif);font-size:24px;letter-spacing:.5px}
+#results .logo em{color:var(--t-gold);font-style:italic}
+#results .tbar .meta{color:var(--t-muted);font-size:14px}
+#results .body{max-width:1040px;margin:0 auto;padding:30px 24px 80px}
+#results .score{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:start;border:1px solid var(--t-line);padding:28px;background:var(--t-ink)}
+#results .big{font-family:var(--serif);font-size:96px;line-height:.9;color:var(--t-gold);font-variant-numeric:tabular-nums}
+#results .big small{font-size:22px;color:var(--t-muted);font-family:var(--font);display:block;margin-top:10px;font-style:normal}
+#results .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;align-self:center}
+#results .facts div{border-left:2px solid var(--t-gold);padding-left:12px}
+#results .facts b{display:block;font-size:24px;font-family:var(--serif);color:var(--t-text)}
+#results .facts span{color:var(--t-muted);font-size:14px}
+#results .estnote{color:var(--t-muted);font-size:13px;margin-top:14px;max-width:80ch}
+#results .ladder{margin-top:26px;border:1px solid var(--t-line);padding:18px 22px;background:var(--t-ink)}
+#results .ladder h2{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 12px;color:var(--t-gold-soft)}
+#results .rungs{display:flex;gap:6px;flex-wrap:wrap}
+#results .rung{flex:1;min-width:64px;text-align:center;padding:10px 4px;border:1px solid var(--t-line);font-variant-numeric:tabular-nums}
+#results .rung b{display:block;font-size:20px;font-family:var(--serif)}
+#results .rung span{font-size:12px;color:var(--t-muted)}
+#results .rung.here{border-color:var(--t-gold);background:rgba(201,162,39,.12)}
+#results .rung.next{border-color:var(--t-gold-soft);border-style:dashed}
+#results h2.sec{font-family:var(--serif);font-weight:400;font-size:22px;margin:36px 0 12px;color:var(--t-gold-soft)}
+#results .bytopic{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+#results .bytopic div{border:1px solid var(--t-line);padding:10px 12px;font-size:14px;display:flex;justify-content:space-between}
+#results .bytopic div b{color:var(--t-gold-soft)}
+#results .qrow{border:1px solid var(--t-line);margin-bottom:10px;background:var(--t-ink)}
+#results .qrow summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto auto auto;gap:14px;align-items:center;padding:12px 16px}
+#results .qrow summary::-webkit-details-marker{display:none}
+#results .qrow .n{font-family:var(--serif);font-size:20px;color:var(--t-gold)}
+#results .qrow .t{font-size:14px;color:var(--t-muted)}
+#results .qrow .t b{color:var(--t-text);font-weight:600;display:block;font-size:15px}
+#results .qrow .mark{font-weight:700;font-size:14px;padding:3px 9px;border-radius:2px}
+#results .qrow .mark.ok{color:var(--t-good);border:1px solid var(--t-good)}
+#results .qrow .mark.no{color:var(--t-bad);border:1px solid var(--t-bad)}
+#results .qrow .mark.skip{color:var(--t-muted);border:1px solid var(--t-muted)}
+#results .qrow .time{font-size:13px;color:var(--t-muted);font-variant-numeric:tabular-nums}
+#results .qrow .time.slow{color:var(--t-bad)}
+#results .qrow .ans{font-size:13px;color:var(--t-muted)}
+#results .qrow .sol{padding:6px 18px 20px;border-top:1px solid var(--t-line);line-height:1.7;max-width:80ch}
+#results .qrow .sol p{margin:10px 0}
+#results .qrow .sol .trap{border-left:2px solid var(--t-bad);padding-left:12px;color:var(--t-muted);font-size:14px}
+#results .qrow .sol .opt{font-size:14px;color:var(--t-muted)}
+#results .qrow .sol .key{color:var(--t-gold-soft);font-weight:700}
+#results .qrow .sol svg{max-width:360px;background:#fff;padding:6px;border-radius:2px}
+#results .acts{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
+#results .acts button{background:transparent;color:var(--t-gold);border:1px solid var(--t-gold);padding:10px 18px;font-weight:600}
+@media (max-width:640px){
+  #results .score{grid-template-columns:1fr}
+  #results .big{font-size:72px}
+  #results .qrow summary{grid-template-columns:36px 1fr;gap:8px}
+  #results .qrow .time,#results .qrow .ans{grid-column:2}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= INTRO ================= -->
+<section id="intro" class="screen">
+  <div class="pvbar"><div class="cand"><strong id="famName"></strong><span>Candidate: Telos Pro</span></div><button class="theme" id="themeBtn1">Dark player</button></div>
+  <div class="body">
+    <h1 id="paperTitle"></h1>
+    <h2 id="paperSub"></h2>
+    <div class="rules">
+      <p><strong id="paperFmt"></strong> Every question carries one mark. There is no penalty for a wrong answer, so answer every question.</p>
+      <p>No calculator. No formula booklet. Use the paper provided at the test centre for working; here, use rough paper.</p>
+      <p>The timer starts when you click Start and does not pause. When it reaches zero the test is submitted automatically.</p>
+      <p>Use <strong>Flag for review</strong> to mark a question you want to return to, and <strong>Review</strong> to see every question's status before you finish. You can change any answer until you end the test.</p>
+    </div>
+    <p id="targetNote"></p>
+    <button class="go" id="startBtn">Start test</button>
+    <p class="fine">Scaled scores shown at the end are Telos estimates. UAT-UK does not publish a raw-to-scale conversion; live scores are Rasch-equated against the October cohort with the median fixed at 4.5 and roughly 10% of candidates above 7.0.</p>
+  </div>
+</section>
+
+<!-- ================= EXAM ================= -->
+<section id="exam" class="screen hidden">
+  <div class="pvbar">
+    <div class="cand"><strong class="shortName"></strong><span id="qcount">Question 1 of 20</span></div>
+    <div class="cand"><button class="theme" id="themeBtn2">Dark player</button><span>Time remaining</span><span class="timer" id="timer">--:--</span></div>
+  </div>
+  <div class="main">
+    <div class="qhead"><span id="qnum">Question 1</span><span id="flagState"></span></div>
+    <div class="stem" id="stem"></div>
+    <div class="diagram" id="diagram"></div>
+    <ul class="opts" id="opts"></ul>
+  </div>
+  <div class="nav">
+    <div class="grp"><button id="prevBtn">◀ Previous</button><button id="nextBtn">Next ▶</button></div>
+    <div class="grp"><button id="flagBtn" class="flag">Flag for review</button><button id="navBtn">Navigator</button><button id="reviewBtn" class="primary">Review</button></div>
+  </div>
+  <aside id="navdrawer" class="hidden" aria-label="Question navigator">
+    <h3>Questions</h3>
+    <div class="legend">Green border: answered. Orange corner: flagged. Blue ring: current.</div>
+    <div class="grid" id="navgrid"></div>
+    <button class="close" id="navClose">Close</button>
+  </aside>
+</section>
+
+<!-- ================= REVIEW ================= -->
+<section id="review" class="screen hidden">
+  <div class="pvbar"><div class="cand"><strong class="shortName"></strong><span>Review</span></div><div class="cand"><span>Time remaining</span><span class="timer" id="timer2">--:--</span></div></div>
+  <div class="body">
+    <h1>Review your answers</h1>
+    <div class="summary" id="revSummary"></div>
+    <div class="filters"><button class="on" data-f="all">All</button><button data-f="un">Unanswered</button><button data-f="fl">Flagged</button></div>
+    <table><thead><tr><th>Question</th><th>Status</th><th>Your answer</th><th></th></tr></thead><tbody id="revBody"></tbody></table>
+  </div>
+  <div class="nav"><button id="revBack">◀ Back to test</button><button class="end" id="endBtn">End test</button></div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results" class="screen hidden">
+  <div class="tbar"><div class="logo">Tel<em>os</em></div><div class="meta" id="resMeta"></div></div>
+  <div class="body">
+    <div class="score">
+      <div class="big"><span id="scaled">—</span><small>estimated TMUA score</small></div>
+      <div class="facts">
+        <div><b id="raw">—</b><span>raw marks, out of 20</span></div>
+        <div><b id="toNext">—</b><span id="toNextLbl">marks to next whole grade</span></div>
+                <div><b id="timeUsed">—</b><span>time used</span></div>
+      </div>
+    </div>
+    <p class="estnote" id="estnote"></p>
+    <div class="ladder">
+      <h2>Where the whole grades sit on this paper</h2>
+      <div class="rungs" id="rungs"></div>
+    </div>
+    <h2 class="sec">By topic</h2>
+    <div class="bytopic" id="bytopic"></div>
+    <h2 class="sec">Every question, with full solution</h2>
+    <div id="qlist"></div>
+    <div class="acts"><button id="retry">Sit this paper again</button><button id="expandAll">Open all solutions</button></div>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   QUESTION BANK — TMUA Paper 1, Telos Mock A
+   Every question is original. spec = UAT-UK 2026/27 TMUA Section 1 reference.
+   Answers verified by full working in `sol`. `traps` explains each wrong option.
+   ===================================================================== */
+const PAPER={"paper_code": "TMUA-P2-A", "family": "TMUA", "module": "P2", "short": "TMUA Paper 2", "title": "Paper 2: Mathematical Reasoning", "series": "Telos Mock A", "spec_version": "2026-27", "duration_sec": 4500, "marks_per_question": 1, "family_marks": 40, "target_note": "7+ candidates should get 15 or more. Paper 2 rewards reading every word of a statement before touching any algebra.", "questions": [{"n": 1, "topic": "Converse & contrapositive", "spec_refs": ["Arg1"], "difficulty": 2, "stem_html": "<p>Consider the statement</p><p style=\"text-align:center\"><em>S</em>: &nbsp;If <span class=\"math\">x</span> &gt; 3, then <span class=\"math\">x</span><sup>2</sup> &gt; 9.</p><p>Which one of the following statements is logically equivalent to <em>S</em>?</p>", "diagram_svg": null, "options": {"A": "If <span class=\"math\">x</span><sup>2</sup> &gt; 9, then <span class=\"math\">x</span> &gt; 3.", "B": "If <span class=\"math\">x</span> \u2264 3, then <span class=\"math\">x</span><sup>2</sup> \u2264 9.", "C": "<span class=\"math\">x</span><sup>2</sup> &gt; 9 only if <span class=\"math\">x</span> &gt; 3.", "D": "<span class=\"math\">x</span> &gt; 3 if <span class=\"math\">x</span><sup>2</sup> &gt; 9.", "E": "If <span class=\"math\">x</span><sup>2</sup> \u2264 9, then <span class=\"math\">x</span> \u2264 3."}, "answer": "E", "solution_html": "<p>A statement \"if A then B\" is equivalent to its contrapositive \"if not B then not A\", and to nothing else on the list.</p><p>Here A is \"<span class=\"math\">x</span> &gt; 3\" and B is \"<span class=\"math\">x</span><sup>2</sup> &gt; 9\". Not B is \"<span class=\"math\">x</span><sup>2</sup> \u2264 9\", not A is \"<span class=\"math\">x</span> \u2264 3\". The contrapositive is <span class=\"key\">If x\u00b2 \u2264 9, then x \u2264 3</span>.</p><p>Sanity check: <em>S</em> is true. Option C is also true (if <span class=\"math\">x</span><sup>2</sup> \u2264 9 then \u22123 \u2264 <span class=\"math\">x</span> \u2264 3, so <span class=\"math\">x</span> \u2264 3). Option A is false (<span class=\"math\">x</span> = \u22124). Equivalent statements must share a truth value, so A cannot be equivalent.</p>", "traps": {"A": "This is the converse, which is false here (x = \u22124).", "B": "This is the inverse (negate both parts, keep the order). It is equivalent to the converse, not to S.", "C": "'B only if A' means 'if B then A': the converse in different words.", "D": "'x > 3 if x\u00b2 > 9' means 'if x\u00b2 > 9 then x > 3': the converse again."}}, {"n": 2, "topic": "Negating quantified statements", "spec_refs": ["Arg3", "Arg4"], "difficulty": 2, "stem_html": "<p>Which one of the following is the negation of the statement</p><p style=\"text-align:center\">\"For every real number <span class=\"math\">x</span>, there exists a real number <span class=\"math\">y</span> such that <span class=\"math\">y</span><sup>2</sup> = <span class=\"math\">x</span>\"?</p>", "diagram_svg": null, "options": {"A": "For every real number <span class=\"math\">x</span>, there exists a real number <span class=\"math\">y</span> such that <span class=\"math\">y</span><sup>2</sup> \u2260 <span class=\"math\">x</span>.", "B": "There exists a real number <span class=\"math\">x</span> such that for every real number <span class=\"math\">y</span>, <span class=\"math\">y</span><sup>2</sup> \u2260 <span class=\"math\">x</span>.", "C": "There exists a real number <span class=\"math\">x</span> and there exists a real number <span class=\"math\">y</span> such that <span class=\"math\">y</span><sup>2</sup> \u2260 <span class=\"math\">x</span>.", "D": "For every real number <span class=\"math\">x</span> and every real number <span class=\"math\">y</span>, <span class=\"math\">y</span><sup>2</sup> \u2260 <span class=\"math\">x</span>.", "E": "There exists a real number <span class=\"math\">y</span> such that for every real number <span class=\"math\">x</span>, <span class=\"math\">y</span><sup>2</sup> \u2260 <span class=\"math\">x</span>."}, "answer": "B", "solution_html": "<p>Negation flips each quantifier and negates the inner statement: \"for every\" becomes \"there exists\", \"there exists\" becomes \"for every\", and \"=\" becomes \"\u2260\", keeping the variables in the same order.</p><p>So the negation is <span class=\"key\">there exists x such that for every y, y\u00b2 \u2260 x</span>.</p><p>Check with meaning: the original says every real has a real square root, which is false (take <span class=\"math\">x</span> = \u22121). The negation should therefore be true, and B is: <span class=\"math\">x</span> = \u22121 has no real <span class=\"math\">y</span> with <span class=\"math\">y</span><sup>2</sup> = \u22121.</p>", "traps": {"A": "Only the inner statement is negated; the quantifiers are untouched. This says every x has some y with y\u00b2 \u2260 x, which is trivially true and is not the negation.", "C": "Both quantifiers turned into 'there exists'. Negating 'there exists' must give 'for every'.", "D": "Both quantifiers turned into 'for every'.", "E": "The variables have been swapped in order. 'There exists y such that for every x' is a much stronger (and different) statement."}}, {"n": 3, "topic": "Necessary & sufficient conditions", "spec_refs": ["Arg2"], "difficulty": 2, "stem_html": "<p><span class=\"math\">x</span> is a real number. Which one of the following is a <strong>sufficient but not necessary</strong> condition for</p><p style=\"text-align:center\"><span class=\"math\">x</span><sup>2</sup> \u2212 5<span class=\"math\">x</span> + 6 = 0 ?</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">x</span> = 2", "B": "<span class=\"math\">x</span> &gt; 0", "C": "2 \u2264 <span class=\"math\">x</span> \u2264 3", "D": "<span class=\"math\">x</span> = 2 or <span class=\"math\">x</span> = 3", "E": "<span class=\"math\">x</span><sup>2</sup> = 4"}, "answer": "A", "solution_html": "<p>The equation is (<span class=\"math\">x</span> \u2212 2)(<span class=\"math\">x</span> \u2212 3) = 0, so it holds exactly when <span class=\"math\">x</span> = 2 or <span class=\"math\">x</span> = 3.</p><p>A condition P is <em>sufficient</em> if P \u21d2 (equation holds); <em>necessary</em> if (equation holds) \u21d2 P.</p><p><span class=\"key\">x = 2</span>: if <span class=\"math\">x</span> = 2 the equation holds (sufficient). But <span class=\"math\">x</span> = 3 also solves it without <span class=\"math\">x</span> being 2 (not necessary). \u2713</p>", "traps": {"B": "x > 0 is implied by the equation (both roots are positive) so it is necessary; but x = 1 is positive and not a root, so it is not sufficient. Necessary, not sufficient.", "C": "Both roots lie in [2, 3], so this is necessary; x = 2.5 shows it is not sufficient.", "D": "This is exactly the solution set: necessary and sufficient.", "E": "x\u00b2 = 4 allows x = \u22122, which is not a root, so it is not sufficient; and x = 3 is a root with x\u00b2 \u2260 4, so it is not necessary either. Neither."}}, {"n": 4, "topic": "Identifying the first error in a proof", "spec_refs": ["Err1", "Err2"], "difficulty": 3, "stem_html": "<p>A student attempts to find all real solutions of <span class=\"rt\">\u221a<span class=\"ov\"><span class=\"math\">x</span> + 3</span></span> = <span class=\"math\">x</span> \u2212 3.</p><ol style=\"margin:8px 0 8px 22px;padding:0\"><li style=\"margin:4px 0\">Squaring both sides gives <span class=\"math\">x</span> + 3 = (<span class=\"math\">x</span> \u2212 3)<sup>2</sup>.</li><li style=\"margin:4px 0\">So <span class=\"math\">x</span> + 3 = <span class=\"math\">x</span><sup>2</sup> \u2212 6<span class=\"math\">x</span> + 9.</li><li style=\"margin:4px 0\">So <span class=\"math\">x</span><sup>2</sup> \u2212 7<span class=\"math\">x</span> + 6 = 0.</li><li style=\"margin:4px 0\">So (<span class=\"math\">x</span> \u2212 1)(<span class=\"math\">x</span> \u2212 6) = 0, hence <span class=\"math\">x</span> = 1 or <span class=\"math\">x</span> = 6.</li><li style=\"margin:4px 0\">Therefore the equation has exactly two real solutions, <span class=\"math\">x</span> = 1 and <span class=\"math\">x</span> = 6.</li></ol><p>Which is the first line containing a false deduction?</p>", "diagram_svg": null, "options": {"A": "Line 1", "B": "Line 2", "C": "Line 3", "D": "Line 4", "E": "Line 5", "F": "There is no error; the conclusion is correct."}, "answer": "E", "solution_html": "<p>Lines 1\u20134 are each valid <em>one-way</em> deductions: if <span class=\"math\">x</span> satisfies the original equation then it satisfies each subsequent line, so any solution must be 1 or 6. Squaring is a legitimate step in that direction.</p><p>Line 5 reverses the logic: it claims that because <span class=\"math\">x</span> = 1 and <span class=\"math\">x</span> = 6 satisfy line 4, they satisfy the original. Squaring is not reversible. Check: <span class=\"math\">x</span> = 1 gives <span class=\"rt\">\u221a<span class=\"ov\">4</span></span> = 2 on the left and \u22122 on the right. Not a solution. <span class=\"math\">x</span> = 6 gives <span class=\"rt\">\u221a<span class=\"ov\">9</span></span> = 3 = 3. \u2713</p><p>So the equation has one solution and the first false line is <span class=\"key\">line 5</span>.</p><p class=\"trap\">The instinct to blame line 1 is common. Squaring does not make a false statement; it makes a statement that is implied by, but does not imply, the original.</p>", "traps": {"A": "Squaring both sides is a valid forward deduction: if the equation holds, so does its square. It is only irreversible.", "B": "Correct expansion.", "C": "Correct rearrangement.", "D": "Correct factorisation; and 'hence x = 1 or 6' is a valid deduction from line 3.", "F": "x = 1 fails the original equation: \u221a4 = 2 \u2260 \u22122."}}, {"n": 5, "topic": "Disproof by counterexample", "spec_refs": ["Prf1"], "difficulty": 3, "stem_html": "<p>Consider the claim: \"For every positive integer <span class=\"math\">n</span>, the number <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 41 is prime.\"</p><p>Which one of the following values of <span class=\"math\">n</span> is a counterexample to the claim?</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">n</span> = 1", "B": "<span class=\"math\">n</span> = 10", "C": "<span class=\"math\">n</span> = 20", "D": "<span class=\"math\">n</span> = 39", "E": "<span class=\"math\">n</span> = 40"}, "answer": "E", "solution_html": "<p>Look for a value where the expression obviously factorises rather than testing primality of large numbers by hand.</p><p><span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 41 = <span class=\"math\">n</span>(<span class=\"math\">n</span> + 1) + 41. With <span class=\"math\">n</span> = 40: 40 \u00d7 41 + 41 = 41 \u00d7 41 = 41<sup>2</sup>, which is not prime.</p><p>So <span class=\"key\">n = 40</span> is a counterexample.</p><p>The others give 43, 151, 461 and 1601, all prime (checking 1601 against primes up to 40 confirms it), but you do not need to verify them once you have found 40.</p>", "traps": {"A": "43 is prime.", "B": "151 is prime.", "C": "461 is prime: not divisible by 2, 3, 5, 7, 11, 13, 17 or 19.", "D": "1601 is prime. It is tempting because it is 'one less than 40', but 39 \u00d7 40 + 41 = 1601 has no small factors."}}, {"n": 6, "topic": "Statements true for all real x", "spec_refs": ["Prf1", "Prf2"], "difficulty": 2, "stem_html": "<p>How many of the following statements are true for <strong>all</strong> real numbers <span class=\"math\">x</span>?</p><ol style=\"margin:8px 0 8px 22px;padding:0\"><li style=\"margin:4px 0\"><span class=\"math\">x</span><sup>2</sup> \u2265 <span class=\"math\">x</span></li><li style=\"margin:4px 0\"><span class=\"math\">x</span><sup>2</sup> + 1 \u2265 2<span class=\"math\">x</span></li><li style=\"margin:4px 0\">|<span class=\"math\">x</span>| \u2265 <span class=\"math\">x</span></li><li style=\"margin:4px 0\"><span class=\"math\">x</span><sup>3</sup> \u2265 <span class=\"math\">x</span></li></ol>", "diagram_svg": null, "options": {"A": "0", "B": "1", "C": "2", "D": "3", "E": "4"}, "answer": "C", "solution_html": "<p>1: false. <span class=\"math\">x</span> = \u00bd gives \u00bc \u2265 \u00bd, which is false.</p><p>2: true. <span class=\"math\">x</span><sup>2</sup> \u2212 2<span class=\"math\">x</span> + 1 = (<span class=\"math\">x</span> \u2212 1)<sup>2</sup> \u2265 0.</p><p>3: true. |<span class=\"math\">x</span>| equals <span class=\"math\">x</span> when <span class=\"math\">x</span> \u2265 0 and equals \u2212<span class=\"math\">x</span> &gt; <span class=\"math\">x</span> when <span class=\"math\">x</span> &lt; 0.</p><p>4: false. <span class=\"math\">x</span> = \u00bd gives \u215b \u2265 \u00bd, false; <span class=\"math\">x</span> = \u22122 gives \u22128 \u2265 \u22122, false.</p><p><span class=\"key\">2</span> statements hold for all <span class=\"math\">x</span>.</p>", "traps": {"A": "Statement 2 is a rearranged perfect square and statement 3 is the definition of modulus; both always hold.", "B": "Only one of 2 and 3 was recognised as always true.", "D": "Statement 1 or 4 was accepted. Both fail for x = \u00bd: testing only integers hides this.", "E": "Statements 1 and 4 fail for 0 < x < 1."}}, {"n": 7, "topic": "Divisibility & parity reasoning", "spec_refs": ["Prf1", "M2.3"], "difficulty": 3, "stem_html": "<p>How many integers <span class=\"math\">n</span> with 1 \u2264 <span class=\"math\">n</span> \u2264 100 have the property that <span class=\"math\">n</span><sup>2</sup> \u2212 1 is divisible by 8?</p>", "diagram_svg": null, "options": {"A": "12", "B": "13", "C": "25", "D": "50", "E": "75"}, "answer": "D", "solution_html": "<p><span class=\"math\">n</span><sup>2</sup> \u2212 1 = (<span class=\"math\">n</span> \u2212 1)(<span class=\"math\">n</span> + 1).</p><p>If <span class=\"math\">n</span> is even, both factors are odd, so the product is odd and not divisible by 8.</p><p>If <span class=\"math\">n</span> is odd, <span class=\"math\">n</span> \u2212 1 and <span class=\"math\">n</span> + 1 are consecutive even numbers, so one of them is divisible by 4 and the other by 2. Their product is divisible by 8.</p><p>So the property holds exactly for odd <span class=\"math\">n</span>: <span class=\"key\">50</span> values.</p>", "traps": {"A": "12 comes from counting n \u2261 1 (mod 8) only (n = 1, 9, 17 and so on up to 97).", "B": "13 comes from counting multiples of 8 (n\u00b2 \u2212 1 is then odd, never divisible by 8).", "C": "25 comes from counting n \u2261 \u00b11 (mod 8), missing that n \u2261 \u00b13 (mod 8) also works: 3\u00b2 \u2212 1 = 8.", "E": "75 comes from 'everything except multiples of 4'; even n never work."}}, {"n": 8, "topic": "'If', 'only if', 'if and only if'", "spec_refs": ["Arg1"], "difficulty": 2, "stem_html": "<p><span class=\"math\">n</span> is a positive integer. Consider the statements:</p><ol style=\"margin:8px 0 8px 22px;padding:0\"><li style=\"margin:4px 0\"><span class=\"math\">n</span> is divisible by 6 <strong>only if</strong> <span class=\"math\">n</span> is divisible by 3.</li><li style=\"margin:4px 0\"><span class=\"math\">n</span> is divisible by 6 <strong>if</strong> <span class=\"math\">n</span> is divisible by 3.</li><li style=\"margin:4px 0\"><span class=\"math\">n</span> is divisible by 6 <strong>if and only if</strong> <span class=\"math\">n</span> is divisible by 2 and <span class=\"math\">n</span> is divisible by 3.</li></ol><p>Which of the statements are true?</p>", "diagram_svg": null, "options": {"A": "1 only", "B": "2 only", "C": "3 only", "D": "1 and 3 only", "E": "2 and 3 only", "F": "1, 2 and 3"}, "answer": "D", "solution_html": "<p>\"A only if B\" means \"if A then B\". Statement 1 says: if 6 | <span class=\"math\">n</span> then 3 | <span class=\"math\">n</span>. True.</p><p>\"A if B\" means \"if B then A\". Statement 2 says: if 3 | <span class=\"math\">n</span> then 6 | <span class=\"math\">n</span>. False (<span class=\"math\">n</span> = 3).</p><p>Statement 3: 6 | <span class=\"math\">n</span> \u21d4 (2 | <span class=\"math\">n</span> and 3 | <span class=\"math\">n</span>). True, because 2 and 3 are coprime.</p><p><span class=\"key\">1 and 3 only</span>.</p>", "traps": {"A": "Statement 3 is also true.", "B": "Statement 2 is the false one: n = 3 is divisible by 3 but not by 6.", "C": "Statement 1 is also true; 'only if' points the implication from 'divisible by 6' to 'divisible by 3'.", "E": "Reads 'only if' and 'if' the wrong way round.", "F": "Statement 2 fails for n = 3."}}, {"n": 9, "topic": "Flawed proofs: loss of generality", "spec_refs": ["Err1"], "difficulty": 3, "stem_html": "<p>A student is asked to prove that the sum of any two odd integers is even, and writes:</p><p style=\"margin-left:20px\">\"Let the odd integers be 2<span class=\"math\">n</span> + 1 and 2<span class=\"math\">n</span> + 3. Their sum is 4<span class=\"math\">n</span> + 4 = 4(<span class=\"math\">n</span> + 1), which is even. This completes the proof.\"</p><p>Which one of the following is the correct assessment of this argument?</p>", "diagram_svg": null, "options": {"A": "The argument only proves the result for pairs of odd integers that differ by 2, so it is not a proof of the general statement.", "B": "The argument is wrong because 4(<span class=\"math\">n</span> + 1) is not necessarily even.", "C": "The argument is a complete and correct proof.", "D": "The argument is wrong because it proves that the sum is divisible by 4, and this is false, so the conclusion is false.", "E": "The argument is wrong because odd integers should be written as 2<span class=\"math\">n</span> \u2212 1."}, "answer": "A", "solution_html": "<p>The two odd numbers were written as 2<span class=\"math\">n</span> + 1 and 2<span class=\"math\">n</span> + 3 using the <em>same</em> <span class=\"math\">n</span>, which forces them to differ by 2. The general case needs independent variables: 2<span class=\"math\">n</span> + 1 and 2<span class=\"math\">m</span> + 1, whose sum 2(<span class=\"math\">n</span> + <span class=\"math\">m</span> + 1) is even.</p><p><span class=\"key\">The argument covers only a special case</span>. Everything it says about that special case is correct, which is why it looks convincing.</p>", "traps": {"B": "4(n + 1) is always even. The algebra is fine; the generality is not.", "C": "The argument only handles pairs like 3 and 5, not 3 and 7.", "D": "The sum is divisible by 4 in the special case considered, and that is correct there. The conclusion 'sum is even' is a true statement; only the proof is inadequate.", "E": "2n \u2212 1 and 2n + 1 are equally valid ways to write odd numbers; the form is not the issue."}}, {"n": 10, "topic": "Negating 'if \u2026 then' with quantifiers", "spec_refs": ["Arg3", "Arg4"], "difficulty": 3, "stem_html": "<p>Which one of the following is the negation of the statement</p><p style=\"text-align:center\">\"For all real <span class=\"math\">x</span> &gt; 0, if <span class=\"math\">x</span> &lt; 1 then <span class=\"math\">x</span><sup>2</sup> &lt; <span class=\"math\">x</span>\"?</p>", "diagram_svg": null, "options": {"A": "For all real <span class=\"math\">x</span> &gt; 0, if <span class=\"math\">x</span> &lt; 1 then <span class=\"math\">x</span><sup>2</sup> \u2265 <span class=\"math\">x</span>.", "B": "There exists a real <span class=\"math\">x</span> &gt; 0 such that if <span class=\"math\">x</span> &lt; 1 then <span class=\"math\">x</span><sup>2</sup> \u2265 <span class=\"math\">x</span>.", "C": "For all real <span class=\"math\">x</span> &gt; 0, <span class=\"math\">x</span> \u2265 1 or <span class=\"math\">x</span><sup>2</sup> \u2265 <span class=\"math\">x</span>.", "D": "There exists a real <span class=\"math\">x</span> &gt; 0 such that <span class=\"math\">x</span> \u2265 1 and <span class=\"math\">x</span><sup>2</sup> &lt; <span class=\"math\">x</span>.", "E": "There exists a real <span class=\"math\">x</span> &gt; 0 such that <span class=\"math\">x</span> &lt; 1 and <span class=\"math\">x</span><sup>2</sup> \u2265 <span class=\"math\">x</span>."}, "answer": "E", "solution_html": "<p>Two rules. The negation of \"for all <span class=\"math\">x</span>, P(<span class=\"math\">x</span>)\" is \"there exists <span class=\"math\">x</span> such that not P(<span class=\"math\">x</span>)\". The negation of \"if A then B\" is \"A and not B\" (the only way an implication fails is when the hypothesis holds and the conclusion does not).</p><p>So the negation is: <span class=\"key\">there exists x > 0 with x < 1 and x\u00b2 \u2265 x</span>.</p><p>Meaning check: the original is true (for 0 &lt; <span class=\"math\">x</span> &lt; 1, multiplying <span class=\"math\">x</span> &lt; 1 by the positive <span class=\"math\">x</span> gives <span class=\"math\">x</span><sup>2</sup> &lt; <span class=\"math\">x</span>), so its negation should be false. C is false. \u2713</p>", "traps": {"A": "The quantifier was not flipped, and 'if A then not B' is not the negation of 'if A then B'.", "B": "An 'if \u2026 then' inside the negation is wrong: the negation of an implication is a conjunction.", "C": "This is a rewording of the original statement (an implication 'A \u21d2 B' is 'not A or B'), not its negation.", "D": "This negates the hypothesis instead of keeping it. The implication only fails when x < 1 holds."}}, {"n": 11, "topic": "Necessary and sufficient: two distinct positive roots", "spec_refs": ["Arg2", "MM1.3"], "difficulty": 3, "stem_html": "<p><span class=\"math\">b</span> and <span class=\"math\">c</span> are real numbers. Which one of the following is a <strong>necessary and sufficient</strong> condition for the equation</p><p style=\"text-align:center\"><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">bx</span> + <span class=\"math\">c</span> = 0</p><p>to have two distinct positive real roots?</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">b</span> &lt; 0 and <span class=\"math\">c</span> &gt; 0", "B": "<span class=\"math\">b</span><sup>2</sup> &gt; 4<span class=\"math\">c</span> and <span class=\"math\">c</span> &gt; 0", "C": "<span class=\"math\">b</span> &lt; 0 and <span class=\"math\">b</span><sup>2</sup> &gt; 4<span class=\"math\">c</span>", "D": "<span class=\"math\">b</span> &lt; 0, <span class=\"math\">c</span> &gt; 0 and <span class=\"math\">b</span><sup>2</sup> &gt; 4<span class=\"math\">c</span>", "E": "<span class=\"math\">b</span> &lt; 0, <span class=\"math\">c</span> &gt; 0 and <span class=\"math\">b</span><sup>2</sup> \u2265 4<span class=\"math\">c</span>"}, "answer": "D", "solution_html": "<p>Two distinct real roots \u21d4 <span class=\"math\">b</span><sup>2</sup> &gt; 4<span class=\"math\">c</span>. Given real roots <span class=\"math\">p</span>, <span class=\"math\">q</span>: both positive \u21d4 <span class=\"math\">p</span> + <span class=\"math\">q</span> &gt; 0 and <span class=\"math\">pq</span> &gt; 0 \u21d4 \u2212<span class=\"math\">b</span> &gt; 0 and <span class=\"math\">c</span> &gt; 0.</p><p>All three are needed and together they are enough: <span class=\"key\">b < 0, c > 0 and b\u00b2 > 4c</span>.</p><p>Why each alternative fails as \"necessary and sufficient\":</p>", "traps": {"A": "Necessary but not sufficient: b = \u22121, c = 1 gives no real roots.", "B": "Not sufficient: b = 3, c = 1 gives two distinct negative roots.", "C": "Not sufficient: b = \u22121, c = \u22122 gives roots 2 and \u22121, one of them negative.", "E": "Not necessary-and-sufficient: with b\u00b2 = 4c the roots are equal, not distinct, so the condition admits cases the statement excludes."}}, {"n": 12, "topic": "Conjecture from small cases", "spec_refs": ["Prf3", "MM2.2"], "difficulty": 3, "stem_html": "<p>For a positive integer <span class=\"math\">n</span>, let</p><p style=\"text-align:center\"><span class=\"math\">S</span>(<span class=\"math\">n</span>) = 1 \u2212 2 + 3 \u2212 4 + \u2026 + (\u22121)<sup><span class=\"math\">n</span>+1</sup><span class=\"math\">n</span>.</p><p>Which one of the following is a correct expression for <span class=\"math\">S</span>(<span class=\"math\">n</span>)?</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">S</span>(<span class=\"math\">n</span>) = <span class=\"fr\"><span><span class=\"math\">n</span> + 1</span><span>2</span></span> for all <span class=\"math\">n</span>", "B": "<span class=\"math\">S</span>(<span class=\"math\">n</span>) = \u2212<span class=\"fr\"><span><span class=\"math\">n</span></span><span>2</span></span> for all <span class=\"math\">n</span>", "C": "<span class=\"math\">S</span>(<span class=\"math\">n</span>) = \u2212<span class=\"fr\"><span><span class=\"math\">n</span></span><span>2</span></span> if <span class=\"math\">n</span> is even, and <span class=\"fr\"><span><span class=\"math\">n</span> + 1</span><span>2</span></span> if <span class=\"math\">n</span> is odd", "D": "<span class=\"math\">S</span>(<span class=\"math\">n</span>) = <span class=\"fr\"><span><span class=\"math\">n</span></span><span>2</span></span> if <span class=\"math\">n</span> is even, and \u2212<span class=\"fr\"><span><span class=\"math\">n</span> + 1</span><span>2</span></span> if <span class=\"math\">n</span> is odd", "E": "<span class=\"math\">S</span>(<span class=\"math\">n</span>) = (\u22121)<sup><span class=\"math\">n</span></sup><span class=\"fr\"><span><span class=\"math\">n</span></span><span>2</span></span> for all <span class=\"math\">n</span>"}, "answer": "C", "solution_html": "<p>Small cases: <span class=\"math\">S</span>(1) = 1, <span class=\"math\">S</span>(2) = \u22121, <span class=\"math\">S</span>(3) = 2, <span class=\"math\">S</span>(4) = \u22122, <span class=\"math\">S</span>(5) = 3.</p><p>Even <span class=\"math\">n</span>: pair the terms (1 \u2212 2) + (3 \u2212 4) + \u2026 : <span class=\"math\">n</span>/2 pairs each equal to \u22121, so <span class=\"math\">S</span>(<span class=\"math\">n</span>) = \u2212<span class=\"math\">n</span>/2.</p><p>Odd <span class=\"math\">n</span>: <span class=\"math\">S</span>(<span class=\"math\">n</span>) = <span class=\"math\">S</span>(<span class=\"math\">n</span> \u2212 1) + <span class=\"math\">n</span> = \u2212(<span class=\"math\">n</span> \u2212 1)/2 + <span class=\"math\">n</span> = (<span class=\"math\">n</span> + 1)/2.</p><p><span class=\"key\">C</span> matches both cases (and both small-case checks).</p>", "traps": {"A": "Only correct for odd n; S(2) = \u22121, not 3/2.", "B": "Only correct for even n; S(1) = 1, not \u22121/2.", "D": "Signs reversed in both cases.", "E": "Gives S(1) = \u22121/2. Wrong for every odd n and not an integer."}}, {"n": 13, "topic": "Missed solutions: a\u00b2 = b\u00b2 does not give a = b", "spec_refs": ["Err2", "MM1.3"], "difficulty": 2, "stem_html": "<p>A student solves (<span class=\"math\">x</span> \u2212 2)<sup>2</sup> = (2<span class=\"math\">x</span> \u2212 1)<sup>2</sup> as follows:</p><p style=\"margin-left:20px\">\"Taking the square root of both sides, <span class=\"math\">x</span> \u2212 2 = 2<span class=\"math\">x</span> \u2212 1, so <span class=\"math\">x</span> = \u22121.\"</p><p>The student has missed a solution. What is it?</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">x</span> = <span class=\"fr\"><span>1</span><span>3</span></span>", "B": "<span class=\"math\">x</span> = 1", "C": "<span class=\"math\">x</span> = <span class=\"fr\"><span>1</span><span>2</span></span>", "D": "<span class=\"math\">x</span> = 2", "E": "<span class=\"math\">x</span> = 3"}, "answer": "B", "solution_html": "<p><span class=\"math\">a</span><sup>2</sup> = <span class=\"math\">b</span><sup>2</sup> means <span class=\"math\">a</span> = <span class=\"math\">b</span> <em>or</em> <span class=\"math\">a</span> = \u2212<span class=\"math\">b</span>. The student took only the first branch.</p><p>Second branch: <span class=\"math\">x</span> \u2212 2 = \u2212(2<span class=\"math\">x</span> \u2212 1) = \u22122<span class=\"math\">x</span> + 1, so 3<span class=\"math\">x</span> = 3 and <span class=\"key\">x = 1</span>.</p><p>Check: (1 \u2212 2)<sup>2</sup> = 1 and (2 \u2212 1)<sup>2</sup> = 1. \u2713</p>", "traps": {"A": "1/3 comes from x \u2212 2 = \u22122x \u2212 1 (sign error when negating the bracket).", "C": "1/2 is where 2x \u2212 1 = 0, not a solution.", "D": "2 is where x \u2212 2 = 0, not a solution: (2\u00b72 \u2212 1)\u00b2 = 9 \u2260 0.", "E": "3 comes from x \u2212 2 = 2x \u2212 1 solved with a sign slip."}}, {"n": 14, "topic": "Deductions from an inequality", "spec_refs": ["Prf2", "MM1.5"], "difficulty": 3, "stem_html": "<p><span class=\"math\">a</span> and <span class=\"math\">b</span> are real numbers with <span class=\"math\">a</span> &gt; <span class=\"math\">b</span>. Which of the following statements <strong>must</strong> be true?</p><ol style=\"margin:8px 0 8px 22px;padding:0\"><li style=\"margin:4px 0\"><span class=\"math\">a</span><sup>2</sup> &gt; <span class=\"math\">b</span><sup>2</sup></li><li style=\"margin:4px 0\"><span class=\"math\">a</span><sup>3</sup> &gt; <span class=\"math\">b</span><sup>3</sup></li><li style=\"margin:4px 0\"><span class=\"fr\"><span>1</span><span><span class=\"math\">a</span></span></span> &lt; <span class=\"fr\"><span>1</span><span><span class=\"math\">b</span></span></span> &nbsp;(assuming <span class=\"math\">a</span>, <span class=\"math\">b</span> \u2260 0)</li><li style=\"margin:4px 0\"><span class=\"math\">a</span> \u2212 <span class=\"math\">b</span> &gt; 0</li></ol>", "diagram_svg": null, "options": {"A": "4 only", "B": "2 and 4 only", "C": "1, 2 and 4 only", "D": "2, 3 and 4 only", "E": "1, 2, 3 and 4"}, "answer": "B", "solution_html": "<p>1: not necessarily. <span class=\"math\">a</span> = 1, <span class=\"math\">b</span> = \u22122: 1 &gt; 4 is false.</p><p>2: always. <span class=\"math\">x</span><sup>3</sup> is increasing on the whole real line, so <span class=\"math\">a</span> &gt; <span class=\"math\">b</span> \u21d2 <span class=\"math\">a</span><sup>3</sup> &gt; <span class=\"math\">b</span><sup>3</sup>.</p><p>3: not necessarily. <span class=\"math\">a</span> = 1, <span class=\"math\">b</span> = \u22121: 1 &lt; \u22121 is false. Reciprocals reverse an inequality only when both numbers have the same sign.</p><p>4: always, by definition of <span class=\"math\">a</span> &gt; <span class=\"math\">b</span>.</p><p><span class=\"key\">2 and 4 only</span>.</p>", "traps": {"A": "Statement 2 always holds: cubing preserves order for all reals.", "C": "Statement 1 fails when b is negative with larger magnitude, e.g. a = 1, b = \u22122.", "D": "Statement 3 fails when a and b have opposite signs.", "E": "Both 1 and 3 have counterexamples."}}, {"n": 15, "topic": "Difference of two squares: counting solutions", "spec_refs": ["Prf5", "M2.3"], "difficulty": 4, "stem_html": "<p>How many ordered pairs of positive integers (<span class=\"math\">a</span>, <span class=\"math\">b</span>) satisfy</p><p style=\"text-align:center\"><span class=\"math\">a</span><sup>2</sup> \u2212 <span class=\"math\">b</span><sup>2</sup> = 2025 ?</p>", "diagram_svg": null, "options": {"A": "5", "B": "6", "C": "7", "D": "8", "E": "15"}, "answer": "C", "solution_html": "<p>(<span class=\"math\">a</span> \u2212 <span class=\"math\">b</span>)(<span class=\"math\">a</span> + <span class=\"math\">b</span>) = 2025 with 0 &lt; <span class=\"math\">a</span> \u2212 <span class=\"math\">b</span> &lt; <span class=\"math\">a</span> + <span class=\"math\">b</span>. Write <span class=\"math\">d</span> = <span class=\"math\">a</span> \u2212 <span class=\"math\">b</span>, <span class=\"math\">e</span> = <span class=\"math\">a</span> + <span class=\"math\">b</span>, so <span class=\"math\">de</span> = 2025, <span class=\"math\">d</span> &lt; <span class=\"math\">e</span>, and <span class=\"math\">d</span>, <span class=\"math\">e</span> must have the same parity (their sum 2<span class=\"math\">a</span> is even).</p><p>2025 = 3<sup>4</sup> \u00d7 5<sup>2</sup> has (4 + 1)(2 + 1) = 15 divisors, all odd, so parity is automatic.</p><p>Pairs (<span class=\"math\">d</span>, <span class=\"math\">e</span>) with <span class=\"math\">d</span> &lt; <span class=\"math\">e</span>: since 2025 = 45<sup>2</sup>, the divisors pair up around 45, giving (15 \u2212 1)/2 = 7 pairs with <span class=\"math\">d</span> &lt; <span class=\"math\">e</span>. The pair (45, 45) gives <span class=\"math\">b</span> = 0, which is excluded.</p><p>Each pair gives <span class=\"math\">a</span> = (<span class=\"math\">d</span> + <span class=\"math\">e</span>)/2, <span class=\"math\">b</span> = (<span class=\"math\">e</span> \u2212 <span class=\"math\">d</span>)/2, positive integers. <span class=\"key\">7</span> pairs.</p><p>Listed: (1, 2025), (3, 675), (5, 405), (9, 225), (15, 135), (25, 81), (27, 75).</p>", "traps": {"A": "5 comes from missing two of the divisor pairs (usually (25, 81) and (27, 75)).", "B": "6 comes from miscounting the divisors as 13 or 14.", "D": "8 includes (45, 45), which gives b = 0, not a positive integer.", "E": "15 is the number of divisors of 2025, i.e. counting each factorisation twice and including 45 \u00d7 45."}}, {"n": 16, "topic": "Reasoning about a cubic's graph", "spec_refs": ["MM8.5", "MM8.6", "Prf2"], "difficulty": 3, "stem_html": "<p>Let f(<span class=\"math\">x</span>) = <span class=\"math\">x</span><sup>3</sup> \u2212 3<span class=\"math\">x</span>. Which one of the following statements is true?</p>", "diagram_svg": null, "options": {"A": "There exists a real <span class=\"math\">k</span> for which the equation f(<span class=\"math\">x</span>) = <span class=\"math\">k</span> has exactly two distinct real solutions.", "B": "For every real <span class=\"math\">k</span>, the equation f(<span class=\"math\">x</span>) = <span class=\"math\">k</span> has three distinct real solutions.", "C": "f is one-to-one.", "D": "f(<span class=\"math\">x</span>) &gt; 0 for all <span class=\"math\">x</span> &gt; 0.", "E": "f is increasing for all real <span class=\"math\">x</span>."}, "answer": "A", "solution_html": "<p>f\u2032(<span class=\"math\">x</span>) = 3<span class=\"math\">x</span><sup>2</sup> \u2212 3 = 3(<span class=\"math\">x</span> \u2212 1)(<span class=\"math\">x</span> + 1). Turning points at (\u22121, 2) (maximum) and (1, \u22122) (minimum).</p><p>The horizontal line <span class=\"math\">y</span> = <span class=\"math\">k</span> meets the curve three times for \u22122 &lt; <span class=\"math\">k</span> &lt; 2, once for |<span class=\"math\">k</span>| &gt; 2, and <em>exactly twice</em> when <span class=\"math\">k</span> = \u00b12, because it passes through a turning point. For example f(<span class=\"math\">x</span>) = 2 \u21d4 <span class=\"math\">x</span><sup>3</sup> \u2212 3<span class=\"math\">x</span> \u2212 2 = (<span class=\"math\">x</span> + 1)<sup>2</sup>(<span class=\"math\">x</span> \u2212 2) = 0, solutions \u22121 and 2 only.</p><p><span class=\"key\">C</span> is true.</p>", "traps": {"B": "For k = 3, x\u00b3 \u2212 3x \u2212 3 = 0 has one real root (the line is above the maximum).", "C": "f(0) = f(\u221a3) = 0, so f is not one-to-one.", "D": "f(1) = \u22122 < 0.", "E": "f\u2032(0) = \u22123 < 0, so f decreases on (\u22121, 1)."}}, {"n": 17, "topic": "Existence statements & the discriminant", "spec_refs": ["Arg3", "MM1.3"], "difficulty": 3, "stem_html": "<p><span class=\"math\">k</span> is a real constant. For which values of <span class=\"math\">k</span> is the following statement true?</p><p style=\"text-align:center\">\"There exists a real number <span class=\"math\">x</span> such that <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">kx</span> + 1 &lt; 0.\"</p>", "diagram_svg": null, "options": {"A": "<span class=\"math\">k</span> &gt; 2", "B": "<span class=\"math\">k</span> &lt; \u22122", "C": "|<span class=\"math\">k</span>| &gt; 2", "D": "|<span class=\"math\">k</span>| \u2265 2", "E": "All real <span class=\"math\">k</span>", "F": "No real <span class=\"math\">k</span>"}, "answer": "C", "solution_html": "<p><span class=\"math\">y</span> = <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">kx</span> + 1 is an upward parabola. It takes a negative value somewhere exactly when it crosses the <span class=\"math\">x</span>-axis at two distinct points, i.e. when the discriminant is positive: <span class=\"math\">k</span><sup>2</sup> \u2212 4 &gt; 0.</p><p>So the statement is true precisely for <span class=\"key\">|k| > 2</span>.</p><p>Edge: <span class=\"math\">k</span> = \u00b12 gives (<span class=\"math\">x</span> \u00b1 1)<sup>2</sup>, which is \u2265 0 everywhere, never negative. So the inequality is strict.</p>", "traps": {"A": "k < \u22122 also works (e.g. k = \u22123, x = 1 gives 1 \u2212 3 + 1 < 0).", "B": "k > 2 also works.", "D": "At k = \u00b12 the expression is a perfect square and is never negative.", "E": "For k = 0, x\u00b2 + 1 > 0 always.", "F": "k = 3, x = 1 gives 1 + 3 + 1 = 5 > 0, but x = \u22121 gives 1 \u2212 3 + 1 = \u22121 < 0."}}, {"n": 18, "topic": "Statements whose converse is false", "spec_refs": ["Arg1"], "difficulty": 3, "stem_html": "<p>Each of the following statements is true. For which one is the <strong>converse</strong> false?</p>", "diagram_svg": null, "options": {"A": "If <span class=\"math\">n</span> is an even integer, then <span class=\"math\">n</span><sup>2</sup> is an even integer.", "B": "If <span class=\"math\">x</span> &gt; 2, then <span class=\"math\">x</span><sup>2</sup> &gt; 4.", "C": "If a triangle has two equal sides, then it has two equal angles.", "D": "If <span class=\"math\">x</span> = 3, then 2<span class=\"math\">x</span> = 6.", "E": "If a quadrilateral is a square, then it is a rectangle with perpendicular diagonals."}, "answer": "B", "solution_html": "<p>The converse of \"if A then B\" is \"if B then A\".</p><p>A: converse \"if <span class=\"math\">n</span><sup>2</sup> is even then <span class=\"math\">n</span> is even\". True (an odd number squared is odd).</p><p>B: converse \"if <span class=\"math\">x</span><sup>2</sup> &gt; 4 then <span class=\"math\">x</span> &gt; 2\". False: <span class=\"math\">x</span> = \u22123 has <span class=\"math\">x</span><sup>2</sup> = 9 &gt; 4. <span class=\"key\">B</span>.</p><p>C: converse \"two equal angles \u21d2 two equal sides\". True; the isosceles triangle theorem runs both ways.</p><p>D: converse \"if 2<span class=\"math\">x</span> = 6 then <span class=\"math\">x</span> = 3\". True.</p><p>E: converse \"a rectangle with perpendicular diagonals is a square\". A rectangle has equal diagonals that bisect each other; if they are also perpendicular, all four sides are equal, so it is a square. True.</p>", "traps": {"A": "The converse holds: if n\u00b2 is even, n cannot be odd.", "C": "The converse is the other half of the isosceles triangle theorem, and is true.", "D": "Linear equations are reversible.", "E": "A rectangle whose diagonals are perpendicular is a rhombus and a rectangle, hence a square; the converse is true."}}, {"n": 19, "topic": "Errors when dividing by a variable", "spec_refs": ["Err1", "Err2"], "difficulty": 2, "stem_html": "<p>A student writes:</p><p style=\"margin-left:20px\">\"Claim: the only real solution of <span class=\"math\">x</span><sup>3</sup> = <span class=\"math\">x</span> is <span class=\"math\">x</span> = 1.<br>Proof: dividing both sides by <span class=\"math\">x</span> gives <span class=\"math\">x</span><sup>2</sup> = 1, so <span class=\"math\">x</span> = 1.\"</p><p>Which one of the following is correct?</p>", "diagram_svg": null, "options": {"A": "The proof is valid.", "B": "The only error is dividing by <span class=\"math\">x</span>, which loses the solution <span class=\"math\">x</span> = 0.", "C": "The only error is deducing <span class=\"math\">x</span> = 1 from <span class=\"math\">x</span><sup>2</sup> = 1, which loses the solution <span class=\"math\">x</span> = \u22121.", "D": "There are two errors: dividing by <span class=\"math\">x</span> loses <span class=\"math\">x</span> = 0, and <span class=\"math\">x</span><sup>2</sup> = 1 also gives <span class=\"math\">x</span> = \u22121. The equation has three real solutions.", "E": "The claim is true but the proof is incomplete because it does not check that <span class=\"math\">x</span> = 1 works."}, "answer": "D", "solution_html": "<p>Dividing by <span class=\"math\">x</span> is only valid if <span class=\"math\">x</span> \u2260 0, and <span class=\"math\">x</span> = 0 satisfies <span class=\"math\">x</span><sup>3</sup> = <span class=\"math\">x</span>. That is one error.</p><p><span class=\"math\">x</span><sup>2</sup> = 1 gives <span class=\"math\">x</span> = \u00b11, so <span class=\"math\">x</span> = \u22121 is also lost. That is a second error.</p><p>Correct approach: <span class=\"math\">x</span><sup>3</sup> \u2212 <span class=\"math\">x</span> = <span class=\"math\">x</span>(<span class=\"math\">x</span> \u2212 1)(<span class=\"math\">x</span> + 1) = 0, giving <span class=\"key\">three solutions 0, 1, \u22121</span>.</p>", "traps": {"A": "x = 0 and x = \u22121 both satisfy the original equation.", "B": "x = \u22121 is also missed.", "C": "x = 0 is also missed.", "E": "The claim itself is false, so no amount of checking rescues it."}}, {"n": 20, "topic": "Necessary and sufficient conditions for divisibility", "spec_refs": ["Arg2", "Prf1", "M2.3"], "difficulty": 4, "stem_html": "<p><span class=\"math\">n</span> is a positive integer. Which one of the following statements is true?</p><p>For <span class=\"math\">n</span><sup>2</sup> + 2 to be divisible by 3, it is</p>", "diagram_svg": null, "options": {"A": "necessary that <span class=\"math\">n</span> is divisible by 3.", "B": "sufficient that <span class=\"math\">n</span> is divisible by 3.", "C": "necessary that <span class=\"math\">n</span> is even.", "D": "sufficient but not necessary that <span class=\"math\">n</span> is odd.", "E": "necessary and sufficient that <span class=\"math\">n</span> is not divisible by 3."}, "answer": "E", "solution_html": "<p>Work by cases on the remainder of <span class=\"math\">n</span> on division by 3.</p><p><span class=\"math\">n</span> = 3<span class=\"math\">k</span>: <span class=\"math\">n</span><sup>2</sup> + 2 = 9<span class=\"math\">k</span><sup>2</sup> + 2, remainder 2. Not divisible.</p><p><span class=\"math\">n</span> = 3<span class=\"math\">k</span> \u00b1 1: <span class=\"math\">n</span><sup>2</sup> = 9<span class=\"math\">k</span><sup>2</sup> \u00b1 6<span class=\"math\">k</span> + 1, so <span class=\"math\">n</span><sup>2</sup> + 2 = 9<span class=\"math\">k</span><sup>2</sup> \u00b1 6<span class=\"math\">k</span> + 3, divisible by 3.</p><p>So <span class=\"math\">n</span><sup>2</sup> + 2 is divisible by 3 <em>exactly when</em> <span class=\"math\">n</span> is not divisible by 3: <span class=\"key\">necessary and sufficient that 3 does not divide n</span>.</p>", "traps": {"A": "The opposite: if 3 | n the expression is never divisible by 3.", "B": "n = 3 gives 11, not divisible by 3.", "C": "n = 1 is odd and works (1 + 2 = 3), so 'even' is not necessary.", "D": "n = 3 is odd and fails, so 'odd' is not sufficient."}}], "rebalanced": true};
+const QUESTIONS=PAPER.questions;
+/* =====================================================================
+   SCALING — Telos estimate. UAT-UK publishes no raw→scale table.
+   Anchors are on a 40-mark (two-paper) basis; a single paper is doubled.
+   Calibrated to: median ≈ 4.5, ~10% ≥ 7.0, cap 9.0.  Recalibrate from Telos data.
+   ===================================================================== */
+const SCALE_ANCHORS=[[0,1.0],[8,2.0],[14,3.3],[20,4.5],[26,6.0],[30,7.0],[34,8.0],[38,8.8],[40,9.0]];
+const ANCH=PAPER.family==='ESAT'?[[0,1.0],[5,2.0],[9,3.3],[13,4.5],[17,6.0],[20,7.0],[23,8.0],[26,8.8],[27,9.0]]:SCALE_ANCHORS;
+function scaledFrom40(m){
+  m=Math.max(0,Math.min(ANCH[ANCH.length-1][0],m));
+  for(let i=1;i<ANCH.length;i++){const [m0,s0]=ANCH[i-1],[m1,s1]=ANCH[i];
+    if(m<=m1){return Math.round((s0+(s1-s0)*(m-m0)/(m1-m0))*10)/10;}}
+  return 9.0;
+}
+const N=QUESTIONS.length, PAPER_MARKS=PAPER.family_marks, DURATION=PAPER.duration_sec;
+const scaledForRaw=(r)=>scaledFrom40(r*PAPER.family_marks/N);
+function minRawFor(target){for(let r=0;r<=N;r++){if(scaledForRaw(r)>=target-1e-9)return r;}return null;}
+
+/* =====================================================================
+   PLAYER STATE
+   ===================================================================== */
+const state={cur:0,answers:Array(N).fill(null),flags:Array(N).fill(false),time:Array(N).fill(0),started:0,remaining:DURATION,tick:null,lastSwitch:0,submitted:false};
+const $=(s)=>document.querySelector(s);
+const show=(id)=>{['intro','exam','review','results'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));window.scrollTo(0,0);};
+function setTheme(dark){document.documentElement.dataset.theme=dark?'dark':'';['#themeBtn1','#themeBtn2'].forEach(s=>{$(s).textContent=dark?'Light player (authentic)':'Dark player';});}
+let dark=false;
+(function init(){const fam=PAPER.family==='TMUA'?'Test of Mathematics for University Admission':'Engineering and Science Admissions Test';
+ $('#famName').textContent=fam;$('#paperTitle').textContent=PAPER.title;$('#paperSub').textContent=`${PAPER.series} — original questions written to the October 2026 / January 2027 content specification`;
+ $('#paperFmt').textContent=`${QUESTIONS.length} questions. ${Math.round(PAPER.duration_sec/60)} minutes.`;$('#targetNote').textContent=PAPER.target_note||'';
+ document.querySelectorAll('.shortName').forEach(e=>e.textContent=PAPER.short);document.title=`Telos Exam Mode — ${PAPER.short} ${PAPER.series}`;
+ $('#timer').textContent=fmt(PAPER.duration_sec);$('#timer2').textContent=fmt(PAPER.duration_sec);})();
+['#themeBtn1','#themeBtn2'].forEach(s=>$(s).addEventListener('click',()=>{dark=!dark;setTheme(dark);}));
+
+function fmt(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(){
+  state.started=Date.now();state.lastSwitch=Date.now();
+  state.tick=setInterval(()=>{
+    state.remaining=DURATION-(Date.now()-state.started)/1000;
+    const t=fmt(state.remaining);$('#timer').textContent=t;$('#timer2').textContent=t;
+    const warn=state.remaining<=5*60;$('#timer').classList.toggle('warn',warn);$('#timer2').classList.toggle('warn',warn);
+    if(state.remaining<=0){submit(true);}
+  },250);
+}
+function stampTime(){const now=Date.now();state.time[state.cur]+=(now-state.lastSwitch)/1000;state.lastSwitch=now;}
+
+function render(){
+  const q=QUESTIONS[state.cur];
+  $('#qcount').textContent=`Question ${state.cur+1} of ${N}`;$('#qnum').textContent=`Question ${state.cur+1}`;
+  $('#flagState').textContent=state.flags[state.cur]?'Flagged for review':'';$('#flagState').className=state.flags[state.cur]?'flagged':'';
+  $('#stem').innerHTML=q.stem_html;
+  $('#diagram').innerHTML=q.diagram_svg||'';
+  $('#opts').innerHTML=Object.entries(q.options).map(([k,v])=>`<li><label><input type="radio" name="q${q.id}" value="${k}" ${state.answers[state.cur]===k?'checked':''}><span class="key">${k}</span><span>${v}</span></label></li>`).join('');
+  $('#opts').querySelectorAll('input').forEach(i=>i.addEventListener('change',e=>{state.answers[state.cur]=e.target.value;renderNav();}));
+  $('#prevBtn').disabled=state.cur===0;$('#nextBtn').textContent=state.cur===N-1?'Review ▶':'Next ▶';
+  $('#flagBtn').classList.toggle('on',state.flags[state.cur]);$('#flagBtn').textContent=state.flags[state.cur]?'Unflag':'Flag for review';
+  renderNav();
+}
+function go(i){stampTime();state.cur=i;render();window.scrollTo(0,0);}
+function renderNav(){
+  $('#navgrid').innerHTML=QUESTIONS.map((q,i)=>`<button class="${state.answers[i]?'ans':''} ${state.flags[i]?'flg':''} ${i===state.cur?'cur':''}" data-i="${i}" aria-label="Question ${i+1}${state.answers[i]?', answered':''}${state.flags[i]?', flagged':''}">${i+1}</button>`).join('');
+  $('#navgrid').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{go(+b.dataset.i);$('#navdrawer').classList.add('hidden');}));
+}
+$('#startBtn').addEventListener('click',()=>{show('exam');startTimer();render();});
+$('#prevBtn').addEventListener('click',()=>go(state.cur-1));
+$('#nextBtn').addEventListener('click',()=>{if(state.cur===N-1)openReview();else go(state.cur+1);});
+$('#flagBtn').addEventListener('click',()=>{state.flags[state.cur]=!state.flags[state.cur];render();});
+$('#navBtn').addEventListener('click',()=>$('#navdrawer').classList.toggle('hidden'));
+$('#navClose').addEventListener('click',()=>$('#navdrawer').classList.add('hidden'));
+$('#reviewBtn').addEventListener('click',openReview);
+
+let revFilter='all';
+function openReview(){stampTime();show('review');renderReview();}
+function renderReview(){
+  const un=state.answers.filter(a=>!a).length,fl=state.flags.filter(Boolean).length;
+  $('#revSummary').textContent=`${N-un} answered, ${un} unanswered, ${fl} flagged.`;
+  $('#revBody').innerHTML=QUESTIONS.map((q,i)=>({q,i})).filter(({i})=>revFilter==='all'||(revFilter==='un'&&!state.answers[i])||(revFilter==='fl'&&state.flags[i]))
+   .map(({i})=>`<tr><td>Question ${i+1}</td><td class="status ${!state.answers[i]?'un':state.flags[i]?'fl':''}">${!state.answers[i]?'Unanswered':'Answered'}${state.flags[i]?' · Flagged':''}</td><td>${state.answers[i]||'—'}</td><td><button data-i="${i}">Go to question</button></td></tr>`).join('');
+  $('#revBody').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{show('exam');state.lastSwitch=Date.now();state.cur=+b.dataset.i;render();}));
+  $('#review .filters button').forEach(b=>b.classList.toggle('on',b.dataset.f===revFilter));
+}
+$('#review .filters').addEventListener('click',e=>{if(e.target.dataset.f){revFilter=e.target.dataset.f;renderReview();}});
+$('#revBack').addEventListener('click',()=>{show('exam');state.lastSwitch=Date.now();render();});
+$('#endBtn').addEventListener('click',()=>{
+  const un=state.answers.filter(a=>!a).length;
+  const box=document.createElement('div');box.className='modal';
+  box.innerHTML=`<div class="box" role="dialog" aria-modal="true"><h2>End the test?</h2>${un?`<p>You have <strong>${un} unanswered question${un>1?'s':''}</strong>. There is no penalty for a wrong answer.</p>`:'<p>All questions are answered.</p>'}<p>Once you end the test you cannot return to it.</p><div class="acts"><button id="mCancel">Return to review</button><button class="danger" id="mEnd">End test</button></div></div>`;
+  document.body.appendChild(box);$('#mCancel').addEventListener('click',()=>box.remove());$('#mEnd').addEventListener('click',()=>{box.remove();submit(false);});
+});
+
+/* =====================================================================
+   MARKING, GRADING, RESULTS
+   ===================================================================== */
+function submit(timedOut){
+  if(state.submitted)return;state.submitted=true;clearInterval(state.tick);
+  if(!$('#exam').classList.contains('hidden'))stampTime();
+  const used=Math.min(DURATION,(Date.now()-state.started)/1000);
+  const raw=QUESTIONS.reduce((s,q,i)=>s+(state.answers[i]===q.answer?1:0),0);
+  const scaled=scaledForRaw(raw);
+  const nextWhole=scaled>=9?null:Math.floor(scaled)+1;
+  const rawNext=nextWhole?minRawFor(nextWhole):null;
+  $('#resMeta').textContent=`${PAPER.short} · ${PAPER.series} · ${timedOut?'time expired':'ended by candidate'}`;
+  $('#scaled').textContent=scaled.toFixed(1);
+  $('#raw').textContent=`${raw} / ${N}`;
+  if(nextWhole){$('#toNext').textContent=`${rawNext-raw} mark${rawNext-raw===1?'':'s'}`;$('#toNextLbl').textContent=`to reach ${nextWhole.toFixed(1)} (needs ${rawNext}/${N})`;}
+  else{$('#toNext').textContent='—';$('#toNextLbl').textContent='top of the scale';}
+  $('#timeUsed').textContent=`${fmt(used)} of ${fmt(DURATION)}`;
+  $('#estnote').textContent=`Estimate only. Live scores are Rasch-equated against the cohort (median fixed at 4.5, about 10% above 7.0, capped at 9.0). This mapping interpolates between Telos anchor points; it will be recalibrated as Telos collects results.`;
+  // ladder
+  $('#rungs').innerHTML=[2,3,4,5,6,7,8,9].map(g=>{const r=minRawFor(g);const cls=(raw>=r&&(g===9||raw<minRawFor(g+1)))?'here':(g===nextWhole?'next':'');return `<div class="rung ${cls}"><b>${g}.0</b><span>${r}/${N}</span></div>`;}).join('');
+  // topic rollup
+  const byT={};QUESTIONS.forEach((q,i)=>{const ok=state.answers[i]===q.answer;byT[q.topic]=byT[q.topic]||{ok:0,n:0};byT[q.topic].n++;if(ok)byT[q.topic].ok++;});
+  $('#bytopic').innerHTML=Object.entries(byT).map(([t,v])=>`<div><span>${t}</span><b>${v.ok}/${v.n}</b></div>`).join('');
+  // per-question
+  const avg=used/N;
+  $('#qlist').innerHTML=QUESTIONS.map((q,i)=>{const a=state.answers[i];const ok=a===q.answer;const cls=!a?'skip':ok?'ok':'no';const tag=!a?'No answer':ok?'Correct':'Wrong';
+    const tsec=Math.round(state.time[i]);const slow=tsec>avg*1.8;
+    const trap=(!ok&&a&&q.traps[a])?`<p class="trap"><strong>Why ${a} is wrong:</strong> ${q.traps[a]}</p>`:'';
+    const opts=Object.entries(q.options).map(([k,v])=>`<span class="opt">${k}) ${v}</span>`).join(' &nbsp; ');
+    return `<details class="qrow"><summary><span class="n">${i+1}</span><span class="t"><b>${q.topic}</b>${q.spec_refs.join(', ')}</span><span class="mark ${cls}">${tag}</span><span class="ans">You: ${a||'—'} · Key: ${q.answer}</span><span class="time ${slow?'slow':''}">${fmt(tsec)}${slow?' slow':''}</span></summary>
+      <div class="sol">${q.stem_html}${q.diagram_svg||''}<p>${opts}</p><hr style="border:0;border-top:1px solid var(--t-line)">${q.solution_html}${trap}</div></details>`;}).join('');
+  show('results');
+}
+$('#retry').addEventListener('click',()=>location.reload());
+$('#expandAll').addEventListener('click',()=>document.querySelectorAll('#results details').forEach(d=>d.open=true));
+</script>
+</body>
+</html>
