@@ -1,0 +1,157 @@
+{# Exam Mode player — engine spec section 5.
+
+   A standalone document, not an extension of base.html. A candidate sitting
+   the real test sees a plain full-screen player with no product chrome around
+   it, and rehearsing that is the point of this screen — so there is no
+   sidebar, no tab bar, and telos.css is not loaded.
+
+   SECTION 6. This page must never contain an answer, a worked solution or a
+   trap. That is enforced by the route rather than by this template: the
+   handler selects LIVE_QUESTION_COLUMNS, which does not include them, so
+   there is nothing in scope here to leak. `payload` is exactly what the
+   student is allowed to see.
+
+   Nothing here uses any real test provider's name, logo or branding. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f4e8c">
+  <meta name="robots" content="noindex">
+  <title>{{ attempt.title }} — Telos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/exam_player.css') }}">
+</head>
+<body>
+
+{# The whole payload in one place, read once by the JS. Kept in a JSON script
+   tag rather than interpolated into JavaScript, so a stem containing a quote
+   or a </script> cannot break out of the page. #}
+<script id="exam-payload" type="application/json">{{ payload | tojson }}</script>
+
+<!-- ================= INSTRUCTIONS ================= -->
+<section id="intro" class="screen">
+  <div class="pvbar">
+    <div class="cand">
+      <strong id="famName">{{ attempt.family }} {{ attempt.module }}</strong>
+      <span>Telos Exam Mode</span>
+    </div>
+    <button class="theme" id="themeBtn1" type="button">Dark player</button>
+  </div>
+  <div class="body">
+    <h1 id="paperTitle">{{ attempt.title }}</h1>
+    <h2 id="paperSub">{{ attempt.paper_code }}</h2>
+    <div class="rules">
+      <p><strong id="paperFmt"></strong>
+         Every question carries one mark. There is no penalty for a wrong
+         answer, so answer every question.</p>
+      <p>No calculator. No formula booklet. Use rough paper for working.</p>
+      <p>The timer starts when you click Start and does not pause. When it
+         reaches zero the test is submitted automatically. Closing this tab
+         does not stop the clock.</p>
+      <p>Use <strong>Flag for review</strong> to mark a question to come back
+         to, and <strong>Review</strong> to see every question's status before
+         you finish. You can change any answer until you end the test.</p>
+    </div>
+    <button class="go" id="startBtn" type="button">Start test</button>
+    <p class="fine">
+      Scaled scores shown at the end are Telos estimates. UAT-UK does not
+      publish a raw-to-scale conversion; live scores are equated against that
+      year's cohort with the median fixed at 4.5 and roughly a tenth of
+      candidates above 7.0.
+    </p>
+  </div>
+</section>
+
+<!-- ================= TEST ================= -->
+<section id="exam" class="screen hidden">
+  <div class="pvbar">
+    <div class="cand">
+      <strong class="shortName">{{ attempt.paper_code }}</strong>
+      <span id="qcount">Question 1 of {{ attempt.question_count }}</span>
+    </div>
+    <div class="cand">
+      <button class="theme" id="themeBtn2" type="button">Dark player</button>
+      <span>Time remaining</span>
+      <span class="timer" id="timer">--:--</span>
+    </div>
+  </div>
+  <div class="main">
+    <div class="qhead"><span id="qnum">Question 1</span><span id="flagState"></span></div>
+    <div class="stem" id="stem"></div>
+    <div class="diagram" id="diagram"></div>
+    <ul class="opts" id="opts"></ul>
+  </div>
+  <div class="nav">
+    <div class="grp">
+      <button id="prevBtn" type="button">◀ Previous</button>
+      <button id="nextBtn" type="button">Next ▶</button>
+    </div>
+    <div class="grp">
+      <button id="flagBtn" class="flag" type="button">Flag for review</button>
+      <button id="navBtn" type="button">Navigator</button>
+      <button id="reviewBtn" class="primary" type="button">Review</button>
+    </div>
+  </div>
+  <aside id="navdrawer" class="hidden" aria-label="Question navigator">
+    <h3>Questions</h3>
+    <div class="legend">Green border: answered. Orange corner: flagged. Blue ring: current.</div>
+    <div class="grid" id="navgrid"></div>
+    <button class="close" id="navClose" type="button">Close</button>
+  </aside>
+</section>
+
+<!-- ================= REVIEW ================= -->
+<section id="review" class="screen hidden">
+  <div class="pvbar">
+    <div class="cand"><strong class="shortName">{{ attempt.paper_code }}</strong><span>Review</span></div>
+    <div class="cand"><span>Time remaining</span><span class="timer" id="timer2">--:--</span></div>
+  </div>
+  <div class="body">
+    <h1>Review your answers</h1>
+    <div class="summary" id="revSummary"></div>
+    <div class="filters">
+      <button class="on" data-f="all" type="button">All</button>
+      <button data-f="un" type="button">Unanswered</button>
+      <button data-f="fl" type="button">Flagged</button>
+    </div>
+    <table>
+      <thead><tr><th>Question</th><th>Status</th><th>Your answer</th><th></th></tr></thead>
+      <tbody id="revBody"></tbody>
+    </table>
+  </div>
+  <div class="nav">
+    <button id="revBack" type="button">◀ Back to test</button>
+    <button class="end" id="endBtn" type="button">End test</button>
+  </div>
+</section>
+
+{# End-test confirmation. A native confirm() would be blocked in some contexts
+   and cannot state the unanswered count, which is the one fact that should
+   change a student's mind here. #}
+<div id="endModal" class="modal hidden" role="dialog" aria-modal="true"
+     aria-labelledby="endModalTitle">
+  <div class="box">
+    <h2 id="endModalTitle">End the test?</h2>
+    <p id="endModalBody"></p>
+    <p class="fine">Ending is final. You cannot return to the questions.</p>
+    <div class="acts">
+      <button id="mCancel" type="button">Return to review</button>
+      <button id="mEnd" class="end" type="button">End test</button>
+    </div>
+  </div>
+</div>
+
+{# Shown when the clock reaches zero, before the automatic submit lands. #}
+<div id="expiredModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="box">
+    <h2>Time expired</h2>
+    <p>Your test has been submitted automatically. Everything you answered has
+       been saved.</p>
+    <div class="acts"><button id="mExpired" class="end" type="button">See results</button></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/exam_player.js') }}"></script>
+</body>
+</html>

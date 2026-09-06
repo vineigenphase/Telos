@@ -1,0 +1,42 @@
+{# Exam Mode results — SHELL ONLY.
+
+   Phase 4 builds this properly: the scaled-score hero, the grade ladder, the
+   by-topic breakdown and the per-question rows expanding to full solutions.
+
+   It exists now because the player redirects here the moment a paper ends, and
+   a redirect to a 500 would be worse than a plain page. Everything shown is
+   read from the stored metrics, so a student who finishes a paper today gets a
+   real score rather than a placeholder. #}
+{% extends "base.html" %}
+{% block title %}Results — {{ attempt.title }} — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ attempt.title }}</div>
+    <div class="page-subtitle">{{ attempt.paper_code }} · {{ attempt.status }}</div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
+</div>
+
+<div class="page-body page-narrow">
+  <div class="card">
+    <div class="card-title">Estimated score</div>
+    <div class="mk-stat-value" style="font-size:2.6rem;">
+      {{ '%.1f'|format(attempt.scaled) if attempt.scaled is not none else '—' }}
+    </div>
+    <p class="hint">
+      {{ attempt.raw }} out of {{ attempt.question_count }} raw marks.
+    </p>
+    <p class="hint">{{ disclaimer }}</p>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Full breakdown</div>
+    <p class="hint" style="margin:0;">
+      The detailed results screen — grade ladder, by-topic, and every question
+      with its worked solution — is the next phase of Exam Mode.
+    </p>
+  </div>
+</div>
+{% endblock %}

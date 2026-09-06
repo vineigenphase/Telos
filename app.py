@@ -217,6 +217,13 @@ NAV_ITEMS = [
     {"endpoint": "boundaries",    "label": "Boundaries",     "short": "Bounds",
      "icon": "pulse",    "primary": False, "section": "Analyse", "admin": True,
      "match": ("boundaries",)},
+    # ── Admissions ──
+    # Its own section rather than an entry under Exam. An admissions test is a
+    # different thing from an A-level paper: no grade, scored per module, and
+    # sat under a clock. Filing it with the A-level tools would bury it.
+    {"endpoint": "exam.index",    "label": "Exam Mode",      "short": "Exam",
+     "icon": "clock",    "primary": False, "section": "Admissions",
+     "match": ("exam.index", "exam.start", "exam.player", "exam.results")},
     # ── Exam ──
     {"endpoint": "mocks",         "label": "Mock Papers",    "short": "Mocks",
      "icon": "file",     "primary": False, "section": "Exam",

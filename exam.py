@@ -496,3 +496,68 @@ def results_json(attempt_id):
             "questions": [dict(q) for q in questions],
             "disclaimer": ESTIMATE_DISCLAIMER,
         })
+
+
+@exam.route("/exam/attempt/<int:attempt_id>")
+@login_required
+def player(attempt_id):
+    """The test player.
+
+    Section 6 is enforced here by construction rather than by discipline: the
+    query selects LIVE_QUESTION_COLUMNS, which has no answer, no solution and
+    no traps in it, so there is nothing in this handler's scope to leak into the
+    page even by mistake.
+
+    A finished attempt redirects to its results rather than reopening — a paper
+    that has been ended cannot be re-entered, which is the whole point of
+    ending it.
+    """
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        _expire_if_overdue(db, attempt)
+        attempt = _attempt_or_404(db, attempt_id)
+        if attempt["status"] != "live":
+            return redirect(url_for("exam.results", attempt_id=attempt_id))
+
+        questions = db.execute(
+            "SELECT " + LIVE_QUESTION_COLUMNS + " FROM exam_questions "
+            "WHERE paper_id=? ORDER BY n", (attempt["paper_id"],)).fetchall()
+        responses = db.execute(
+            "SELECT question_id, selected, flagged FROM exam_responses "
+            "WHERE attempt_id=?", (attempt_id,)).fetchall()
+
+    saved = {r["question_id"]: {"selected": r["selected"], "flagged": r["flagged"]}
+             for r in responses}
+    payload = {
+        "attempt_id": attempt["id"],
+        "remaining_sec": _remaining_sec(attempt),
+        "paper": {
+            "code": attempt["paper_code"], "title": attempt["title"],
+            "family": attempt["family"], "module": attempt["module"],
+            "question_count": attempt["question_count"],
+            "duration_sec": attempt["duration_sec"],
+        },
+        "questions": [
+            {"id": q["id"], "n": q["n"], "topic": q["topic"],
+             "stem_html": q["stem_html"], "diagram_svg": q["diagram_svg"],
+             "options": q["options"],
+             "selected": saved.get(q["id"], {}).get("selected"),
+             "flagged": bool(saved.get(q["id"], {}).get("flagged"))}
+            for q in questions
+        ],
+    }
+    return render_template("exam_player.html", payload=payload, attempt=attempt)
+
+
+@exam.route("/exam/attempt/<int:attempt_id>/results")
+@login_required
+def results(attempt_id):
+    """The results page shell. Phase 4 fills it from results.json."""
+    with get_db() as db:
+        attempt = _attempt_or_404(db, attempt_id)
+        if _expire_if_overdue(db, attempt):
+            attempt = _attempt_or_404(db, attempt_id)
+        if attempt["status"] == "live":
+            return redirect(url_for("exam.player", attempt_id=attempt_id))
+    return render_template("exam_results.html", attempt=attempt,
+                           disclaimer=ESTIMATE_DISCLAIMER)

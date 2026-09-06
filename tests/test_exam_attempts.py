@@ -250,6 +250,63 @@ try:
     check("another user gets 404, not 403, on someone else's attempt",
           r.status_code, 404)
 
+    # ── 12. the player page leaks nothing (section 6) ───────────────────────
+    #
+    # The check that matters most in this suite, because its failure mode is a
+    # student pressing Ctrl-U mid-paper and reading the answer key. Asserted
+    # against the real page source, not against the route's intentions.
+    r = pro.post(f"/exam/{code}/start")
+    play_id = r.get_json()["attempt_id"]
+    page = pro.get(f"/exam/attempt/{play_id}")
+    check("the player renders", page.status_code, 200)
+    html = page.get_data(as_text=True)
+
+    with get_db() as db:
+        secrets = db.execute(
+            "SELECT answer, solution_html, traps FROM exam_questions "
+            "WHERE paper_id=? ORDER BY n", (paper_id,)).fetchall()
+
+    # The worked solutions and the trap explanations are long, distinctive
+    # strings. If any appears in the page, the anti-leak rule is broken.
+    leaked = []
+    for row in secrets:
+        sol = (row["solution_html"] or "").strip()
+        if len(sol) > 40 and sol[:40] in html:
+            leaked.append("solution")
+        for t in (row["traps"] or {}).values():
+            t = str(t).strip()
+            if len(t) > 25 and t[:25] in html:
+                leaked.append("trap")
+    check("no worked solution or trap reaches the player page",
+          sorted(set(leaked)), [])
+
+    # The answer key as an ordered string must not appear either.
+    key = "".join(row["answer"] for row in secrets)
+    check("the answer key is not in the page", key in html, False)
+
+    # And the payload itself must carry no answer field at all.
+    import re as _re
+    blob = _re.search(r'id="exam-payload"[^>]*>(.*?)</script>', html, _re.S)
+    check("the payload exists", blob is not None, True)
+    if blob:
+        payload = json.loads(blob.group(1))
+        keys = set()
+        for qq in payload["questions"]:
+            keys |= set(qq)
+        check("no question in the payload carries an answer", "answer" in keys, False)
+        check("nor a solution", "solution_html" in keys, False)
+        check("nor traps", "traps" in keys, False)
+        check("but it does carry the stem", "stem_html" in keys, True)
+        check("and the options", "options" in keys, True)
+        check("and the server's own clock", "remaining_sec" in payload, True)
+
+    # A finished attempt must not reopen in the player.
+    pro.post(f"/exam/attempt/{play_id}/submit")
+    r = pro.get(f"/exam/attempt/{play_id}", follow_redirects=False)
+    check("a finished attempt redirects out of the player", r.status_code, 302)
+    check("and goes to its results", "/results" in r.headers.get("Location", ""), True)
+
+
 finally:
     with get_db() as db:
         for uid in (pro_id, free_id):
