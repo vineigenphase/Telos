@@ -56,8 +56,21 @@ check("cache name is versioned (not a literal placeholder)",
 # /logout answers GET as well as POST. Caching it would store the redirect to
 # the login page as the answer, and the stale-while-slow path could then hand
 # that back without the server ever ending the session.
-for prefix in ("/admin", "/subscription", "/stripe", "/logout"):
+#
+# /exam is the one with teeth. A cached player page is a cached EXAM: refresh
+# mid-paper and the worker hands back the state from when the page was first
+# opened — answers apparently gone, timer wound back to the remaining_sec baked
+# in at that moment. Every answer is still safe on the server, but a candidate
+# mid-exam cannot know that. Found in phase 5 QA, where the state restored
+# correctly from the server while the browser showed none of it.
+for prefix in ("/admin", "/subscription", "/stripe", "/logout", "/exam"):
     check(f"sw.js never-caches {prefix}", f'"{prefix}"' in sw, True)
+
+# The list is only worth having if the code consults it, so check the call site
+# rather than just the constant. Matching the guard exactly, because splitting
+# on the function NAME finds its definition first and proves nothing.
+check("sw.js bails out on a never-cache URL before touching the cache",
+      "if (neverCache(url)) return;" in sw, True)
 check("sw.js precaches the offline shell", '"/offline"' in sw, True)
 check("sw.js skips waiting", "skipWaiting()" in sw, True)
 check("sw.js claims clients", "clients.claim()" in sw, True)

@@ -215,6 +215,20 @@ def _anchors_for(db, family, module=None):
     return DEFAULT_ANCHORS.get(family) or DEFAULT_ANCHORS["TMUA"]
 
 
+# The remaining time is computed IN SQL, by the same clock that wrote ends_at.
+#
+# It was computed in Python against a deadline written with Postgres NOW(), and
+# the two clocks are not the same clock: measured at 1.84 seconds apart on this
+# setup, with the database ahead. That difference was being handed to or taken
+# from every candidate as exam time. It is small today and unbounded in
+# principle — a drifting host clock would move it without anything failing.
+#
+# Reading both ends from the database removes the class of problem rather than
+# the instance.
+_REMAINING = ("GREATEST(0, FLOOR(EXTRACT(EPOCH FROM (a.ends_at - NOW()))))::int "
+              "AS remaining_sec")
+
+
 def _attempt_or_404(db, attempt_id):
     """An attempt belonging to the CURRENT user, or 404.
 
@@ -223,7 +237,7 @@ def _attempt_or_404(db, attempt_id):
     """
     row = db.execute(
         "SELECT a.*, p.paper_code, p.family, p.module, p.title, p.duration_sec, "
-        "       p.question_count, p.family_marks "
+        "       p.question_count, p.family_marks, " + _REMAINING + " "
         "FROM exam_attempts a JOIN exam_papers p ON p.id = a.paper_id "
         "WHERE a.id = ? AND a.user_id = ?", (attempt_id, current_user.id)).fetchone()
     if not row:
@@ -232,13 +246,8 @@ def _attempt_or_404(db, attempt_id):
 
 
 def _remaining_sec(attempt):
-    delta = (attempt["ends_at"] - _utcnow()).total_seconds()
-    return max(0, int(delta))
-
-
-def _utcnow():
-    from datetime import datetime, timezone
-    return datetime.now(timezone.utc)
+    """Seconds left, as the database measured them when the row was read."""
+    return int(attempt["remaining_sec"])
 
 
 def _expire_if_overdue(db, attempt):
@@ -350,7 +359,7 @@ def start(paper_code):
 
         live = db.execute(
             "SELECT a.*, p.paper_code, p.family, p.module, p.title, p.duration_sec, "
-            "       p.question_count, p.family_marks "
+            "       p.question_count, p.family_marks, " + _REMAINING + " "
             "FROM exam_attempts a JOIN exam_papers p ON p.id=a.paper_id "
             "WHERE a.user_id=? AND a.paper_id=? AND a.status='live' "
             "ORDER BY a.id DESC LIMIT 1", (current_user.id, paper["id"])).fetchone()
@@ -368,8 +377,12 @@ def start(paper_code):
             (current_user.id, paper["id"], str(paper["duration_sec"]),
              json.dumps({"ua": (request.headers.get("User-Agent") or "")[:300]}))
         ).fetchone()
+        # Read the clock back from the database rather than echoing the
+        # paper's duration, so a fresh attempt and a resumed one are measured
+        # the same way and cannot disagree by the round-trip.
+        fresh = _attempt_or_404(db, row["id"])
         return jsonify({"attempt_id": row["id"], "resumed": False,
-                        "remaining_sec": paper["duration_sec"]})
+                        "remaining_sec": _remaining_sec(fresh)})
 
 
 @exam.route("/exam/attempt/<int:attempt_id>/answer", methods=["POST"])

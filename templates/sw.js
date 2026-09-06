@@ -10,7 +10,17 @@ const CACHE_NAME = "telos-" + CACHE_VERSION;
 // /logout is a GET that redirects to the login page. Caching it would store
 // that redirect as the answer, and the stale-while-slow path below could then
 // hand back the login page without the server ever ending the session.
-const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout"];
+//
+// /exam is here for a harder reason. A cached player page is a cached EXAM:
+// refresh mid-paper and the service worker hands back the state as it was when
+// the page was first opened — answers apparently gone, and the timer wound
+// back to whatever remaining_sec was baked in at that moment. Every answer is
+// still safe on the server, but a candidate mid-exam has no way to know that
+// and every reason to panic.
+//
+// Found in phase 5 QA: the state restored correctly from the server while the
+// page in the browser showed none of it.
+const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout", "/exam"];
 
 // How long a navigation waits for the network before falling back to the copy
 // we already have. This is the fix for the cold open: Railway may be starting a
