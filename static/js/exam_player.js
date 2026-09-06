@@ -85,25 +85,54 @@
     d.innerHTML = cq.diagram_svg || "";
     d.classList.toggle("hidden", !cq.diagram_svg);
 
+    // li > label > (radio, .key, value) — the reference's own structure. The
+    // label is what carries display:flex and the gap, so dropping it ran the
+    // option letter straight into its text. And a real radio input gives the
+    // keyboard and screen-reader behaviour for free, which a div with
+    // role="radio" only imitates.
+    //
+    // Built from elements rather than an HTML string on purpose: the string
+    // version of this line had an unescaped quote inside a quoted literal,
+    // which is a syntax error, and a syntax error here stops the WHOLE player
+    // parsing. Nothing ran at all.
     var opts = $("#opts");
     opts.innerHTML = "";
     Object.keys(cq.options).sort().forEach(function (letter) {
       var li = document.createElement("li");
-      li.className = "opt" + (cq.selected === letter ? " sel" : "");
-      li.setAttribute("role", "radio");
-      li.setAttribute("aria-checked", cq.selected === letter ? "true" : "false");
-      li.tabIndex = 0;
-      li.innerHTML = '<span class="key">' + letter + "</span><span class="val"></span>";
-      li.querySelector(".val").innerHTML = cq.options[letter];
-      li.addEventListener("click", function () { choose(letter); });
-      li.addEventListener("keydown", function (e) {
-        if (e.key === " " || e.key === "Enter") { e.preventDefault(); choose(letter); }
+      var label = document.createElement("label");
+
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "q" + cq.id;
+      radio.value = letter;
+      radio.checked = cq.selected === letter;
+      radio.addEventListener("change", function () { choose(letter); });
+      // Clicking the chosen option again clears it, so a student who wants to
+      // leave a question blank does not have to guess how. `change` alone
+      // never fires for an already-checked radio, hence the click handler.
+      radio.addEventListener("click", function () {
+        if (cq.selected === letter) { choose(letter); }
       });
+
+      var key = document.createElement("span");
+      key.className = "key";
+      key.textContent = letter;
+
+      var val = document.createElement("span");
+      val.innerHTML = cq.options[letter];      // authored HTML from the paper
+
+      label.appendChild(radio);
+      label.appendChild(key);
+      label.appendChild(val);
+      li.appendChild(label);
       opts.appendChild(li);
     });
 
     $("#prevBtn").disabled = state.cur === 0;
-    $("#nextBtn").disabled = state.cur === N - 1;
+    // The last question's Next becomes Review, as the reference does — there
+    // is nowhere else to go from question 20.
+    $("#nextBtn").textContent = state.cur === N - 1 ? "Review ▶" : "Next ▶";
+    $("#nextBtn").disabled = false;
     $("#flagBtn").classList.toggle("on", !!cq.flagged);
     paintNav();
   }
@@ -274,7 +303,13 @@
   });
 
   $("#prevBtn").addEventListener("click", function () { goto(state.cur - 1); });
-  $("#nextBtn").addEventListener("click", function () { goto(state.cur + 1); });
+  $("#nextBtn").addEventListener("click", function () {
+    // On the last question Next reads "Review" and goes there, matching the
+    // label. A disabled button on question 20 would leave the student with no
+    // forward move at all.
+    if (state.cur === N - 1) { flushTime(); paintReview("all"); show("review"); }
+    else { goto(state.cur + 1); }
+  });
   $("#flagBtn").addEventListener("click", toggleFlag);
   $("#navBtn").addEventListener("click", function () {
     $("#navdrawer").classList.toggle("hidden");

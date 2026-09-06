@@ -65,6 +65,40 @@ check("buttons get touch-action", "touch-action: manipulation" in css, True)
 check("tab bar padded by safe area", "padding-bottom: var(--safe-bottom)" in css, True)
 check("hover rules gated behind hover query", "@media (hover: hover)" in css, True)
 
+# ── 3c. every JavaScript file actually parses ──────────────────────────────
+#
+# Added after a single unescaped quote inside a quoted string took the whole
+# exam player down. The page rendered, the markup was correct, the routes
+# returned exactly the right data and every existing test passed — because the
+# tests read page source and a syntax error is invisible there. In the browser
+# nothing ran at all: no Start button, no timer, no options.
+#
+# node is used when present and the check is SKIPPED LOUDLY when it is not,
+# rather than passing silently, so a machine without node does not quietly lose
+# the guard.
+import shutil as _shutil
+import subprocess as _subprocess
+
+_static_js = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          "static", "js")
+_js_files = sorted(f for f in os.listdir(_static_js) if f.endswith(".js"))
+check(f"there are JavaScript files to check ({len(_js_files)})", bool(_js_files), True)
+
+_node = _shutil.which("node")
+if not _node:
+    print("NOTE  node is not on PATH, so the JavaScript syntax check did not run. "
+          "A syntax error in any of " + ", ".join(_js_files) + " would take that "
+          "whole file down in the browser while every other test still passed.")
+else:
+    _broken = []
+    for _f in _js_files:
+        _p = _subprocess.run([_node, "--check", os.path.join(_static_js, _f)],
+                             capture_output=True, text=True)
+        if _p.returncode != 0:
+            _first = (_p.stderr.strip().splitlines() or ["?"])[-1][:90]
+            _broken.append(f"{_f}: {_first}")
+    check(f"every JavaScript file parses ({len(_js_files)} checked)", _broken, [])
+
 # ── 3b. the safe-area rules survive the cascade ─────────────────────────────
 #
 # --safe-top was defined at the top of this file and then used nowhere for
