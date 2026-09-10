@@ -298,6 +298,76 @@
     </div>
   </section>
 
+  {# ── Exam Mode ────────────────────────────────────────────────────────── #}
+  {#
+     Above pricing deliberately: a visitor should know what the paid thing is
+     before they are shown what it costs. Prices and paper counts come from the
+     route, never typed here — the same rule the plan cards follow.
+  #}
+  <section class="lp-section lp-exam" id="exam-mode">
+    <div class="lp-wrap">
+      <div class="lp-section-head reveal">
+        <p class="lp-kicker">Exam Mode</p>
+        <h2 class="lp-h2">Full TMUA and ESAT mocks,<br>sat like the real thing.</h2>
+        <p class="lp-p">
+          Original papers written to the {{ exam_spec_version }} specification,
+          in a timed test player built to match the screen you will face at the
+          test centre. One question at a time, a clock that does not pause, flag
+          for review, and a navigator — then a marked paper with a worked
+          solution for every question.
+        </p>
+      </div>
+
+      <div class="lp-exam-grid reveal">
+        {% for p in exam_papers %}
+        <div class="lp-exam-card">
+          <div class="lp-exam-test">{{ p.family }} · {{ p.module }}</div>
+          <h3 class="lp-exam-h">{{ p.title }}</h3>
+          <div class="lp-exam-meta">
+            {{ p.question_count }} questions · {{ p.duration_sec // 60 }} minutes
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="lp-exam-points reveal">
+        <div>
+          <h3>Marked the moment you finish</h3>
+          <p>
+            Every question with your answer against the key, a worked solution,
+            and — where you got it wrong — why the option you picked was the
+            wrong one.
+          </p>
+        </div>
+        <div>
+          <h3>A score on the 1–9 scale</h3>
+          <p>
+            With the marks between you and the next whole grade, and the marks
+            to a 7.0. An estimate, and labelled as one: UAT-UK equates each real
+            sitting against that year's candidates and publishes no raw-to-score
+            table.
+          </p>
+        </div>
+        <div>
+          <h3>Where the time went</h3>
+          <p>
+            Time on every question, the slow ones flagged against your own pace,
+            and a breakdown by topic and specification point.
+          </p>
+        </div>
+      </div>
+
+      <p class="lp-exam-price reveal">
+        {% if exam_price %}
+        <strong>{{ exam_price }} a paper.</strong> No subscription — buy the one
+        you want. Telos Pro includes every paper.
+        {% else %}
+        Included with Telos Pro.
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
   {# ── Pricing ──────────────────────────────────────────────────────────── #}
   <section class="lp-section" id="pricing">
     <div class="lp-wrap">

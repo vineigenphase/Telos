@@ -18,11 +18,18 @@
 
 <div class="page-body">
 
-  {% if not is_pro %}
+  {% if is_pro %}
   <div class="card" style="border-color:var(--accent);">
-    <div class="card-title">Sitting a paper is a Pro feature</div>
+    <div class="card-title">Every paper is included with Pro</div>
+    <p class="hint" style="margin:0;">Nothing to buy — sit any paper below.</p>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-title">Buy a paper, or get them all with Pro</div>
     <p class="hint" style="margin:0;">
-      You can see every paper below. Starting one needs Telos Pro.
+      Each paper is a one-off purchase with full worked solutions and an
+      estimated score — no subscription needed. Telos Pro includes every paper,
+      along with predicted grades and topic analytics.
       <a href="{{ url_for('subscription', **{'from': 'exam-mode'}) }}">See plans</a>.
     </p>
   </div>
@@ -35,7 +42,7 @@
       <table class="table">
         <thead>
           <tr><th>Paper</th><th>Test</th><th>Questions</th><th>Time</th>
-              <th>Best</th><th></th></tr>
+              <th>Price</th><th>Best</th><th></th></tr>
         </thead>
         <tbody>
           {% for p in papers %}
@@ -45,13 +52,32 @@
             <td>{{ p.question_count }}</td>
             <td>{{ p.duration_sec // 60 }} min</td>
             <td>
+              {# Owned and included read differently to a student: one is
+                 something they bought, the other something their plan gives
+                 them. Saying "£1" next to a paper they can already sit would
+                 be the worst of both. #}
+              {% if is_pro %}<span class="pill">Included</span>
+              {% elif p.id in owned %}<span class="pill">Owned</span>
+              {% elif not p.price_pence %}<span class="pill">Free</span>
+              {% else %}<strong>{{ price_label(p.price_pence) }}</strong>{% endif %}
+            </td>
+            <td>
               {% if best.get(p.id) is not none %}
                 <strong>{{ '%.1f'|format(best[p.id]) }}</strong>
               {% else %}—{% endif %}
             </td>
             <td>
+              {% if is_pro or p.id in owned or not p.price_pence %}
               <button class="btn btn-primary btn-sm js-start"
                       data-paper="{{ p.paper_code }}">Sit paper</button>
+              {% else %}
+              <form method="post" action="{{ url_for('exam.buy', paper_code=p.paper_code) }}"
+                    style="display:inline;">
+                <button class="btn btn-primary btn-sm" type="submit">
+                  Buy for {{ price_label(p.price_pence) }}
+                </button>
+              </form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -91,16 +117,24 @@
 </div>
 
 <script>
-/* The start action is a POST, and a free user gets a 402 back rather than a
-   redirect — section 3. The player itself arrives in phase 3; for now this
-   surfaces the gate and the attempt id honestly rather than pretending. */
+/* Starting a paper is a POST, and a user without that paper gets a 402 back
+   rather than a redirect, so the page can respond without navigating away.
+   A 402 here should be rare — the row shows a Buy button rather than a Sit
+   button when the paper is not owned — but it can still happen if entitlement
+   changed in another tab, so it is handled rather than assumed away. */
 document.querySelectorAll('.js-start').forEach(function (b) {
   b.addEventListener('click', async function () {
     b.disabled = true;
     try {
       const r = await fetch('/exam/' + b.dataset.paper + '/start', { method: 'POST' });
       const d = await r.json();
-      if (r.status === 402) { window.location = d.upgrade_url; return; }
+      if (r.status === 402) {
+        // Reload rather than following buy_url: that route is POST-only, so
+        // navigating to it would be a 405. The reloaded row shows the Buy
+        // button, which is the same action with the right method.
+        window.location.reload();
+        return;
+      }
       if (!r.ok) { alert(d.message || 'Could not start that paper.'); return; }
       window.location = '/exam/attempt/' + d.attempt_id;
     } finally { b.disabled = false; }

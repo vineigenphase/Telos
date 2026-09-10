@@ -1,0 +1,110 @@
+{# Admissions tests — tracking.
+
+   Separate from /subjects on purpose. Choosing "Physics, whose board?" and
+   saying "I am sitting the ESAT in October" are different jobs, and one list
+   asked a student to do both at once.
+
+   The page shows progress rather than only checkboxes, because a tracked test
+   with nothing logged against it is a checkbox that has done nothing for
+   anyone. #}
+{% extends "base.html" %}
+{% block title %}Admissions tests — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Admissions tests</div>
+    <div class="page-subtitle">
+      Track the tests you are sitting. Papers, topics and timing — no predicted
+      grade, because these are not graded.
+    </div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
+</div>
+
+<div class="page-body page-narrow">
+
+  {# Why there is no predicted grade here. Saying it once, plainly, is better
+     than a student wondering why the dashboard treats these differently. #}
+  <div class="card">
+    <div class="card-title">These are scored, not graded</div>
+    <p class="hint" style="margin:0;">
+      TMUA and ESAT report a score from 1.0 to 9.0 against that year's
+      candidates; ENGAA and NSAA reported raw marks. None has an A*–E ladder, so
+      Telos tracks every mark and topic and does not invent a grade. Sit a full
+      mock in <a href="{{ url_for('exam.index') }}">Exam Mode</a> for an
+      estimated score on the 1–9 scale.
+    </p>
+  </div>
+
+  <form method="post" style="margin-top:16px;">
+    <div class="card">
+      <div class="card-title">Which are you sitting?</div>
+
+      {# The existing pick-option markup, not a second checkbox style. The
+         full subject_picker macro is not used because it groups by subject,
+         then level, then board — right for "Physics, whose board?", and for
+         six tests that each have one board it produces six headings above six
+         single options. Same components, flatter arrangement. #}
+      <div class="pick-grid">
+        {% for q in tests %}
+        {% set key = q.board ~ '|' ~ q.subject ~ '|' ~ q.level %}
+        {% set p = progress.get((q.board, q.subject)) %}
+        <label class="pick-option{{ ' on' if key in chosen }}">
+          <input type="checkbox" name="qualification" value="{{ key }}"
+                 {% if key in chosen %}checked{% endif %}>
+          <span class="pick-check" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="pick-body">
+            <span class="pick-board">{{ q.name }}</span>
+            <span class="pick-meta">
+              {% if q.optional %}
+                {{ q.mandatory|length }} core + choose {{ q.choose_optional }}
+              {% else %}
+                {{ q.paper_count }} {{ 'module' if q.subject == 'ESAT' else 'paper' }}{{ 's' if q.paper_count != 1 }}
+              {% endif %}
+              {%- if q.years %} · {{ q.years|length }} year{{ 's' if q.years|length != 1 }}{% endif %}
+              {%- if p and p.papers %} · {{ p.papers }} logged{% endif %}
+            </span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <button class="btn btn-primary" type="submit" style="margin-top:16px;">
+        Save
+      </button>
+    </div>
+  </form>
+
+  {% if mocks %}
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Full mocks sat</div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Test</th><th>Papers sat</th><th>Best estimated score</th></tr></thead>
+        <tbody>
+          {% for family, m in mocks.items() %}
+          <tr>
+            <td>{{ family }}</td>
+            <td>{{ m.n }}</td>
+            <td>
+              {% if m.best is not none %}<strong>{{ '%.1f'|format(m.best) }}</strong>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint" style="margin:10px 0 0;">
+      Estimated scores. Sit more papers in
+      <a href="{{ url_for('exam.index') }}">Exam Mode</a>.
+    </p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

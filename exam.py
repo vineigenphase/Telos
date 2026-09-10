@@ -25,6 +25,7 @@ from flask import (Blueprint, abort, flash, jsonify, redirect, render_template,
 from flask_login import current_user, login_required
 
 from auth import requires_admin, user_is_pro
+from paper_templates import all_qualifications, is_graded
 from db import get_db
 from exam_scoring import DEFAULT_ANCHORS, compute_metrics
 
@@ -263,17 +264,69 @@ def _expire_if_overdue(db, attempt):
     return False
 
 
-def _pro_or_402():
-    """Section 3: free users see the tab and the paper list, and every start
-    action returns 402. A JSON 402 rather than the usual redirect, because the
-    client turns it into an upgrade modal without losing the page."""
-    if not user_is_pro(current_user):
-        return jsonify({
-            "error": "pro_required",
-            "message": "Exam Mode is a Telos Pro feature.",
-            "upgrade_url": url_for("subscription", **{"from": "exam-mode"}),
-        }), 402
-    return None
+
+
+# ---------------------------------------------------------------------------
+# Access — who may sit a paper
+# ---------------------------------------------------------------------------
+#
+# A paper is sittable if ANY of these holds:
+#
+#   * the user is Pro. Pro includes every paper, because a plan change must
+#     never take something away from a subscriber;
+#   * the paper is free (price_pence = 0);
+#   * the user has bought that paper.
+#
+# Deliberately not Pro-only. A candidate three weeks from the ESAT wants a
+# mock, not a subscription, and asking £4.99 a month to sit one paper loses the
+# sale to everyone who only wants the paper.
+
+def _access(db, paper):
+    """(allowed, reason). `reason` is why, so the caller can say so."""
+    if user_is_pro(current_user):
+        return True, "pro"
+    if not paper["price_pence"]:
+        return True, "free"
+    owned = db.execute(
+        "SELECT 1 FROM exam_purchases WHERE user_id=? AND paper_id=?",
+        (current_user.id, paper["id"])).fetchone()
+    return (True, "owned") if owned else (False, None)
+
+
+def _owned_paper_ids(db):
+    return {r["paper_id"] for r in db.execute(
+        "SELECT paper_id FROM exam_purchases WHERE user_id=?",
+        (current_user.id,)).fetchall()}
+
+
+def _price_label(pence):
+    """£1 rather than £1.00, but £1.50 in full. A round pound should read as one."""
+    if not pence:
+        return "Free"
+    pounds = pence / 100
+    return f"£{int(pounds)}" if pence % 100 == 0 else f"£{pounds:.2f}"
+
+
+def _access_or_402(db, paper):
+    """None if this user may sit `paper`, otherwise a 402 saying what to do.
+
+    Still a JSON 402 rather than a redirect, so the client can raise a buy
+    prompt without losing the page. What changed is the remedy: it used to be
+    "upgrade", and for a paid paper it is now "buy this one" with the price and
+    the checkout URL, because that is the smaller ask and usually the right one.
+    """
+    allowed, _reason = _access(db, paper)
+    if allowed:
+        return None
+    return jsonify({
+        "error": "purchase_required",
+        "message": f"{paper['title']} is {_price_label(paper['price_pence'])}, "
+                   f"or included with Telos Pro.",
+        "price_pence": paper["price_pence"],
+        "price": _price_label(paper["price_pence"]),
+        "buy_url": url_for("exam.buy", paper_code=paper["paper_code"]),
+        "upgrade_url": url_for("subscription", **{"from": "exam-mode"}),
+    }), 402
 
 
 def _finalise(db, attempt, expired=False):
@@ -318,8 +371,9 @@ def index():
     with get_db() as db:
         papers = db.execute(
             "SELECT id, paper_code, family, module, title, series, question_count, "
-            "       duration_sec FROM exam_papers WHERE is_published "
+            "       duration_sec, price_pence FROM exam_papers WHERE is_published "
             "ORDER BY family, module, paper_code").fetchall()
+        owned = _owned_paper_ids(db)
         attempts = db.execute(
             "SELECT a.id, a.paper_id, a.status, a.raw, a.scaled, a.started_at, "
             "       a.submitted_at, p.paper_code, p.title, p.question_count "
@@ -333,7 +387,8 @@ def index():
             if cur is None or a["scaled"] > cur:
                 best[a["paper_id"]] = a["scaled"]
     return render_template("exam_index.html", papers=papers, attempts=attempts,
-                           best=best, is_pro=user_is_pro(current_user))
+                           best=best, is_pro=user_is_pro(current_user),
+                           owned=owned, price_label=_price_label)
 
 
 @exam.route("/exam/<paper_code>/start", methods=["POST"])
@@ -346,16 +401,16 @@ def start(paper_code):
     student reopening the tab, would silently discard the work already done and
     hand them a new clock.
     """
-    gate = _pro_or_402()
-    if gate:
-        return gate
-
     with get_db() as db:
         paper = db.execute(
             "SELECT * FROM exam_papers WHERE paper_code=? AND is_published",
             (paper_code,)).fetchone()
         if not paper:
             abort(404)
+
+        gate = _access_or_402(db, paper)
+        if gate:
+            return gate
 
         live = db.execute(
             "SELECT a.*, p.paper_code, p.family, p.module, p.title, p.duration_sec, "
@@ -574,3 +629,174 @@ def results(attempt_id):
             return redirect(url_for("exam.player", attempt_id=attempt_id))
     return render_template("exam_results.html", attempt=attempt,
                            disclaimer=ESTIMATE_DISCLAIMER)
+
+
+# ---------------------------------------------------------------------------
+# Buying a single paper
+# ---------------------------------------------------------------------------
+#
+# The same shape as the mock-paper marketplace: a one-time Checkout Session,
+# verified with Stripe before the sale is recorded, and ownership stored
+# against the user. Nothing here trusts the redirect — a student who edits the
+# success URL by hand gets nothing, exactly as on the subscription path.
+
+@exam.route("/exam/<paper_code>/buy", methods=["POST"])
+@login_required
+def buy(paper_code):
+    """Start a one-time Checkout for a single paper."""
+    from app import STRIPE_ENABLED, stripe
+
+    with get_db() as db:
+        paper = db.execute(
+            "SELECT * FROM exam_papers WHERE paper_code=? AND is_published",
+            (paper_code,)).fetchone()
+        if not paper:
+            abort(404)
+        allowed, reason = _access(db, paper)
+
+    if allowed:
+        # Already entitled — say which, because "you already have this" and
+        # "this is included in your plan" are different facts to a student.
+        flash("Pro includes every Exam Mode paper." if reason == "pro"
+              else "You already have that paper.", "success")
+        return redirect(url_for("exam.index"))
+
+    if not STRIPE_ENABLED:
+        flash("Payments aren't configured yet.", "error")
+        return redirect(url_for("exam.index"))
+
+    try:
+        customer_id = current_user.stripe_customer_id
+        if not customer_id:
+            cust = stripe.Customer.create(email=current_user.email,
+                                          metadata={"user_id": current_user.id})
+            customer_id = cust.id
+            with get_db() as db:
+                db.execute("UPDATE users SET stripe_customer_id=? WHERE id=?",
+                           (customer_id, current_user.id))
+        sess = stripe.checkout.Session.create(
+            mode="payment",
+            customer=customer_id,
+            line_items=[{
+                "price_data": {
+                    "currency": "gbp",
+                    "product_data": {
+                        "name": f"{paper['title']} ({paper['family']} {paper['module']})",
+                        "description": f"{paper['question_count']} questions, "
+                                       f"{paper['duration_sec'] // 60} minutes, "
+                                       f"with full worked solutions.",
+                    },
+                    "unit_amount": paper["price_pence"],
+                },
+                "quantity": 1,
+            }],
+            metadata={"user_id": current_user.id, "exam_paper_id": paper["id"]},
+            success_url=url_for("exam.buy_success", _external=True)
+                        + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=url_for("exam.index", _external=True),
+        )
+        return redirect(sess.url)
+    except Exception as e:
+        flash(str(e), "error")
+        return redirect(url_for("exam.index"))
+
+
+@exam.route("/exam/purchase/success")
+@login_required
+def buy_success():
+    """Verify the session with Stripe, then record the sale.
+
+    The redirect is not evidence. Ownership is written only when Stripe itself
+    says the session is complete, is paid, and belongs to this user — the same
+    rule the subscription path follows, and for the same reason.
+    """
+    from app import STRIPE_ENABLED, stripe
+
+    session_id = request.args.get("session_id")
+    if not (STRIPE_ENABLED and session_id):
+        flash("Couldn't confirm your purchase.", "error")
+        return redirect(url_for("exam.index"))
+    try:
+        sess = stripe.checkout.Session.retrieve(session_id)
+    except Exception:
+        flash("Couldn't confirm your purchase.", "error")
+        return redirect(url_for("exam.index"))
+
+    meta = sess["metadata"] or {}
+    paid = sess["status"] == "complete" and sess["payment_status"] == "paid"
+    mine = ("user_id" in meta) and str(meta["user_id"]) == str(current_user.id)
+    pid = meta["exam_paper_id"] if "exam_paper_id" in meta else None
+
+    if paid and mine and pid:
+        with get_db() as db:
+            db.execute(
+                "INSERT INTO exam_purchases (user_id, paper_id, stripe_session_id) "
+                "VALUES (?,?,?) ON CONFLICT (user_id, paper_id) DO NOTHING",
+                (current_user.id, int(pid), session_id))
+        flash("Paper unlocked — it's yours to sit whenever you like.", "success")
+    else:
+        flash("We couldn't verify that purchase. If you just paid, give it a "
+              "moment and refresh.", "error")
+    return redirect(url_for("exam.index"))
+
+
+# ---------------------------------------------------------------------------
+# Tracking — which admissions tests a student is preparing for
+# ---------------------------------------------------------------------------
+#
+# Its own tab rather than a section of /subjects. A student choosing "Physics,
+# whose board?" is doing a different job from one saying "I am sitting the ESAT
+# in October", and one list asked them to do both at once. They also behave
+# differently once chosen: an admissions test has no grade to predict, is
+# scored per module, and has a date the student is counting down to.
+#
+# Selection is stored in user_subjects, the same table as everything else. A
+# tracked test is a tracked qualification; only the picker is separate.
+
+@exam.route("/admissions", methods=["GET", "POST"])
+@login_required
+def tracking():
+    """Choose which admissions tests to track, and see progress on each."""
+    # Imported here rather than at module level: these live in app.py, which
+    # registers this blueprint, so a module-level import would be circular.
+    from app import (_keep_other_kind, get_user_subjects, log_event,
+                     set_user_subjects)
+
+    if request.method == "POST":
+        # Only the admissions half is rewritten; the graded subjects chosen on
+        # /subjects are carried through. The same helper both graded pickers
+        # use, from the other direction — one rule, stated once.
+        picked = request.form.getlist("qualification")
+        set_user_subjects(current_user.id,
+                          picked + _keep_other_kind(current_user.id, "graded"))
+        log_event("admissions_updated", current_user.id, str(len(picked)))
+        flash("Tests updated." if picked else
+              "No tests tracked — pick one to see it on your dashboard.",
+              "success")
+        return redirect(url_for("exam.tracking"))
+
+    mine = get_user_subjects(current_user.id)
+    chosen = {f"{s['board']}|{s['subject']}|{s['level']}"
+              for s in mine if not is_graded(s["board"], s["subject"])}
+
+    tests = all_qualifications("admissions")
+
+    # What the student has actually logged against each test, so the page shows
+    # progress rather than just a set of checkboxes.
+    with get_db() as db:
+        logged = db.execute(
+            "SELECT board, subject, COUNT(*) AS papers, "
+            "       SUM(score) AS marks, SUM(max_marks) AS out_of "
+            "FROM papers WHERE user_id=? GROUP BY board, subject",
+            (current_user.id,)).fetchall()
+        attempts = db.execute(
+            "SELECT p.family, COUNT(*) AS n, MAX(a.scaled) AS best "
+            "FROM exam_attempts a JOIN exam_papers p ON p.id = a.paper_id "
+            "WHERE a.user_id=? AND a.status <> 'live' GROUP BY p.family",
+            (current_user.id,)).fetchall()
+
+    progress = {(r["board"], r["subject"]): dict(r) for r in logged}
+    mocks = {r["family"]: dict(r) for r in attempts}
+
+    return render_template("admissions.html", tests=tests, chosen=chosen,
+                           progress=progress, mocks=mocks)

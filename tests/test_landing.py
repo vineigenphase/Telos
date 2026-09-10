@@ -17,6 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as A  # noqa: E402
+from db import get_db  # noqa: E402
 
 app = A.app
 app.debug = False
@@ -104,6 +105,46 @@ check("twitter renders it large",
 robots = anon.get("/robots.txt").get_data(as_text=True)
 check("robots does not disallow the whole site",
       any(line.strip() == "Disallow: /" for line in robots.splitlines()), False)
+
+# ── Exam Mode is advertised ────────────────────────────────────────────────
+#
+# The mocks are the thing most likely to sell, and a landing page that does not
+# mention them is the marketing equivalent of hiding the product. These check
+# it is really there and, more importantly, that the price on the page is the
+# price the checkout will charge — a landing page quoting a price the till does
+# not is the exact mistake the "never hardcode a price" rule exists to prevent.
+import re as _re2
+
+check("the landing page advertises Exam Mode", 'id="exam-mode"' in body, True)
+check("and names both tests", "TMUA" in body and "ESAT" in body, True)
+
+with get_db() as db:
+    _papers = db.execute(
+        "SELECT paper_code, title, question_count, duration_sec, price_pence "
+        "FROM exam_papers WHERE is_published ORDER BY paper_code").fetchall()
+
+if _papers:
+    check(f"every published paper is listed ({len(_papers)})",
+          [p["title"] for p in _papers if p["title"] not in body], [])
+    _prices = {p["price_pence"] for p in _papers if p["price_pence"]}
+    if len(_prices) == 1:
+        _pence = _prices.pop()
+        _want = f"£{_pence // 100}" if _pence % 100 == 0 else f"£{_pence / 100:.2f}"
+        check(f"the advertised price matches what the checkout charges ({_want})",
+              _want in body, True)
+        # And it must not be typed rather than read: change the price and the
+        # page must change with it, which is what reading from the row gives.
+        check("the price is not a hardcoded string in the template",
+              "£1 a paper" in open(
+                  os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                               "templates", "landing.html"), encoding="utf-8").read(),
+              False)
+    else:
+        # Papers priced differently: the page must say nothing rather than
+        # quote one of them as if it covered all.
+        check("no single price is quoted when papers differ",
+              "a paper.</strong>" in body, False)
+
 
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")

@@ -677,3 +677,86 @@
   border-radius: 100px;
   padding: 3px 10px;
 }
+
+/* ── Exam Mode ───────────────────────────────────────────────────────────── */
+/*
+   The five papers as a row of cards, then three points, then the price. Kept
+   quieter than the hero on purpose: this section has to carry facts — question
+   counts, durations, what you get — and a visitor reading it is already
+   interested. The selling was done above.
+*/
+.lp-exam-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+@media (min-width: 700px) {
+  .lp-exam-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Five cards, so at the widest size they sit in one row rather than leaving a
+   lone card stranded on a second. */
+@media (min-width: 1120px) {
+  .lp-exam-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+.lp-exam-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.lp-exam-test {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 8px;
+}
+
+.lp-exam-h {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.lp-exam-meta { font-size: 0.8rem; color: var(--muted); }
+
+.lp-exam-points {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 26px;
+  margin-top: 40px;
+}
+
+@media (min-width: 860px) {
+  .lp-exam-points { grid-template-columns: repeat(3, 1fr); }
+}
+
+.lp-exam-points h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.lp-exam-points p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+.lp-exam-price {
+  margin-top: 34px;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.lp-exam-price strong { color: var(--text); }

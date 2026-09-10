@@ -221,9 +221,13 @@ NAV_ITEMS = [
     # Its own section rather than an entry under Exam. An admissions test is a
     # different thing from an A-level paper: no grade, scored per module, and
     # sat under a clock. Filing it with the A-level tools would bury it.
+    {"endpoint": "exam.tracking", "label": "Admissions",     "short": "Tests",
+     "icon": "atom",     "primary": False, "section": "Admissions",
+     "match": ("exam.tracking",)},
     {"endpoint": "exam.index",    "label": "Exam Mode",      "short": "Exam",
      "icon": "clock",    "primary": False, "section": "Admissions",
-     "match": ("exam.index", "exam.start", "exam.player", "exam.results")},
+     "match": ("exam.index", "exam.start", "exam.player", "exam.results",
+               "exam.buy", "exam.buy_success")},
     # ── Exam ──
     {"endpoint": "mocks",         "label": "Mock Papers",    "short": "Mocks",
      "icon": "file",     "primary": False, "section": "Exam",
@@ -742,6 +746,17 @@ def dashboard():
     what the building is.
     """
     if not current_user.is_authenticated:
+        # Exam Mode is advertised with real papers and a real price, read from
+        # the database rather than typed into the template. A landing page that
+        # states a price the checkout does not charge is the specific mistake
+        # the "never hardcode a price" rule exists to prevent.
+        with get_db() as db:
+            exam_papers = db.execute(
+                "SELECT paper_code, family, module, title, question_count, "
+                "       duration_sec, price_pence, spec_version "
+                "FROM exam_papers WHERE is_published "
+                "ORDER BY family DESC, module, paper_code").fetchall()
+        prices = {p["price_pence"] for p in exam_papers if p["price_pence"]}
         return render_template(
             "landing.html",
             pricing=PRICING,
@@ -749,6 +764,14 @@ def dashboard():
             tutoring_email=TUTORING_EMAIL,
             default_interval=DEFAULT_INTERVAL,
             pricing_features=PRICING_FEATURES,
+            exam_papers=exam_papers,
+            # Only quote a single price when every paper shares it. If they
+            # ever differ, the page says nothing rather than something wrong.
+            exam_price=(f"£{min(prices) // 100}" if len(prices) == 1
+                        and min(prices) % 100 == 0 else
+                        (f"£{min(prices) / 100:.2f}" if len(prices) == 1 else None)),
+            exam_spec_version=(exam_papers[0]["spec_version"]
+                               if exam_papers else "current"),
         )
 
     with get_db() as db:
@@ -2739,6 +2762,22 @@ def delete_share_card(token):
 # about a student until after they had done the work. Recorded directly now, so
 # the app is about their subjects from the first screen rather than the tenth.
 
+def _keep_other_kind(user_id, kind):
+    """The user's current selections of the OTHER kind, as form keys.
+
+    set_user_subjects replaces a user's whole selection, and the graded picker
+    and the admissions picker are now separate forms — so each has to carry the
+    other's choices through or saving one would silently untrack everything
+    chosen on the other. Papers already logged are never touched either way,
+    but a student who lost their A-levels by saving an admissions tab would
+    reasonably think they had been.
+    """
+    want_graded = (kind == "graded")
+    return [f"{s['board']}|{s['subject']}|{s['level']}"
+            for s in get_user_subjects(user_id)
+            if is_graded(s["board"], s["subject"]) is want_graded]
+
+
 def get_user_subjects(user_id):
     """This student's chosen qualifications, in catalogue order.
 
@@ -2970,7 +3009,10 @@ def onboarding():
     the other is a settings screen for someone who already has data.
     """
     if request.method == "POST":
-        n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        n = set_user_subjects(
+            current_user.id,
+            request.form.getlist("qualification")
+            + _keep_other_kind(current_user.id, "admissions"))
         set_user_papers(current_user.id, request.form.getlist("paper"))
         if not n:
             flash("Pick at least one subject to get started.", "error")
@@ -3001,7 +3043,10 @@ def subjects():
         # subject is about what the app shows you, not about deleting work —
         # silently binning a term of logged papers because a checkbox was
         # unticked would be indefensible.
-        n = set_user_subjects(current_user.id, request.form.getlist("qualification"))
+        n = set_user_subjects(
+            current_user.id,
+            request.form.getlist("qualification")
+            + _keep_other_kind(current_user.id, "admissions"))
         set_user_papers(current_user.id, request.form.getlist("paper"))
         log_event("subjects_updated", current_user.id, str(n))
         flash("Subjects updated." if n else
@@ -3026,8 +3071,12 @@ def subjects():
             chosen_papers.add("|".join(key) + "|" + code)
 
     return render_template("subjects.html",
-                           qualifications=all_qualifications(),
-                           levels=available_levels(),
+                           # Graded work only. Admissions tests are picked on
+                           # their own tab (exam.tracking), because choosing an
+                           # A-level board and declaring you are sitting the
+                           # ESAT are different jobs.
+                           qualifications=all_qualifications("graded"),
+                           levels=available_levels("graded"),
                            chosen_papers=chosen_papers,
                            chosen={f"{s['board']}|{s['subject']}|{s['level']}"
                                    for s in mine},

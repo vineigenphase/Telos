@@ -102,15 +102,59 @@ try:
     pro = client_for(pro_id)
     free = client_for(free_id)
 
-    # ── 1. a free user gets 402 on start ────────────────────────────────────
-    r = free.post(f"/exam/{code}/start")
-    check("a free user cannot start a paper", r.status_code, 402)
-    body = r.get_json() or {}
-    check("and is told why", body.get("error"), "pro_required")
-    check("and given somewhere to go", "upgrade_url" in body, True)
+    # ── 1. access is by ownership, not by plan ──────────────────────────────
+    #
+    # Papers are sold individually now. A user without the paper is refused,
+    # and told the price and where to buy it rather than told to subscribe —
+    # buying one paper is the smaller ask and usually the right one.
+    with get_db() as db:
+        db.execute("UPDATE exam_papers SET price_pence=100 WHERE id=?", (paper_id,))
 
-    # The list itself stays visible — section 3 gates the action, not the page.
-    check("but the free user can still see the tab", free.get("/exam").status_code, 200)
+    r = free.post(f"/exam/{code}/start")
+    check("a user who does not own the paper cannot start it", r.status_code, 402)
+    body = r.get_json() or {}
+    check("and is told it is a purchase, not a subscription",
+          body.get("error"), "purchase_required")
+    check("with the price", body.get("price"), "£1")
+    check("and somewhere to buy it", "buy_url" in body, True)
+    check("and the upgrade path as the alternative", "upgrade_url" in body, True)
+
+    # The list itself stays visible — the action is gated, not the page.
+    check("but they can still see the tab", free.get("/exam").status_code, 200)
+
+    # Owning the paper is enough. No plan involved.
+    with get_db() as db:
+        db.execute("INSERT INTO exam_purchases (user_id, paper_id) VALUES (?,?) "
+                   "ON CONFLICT DO NOTHING", (free_id, paper_id))
+    r = free.post(f"/exam/{code}/start")
+    check("a free user who bought the paper can sit it", r.status_code, 200)
+    bought_attempt = (r.get_json() or {}).get("attempt_id")
+    with get_db() as db:
+        db.execute("DELETE FROM exam_attempts WHERE id=?", (bought_attempt,))
+        db.execute("DELETE FROM exam_purchases WHERE user_id=?", (free_id,))
+
+    # A free paper needs neither plan nor purchase.
+    with get_db() as db:
+        db.execute("UPDATE exam_papers SET price_pence=0 WHERE id=?", (paper_id,))
+    r = free.post(f"/exam/{code}/start")
+    check("a free paper needs no purchase at all", r.status_code, 200)
+    with get_db() as db:
+        db.execute("DELETE FROM exam_attempts WHERE id=?",
+                   ((r.get_json() or {}).get("attempt_id"),))
+        db.execute("UPDATE exam_papers SET price_pence=100 WHERE id=?", (paper_id,))
+
+    # Pro still includes everything. A plan change must never take something
+    # away from a subscriber.
+    r = pro.post(f"/exam/{code}/start")
+    check("Pro includes every paper without buying", r.status_code, 200)
+    with get_db() as db:
+        db.execute("DELETE FROM exam_attempts WHERE user_id=?", (pro_id,))
+
+    # Buying a paper you already have should not charge you twice.
+    r = pro.post(f"/exam/{code}/buy", follow_redirects=False)
+    check("Pro is not sent to checkout for a paper it already includes",
+          r.status_code, 302)
+    check("and is returned to Exam Mode", "/exam" in r.headers.get("Location", ""), True)
 
     # ── 2. start is idempotent while an attempt is live ─────────────────────
     r1 = pro.post(f"/exam/{code}/start")
@@ -312,6 +356,7 @@ finally:
         for uid in (pro_id, free_id):
             if uid:
                 db.execute("DELETE FROM exam_attempts WHERE user_id=?", (uid,))
+                db.execute("DELETE FROM exam_purchases WHERE user_id=?", (uid,))
                 db.execute("DELETE FROM user_subjects WHERE user_id=?", (uid,))
         if made_paper and paper_id:
             db.execute("DELETE FROM exam_papers WHERE id=?", (paper_id,))

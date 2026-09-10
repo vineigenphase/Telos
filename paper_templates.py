@@ -2208,16 +2208,31 @@ def display_name(board, subject):
         return subject
 
 
-def all_qualifications():
+def all_qualifications(kind="all"):
     """Every (board, subject, level) the catalogue offers, with its papers.
 
     The unit a student picks in onboarding. Sorted by subject so the picker
     groups the way a person thinks — "Physics, whose board?" rather than
     "OCR A, which subjects?".
+
+    `kind` selects which half of the catalogue:
+
+        "all"        everything (the default, so no caller changes by accident)
+        "graded"     A-levels, AS, Highers, Advanced Highers
+        "admissions" TMUA, ESAT and the historic ENGAA/NSAA papers
+
+    They are picked in different places. A student choosing "Physics, whose
+    board?" is doing a different job from one saying "I am sitting the ESAT in
+    October", and one list asked them to do both at once.
     """
     out = []
     for board, subjects in TEMPLATES.items():
         for subject, data in subjects.items():
+            graded = data.get("graded", True)
+            if kind == "graded" and not graded:
+                continue
+            if kind == "admissions" and graded:
+                continue
             mandatory = [p for p in data["papers"] if not p.get("optional")]
             optional = [p for p in data["papers"] if p.get("optional")]
             level = data.get("level", DEFAULT_LEVEL)
@@ -2241,9 +2256,13 @@ def all_qualifications():
                                       if q["level"] in LEVELS else 99, q["board"]))
 
 
-def available_levels():
-    """Levels with at least one qualification behind them, in LEVELS order."""
-    present = {q["level"] for q in all_qualifications()}
+def available_levels(kind="graded"):
+    """Levels with at least one qualification behind them, in LEVELS order.
+
+    Defaults to graded work: this drives the /subjects filter, and "Admissions
+    test" is not a level a student filters an A-level picker by.
+    """
+    present = {q["level"] for q in all_qualifications(kind)}
     return [lvl for lvl in LEVELS if lvl in present]
 
 
