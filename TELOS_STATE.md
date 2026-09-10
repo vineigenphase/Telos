@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-08-30.** Living handoff document. Read this first, then
+**Last updated: 2026-09-10.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -39,6 +39,7 @@ Pro tier = prediction and prescription.
 | Files | Railway volume `web-volume` at `/data`; `STORAGE_DIR` → `/data/uploads` and `/data/mocks` |
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
+| Exam Mode | 8 tables (`exam_papers`, `exam_questions`, `exam_attempts`, `exam_responses`, `exam_purchases`, `exam_scale_anchors`, `exam_spec_refs`), migrations 041-043. Five Mock A papers published, 121 questions, £1 each |
 | Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 
@@ -85,6 +86,12 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | — | README, proprietary LICENSE, `/terms`, `/privacy` | `9e57de0` | **live** |
 | — | Social preview card + landing `og:image` | `e60265b` | **live** |
 | — | Revision mentoring added to the tutoring section | `b706354` | **live** |
+| 11 | Admissions tests — TMUA, ESAT, ENGAA/NSAA catalogue, ungraded model | `eca34f9` `44bc94e` | **live** |
+| 11 | Exam Mode — schema, loader, admin screens | `7450fc7` | **live** |
+| 11 | Exam Mode — attempt lifecycle, server-authoritative timing | `90801ae` | **live** |
+| 11 | Exam Mode — the test player | `2f1ecd2` `1ff7762` | **live** |
+| 11 | Exam Mode — results screen | `4858bc2` | **live** |
+| 11 | Exam Mode — QA pass, £1 per paper, advertised on the landing page | `9bfc838` `317e050` | **live** |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -94,13 +101,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 
 **Needs a human (I can't do these):**
 
-1. **Time an 8-question paper one-handed, with airplane mode.** The parts that
-   can be checked without a thumb are done (`TELOS_ARCHIVE.md`, "Phase 0.6
-   mark entry"): the interaction is now
-   20 taps rather than 29, and the offline promise is asserted in
-   `test_mobile_first.py`. What is left is whether 20 taps *feels* like under a
-   minute with a real paper in the other hand, and whether the retry banner
-   actually appears on your device.
+1. ~~**Time an 8-question paper one-handed.**~~ **Done** — the owner confirmed the phone flow works (2026-09-08). The airplane-mode retry banner has still not been seen on a real device, which is the part of this that remains unverified.
 2. **Re-test the cold open after the 800ms change.** Confirmed working at
    2500ms on 2026-08-27 — black screen, then the app at 2.5s. The timeout is
    now 800ms, so the same test should show the app in under a second.
@@ -146,7 +147,16 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    promises the same for material changes to the terms. `mailer.py` sends one
    message at a time and nothing iterates the user table. That promise cannot
    currently be kept — build the path before the first repricing, not during.
-11. **Facebook's cache, only if it matters.** LinkedIn was re-scraped on
+11. **Buy one Exam Mode paper with a real card.** The £1 checkout mirrors
+   the mock-paper flow that IS proven live, but that path has never taken a
+   payment itself. It needs a SECOND account — the founder account is
+   grandfathered Pro and is never offered a purchase. Confirm the charge reads
+   £1, that the paper unlocks, and that a refund does not silently leave it
+   unlocked.
+12. **Film the demo account.** `scripts/seed_demo_account.py` builds it. Re-run
+   it on the morning of filming: the dates are relative to today, so "this
+   week" stops meaning this week as it ages.
+13. **Facebook's cache, only if it matters.** LinkedIn was re-scraped on
    2026-08-30 and shows the new card. The Facebook Sharing Debugger needs a
    Facebook login, so it was skipped — and it is probably a no-op, because
    Facebook only caches a URL that has actually been shared into a Meta
@@ -228,6 +238,18 @@ already been argued out. The reasoning, and what it cost to find out, is in
 - The mark allocation now carries to the next question.
 - "Saved" must be reachable from exactly one place.
 - Phase 6 shipped 2026-08-27.
+
+*Admissions tests and Exam Mode (2026-09-04..10)*
+
+- TMUA, ESAT, ENGAA and NSAA are tracked but NOT graded.
+- ENGAA and NSAA structures were read from the papers, and the secondary sources were wrong.
+- The 16 official answer keys are extracted and verified, never hand-typed.
+- The 1-9 scale is norm-referenced and has been re-anchored four times.
+- Exam Mode is server-authoritative about time, and reads one clock.
+- Nothing in a live attempt's page may carry an answer.
+- Papers are bought individually at £1; Pro includes every paper.
+- Admissions tracking lives on its own tab, and each picker carries the other's selection.
+- The `telos` demo account is seeded by script, deterministically.
 
 *Payments, proven live*
 
@@ -311,6 +333,22 @@ user; use a Neon branch once there are real students.
   `activate` drops old caches, so it corrects itself — but when verifying a CSS
   change by hand, fetch with `cache: 'no-store'` or you will audit the old file
   and conclude the deploy failed.
+- **A JavaScript syntax error takes down the WHOLE file, and page-source tests
+  cannot see it.** One unescaped quote killed the entire exam player: no Start
+  button, no timer, no options. The markup was right, the routes returned the
+  right data, and every test passed, because the tests read page source. Found
+  by opening it in a browser. `test_mobile_first` now runs `node --check` over
+  every file in `static/js`, and skips loudly rather than silently where node
+  is absent.
+- **Postgres's `?` jsonb operator is unreachable through `db.py`.** The shim
+  rewrites every `?` into a placeholder, so `options ? answer` fails with a
+  parameter-count error. Use `jsonb_exists(col, key)`, which is identical in
+  effect.
+- **Two clocks are one clock too many.** Exam Mode wrote `ends_at` with
+  Postgres NOW() and computed the remaining time in Python — 1.84 seconds apart
+  when measured, so every candidate was handed or denied that much exam time.
+  Anything comparing against a stored deadline must read both ends from the
+  same clock.
 - **Text written into a file by a script can reach an API double-encoded.**
   The GitHub repo description went up as `â€”` instead of an em-dash: the
   generating script held the literal and was decoded as cp1252 on the way out.

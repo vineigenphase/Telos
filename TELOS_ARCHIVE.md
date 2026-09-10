@@ -724,6 +724,98 @@ what this phase fixed; the scheduling was the easy half.
   "your next three questions" cannot give a student two different answers to
   "what should I do next".
 
+
+## Admissions tests and Exam Mode (2026-09-04..10)
+
+**TMUA, ESAT, ENGAA and NSAA are tracked but NOT graded.** They are the first
+things in the catalogue with no grade. TMUA and ESAT report a 1-9 scale score;
+ENGAA and NSAA reported raw marks against a published distribution. None has an
+A*-E ladder, and forcing one would mean inventing boundaries — the single thing
+this repo does not do with boundary data. `graded: False` says a qualification
+is tracked and never graded; it defaults to True so a typo cannot silently
+ungrade a real A-level. `test_boundaries` exempts them from the
+every-paper-needs-boundaries rule, and the exemption is TWO-SIDED: an ungraded
+qualification is also required to have NO boundary rows, or marking something
+ungraded would become a way to add papers with no data.
+
+**ENGAA and NSAA structures were read from the papers, and the secondary
+sources were wrong.** Tutoring sites say ENGAA dropped to 20+20 in 2022. The
+official front covers say 2019. Sixteen question papers were downloaded and
+parsed rather than trusted:
+
+    ENGAA 2016-2018   Part A 28 + Part B 26, 54 in 80 minutes
+    ENGAA 2019-2023   Part A 20 + Part B 20, 40 in 60 minutes
+    NSAA  2016-2019   five parts of 18, Part A plus TWO others, 80 minutes
+    NSAA  2020-2023   four parts of 20, Part A plus ONE other, 60 minutes
+
+Each changed format once, so each is two catalogue entries under the suffixed-
+key convention. Only Section 1 was ever published, so Section 2 is absent
+rather than invented. `scripts/admissions/derive_structure.py` does the reading
+and is kept, so it is reproducible.
+
+**The 16 official answer keys are extracted and verified, never hand-typed.**
+1,042 answers. The extractor refuses to emit a key that does not check out —
+count against the paper's own cover, contiguous numbering, letters in A-H
+(ENGAA runs to H, not E), no question answered twice. The first run rejected 6
+of 16 with zero answers parsed, because the keys are three different formats
+across eight years. The 2021-2023 keys carry explicit part labels, which are
+used to CHECK the positional split rather than to replace it.
+
+**The 1-9 scale is norm-referenced and has been re-anchored four times.** From
+UAT-UK's own wording: TMUA 2016 put 50% above 5.0; TMUA 2017-2023 put a third
+above 6.5; ENGAA/NSAA anchored typical at 4.0 with 10% above 7.0; TMUA/ESAT
+from 2024 anchor the median at 4.5 and the 90th percentile at 7.0. The awarding
+body explicitly disclaims cross-year comparison, which is why `admissions.py`
+equates rather than compares.
+
+An earlier draft of that module used 9.0 for the 90th-percentile anchor, taken
+from a summary of the public results page. Three official sources say 7.0, and
+that one figure would have inflated every score produced. Both anchors are now
+asserted in the suite.
+
+**Exam Mode is server-authoritative about time, and reads ONE clock.** The
+client counts down from a `remaining_sec` the server computed, and every write
+revalidates against `ends_at`. The QA pass found the deadline was written with
+Postgres NOW() and the remaining time computed with Python's clock — measured
+1.84 seconds apart, database ahead, so every candidate was quietly given or
+denied that much exam time. Both ends now read the database clock.
+
+**Nothing in a live attempt's page may carry an answer.** `LIVE_QUESTION_COLUMNS`
+has no answer, solution or trap in it, so the player route physically cannot
+select them. Asserted against real page source, not against intent, because the
+failure mode is a student pressing Ctrl-U mid-paper.
+
+Related, and found the same way: the service worker was caching `/exam`, so a
+refresh mid-paper served the page as first opened — answers apparently gone,
+timer wound back. Every answer was still safe on the server, but a candidate
+mid-exam cannot know that. `/exam` is now in NEVER_CACHE_PREFIXES.
+
+**Papers are bought individually at £1; Pro includes every paper.** Sitting a
+paper was Pro-only, which is the wrong shape for the thing most likely to sell:
+a candidate three weeks from the ESAT wants a mock, not a subscription. Same
+à-la-carte flow as the mock-paper marketplace — one-time Checkout, verified with
+Stripe before ownership is recorded. `exam_purchases` is a new table rather
+than a widened `purchases`, whose `mock_paper_id` is NOT NULL. Pro still
+including everything is asserted: a plan change must never take something away
+from a subscriber.
+
+**Admissions tracking lives on its own tab, and each picker carries the other's
+selection.** Choosing "Physics, whose board?" and declaring "I am sitting the
+ESAT in October" are different jobs. `all_qualifications()` takes a kind;
+/subjects shows graded work only. The danger the split creates:
+`set_user_subjects` replaces a user's WHOLE selection, so saving either picker
+would silently untrack everything chosen on the other. One shared helper,
+`_keep_other_kind`, carries it through from both directions — verified end to
+end against a live server.
+
+**The `telos` demo account is seeded by script, deterministically.** Filming
+needs an account with a term's work in it, and per-question marks specifically,
+because the heatmap, the prescriptions and the revision queue all run on them.
+Fixed random seed so a retake looks identical to the take before it. Idempotent,
+touching only its own rows. Pro via `grandfathered`, keeping it out of the
+billing data. The password is generated at run time and never written to the
+repository.
+
 ## Payments, proven live
 
 **The live payment lifecycle is proven with a real card** (2026-08-28):
