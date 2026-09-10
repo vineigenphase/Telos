@@ -40,7 +40,7 @@ Three questions, in order:
 | Routes | 65 |
 | Tables | 27, under 43 numbered migrations |
 | Tests | 26 suites, ~750 assertions |
-| Code | ~36,000 lines across 219 tracked files |
+| Code | ~36,000 lines across 220 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
