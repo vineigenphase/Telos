@@ -153,14 +153,33 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    grandfathered Pro and is never offered a purchase. Confirm the charge reads
    £1, that the paper unlocks, and that a refund does not silently leave it
    unlocked.
-12. **Film the demo account.** `scripts/seed_demo_account.py` builds it. Re-run
+12. **Write more Exam Mode papers.** Only Mock A exists — five papers. Sitting
+   one is a good experience; a student who buys all five has run out, and the
+   £1-a-paper model only works if there is a next paper to buy.
+13. **Topics in the Mock A papers are too fine-grained.** Every question
+   carries a unique topic, so the results screen's "By topic" section is twenty
+   rows of 1/1 — the same information as the question list below it, in a
+   different shape. Six to eight topics per paper would make that section say
+   something. A content change, not a code one.
+14. **Film the demo account.** `scripts/seed_demo_account.py` builds it. Re-run
    it on the morning of filming: the dates are relative to today, so "this
    week" stops meaning this week as it ages.
-13. **Facebook's cache, only if it matters.** LinkedIn was re-scraped on
+15. **Facebook's cache, only if it matters.** LinkedIn was re-scraped on
    2026-08-30 and shows the new card. The Facebook Sharing Debugger needs a
    Facebook login, so it was skipped — and it is probably a no-op, because
    Facebook only caches a URL that has actually been shared into a Meta
    property, and the `og:image` did not exist before that day.
+
+**In flight, not mine, do not assume it is broken.** As of 2026-09-11 the
+working tree carries an uncommitted `noesis/` package — a TikTok content CLI
+for @vini_noesis, no routes and no schema change — plus its edits to
+`.gitignore`, `.env.example` and `README.md`.
+
+That README edit already claims 242 tracked files and ~40,000 lines, which is
+what the repo will hold once `noesis/` is committed. Until then `git ls-files`
+sees 220, so **`test_readme` fails in the working tree while HEAD itself is
+green**. Committing `noesis/` resolves it. Do not "fix" it by lowering the
+numbers — that would only have to be undone.
 
 **Settled — don't re-litigate.** Each line below is a decision that has
 already been argued out. The reasoning, and what it cost to find out, is in
