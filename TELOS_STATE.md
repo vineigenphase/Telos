@@ -170,16 +170,21 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    Facebook only caches a URL that has actually been shared into a Meta
    property, and the `og:image` did not exist before that day.
 
-**In flight, not mine, do not assume it is broken.** As of 2026-09-11 the
-working tree carries an uncommitted `noesis/` package — a TikTok content CLI
-for @vini_noesis, no routes and no schema change — plus its edits to
-`.gitignore`, `.env.example` and `README.md`.
+**Noesis lives in its own repository now.** A `noesis/` package — a TikTok
+content CLI for @vini_noesis — was built in this working tree on 2026-09-10
+and moved out on 2026-09-11 to **github.com/vineigenphase/Noesis** (private,
+`C:\Users\User\Noesis`). Nothing of it remains here: no directory, no branch,
+and `README.md`, `.gitignore` and `.env.example` are back to their committed
+state. `test_readme` passes, and so does the full suite.
 
-That README edit already claims 242 tracked files and ~40,000 lines, which is
-what the repo will hold once `noesis/` is committed. Until then `git ls-files`
-sees 220, so **`test_readme` fails in the working tree while HEAD itself is
-green**. Committing `noesis/` resolves it. Do not "fix" it by lowering the
-numbers — that would only have to be undone.
+It reads `exam_questions` over a **read-only** connection and nothing else, so
+it is a consumer of this database, not a part of this application. Two things
+follow. Renaming or reshaping `exam_questions` breaks content generation over
+there silently — there is no test in this repo that would notice. And the
+reason it could not stay is worth remembering before anything else is added
+here: `test_readme.py` asserts an exact tracked-file count and a line total, so
+every file added moves a number, and `requirements.txt` is pinned at exactly
+seven dependencies.
 
 **Settled — don't re-litigate.** Each line below is a decision that has
 already been argued out. The reasoning, and what it cost to find out, is in
