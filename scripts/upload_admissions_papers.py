@@ -2,9 +2,9 @@
 
 The PDFs live in `scripts/admissions/documents/`, which is gitignored: they are
 18MB of third-party documents and a git repository is the one place they must
-not be. So they reach production the same way every other file does — through
-an authenticated upload to the running app, which writes to the volume at
-STORAGE_DIR/admissions.
+not be. So they reach production the way every other file does — through an
+authenticated upload to the running app, which writes to STORAGE_DIR/admissions
+on the volume.
 
     .venv\\Scripts\\python.exe scripts\\upload_admissions_papers.py
 
@@ -23,17 +23,26 @@ on the volume with nothing ever linking to it, so it is reported here rather
 than uploaded and forgotten.
 
 Re-running is safe: an upload overwrites the file of the same name.
+
+Standard library only, deliberately. This first shipped importing `requests`,
+which is installed in .venv and not in the system Python — so running it as
+`python scripts\\upload_admissions_papers.py` rather than with the venv's
+interpreter exited on the import guard before making a single request, and
+looked from the outside exactly like an upload that had worked. `mailer.py`
+posts to Resend over urllib for the same reason. requirements.txt is seven
+pinned dependencies and this is not going to be the eighth.
 """
 import argparse
 import getpass
+import http.cookiejar
+import mimetypes
 import os
 import re
 import sys
-
-try:
-    import requests
-except ImportError:
-    raise SystemExit("requests is not installed in this environment.")
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DOCS = os.environ.get("TELOS_ADMISSIONS_DOCS", os.path.join(HERE, "admissions",
@@ -46,6 +55,64 @@ WANTED = re.compile(r"[A-Za-z]+_[0-9A-Z]+_S1_QuestionPaper\.pdf")
 # or occasionally enormous. Sixteen small requests also mean a rejection names
 # the file that caused it, which one 17MB request would not.
 BATCH = 1
+
+
+def _opener():
+    """A urllib opener that keeps cookies, which is all a session needs here."""
+    return urllib.request.build_opener(
+        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+
+
+def _post_form(opener, url, fields, timeout=30):
+    """POST an ordinary urlencoded form. Returns (final_url, status, body)."""
+    data = urllib.parse.urlencode(fields).encode()
+    req = urllib.request.Request(url, data=data, method="POST")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
+    try:
+        with opener.open(req, timeout=timeout) as r:
+            return r.geturl(), r.status, r.read()
+    except urllib.error.HTTPError as e:
+        return e.geturl(), e.code, e.read()
+
+
+def _post_files(opener, url, field, paths, timeout=300):
+    """POST files as multipart/form-data, all under the same field name.
+
+    Written out by hand because the standard library has no multipart encoder.
+    It is about twenty lines and they are the same twenty lines every time: a
+    boundary that does not occur in the payload, one part per file, and CRLF
+    line endings because the format says CRLF and some servers mean it.
+    """
+    boundary = "----telos" + uuid.uuid4().hex
+    body = bytearray()
+    for path in paths:
+        name = os.path.basename(path)
+        ctype = mimetypes.guess_type(name)[0] or "application/octet-stream"
+        body += f"--{boundary}\r\n".encode()
+        body += (f'Content-Disposition: form-data; name="{field}"; '
+                 f'filename="{name}"\r\n').encode()
+        body += f"Content-Type: {ctype}\r\n\r\n".encode()
+        with open(path, "rb") as fh:
+            body += fh.read()
+        body += b"\r\n"
+    body += f"--{boundary}--\r\n".encode()
+
+    req = urllib.request.Request(url, data=bytes(body), method="POST")
+    req.add_header("Content-Type", f"multipart/form-data; boundary={boundary}")
+    req.add_header("Content-Length", str(len(body)))
+    try:
+        with opener.open(req, timeout=timeout) as r:
+            return r.status, r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read()
+
+
+def _get(opener, url, timeout=30):
+    try:
+        with opener.open(url, timeout=timeout) as r:
+            return r.status, r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read()
 
 
 def _credentials():
@@ -98,45 +165,47 @@ def main(argv=None):
         print(f"  {f:<40} {size:>7.0f} KB")
     if skipped:
         print(f"\nignored ({len(skipped)} file(s) whose names the catalogue "
-              f"will never ask for — answer keys live here too):")
+              f"will never ask for — the answer keys live here too):")
         for f in skipped:
             print(f"  {f}")
     if args.dry_run or not files:
         return 0
 
     email, password = _credentials()
-
     base = args.base.rstrip("/")
-    s = requests.Session()
-    r = s.post(f"{base}/login", data={"email": email, "password": password},
-               allow_redirects=True, timeout=30)
+    opener = _opener()
+
     # The login page renders 200 on a bad password and redirects on a good one,
     # so the status code alone does not say which happened.
-    if "/login" in r.url:
+    final_url, _status, _body = _post_form(opener, f"{base}/login",
+                                           {"email": email, "password": password})
+    if "/login" in final_url:
         raise SystemExit("login failed — check the email and password.")
+    print(f"\nsigned in at {base}")
 
     url = f"{base}/admin/admissions/papers"
-    if s.get(url, timeout=30).status_code != 200:
-        raise SystemExit(f"{url} did not answer 200 — is that account an admin, "
-                         f"and is this build deployed?")
+    status, _ = _get(opener, url)
+    if status != 200:
+        raise SystemExit(
+            f"{url} answered {status}, not 200. Either that account is not an "
+            f"admin, or this build is not deployed yet.")
 
-    sent = 0
+    sent, failed = 0, []
     for i in range(0, len(files), BATCH):
         batch = files[i:i + BATCH]
-        handles = [("papers", (name, open(os.path.join(DOCS, name), "rb"),
-                               "application/pdf")) for name in batch]
-        try:
-            resp = s.post(url, files=handles, timeout=300)
-        finally:
-            for _, (_, fh, _) in handles:
-                fh.close()
-        if resp.status_code not in (200, 302):
-            print(f"  FAILED batch {batch}: HTTP {resp.status_code}")
+        status, _body = _post_files(
+            opener, url, "papers", [os.path.join(DOCS, n) for n in batch])
+        if status not in (200, 302):
+            failed.extend(batch)
+            print(f"  FAILED  {', '.join(batch)}  (HTTP {status})")
             continue
         sent += len(batch)
-        print(f"  sent {sent}/{len(files)}")
+        print(f"  sent {sent}/{len(files)}  {batch[0] if BATCH == 1 else ''}")
 
-    print(f"\nuploaded {sent} paper(s). Check {url} for what the volume holds.")
+    print(f"\nuploaded {sent} of {len(files)} paper(s).")
+    if failed:
+        print("failed: " + ", ".join(failed))
+    print(f"Check {url} for what the volume now holds.")
     return 0 if sent == len(files) else 1
 
 
