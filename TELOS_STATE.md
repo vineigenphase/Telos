@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-09-10.** Living handoff document. Read this first, then
+**Last updated: 2026-09-16.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -40,7 +40,7 @@ Pro tier = prediction and prescription.
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
 | Exam Mode | 8 tables (`exam_papers`, `exam_questions`, `exam_attempts`, `exam_responses`, `exam_purchases`, `exam_scale_anchors`, `exam_spec_refs`), migrations 041-043. Five Mock A papers published, 121 questions, £1 each |
-| Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front |
+| Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front. Re-checked 2026-09-16 with `scripts/check_stripe.py`: `READY`, both prices on `prod_V9MGf8ekk9ZPDp`, webhook enabled with all 7 events, portal configured |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 
 ### Environment variables (values live in Railway, never in git)
