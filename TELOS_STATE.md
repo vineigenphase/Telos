@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-09-16.** Living handoff document. Read this first, then
+**Last updated: 2026-09-17.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -40,7 +40,7 @@ Pro tier = prediction and prescription.
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
 | Exam Mode | 8 tables (`exam_papers`, `exam_questions`, `exam_attempts`, `exam_responses`, `exam_purchases`, `exam_scale_anchors`, `exam_spec_refs`), migrations 041-043. Five Mock A papers published, 121 questions, £1 each |
-| Admissions papers | The official ENGAA/NSAA PDFs live on the volume at `STORAGE_DIR/admissions`, uploaded through `/admin/admissions/papers` — **never committed**. `scripts/admissions/answer_keys.json` (tracked) is what marks them |
+| Admissions papers | 16 official ENGAA/NSAA PDFs on the volume at `STORAGE_DIR/admissions`, uploaded through `/admin/admissions/papers` — **never committed**. `scripts/admissions/answer_keys.json` (tracked) is what marks them. The 9 TMUA papers are not held yet |
 | Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front. Re-checked 2026-09-16 with `scripts/check_stripe.py`: `READY`, both prices on `prod_V9MGf8ekk9ZPDp`, webhook enabled with all 7 events, portal configured |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 
@@ -175,7 +175,13 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 
 **Needs the owner, for the admissions tracker (2026-09-16):**
 
-16. **Upload the 16 official question papers.** They are on this machine at
+16. ~~**Upload the 16 official question papers.**~~ **Done 2026-09-16** — all
+   16 ENGAA and NSAA papers are on the volume and verified serving as real
+   PDFs to a logged-in student, sizes matching the sources. The 9 TMUA rows
+   still read "use your own copy"; see item 18. The original note follows,
+   because the mechanism still matters for the TMUA papers when they arrive.
+
+   **Upload the official question papers.** They are on this machine at
    `scripts/admissions/documents/` (gitignored, 17MB) and nowhere else —
    production has none of them, so every paper row currently reads "use your
    own copy" rather than offering a download. `scripts/upload_admissions_papers.py`
