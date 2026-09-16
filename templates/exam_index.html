@@ -2,7 +2,13 @@
 
    Free users see this page in full. Section 3 is explicit: the tab and the
    list are visible, and only the start action is gated. Showing a student what
-   they would get is the point; hiding it would make the upgrade abstract. #}
+   they would get is the point; hiding it would make the upgrade abstract.
+
+   Laid out as rows grouped by test rather than as one seven-column table. The
+   table was wrong on a phone whatever it looked like — seven columns at 390px
+   is a sideways scroll through the only screen here that has to sell
+   something — and the classes it used (.table, .pill, .hint, .mk-row-sub)
+   were never in any stylesheet, so it rendered unstyled on every width. #}
 {% extends "base.html" %}
 {% block title %}Exam Mode — Telos{% endblock %}
 {% block content %}
@@ -14,98 +20,125 @@
       Original TMUA and ESAT papers, sat under real test conditions.
     </div>
   </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.tracking') }}">Admissions</a>
 </div>
 
-<div class="page-body">
+<div class="page-body page-wide">
 
+  {# Entitlement, stated once at the top. A Pro subscriber does not need a card
+     about buying, and a free user needs to know the papers are individually
+     purchasable before they read a price next to one. #}
   {% if is_pro %}
-  <div class="card" style="border-color:var(--accent);">
-    <div class="card-title">Every paper is included with Pro</div>
-    <p class="hint" style="margin:0;">Nothing to buy — sit any paper below.</p>
-  </div>
+  <p class="hint" style="margin-bottom:20px;">
+    Every paper below is included with your Pro subscription — nothing to buy.
+  </p>
   {% else %}
-  <div class="card">
+  <div class="card" style="margin-bottom:22px;">
     <div class="card-title">Buy a paper, or get them all with Pro</div>
-    <p class="hint" style="margin:0;">
-      Each paper is a one-off purchase with full worked solutions and an
-      estimated score — no subscription needed. Telos Pro includes every paper,
-      along with predicted grades and topic analytics.
+    <p class="hint" style="margin-top:6px;">
+      Each paper is a one-off purchase with a worked solution for every
+      question and an estimated score — no subscription needed. Telos Pro
+      includes every paper, along with predicted grades and topic analytics.
       <a href="{{ url_for('subscription', **{'from': 'exam-mode'}) }}">See plans</a>.
     </p>
   </div>
   {% endif %}
 
-  <div class="card" style="margin-top:16px;">
-    <div class="card-title">Papers</div>
-    {% if papers %}
-    <div class="table-scroll">
-      <table class="table">
-        <thead>
-          <tr><th>Paper</th><th>Test</th><th>Questions</th><th>Time</th>
-              <th>Price</th><th>Best</th><th></th></tr>
-        </thead>
-        <tbody>
-          {% for p in papers %}
-          <tr>
-            <td>{{ p.title }}<div class="mk-row-sub">{{ p.series }}</div></td>
-            <td>{{ p.family }} · {{ p.module }}</td>
-            <td>{{ p.question_count }}</td>
-            <td>{{ p.duration_sec // 60 }} min</td>
-            <td>
-              {# Owned and included read differently to a student: one is
-                 something they bought, the other something their plan gives
-                 them. Saying "£1" next to a paper they can already sit would
-                 be the worst of both. #}
-              {% if is_pro %}<span class="pill">Included</span>
-              {% elif p.id in owned %}<span class="pill">Owned</span>
-              {% elif not p.price_pence %}<span class="pill">Free</span>
-              {% else %}<strong>{{ price_label(p.price_pence) }}</strong>{% endif %}
-            </td>
-            <td>
-              {% if best.get(p.id) is not none %}
-                <strong>{{ '%.1f'|format(best[p.id]) }}</strong>
-              {% else %}—{% endif %}
-            </td>
-            <td>
-              {% if is_pro or p.id in owned or not p.price_pence %}
-              <button class="btn btn-primary btn-sm js-start"
-                      data-paper="{{ p.paper_code }}">Sit paper</button>
-              {% else %}
-              <form method="post" action="{{ url_for('exam.buy', paper_code=p.paper_code) }}"
-                    style="display:inline;">
-                <button class="btn btn-primary btn-sm" type="submit">
-                  Buy for {{ price_label(p.price_pence) }}
-                </button>
-              </form>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p class="empty">No papers published yet.</p>
-    {% endif %}
-  </div>
+  {% if groups %}
+    {% for g in groups %}
+    <section class="exam-group">
+      <div class="exam-group-head">
+        <div class="exam-group-name">{{ g.family }}</div>
+        {% if g.note %}<div class="exam-group-note">{{ g.note }}</div>{% endif %}
+      </div>
+
+      {% for p in g.papers %}
+      {% set sittable = is_pro or p.id in owned or not p.price_pence %}
+      <div class="exam-row">
+        <div class="exam-mod">{{ p.module }}</div>
+
+        <div class="exam-body">
+          <div class="exam-title">{{ p.title }}</div>
+          <div class="exam-meta">
+            {{ p.question_count }} questions · {{ p.duration_sec // 60 }} minutes
+            {%- if p.series %} · {{ p.series }}{% endif %}
+          </div>
+        </div>
+
+        <div class="exam-side">
+          {# Best score earns its space only once there is one. An em dash in a
+             column a student has never used is a column doing nothing. #}
+          {% if best.get(p.id) is not none %}
+          <div class="exam-best">
+            <div class="exam-best-value">{{ '%.1f'|format(best[p.id]) }}</div>
+            <div class="exam-best-label">Best</div>
+          </div>
+          {% endif %}
+
+          {# Owned and included read differently to a student: one is something
+             they bought, the other something their plan gives them. Saying
+             "£1" next to a paper they can already sit would be the worst of
+             both. #}
+          <div>
+            {% if is_pro %}<span class="pill pill-owned">Included</span>
+            {% elif p.id in owned %}<span class="pill pill-owned">Owned</span>
+            {% elif not p.price_pence %}<span class="pill pill-free">Free</span>
+            {% else %}<span class="exam-price">{{ price_label(p.price_pence) }}</span>
+            {% endif %}
+          </div>
+
+          <div class="exam-action">
+            {% if sittable %}
+            <button class="btn btn-primary btn-sm js-start"
+                    data-paper="{{ p.paper_code }}">Sit paper</button>
+            {% else %}
+            <form method="post" action="{{ url_for('exam.buy', paper_code=p.paper_code) }}">
+              <button class="btn btn-primary btn-sm" type="submit">Buy</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+    {% endfor %}
+  {% else %}
+    <p class="empty-inline">No papers published yet.</p>
+  {% endif %}
 
   {% if attempts %}
-  <div class="card" style="margin-top:16px;">
+  <div class="card" style="margin-top:8px;">
     <div class="card-title">Your attempts</div>
-    <div class="table-scroll">
-      <table class="table">
+    <div class="table-scroll" style="margin-top:10px;">
+      <table class="data-table">
         <thead>
-          <tr><th>Paper</th><th>Started</th><th>Status</th><th>Raw</th>
-              <th>Estimated score</th></tr>
+          <tr><th>Paper</th><th>Sat</th><th>Raw</th><th>Score</th><th></th></tr>
         </thead>
         <tbody>
           {% for a in attempts %}
           <tr>
-            <td>{{ a.title }}</td>
-            <td>{{ a.started_at.strftime('%d %b %Y') }}</td>
-            <td>{{ a.status }}</td>
-            <td>{% if a.raw is not none %}{{ a.raw }}/{{ a.question_count }}{% else %}—{% endif %}</td>
-            <td>{% if a.scaled is not none %}{{ '%.1f'|format(a.scaled) }}{% else %}—{% endif %}</td>
+            <td class="strong">{{ a.title }}</td>
+            <td class="dim num">{{ a.started_at.strftime('%d %b %Y') }}</td>
+            <td class="num">
+              {% if a.raw is not none %}{{ a.raw }}/{{ a.question_count }}
+              {% else %}<span class="dim">—</span>{% endif %}
+            </td>
+            <td class="figure num">
+              {% if a.scaled is not none %}{{ '%.1f'|format(a.scaled) }}
+              {% else %}<span class="dim">—</span>{% endif %}
+            </td>
+            <td>
+              {# A finished attempt has a results screen and the list never
+                 linked to it, so the marking — the thing they paid for — was
+                 reachable only from the moment they submitted. #}
+              {% if a.status == 'live' %}
+                <a class="auth-link auth-link-sm"
+                   href="{{ url_for('exam.player', attempt_id=a.id) }}">Resume</a>
+              {% else %}
+                <a class="auth-link auth-link-sm"
+                   href="{{ url_for('exam.results', attempt_id=a.id) }}">Results</a>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

@@ -223,7 +223,8 @@ NAV_ITEMS = [
     # sat under a clock. Filing it with the A-level tools would bury it.
     {"endpoint": "exam.tracking", "label": "Admissions",     "short": "Tests",
      "icon": "atom",     "primary": False, "section": "Admissions",
-     "match": ("exam.tracking",)},
+     "match": ("exam.tracking", "exam.test_papers", "exam.log_paper",
+               "exam.tag_admissions_topics")},
     {"endpoint": "exam.index",    "label": "Exam Mode",      "short": "Exam",
      "icon": "clock",    "primary": False, "section": "Admissions",
      "match": ("exam.index", "exam.start", "exam.player", "exam.results",
@@ -248,6 +249,10 @@ NAV_ITEMS = [
     {"endpoint": "admin_mocks",   "label": "Manage Mocks",   "short": "Mocks",
      "icon": "tag",      "primary": False, "section": "Account", "admin": True,
      "match": ("admin_mocks",)},
+    {"endpoint": "exam.admin_admissions_papers", "label": "Admissions Papers",
+     "short": "Papers",
+     "icon": "file",     "primary": False, "section": "Account", "admin": True,
+     "match": ("exam.admin_admissions_papers",)},
 ]
 
 app.jinja_env.globals["NAV_ITEMS"] = NAV_ITEMS

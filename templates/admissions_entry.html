@@ -1,0 +1,177 @@
+{# Entering and marking one official admissions paper.
+
+   One screen, two states. Before it is marked it is a grid of answers to fill
+   in; after, the same grid showing what was right, what was wrong, and what
+   the key said. Deliberately not a redirect to a separate results page — the
+   thing a student wants immediately after marking is their own answers against
+   the key, and a redirect is where that gets lost.
+
+   No JavaScript. The whole flow is radio buttons inside one form, which means
+   it works on a train with one bar of signal, which is where a lot of past
+   papers get marked. #}
+{% extends "base.html" %}
+{% block title %}{{ paper.part }} {{ paper.year }} — {{ subject }} — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ paper.part }} · {{ paper.year if paper.year != 'SPEC' else 'Specimen' }}</div>
+    <div class="page-subtitle">{{ subject }} — {{ paper.name }}</div>
+  </div>
+  <a class="btn btn-ghost btn-sm"
+     href="{{ url_for('exam.test_papers', subject_slug=subject_slug) }}">All papers</a>
+</div>
+
+<div class="page-body page-narrow">
+
+  {% if marked %}
+  {# ── Marked ──────────────────────────────────────────────────────────── #}
+  <div class="card">
+    <div class="mcq-score">
+      <div class="mcq-score-value">{{ raw }}<span class="mcq-score-of">/{{ out_of }}</span></div>
+      <div class="mcq-score-label">
+        {{ paper.part }} {{ paper.year }} · {{ (raw / out_of * 100)|round|int }}%
+      </div>
+    </div>
+    <p class="hint" style="margin-top:12px;">
+      {% if paper.scaled %}
+        A raw mark, not a score on the 1–9 scale. {{ paper.test }} is scaled
+        against the candidates who sat it that year and no raw-to-score table
+        has ever been published, so Telos will not put a number on it — sit a
+        full mock in <a href="{{ url_for('exam.index') }}">Exam Mode</a> for an
+        estimate.
+      {% else %}
+        The raw mark, which is what {{ paper.test }} itself reported — it had
+        no 1–9 scale. What a given mark was worth depends on the cohort that
+        sat it, and those distributions vary a lot year to year.
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Question by question</div>
+    <div class="mcq-review">
+      {% for q in marked %}
+      <div class="mcq-review-q {{ 'is-right' if q.is_correct else ('is-blank' if not q.answered else 'is-wrong') }}">
+        <span class="mcq-review-n">{{ q.n }}</span>
+        {% if key %}
+        <span class="mcq-review-given">{{ q.given or '–' }}</span>
+        {% if not q.is_correct %}<span class="mcq-review-key">{{ q.correct }}</span>{% endif %}
+        {% else %}
+        <span class="mcq-review-given">{{ '✓' if q.is_correct else ('✗' if q.answered else '–') }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if key %}
+    <p class="hint" style="margin-top:14px;">
+      Your answer, then the key where they differ. A dash is a question you
+      left blank — worth the same as a wrong one here, since none of these
+      tests marks negatively.
+    </p>
+    {% endif %}
+  </div>
+
+  {% set wrong = marked|rejectattr('is_correct')|list %}
+  {% if wrong and topics %}
+  {# Only the wrong ones, and only after marking. A topic on a question the
+     student got right tells the heatmap nothing it did not already know. #}
+  <form method="post"
+        action="{{ url_for('exam.tag_admissions_topics', subject_slug=subject_slug,
+                           year=paper.year, part_slug=paper.part|lower|replace(' ', '-')) }}">
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">What were the {{ wrong|length }} you missed about?</div>
+      <p class="hint" style="margin-top:6px;">
+        Optional, and the only part of this that feeds your heatmap and your
+        revision queue. Leave any of them blank.
+      </p>
+      <div class="mcq-tags">
+        {% for q in wrong %}
+        <div class="mcq-tag-row">
+          <label class="mcq-tag-n" for="topic{{ q.n }}">Q{{ q.n }}</label>
+          <select class="form-control" id="topic{{ q.n }}" name="topic{{ q.n }}">
+            <option value="">—</option>
+            {% for t in topics %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="btn btn-primary" type="submit" style="margin-top:16px;">
+        Save topics
+      </button>
+    </div>
+  </form>
+  {% endif %}
+
+  <p class="hint" style="margin-top:16px;">
+    <a href="{{ url_for('exam.log_paper', subject_slug=subject_slug,
+                        year=paper.year, part_slug=paper.part|lower|replace(' ', '-')) }}">Re-enter
+      this paper</a> if something above is not what you put.
+  </p>
+
+  {% else %}
+  {# ── Entry ───────────────────────────────────────────────────────────── #}
+  <form method="post">
+    <div class="card">
+      <div class="card-title">
+        {% if key %}Your answers{% else %}Mark your own{% endif %}
+      </div>
+      <p class="hint" style="margin-top:6px;">
+        {% if key %}
+          {{ paper.max_marks }} questions. Tap the letter you chose; leave
+          anything you skipped blank. Telos marks it against the official key.
+        {% elif paper.published %}
+          {{ paper.max_marks }} questions. Telos has no key for
+          {{ paper.test }}, so mark against the one that came with your paper
+          and tap each question right or wrong.
+        {% else %}
+          {{ paper.max_marks }} questions. UAT-UK publishes no {{ paper.test }}
+          papers, so this is a record of a sitting you took — tap each question
+          right or wrong from your own result.
+        {% endif %}
+      </p>
+
+      <div class="mcq-grid">
+        {% for n in range(1, paper.max_marks + 1) %}
+        {% set prev = existing.get(n|string) %}
+        <div class="mcq-row">
+          <div class="mcq-n">{{ n }}</div>
+          <div class="mcq-opts">
+            {% if key %}
+              {% for o in options %}
+              <input type="radio" class="mcq-input" name="q{{ n }}" value="{{ o }}"
+                     id="q{{ n }}{{ o }}"
+                     {% if prev and prev.answer_given == o %}checked{% endif %}>
+              <label class="mcq-opt" for="q{{ n }}{{ o }}">{{ o }}</label>
+              {% endfor %}
+            {% else %}
+              <input type="radio" class="mcq-input" name="q{{ n }}" value="right"
+                     id="q{{ n }}right"
+                     {% if prev and prev.obtained %}checked{% endif %}>
+              <label class="mcq-opt mcq-opt-right" for="q{{ n }}right">Right</label>
+              <input type="radio" class="mcq-input" name="q{{ n }}" value="wrong"
+                     id="q{{ n }}wrong"
+                     {% if prev and not prev.obtained %}checked{% endif %}>
+              <label class="mcq-opt mcq-opt-wrong" for="q{{ n }}wrong">Wrong</label>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit"
+              style="margin-top:20px;">
+        {% if key %}Mark this paper{% else %}Save this paper{% endif %}
+      </button>
+      {% if existing %}
+      <p class="hint" style="margin-top:10px;">
+        You have logged this paper before. Saving replaces what is there rather
+        than recording a second sitting.
+      </p>
+      {% endif %}
+    </div>
+  </form>
+  {% endif %}
+
+</div>
+{% endblock %}

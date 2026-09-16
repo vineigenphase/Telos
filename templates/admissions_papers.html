@@ -1,0 +1,97 @@
+{# The official past papers for one admissions test.
+
+   Distinct from Exam Mode, which sells original Telos papers and sits them
+   under a clock. These are the real published ones: worked through on paper,
+   at the student's own pace, and recorded here afterwards. #}
+{% extends "base.html" %}
+{% block title %}{{ test }} past papers — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ subject }}</div>
+    <div class="page-subtitle">
+      {% if years and years[0].published %}
+        Official past papers. Enter your answers and Telos marks them.
+      {% else %}
+        Record a sitting you took. There are no published papers for this test.
+      {% endif %}
+    </div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.tracking') }}">All tests</a>
+</div>
+
+<div class="page-body page-wide">
+
+  {% set auto = years and years[0].parts and years[0].parts[0].auto_marked %}
+  <p class="hint" style="margin-bottom:22px;">
+    Every question is worth one mark and there is no negative marking, so a
+    blank costs exactly what a wrong answer costs.
+    {% if auto %}
+      Telos holds the official key for every {{ test }} year below, so enter the
+      letters you chose and it marks the paper for you.
+    {% elif years and years[0].published %}
+      Telos has no key for {{ test }} — the papers are published and the keys
+      were never extracted — so mark against the one that came with your paper
+      and tap each question right or wrong.
+    {% else %}
+      UAT-UK publishes no {{ test }} papers, past or specimen, so there is
+      nothing here to download and nothing to mark against. These rows are for
+      recording a sitting you took: tap each question right or wrong.
+    {% endif %}
+  </p>
+
+  {% for y in years %}
+  <section class="exam-group">
+    <div class="exam-group-head">
+      <div class="exam-group-name">{{ y.year if y.year != 'SPEC' else 'Specimen' }}</div>
+      {% if y.pdf %}
+      <a class="exam-group-note auth-link"
+         href="{{ url_for('exam.admissions_pdf', stem=y.pdf) }}" target="_blank"
+         rel="noopener">Download the paper (PDF)</a>
+      {% elif y.published %}
+      {# Said plainly rather than left as a missing link. A student who cannot
+         see why there is no download assumes the page is broken. #}
+      <div class="exam-group-note">Paper not stored — use your own copy</div>
+      {% else %}
+      <div class="exam-group-note">No paper published for this sitting</div>
+      {% endif %}
+    </div>
+
+    {% for p in y.parts %}
+    <div class="exam-row">
+      <div class="exam-mod">{{ p.part }}</div>
+
+      <div class="exam-body">
+        <div class="exam-title">{{ p.name }}</div>
+        <div class="exam-meta">
+          {{ p.max_marks }} questions
+          {%- if p.optional %} · optional section{% endif %}
+          {%- if not p.auto_marked %} · self-marked{% endif %}
+        </div>
+      </div>
+
+      <div class="exam-side">
+        {% if p.logged and p.logged.score is not none %}
+        <div class="exam-best">
+          <div class="exam-best-value">{{ p.logged.score|int }}/{{ p.logged.max_marks|int }}</div>
+          <div class="exam-best-label">Scored</div>
+        </div>
+        {% endif %}
+        <div class="exam-action">
+          <a class="btn btn-primary btn-sm"
+             href="{{ url_for('exam.log_paper', subject_slug=subject_slug,
+                              year=p.year, part_slug=slugify(p.part)) }}">
+            {{ 'Review' if p.logged else 'Enter answers' }}
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% else %}
+  <p class="empty-inline">No papers listed for this test.</p>
+  {% endfor %}
+
+</div>
+{% endblock %}

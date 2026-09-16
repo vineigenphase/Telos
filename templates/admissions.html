@@ -79,11 +79,41 @@
     </div>
   </form>
 
+  {% if tracked %}
+  {# The past papers themselves. This is the working half of the page: the
+     picker above decides what the dashboard tracks, and this is where a
+     candidate actually goes the evening before. #}
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Past papers</div>
+    <p class="hint" style="margin-top:6px;">
+      Work through a real paper, then enter your answers here. Every question
+      is one mark, so there is nothing to break down beyond right or wrong.
+    </p>
+    <div class="admin-list" style="margin-top:12px;">
+      {% for t in tracked %}
+      <a class="admin-row" style="text-decoration:none; color:inherit;"
+         href="{{ url_for('exam.test_papers', subject_slug=t.slug) }}">
+        <div class="admin-row-body">
+          <div class="mock-title">{{ t.name }}</div>
+          <div class="mock-meta">
+            {{ t.count }} paper{{ 's' if t.count != 1 }}
+            {%- if t.auto %} · {{ t.auto }} marked for you
+            {%- else %} · self-marked{% endif %}
+            {%- if t.logged %} · {{ t.logged }} logged{% endif %}
+          </div>
+        </div>
+        <span class="res-arrow" aria-hidden="true">›</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if mocks %}
   <div class="card" style="margin-top:16px;">
     <div class="card-title">Full mocks sat</div>
     <div class="table-scroll">
-      <table class="table">
+      <table class="data-table">
         <thead><tr><th>Test</th><th>Papers sat</th><th>Best estimated score</th></tr></thead>
         <tbody>
           {% for family, m in mocks.items() %}

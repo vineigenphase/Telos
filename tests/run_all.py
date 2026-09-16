@@ -48,6 +48,7 @@ SUITES = [
     ("exam paper loader",         "test_exam_loader.py"),
     ("exam scoring (pure)",       "test_exam_scoring.py"),
     ("exam attempt lifecycle",    "test_exam_attempts.py"),
+    ("admissions paper tracker",  "test_admissions_tracker.py"),
     ("README counts",             "test_readme.py"),
 ]
 

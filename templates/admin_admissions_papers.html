@@ -1,0 +1,67 @@
+{# Admin — the official admissions PDFs held on the volume.
+
+   An upload screen rather than files in the repository. These are third-party
+   documents and a git repository is the one place they must not be; the volume
+   is the same store Exam Mode and the marketplace already use, so they survive
+   a redeploy. #}
+{% extends "base.html" %}
+{% block title %}Admissions papers — Telos{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Admissions papers</div>
+    <div class="page-subtitle">
+      Official question papers served to students from the volume.
+    </div>
+  </div>
+</div>
+
+<div class="page-body page-narrow">
+
+  <div class="card">
+    <div class="card-title">Upload</div>
+    <p class="hint" style="margin-top:6px;">
+      Filenames must read <code>TEST_YEAR_S1_QuestionPaper.pdf</code> — the
+      catalogue builds the same name when it looks for a paper, so anything
+      else lands on the volume and no row ever links to it. Anything not
+      matching is ignored and named below.
+    </p>
+    <form method="post" enctype="multipart/form-data" class="admin-form"
+          style="margin-top:14px;">
+      <div class="form-group">
+        <label class="form-label" for="papers">PDFs</label>
+        <input class="form-control" type="file" id="papers" name="papers"
+               accept="application/pdf" multiple required>
+      </div>
+      <button class="btn btn-primary" type="submit">Upload</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Held ({{ held|length }} of {{ wanted|length }})</div>
+    {% if missing %}
+    <p class="hint" style="margin-top:6px;">
+      {{ missing|length }} paper{{ 's' if missing|length != 1 }} the catalogue
+      lists but the volume does not have. Those rows show "use your own copy"
+      to students rather than a broken link.
+    </p>
+    {% endif %}
+    <div class="admin-list" style="margin-top:12px;">
+      {% for name in wanted %}
+      <div class="admin-row">
+        <div class="admin-row-body">
+          <div class="mock-title">{{ name }}</div>
+        </div>
+        {% if name in held %}
+        <span class="pill pill-owned">Held</span>
+        {% else %}
+        <span class="pill">Missing</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

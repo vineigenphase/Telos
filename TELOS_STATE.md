@@ -40,6 +40,7 @@ Pro tier = prediction and prescription.
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
 | Exam Mode | 8 tables (`exam_papers`, `exam_questions`, `exam_attempts`, `exam_responses`, `exam_purchases`, `exam_scale_anchors`, `exam_spec_refs`), migrations 041-043. Five Mock A papers published, 121 questions, £1 each |
+| Admissions papers | The official ENGAA/NSAA PDFs live on the volume at `STORAGE_DIR/admissions`, uploaded through `/admin/admissions/papers` — **never committed**. `scripts/admissions/answer_keys.json` (tracked) is what marks them |
 | Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front. Re-checked 2026-09-16 with `scripts/check_stripe.py`: `READY`, both prices on `prod_V9MGf8ekk9ZPDp`, webhook enabled with all 7 events, portal configured |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 
@@ -92,6 +93,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 11 | Exam Mode — the test player | `2f1ecd2` `1ff7762` | **live** |
 | 11 | Exam Mode — results screen | `4858bc2` | **live** |
 | 11 | Exam Mode — QA pass, £1 per paper, advertised on the landing page | `9bfc838` `317e050` | **live** |
+| 11 | Exam Mode pages styled — the Phase 11 templates used five classes that were in no stylesheet | `pending` | on `feat/exam-polish` |
+| 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `pending` | on `feat/exam-polish` |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -169,6 +172,27 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    Facebook login, so it was skipped — and it is probably a no-op, because
    Facebook only caches a URL that has actually been shared into a Meta
    property, and the `og:image` did not exist before that day.
+
+**Needs the owner, for the admissions tracker (2026-09-16):**
+
+16. **Upload the 16 official question papers.** They are on this machine at
+   `scripts/admissions/documents/` (gitignored, 17MB) and nowhere else —
+   production has none of them, so every paper row currently reads "use your
+   own copy" rather than offering a download. `scripts/upload_admissions_papers.py`
+   pushes them through the admin route; it needs `TELOS_ADMIN_EMAIL` and
+   `TELOS_ADMIN_PASSWORD` in the environment and an admin account, which is why
+   it cannot be run for you. Check the result at `/admin/admissions/papers`.
+17. **Decide whether hosting those PDFs is a risk worth taking.** They are
+   Cambridge Assessment copyright, and serving them from telosapp.co.uk to
+   paying subscribers is a different act from linking to the pages that publish
+   them. The owner chose to host on 2026-09-16 having been told this. The
+   tracker works either way — a paper with no PDF on the volume simply says so
+   — so this can be reversed by deleting the files, without touching code.
+18. **TMUA has no answer keys.** `extract_keys.py` was only ever run over the
+   ENGAA and NSAA papers, so TMUA's 18 papers are self-marked: the student taps
+   right or wrong. The official TMUA papers and keys are published, so this is
+   a matter of downloading them and running the same extractor, not of writing
+   anything new.
 
 **Noesis lives in its own repository now.** A `noesis/` package — a TikTok
 content CLI for @vini_noesis — was built in this working tree on 2026-09-10
@@ -274,6 +298,35 @@ already been argued out. The reasoning, and what it cost to find out, is in
 - Papers are bought individually at £1; Pro includes every paper.
 - Admissions tracking lives on its own tab, and each picker carries the other's selection.
 - The `telos` demo account is seeded by script, deterministically.
+
+*The Exam Mode pages, and the admissions tracker (2026-09-16)*
+
+- **Four Phase 11 templates were never styled, and nobody noticed for twelve
+  days.** `exam_index.html`, `admissions.html` and the two admin screens used
+  `.hint`, `.pill`, `.table`, `.empty` and `.mk-row-sub` — five class names that
+  appear in no stylesheet in this repository. The pages rendered as bare HTML
+  tables inside correctly styled cards, which is why they looked half-finished
+  rather than broken. `.hint` and `.pill` were worth having and are now defined;
+  the other three were renamed to the vocabulary that already existed
+  (`.data-table`, `.empty-inline`). `.mk-row-sub` is defined in `landing.css`,
+  which app pages do not load — the class existed, just not there.
+- **The paper list is rows, not a table.** Seven columns at 390px was a sideways
+  scroll through the one screen that has something to sell.
+- **An admissions paper is an ordinary `papers` row.** One `question_marks` row
+  per question at one mark each, 0 or 1, plus the letter chosen in the new
+  `answer_given` column. Not a table of its own, because the heatmap, the
+  prescription engine and the revision queue all read those two tables and a
+  parallel store would have made admissions papers invisible to every one of
+  them.
+- **Marking is comparing two lists of letters.** Every one of these tests is
+  multiple choice at one mark a question with no negative marking, so the
+  generic mark-entry screen — "how many marks out of 6?" — was twenty needless
+  taps on a question whose only answers are 0 and 1.
+- **The keypad's letters come from the key, not from A-E.** ENGAA Part A runs to
+  H. Offering five options on a paper with eight would put three correct answers
+  out of reach, and it would look like the student being wrong.
+- **Re-entering a paper replaces it.** A student fixing a mistyped answer means
+  to correct the sitting, not to claim they sat it twice.
 
 *Payments, proven live*
 

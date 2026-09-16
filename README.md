@@ -37,10 +37,10 @@ Three questions, in order:
 | Grade boundary rows | **1,001** real published boundaries |
 | Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
 | Components | 219 papers, modules, parts and coursework units |
-| Routes | 65 |
-| Tables | 27, under 43 numbered migrations |
-| Tests | 26 suites, ~750 assertions |
-| Code | ~36,000 lines across 220 tracked files |
+| Routes | 70 |
+| Tables | 27, under 44 numbered migrations |
+| Tests | 27 suites, ~783 assertions |
+| Code | ~38,000 lines across 227 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -67,11 +67,13 @@ db.py             psycopg3 shim — Postgres behind a sqlite3 API
 prediction.py     grade engine        — pure, no Flask, no DB
 prescription.py   "your next 3 questions" — pure
 revision.py       spaced repetition   — pure
+admissions.py     equipercentile equating — pure
+admissions_papers.py  the official ENGAA/NSAA/TMUA papers and keys — pure
 sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  67 qualifications, 219 components
-migrations/       43 numbered idempotent SQL migrations
-tests/            26 standalone suites
+migrations/       44 numbered idempotent SQL migrations
+tests/            27 standalone suites
 scripts/boundaries/  36 board-document scripts
 ```
 
@@ -268,7 +270,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~3,900 lines of hand-written CSS and 1122 of vanilla JS.
+no CSS framework — ~4,100 lines of hand-written CSS and 1122 of vanilla JS.
 
 ---
 
@@ -296,13 +298,15 @@ revision app collects, should not need an account to read them.
 ```
 app.py  db.py  auth.py  mailer.py  brand.py       core application
 prediction.py  prescription.py  revision.py       pure engines
+admissions.py  admissions_papers.py               pure engines, admissions
 sharecards.py  paper_templates.py                 rendering, catalogue
-migrations/          43 numbered SQL migrations
+migrations/          44 numbered SQL migrations
 scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
-tests/               26 suites, ~750 assertions
-templates/           39 Jinja templates, including /terms and /privacy
+scripts/upload_admissions_papers.py  push the official PDFs to the volume
+tests/               27 suites, ~783 assertions
+templates/           42 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker
 TELOS_STATE.md       living handoff — infrastructure, phases, gotchas

@@ -18,14 +18,19 @@ select those columns, rather than relying on remembering to strip them.
 
 from __future__ import annotations
 
+import datetime
 import json
+import os
+import re
 
 from flask import (Blueprint, abort, flash, jsonify, redirect, render_template,
-                   request, url_for)
+                   request, send_file, url_for)
 from flask_login import current_user, login_required
 
 from auth import requires_admin, user_is_pro
-from paper_templates import all_qualifications, is_graded
+import admissions_papers
+from paper_templates import (all_qualifications, get_topics,
+                             is_graded)
 from db import get_db
 from exam_scoring import DEFAULT_ANCHORS, compute_metrics
 
@@ -364,6 +369,15 @@ def _finalise(db, attempt, expired=False):
 # Routes — engine spec section 4
 # ---------------------------------------------------------------------------
 
+# What each family's initials stand for, said once on the list. A student three
+# weeks from the test knows; one deciding whether this product is for them at
+# all may not, and "TMUA · P1" alone tells them nothing.
+FAMILY_NOTES = {
+    "TMUA": "Test of Mathematics for University Admission",
+    "ESAT": "Engineering and Science Admissions Test",
+}
+
+
 @exam.route("/exam")
 @login_required
 def index():
@@ -372,7 +386,10 @@ def index():
         papers = db.execute(
             "SELECT id, paper_code, family, module, title, series, question_count, "
             "       duration_sec, price_pence FROM exam_papers WHERE is_published "
-            "ORDER BY family, module, paper_code").fetchall()
+            # DESC to match the landing page, which lists TMUA before ESAT. It
+            # is alphabetical luck rather than a stated order — the day a third
+            # family is added, both queries need a real one.
+            "ORDER BY family DESC, module, paper_code").fetchall()
         owned = _owned_paper_ids(db)
         attempts = db.execute(
             "SELECT a.id, a.paper_id, a.status, a.raw, a.scaled, a.started_at, "
@@ -386,7 +403,20 @@ def index():
             cur = best.get(a["paper_id"])
             if cur is None or a["scaled"] > cur:
                 best[a["paper_id"]] = a["scaled"]
-    return render_template("exam_index.html", papers=papers, attempts=attempts,
+
+    # Grouped here rather than with Jinja's groupby: these rows are the db.py
+    # sqlite3.Row-alike, which groupby would have to reach into by attribute.
+    # The query already orders by family, so one pass is enough.
+    groups = []
+    for p in papers:
+        if not groups or groups[-1]["family"] != p["family"]:
+            groups.append({"family": p["family"],
+                           "note": FAMILY_NOTES.get(p["family"], ""),
+                           "papers": []})
+        groups[-1]["papers"].append(p)
+
+    return render_template("exam_index.html", groups=groups, papers=papers,
+                           attempts=attempts,
                            best=best, is_pro=user_is_pro(current_user),
                            owned=owned, price_label=_price_label)
 
@@ -798,5 +828,339 @@ def tracking():
     progress = {(r["board"], r["subject"]): dict(r) for r in logged}
     mocks = {r["family"]: dict(r) for r in attempts}
 
+    # The tests this student actually ticked, with how many official papers
+    # each has. Only these get a "past papers" link: offering one for a test
+    # they are not sitting is a longer list that helps nobody.
+    tracked = []
+    for q in tests:
+        if f"{q['board']}|{q['subject']}|{q['level']}" not in chosen:
+            continue
+        papers = admissions_papers.official_papers(q["subject"])
+        tracked.append({
+            "name": q["name"],
+            "subject": q["subject"],
+            "slug": admissions_papers.slug(q["subject"]),
+            "count": len(papers),
+            "auto": sum(1 for p in papers if p["auto_marked"]),
+            "logged": progress.get((q["board"], q["subject"]), {}).get("papers", 0),
+        })
+
     return render_template("admissions.html", tests=tests, chosen=chosen,
-                           progress=progress, mocks=mocks)
+                           progress=progress, mocks=mocks, tracked=tracked)
+
+
+# ---------------------------------------------------------------------------
+# The admissions past-paper tracker
+# ---------------------------------------------------------------------------
+#
+# Separate from Exam Mode, and the difference is worth stating because the two
+# screens look alike. Exam Mode sells original Telos papers and sits them under
+# a clock. This tracks the real, published ones: a student works through ENGAA
+# 2021 on paper, at their own pace, and comes here to record what they scored.
+#
+# Every one of these tests is multiple choice with one mark a question, so
+# there is nothing to break down per question beyond right or wrong. That is
+# the whole reason this is its own flow rather than the existing mark entry:
+# the generic screen asks "how many marks out of 6?", and asking that about a
+# question whose only possible answers are 0 and 1 is twenty needless taps.
+#
+# Where Telos holds the official key - ENGAA and NSAA, every year - the student
+# enters the letters they chose and the marking is done for them. Where it does
+# not, they tap right or wrong themselves. Both write the same rows, so the
+# heatmap and the revision queue cannot tell the difference afterwards.
+
+def _admissions_paper_or_404(subject_slug, year, part_slug):
+    """Resolve a URL triple to one row of the official catalogue, or 404.
+
+    Everything in the path is untrusted, and all three parts are looked up
+    against the catalogue rather than used to build a query or a filename.
+    """
+    subject = admissions_papers.from_slug(subject_slug)
+    if not subject:
+        abort(404)
+    for row in admissions_papers.official_papers(subject):
+        if (str(row["year"]) == str(year)
+                and admissions_papers.slug(row["part"]) == part_slug):
+            return subject, row
+    abort(404)
+
+
+def _logged_papers(db, subject):
+    """{(year, part): row} of what this student has already recorded."""
+    rows = db.execute(
+        "SELECT id, paper_code, year, score, max_marks, date_completed "
+        "FROM papers WHERE user_id=? AND board=? AND subject=?",
+        (current_user.id, admissions_papers.BOARD, subject)).fetchall()
+    return {(str(r["year"]), r["paper_code"]): dict(r) for r in rows}
+
+
+def _part_topics(subject, part):
+    """The topic list for one part, for tagging what went wrong."""
+    return get_topics(admissions_papers.BOARD, subject, part) or []
+
+
+def _admissions_pdf_path(stem):
+    """Absolute path to a stored paper, or None. Never trusts `stem`.
+
+    The stem is rebuilt from the catalogue by `pdf_stem()` before it reaches
+    here, but this is the function that turns a URL segment into a filename, so
+    it checks the shape itself rather than trusting its caller to have done so.
+    """
+    from app import STORAGE_DIR
+    if not stem or not re.fullmatch(r"[A-Za-z]+_[0-9A-Z]+_S1", stem):
+        return None
+    path = os.path.join(STORAGE_DIR, "admissions", stem + "_QuestionPaper.pdf")
+    return path if os.path.exists(path) else None
+
+
+@exam.route("/admissions/<subject_slug>")
+@login_required
+def test_papers(subject_slug):
+    """Every published paper for one admissions test, and what you scored."""
+    subject = admissions_papers.from_slug(subject_slug)
+    if not subject:
+        abort(404)
+
+    with get_db() as db:
+        logged = _logged_papers(db, subject)
+
+    # Grouped by year so the list reads as "2023: Part A, Part B" rather than
+    # as forty flat rows. A candidate works backwards from the newest sitting,
+    # which is the order official_papers already returns.
+    years, seen = [], {}
+    for row in admissions_papers.official_papers(subject):
+        key = str(row["year"])
+        if key not in seen:
+            seen[key] = {"year": key, "parts": [],
+                         "published": row["published"],
+                         "pdf": (row["pdf_stem"]
+                                 if _admissions_pdf_path(row["pdf_stem"]) else None)}
+            years.append(seen[key])
+        seen[key]["parts"].append(
+            dict(row, logged=logged.get((key, row["part"]))))
+
+    return render_template("admissions_papers.html",
+                           subject=subject, subject_slug=subject_slug,
+                           years=years,
+                           test=admissions_papers.test_name(subject),
+                           slugify=admissions_papers.slug)
+
+
+def _save_admissions_paper(subject, paper, marked, raw, out_of):
+    """Write the sitting as a normal paper, so every other feature sees it.
+
+    Deliberately not a table of its own. `papers` and `question_marks` are what
+    the heatmap, the prescription engine and the revision queue all read, and a
+    parallel store would mean an admissions paper a student got half wrong
+    taught those features nothing. One mark per question, 0 or 1, plus the
+    letter chosen where there was one.
+
+    Re-logging a paper replaces it rather than adding a second row: a student
+    correcting a mistyped answer means to fix the sitting, not to claim they
+    sat it twice.
+    """
+    from app import log_event, recompute_predictions, sync_revision_queue
+
+    with get_db() as db:
+        row = db.execute(
+            "SELECT id FROM papers WHERE user_id=? AND board=? AND subject=? "
+            "AND paper_code=? AND year=?",
+            (current_user.id, admissions_papers.BOARD, subject,
+             paper["part"], str(paper["year"]))).fetchone()
+        if row:
+            pid = row["id"]
+            db.execute("DELETE FROM question_marks WHERE paper_id=?", (pid,))
+            db.execute("UPDATE papers SET score=?, max_marks=? WHERE id=?",
+                       (float(raw), float(out_of), pid))
+        else:
+            pid = db.execute(
+                "INSERT INTO papers (user_id, subject, board, paper_code, year, "
+                "series, score, max_marks, date_completed) "
+                "VALUES (?,?,?,?,?,?,?,?,?)",
+                (current_user.id, subject, admissions_papers.BOARD,
+                 paper["part"], str(paper["year"]), "",
+                 float(raw), float(out_of),
+                 datetime.date.today().isoformat())).lastrowid
+
+        for q in marked:
+            db.execute(
+                "INSERT INTO question_marks "
+                "(paper_id, q_num, obtained, max_marks, answer_given) "
+                "VALUES (?,?,?,?,?)",
+                (pid, str(q["n"]), 1.0 if q["is_correct"] else 0.0, 1.0,
+                 q["given"]))
+
+    sync_revision_queue(current_user.id, pid)
+    recompute_predictions(current_user.id)
+    log_event("admissions_paper_logged", current_user.id,
+              "%s %s %s %d/%d" % (subject, paper["year"], paper["part"],
+                                  raw, out_of))
+    return pid
+
+
+@exam.route("/admissions/<subject_slug>/<year>/<part_slug>",
+            methods=["GET", "POST"])
+@login_required
+def log_paper(subject_slug, year, part_slug):
+    """Enter one paper's answers, mark it, and record the result.
+
+    GET renders the entry grid. POST marks and saves, then renders the same
+    screen showing what was right and wrong - a redirect to a separate results
+    page would lose the one thing the student wants to look at next, which is
+    their own answers against the key.
+    """
+    subject, paper = _admissions_paper_or_404(subject_slug, year, part_slug)
+    key = admissions_papers.answer_key(subject, year, paper["part"])
+    n = paper["max_marks"]
+
+    if request.method == "POST":
+        if key:
+            # Auto-marked: the student gives letters, Telos compares. An option
+            # outside the ones this key actually uses is discarded rather than
+            # rejected - it can only come from a tampered form, and scoring it
+            # wrong is both truthful and unexploitable.
+            allowed = set(admissions_papers.options_for(key))
+            given = [(request.form.get("q%d" % (i + 1)) or "").strip().upper()
+                     for i in range(n)]
+            marked = admissions_papers.mark(
+                [g if g in allowed else None for g in given], key)
+        else:
+            # Self-marked: the only thing posted is whether each was right.
+            picked = [request.form.get("q%d" % (i + 1)) for i in range(n)]
+            marked = [{"n": i + 1, "given": None, "correct": None,
+                       "is_correct": p == "right",
+                       "answered": p in ("right", "wrong")}
+                      for i, p in enumerate(picked)]
+
+        raw, out_of = admissions_papers.score(marked)
+        _save_admissions_paper(subject, paper, marked, raw, out_of)
+        flash("%s %s saved - %d/%d." % (paper["part"], year, raw, out_of),
+              "success")
+        return render_template(
+            "admissions_entry.html", subject=subject,
+            subject_slug=subject_slug, paper=paper, key=key, marked=marked,
+            raw=raw, out_of=out_of, existing={},
+            options=admissions_papers.options_for(key),
+            topics=_part_topics(subject, paper["part"]))
+
+    # GET - show anything already recorded, so a half-entered paper can be
+    # finished rather than started again.
+    with get_db() as db:
+        row = db.execute(
+            "SELECT id FROM papers WHERE user_id=? AND board=? AND subject=? "
+            "AND paper_code=? AND year=?",
+            (current_user.id, admissions_papers.BOARD, subject,
+             paper["part"], str(year))).fetchone()
+        existing = {}
+        if row:
+            for q in db.execute(
+                    "SELECT q_num, obtained, answer_given, topic "
+                    "FROM question_marks WHERE paper_id=?",
+                    (row["id"],)).fetchall():
+                existing[str(q["q_num"])] = dict(q)
+
+    return render_template(
+        "admissions_entry.html", subject=subject, subject_slug=subject_slug,
+        paper=paper, key=key, marked=None, raw=None, out_of=None,
+        existing=existing, options=admissions_papers.options_for(key),
+        topics=_part_topics(subject, paper["part"]))
+
+
+@exam.route("/admissions/<subject_slug>/<year>/<part_slug>/topics",
+            methods=["POST"])
+@login_required
+def tag_admissions_topics(subject_slug, year, part_slug):
+    """Tag the questions that went wrong with a topic.
+
+    Only the wrong ones are worth asking about, and only after marking, which
+    is why this is a second optional step rather than a column in the entry
+    grid. A topic on a question the student got right tells the heatmap nothing
+    it did not already know.
+    """
+    from app import sync_revision_queue
+
+    subject, paper = _admissions_paper_or_404(subject_slug, year, part_slug)
+    allowed = set(_part_topics(subject, paper["part"]))
+
+    with get_db() as db:
+        row = db.execute(
+            "SELECT id FROM papers WHERE user_id=? AND board=? AND subject=? "
+            "AND paper_code=? AND year=?",
+            (current_user.id, admissions_papers.BOARD, subject,
+             paper["part"], str(year))).fetchone()
+        if not row:
+            abort(404)
+        for field, value in request.form.items():
+            if not field.startswith("topic"):
+                continue
+            topic = value.strip()
+            if topic and topic not in allowed:
+                continue
+            db.execute(
+                "UPDATE question_marks SET topic=? WHERE paper_id=? AND q_num=?",
+                (topic or None, row["id"], field[5:]))
+
+    sync_revision_queue(current_user.id, row["id"])
+    flash("Topics saved.", "success")
+    return redirect(url_for("exam.log_paper", subject_slug=subject_slug,
+                            year=year, part_slug=part_slug))
+
+
+@exam.route("/admissions/paper/<stem>.pdf")
+@login_required
+def admissions_pdf(stem):
+    """Serve one official past paper.
+
+    Login-required rather than public: these are third-party materials, and a
+    URL that works for anyone who has it is a URL that gets indexed.
+    """
+    path = _admissions_pdf_path(stem)
+    if not path:
+        abort(404)
+    return send_file(path, mimetype="application/pdf",
+                     download_name=stem + ".pdf")
+
+
+@exam.route("/admin/admissions/papers", methods=["GET", "POST"])
+@login_required
+@requires_admin
+def admin_admissions_papers():
+    """Upload the official PDFs to the volume.
+
+    An upload route rather than a file committed to the repository: these are
+    18MB of third-party documents, and a git repository is the one place they
+    must not be. The volume is the same store Exam Mode and the marketplace
+    already use, so they survive a redeploy.
+    """
+    from app import STORAGE_DIR
+
+    folder = os.path.join(STORAGE_DIR, "admissions")
+    os.makedirs(folder, exist_ok=True)
+
+    if request.method == "POST":
+        saved, skipped = 0, []
+        for f in request.files.getlist("papers"):
+            name = os.path.basename(f.filename or "")
+            # The name has to match what the catalogue will ask for, or the
+            # file lands in the volume and no row ever links to it.
+            if not re.fullmatch(r"[A-Za-z]+_[0-9A-Z]+_S1_QuestionPaper\.pdf",
+                                name):
+                skipped.append(name or "(unnamed)")
+                continue
+            f.save(os.path.join(folder, name))
+            saved += 1
+        flash("Saved %d paper%s." % (saved, "" if saved == 1 else "s")
+              + (" Ignored: %s" % ", ".join(skipped) if skipped else ""),
+              "success" if saved else "error")
+        return redirect(url_for("exam.admin_admissions_papers"))
+
+    held = sorted(f for f in os.listdir(folder) if f.endswith(".pdf")) \
+        if os.path.isdir(folder) else []
+    # Only tests that actually publish papers. ESAT has none at all, so listing
+    # ESAT_2024 as "missing" would be waiting for a file nobody will ever issue.
+    wanted = sorted({row["pdf_stem"] + "_QuestionPaper.pdf"
+                     for rows in admissions_papers.all_official_papers().values()
+                     for row in rows if row["pdf_stem"]})
+    return render_template("admin_admissions_papers.html",
+                           held=held, wanted=wanted,
+                           missing=[w for w in wanted if w not in held])

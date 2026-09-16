@@ -2818,6 +2818,210 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .legal-body { font-size: 1.02rem; }
 }
 
+/* ── Exam Mode ───────────────────────────────────────────────────────────── */
+/* Phase 11 shipped four templates written against a vocabulary that was never
+   added to this file: .hint, .pill, .table, .empty and .mk-row-sub appeared in
+   the markup and nowhere in any stylesheet, so every Exam Mode screen rendered
+   as a bare HTML table inside a styled card. Two of those names earn their
+   place as primitives and are defined here. The other three were rewritten in
+   the templates to the vocabulary the rest of the app already had —
+   .data-table and .empty-inline — rather than given duplicate definitions. */
+
+/* Small explanatory copy under a card title. */
+.hint { font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.hint a { color: var(--accent); }
+
+/* A state chip: Owned, Included, Free. Distinct from .grade-chip, which
+   carries a hue from the caller, and from .topic-pill, which is a control.
+   This one is inert and says one word about status. */
+.pill {
+  display: inline-block;
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  color: var(--muted-2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.pill-owned { color: var(--accent-2); border-color: rgba(var(--accent-rgb), 0.40); }
+.pill-free  { color: var(--green);    border-color: rgba(94, 158, 107, 0.35); }
+
+/* The paper list. A table was the wrong shape here before it was unstyled:
+   seven columns at 390px is a horizontal scroll through the one screen that
+   has something to sell. Rows instead — stacked on a phone, one line from
+   640px up. */
+.exam-group { margin-bottom: 26px; }
+
+.exam-group-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.exam-group-name {
+  font-family: var(--serif);
+  font-size: 17px; font-weight: 400; letter-spacing: -0.01em;
+}
+.exam-group-note { font-size: 11.5px; color: var(--muted); }
+
+.exam-row {
+  display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--border-sub);
+}
+.exam-mod {
+  flex: 0 0 auto; min-width: 44px; padding-top: 2px;
+  font-family: var(--serif); font-size: 13px; letter-spacing: 0.04em;
+  color: var(--muted-2);
+}
+.exam-body  { flex: 1 1 190px; min-width: 0; }
+.exam-title { font-size: 14.5px; font-weight: 500; }
+.exam-meta  { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+.exam-side {
+  display: flex; align-items: center; gap: 16px;
+  flex: 0 0 auto; margin-left: auto;
+}
+.exam-best { text-align: right; }
+.exam-best-value {
+  font-family: var(--serif); font-size: 19px; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.exam-best-label {
+  font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-top: 4px;
+}
+.exam-price { font-family: var(--serif); font-size: 15px; }
+.exam-action form { display: inline; }
+
+@media (min-width: 640px) {
+  .exam-row { flex-wrap: nowrap; align-items: center; }
+  .exam-mod { padding-top: 0; }
+}
+
+/* ── Admissions past papers — the multiple-choice grid ───────────────────── */
+/* Every admissions test is multiple choice at one mark a question, so entry is
+   a letter per question and nothing else. Built from real radio inputs inside
+   one form: no JavaScript, so it works on a train with one bar of signal,
+   which is where a lot of past papers actually get marked. */
+
+.mcq-grid { margin-top: 16px; }
+
+.mcq-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-sub);
+}
+.mcq-n {
+  flex: 0 0 24px;
+  font-family: var(--serif); font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  text-align: right;
+}
+.mcq-opts { display: flex; flex: 1; gap: 5px; flex-wrap: wrap; min-width: 0; }
+
+/* The input is the state; the label is the target. Visually hidden rather than
+   display:none, which would take it out of the tab order and off a screen
+   reader with it. */
+.mcq-input {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.mcq-opt {
+  flex: 1 1 36px;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 36px; height: 40px;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted-2);
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: var(--transition);
+}
+.mcq-input:checked + .mcq-opt {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+/* Keyboard focus has to be visible on the label, because the input it belongs
+   to is the thing that is actually focused and it cannot be seen. */
+.mcq-input:focus-visible + .mcq-opt {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+}
+.mcq-opt-right, .mcq-opt-wrong { flex: 1 1 70px; font-size: 12px; }
+.mcq-input:checked + .mcq-opt-right {
+  background: var(--green); border-color: var(--green);
+}
+.mcq-input:checked + .mcq-opt-wrong {
+  background: var(--red); border-color: var(--red);
+}
+
+@media (hover: hover) {
+  .mcq-opt:hover { border-color: var(--border-2); color: var(--text); }
+}
+
+/* ── The marked paper ────────────────────────────────────────────────────── */
+.mcq-score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mcq-score-value {
+  font-family: var(--serif);
+  font-size: 40px; line-height: 1; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.mcq-score-of { font-size: 22px; color: var(--muted); }
+.mcq-score-label { font-size: 12.5px; color: var(--muted); }
+
+/* One tile a question. A twenty-row table of right and wrong is the same
+   information spread over a screen and a half; this fits on one, which is what
+   makes a pattern in it visible at all. */
+.mcq-review {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 14px;
+}
+.mcq-review-q {
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  background: var(--card-2);
+}
+.mcq-review-n {
+  font-variant-numeric: tabular-nums;
+  font-size: 10px; color: var(--muted);
+}
+.mcq-review-given { font-weight: 600; }
+/* The key, shown only where it differs, struck through nothing — it is the
+   right answer, not a correction of one. */
+.mcq-review-key {
+  font-weight: 600; color: var(--green);
+  padding-left: 3px; border-left: 1px solid var(--border);
+}
+.mcq-review-q.is-right { border-color: rgba(94, 158, 107, 0.45); }
+.mcq-review-q.is-right .mcq-review-given { color: var(--green); }
+.mcq-review-q.is-wrong { border-color: rgba(var(--red-rgb), 0.45); }
+.mcq-review-q.is-wrong .mcq-review-given { color: var(--red); }
+.mcq-review-q.is-blank .mcq-review-given { color: var(--disabled); }
+
+.mcq-tags { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.mcq-tag-row { display: flex; align-items: center; gap: 10px; }
+.mcq-tag-n {
+  flex: 0 0 34px;
+  font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .mcq-opt { flex: 0 1 44px; }
+  .mcq-opt-right, .mcq-opt-wrong { flex: 0 1 84px; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Installed to a home screen — must stay LAST in this file.
    ═══════════════════════════════════════════════════════════════════════════
