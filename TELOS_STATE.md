@@ -93,8 +93,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 11 | Exam Mode — the test player | `2f1ecd2` `1ff7762` | **live** |
 | 11 | Exam Mode — results screen | `4858bc2` | **live** |
 | 11 | Exam Mode — QA pass, £1 per paper, advertised on the landing page | `9bfc838` `317e050` | **live** |
-| 11 | Exam Mode pages styled — the Phase 11 templates used five classes that were in no stylesheet | `pending` | on `feat/exam-polish` |
-| 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `pending` | on `feat/exam-polish` |
+| 11 | Exam Mode pages styled — the Phase 11 templates used five classes that were in no stylesheet | `784ca7a` | **live** |
+| 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `784ca7a` | **live** |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
