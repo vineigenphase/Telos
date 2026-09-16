@@ -179,9 +179,12 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    `scripts/admissions/documents/` (gitignored, 17MB) and nowhere else —
    production has none of them, so every paper row currently reads "use your
    own copy" rather than offering a download. `scripts/upload_admissions_papers.py`
-   pushes them through the admin route; it needs `TELOS_ADMIN_EMAIL` and
-   `TELOS_ADMIN_PASSWORD` in the environment and an admin account, which is why
-   it cannot be run for you. Check the result at `/admin/admissions/papers`.
+   pushes them through the admin route. It prompts for the admin email and
+   password at the terminal — not echoed, never in the shell history — so run
+   it from your own shell. It cannot be run for you and should not be: an
+   agent session has no terminal to prompt at, and the one thing that must not
+   happen to that password is ending up in a transcript. Check the result at
+   `/admin/admissions/papers`.
 17. **Decide whether hosting those PDFs is a risk worth taking.** They are
    Cambridge Assessment copyright, and serving them from telosapp.co.uk to
    paying subscribers is a different act from linking to the pages that publish
