@@ -22,10 +22,12 @@
   <div class="card">
     <div class="card-title">Upload</div>
     <p class="hint" style="margin-top:6px;">
-      Filenames must read <code>TEST_YEAR_S1_QuestionPaper.pdf</code> — the
-      catalogue builds the same name when it looks for a paper, so anything
-      else lands on the volume and no row ever links to it. Anything not
-      matching is ignored and named below.
+      Filenames must read <code>TEST_YEAR_S1_QuestionPaper.pdf</code> where one
+      document covers a whole sitting (ENGAA, NSAA), or
+      <code>TEST_YEAR_P1_QuestionPaper.pdf</code> where each paper is published
+      separately (TMUA). The catalogue rebuilds the same name when it looks a
+      paper up, so anything else lands on the volume with no row ever linking
+      to it. Anything not matching is ignored and named below.
     </p>
     <form method="post" enctype="multipart/form-data" class="admin-form"
           style="margin-top:14px;">

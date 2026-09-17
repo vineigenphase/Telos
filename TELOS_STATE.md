@@ -95,6 +95,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 11 | Exam Mode — QA pass, £1 per paper, advertised on the landing page | `9bfc838` `317e050` | **live** |
 | 11 | Exam Mode pages styled — the Phase 11 templates used five classes that were in no stylesheet | `784ca7a` | **live** |
 | 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `784ca7a` | **live** |
+| 11 | TMUA papers and keys — 70 of 80 tracked papers now mark themselves | `7f1e3e9` | **live** |
+| 12 | TMUA Pass — £3.99 for 30 days of everything TMUA, one payment, nothing renews | `pending` | on `feat/tmua-pass` |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 

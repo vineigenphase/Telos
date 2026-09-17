@@ -2297,6 +2297,31 @@ def _sget(obj, key, default=None):
         return default
 
 
+def _grant_pass_from_session(db, sess):
+    """Grant an access pass from a completed one-time Checkout session.
+
+    Reads nothing but the session's own metadata, and silently does nothing for
+    any other one-time payment — the Exam Mode paper purchases come through
+    this same event and are recorded by their own success route.
+
+    `_sget` rather than `.get` throughout: a StripeObject routes attribute
+    access through __getattr__, so `obj.get("x")` raises AttributeError on a
+    key that is not there. That gotcha has cost this codebase time before.
+    """
+    from exam import PASSES, grant_pass
+
+    meta = _sget(sess, "metadata") or {}
+    scope = _sget(meta, "pass_scope")
+    user_id = _sget(meta, "user_id")
+    if not (scope in PASSES and user_id):
+        return
+    if _sget(sess, "payment_status") != "paid":
+        return
+    if grant_pass(db, int(user_id), scope, _sget(sess, "id"),
+                  PASSES[scope]["price_pence"]):
+        log_event("pass_granted_webhook", int(user_id), scope)
+
+
 def _apply_subscription(db, customer_id, sub):
     """Write entitlement state from a Stripe subscription object."""
     status = _sget(sub, "status")
@@ -2360,6 +2385,13 @@ def stripe_webhook():
                 if sub_id:
                     sub = stripe.Subscription.retrieve(sub_id)
                     _apply_subscription(db, customer, sub)
+                else:
+                    # A one-time payment. An access pass is granted here as
+                    # well as in its /success route, because the student may
+                    # close the tab before being redirected and then have paid
+                    # for nothing. Both paths call the same idempotent grant,
+                    # so whichever lands second changes nothing.
+                    _grant_pass_from_session(db, obj)
             elif etype in ("customer.subscription.updated",
                            "customer.subscription.created"):
                 _apply_subscription(db, customer, obj)
