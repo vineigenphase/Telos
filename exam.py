@@ -907,7 +907,9 @@ def _admissions_pdf_path(stem):
     it checks the shape itself rather than trusting its caller to have done so.
     """
     from app import STORAGE_DIR
-    if not stem or not re.fullmatch(r"[A-Za-z]+_[0-9A-Z]+_S1", stem):
+    # _S1 is a whole sitting in one document (ENGAA, NSAA); _P1/_P2 is one
+    # paper of a sitting published on its own (TMUA).
+    if not stem or not re.fullmatch(r"[A-Za-z]+_[0-9A-Z]+_(?:S1|P\d{1,2})", stem):
         return None
     path = os.path.join(STORAGE_DIR, "admissions", stem + "_QuestionPaper.pdf")
     return path if os.path.exists(path) else None
@@ -933,11 +935,18 @@ def test_papers(subject_slug):
         if key not in seen:
             seen[key] = {"year": key, "parts": [],
                          "published": row["published"],
-                         "pdf": (row["pdf_stem"]
-                                 if _admissions_pdf_path(row["pdf_stem"]) else None)}
+                         # A sitting published as one document gets one link in
+                         # the year heading; one published per paper gets a
+                         # link on each row instead.
+                         "per_part": row["own_pdf"],
+                         "pdf": (None if row["own_pdf"] else
+                                 (row["pdf_stem"]
+                                  if _admissions_pdf_path(row["pdf_stem"]) else None))}
             years.append(seen[key])
-        seen[key]["parts"].append(
-            dict(row, logged=logged.get((key, row["part"]))))
+        seen[key]["parts"].append(dict(
+            row, logged=logged.get((key, row["part"])),
+            pdf=(row["pdf_stem"] if row["own_pdf"]
+                 and _admissions_pdf_path(row["pdf_stem"]) else None)))
 
     return render_template("admissions_papers.html",
                            subject=subject, subject_slug=subject_slug,
@@ -1143,8 +1152,9 @@ def admin_admissions_papers():
             name = os.path.basename(f.filename or "")
             # The name has to match what the catalogue will ask for, or the
             # file lands in the volume and no row ever links to it.
-            if not re.fullmatch(r"[A-Za-z]+_[0-9A-Z]+_S1_QuestionPaper\.pdf",
-                                name):
+            if not re.fullmatch(
+                    r"[A-Za-z]+_[0-9A-Z]+_(?:S1|P\d{1,2})_QuestionPaper\.pdf",
+                    name):
                 skipped.append(name or "(unnamed)")
                 continue
             f.save(os.path.join(folder, name))

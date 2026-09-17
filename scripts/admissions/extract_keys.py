@@ -45,6 +45,9 @@ STRUCTURE = {
         **{y: [("Part A", 20), ("Part B", 20), ("Part C", 20),
                ("Part D", 20)] for y in range(2020, 2024)},
     },
+    # TMUA is shaped differently and needs its own reader — see parse_tmua().
+    "TMUA": {y: [("Paper 1", 20), ("Paper 2", 20)]
+             for y in list(range(2016, 2024)) + ["SPEC"]},
 }
 
 # Three layouts across the eight years, so the number may be bare or
@@ -129,6 +132,53 @@ def check(name, pairs, parts):
     return answers, problems
 
 
+def parse_tmua(path):
+    """({"Paper 1": [...], "Paper 2": [...]}, problems) for one TMUA key.
+
+    TMUA needs its own reader because its keys are shaped unlike ENGAA's and
+    NSAA's in the one way that breaks every assumption above: **each paper is
+    numbered from 1**, so a year's key contains two questions numbered 1, two
+    numbered 2, and so on to 20. The contiguous-1..N check would reject all
+    nine, and a naive dict of {number: letter} would silently keep only the
+    second paper's answers.
+
+    Two layouts, both read from the documents rather than assumed:
+
+      SPEC, 2016, 2017   two columns side by side, so the extracted text
+                         interleaves them: "1 H 1 A" is Paper 1 Q1 = H and
+                         Paper 2 Q1 = A on one line
+      2018-2023          Paper 1's table in full, then Paper 2's
+
+    Which group is which paper was confirmed against the per-paper worked
+    solutions, which state "the answer is option X" — 18 solutions checked
+    across an interleaved year and a sequential one, all agreeing with the
+    assignment here and none with the reverse. That mattered: swapping them
+    would have mis-marked every TMUA sitting while looking entirely plausible.
+    """
+    # The 2016-2017 PDFs put a stray separator between number and letter, so
+    # flatten everything that is not alphanumeric before matching.
+    text = re.sub(r"[^A-Za-z0-9\n]+", " ", text_of(path))
+    pairs = [(int(n), l) for n, l in re.findall(r"(\d{1,3})\s*([A-H])(?![A-Za-z])",
+                                                text)]
+
+    problems = []
+    if len(pairs) != 40:
+        problems.append(f"found {len(pairs)} answers, a TMUA year has 40")
+        return {}, problems
+
+    nums = [n for n, _ in pairs]
+    if nums == [n for n in range(1, 21) for _ in (0, 1)]:
+        first, second = [l for _, l in pairs[0::2]], [l for _, l in pairs[1::2]]
+    elif nums == list(range(1, 21)) * 2:
+        first, second = [l for _, l in pairs[:20]], [l for _, l in pairs[20:]]
+    else:
+        problems.append(f"question numbers are neither two interleaved 1-20 runs "
+                        f"nor two sequential ones: {nums[:12]}")
+        return {}, problems
+
+    return {"Paper 1": first, "Paper 2": second}, problems
+
+
 def split_parts(answers, parts):
     """Cut a flat 1..N key into the parts the paper is actually made of."""
     out, i = {}, 1
@@ -145,6 +195,28 @@ def main():
 
     good, bad = {}, []
     for f in sorted(os.listdir(DOCS)):
+        # TMUA first: one key per year covering both papers, each numbered
+        # from 1, which nothing below can read.
+        t = re.match(r"TMUA_(\d{4}|SPEC)_AnswerKey\.pdf$", f)
+        if t:
+            year = t.group(1) if t.group(1) == "SPEC" else int(t.group(1))
+            parts, problems = parse_tmua(os.path.join(DOCS, f))
+            if problems:
+                bad.append((f, problems))
+                print(f"REJECT  TMUA {year}")
+                for p in problems:
+                    print(f"          {p}")
+                continue
+            good[f"TMUA {year}"] = {
+                "test": "TMUA", "year": str(year), "total": 40, "parts": parts,
+            }
+            dist = {}
+            for letter in parts["Paper 1"] + parts["Paper 2"]:
+                dist[letter] = dist.get(letter, 0) + 1
+            print(f"OK      TMUA {year}  40 answers  "
+                  f"{' '.join(f'{k}:{dist[k]}' for k in sorted(dist))}")
+            continue
+
         m = re.match(r"(ENGAA|NSAA)_(\d{4})_S1_AnswerKey\.pdf$", f)
         if not m:
             continue

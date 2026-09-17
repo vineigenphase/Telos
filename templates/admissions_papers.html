@@ -49,6 +49,9 @@
       <a class="exam-group-note auth-link"
          href="{{ url_for('exam.admissions_pdf', stem=y.pdf) }}" target="_blank"
          rel="noopener">Download the paper (PDF)</a>
+      {% elif y.per_part %}
+      {# Each paper of this sitting is its own document, so the downloads are
+         on the rows below rather than here. #}
       {% elif y.published %}
       {# Said plainly rather than left as a missing link. A student who cannot
          see why there is no download assumes the page is broken. #}
@@ -68,6 +71,10 @@
           {{ p.max_marks }} questions
           {%- if p.optional %} · optional section{% endif %}
           {%- if not p.auto_marked %} · self-marked{% endif %}
+          {%- if p.pdf %} ·
+          <a href="{{ url_for('exam.admissions_pdf', stem=p.pdf) }}"
+             target="_blank" rel="noopener">Download (PDF)</a>
+          {%- elif p.own_pdf and p.published %} · paper not stored{% endif %}
         </div>
       </div>
 

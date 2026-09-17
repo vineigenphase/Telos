@@ -122,14 +122,30 @@ def reports_scaled_score(subject):
     return test_name(subject) in SCALED_1_9
 
 
-def pdf_stem(subject, year):
-    """The filename stem the official PDFs are stored under.
+# Tests whose parts are published as separate documents. ENGAA and NSAA print
+# every part inside one Section 1 paper, so both rows of a year point at the
+# same PDF; TMUA publishes Paper 1 and Paper 2 as two files, so each row has
+# its own. Getting this wrong does not fail loudly — it offers a student the
+# wrong half of the sitting — so it is stated per test rather than inferred.
+PER_PART_PDFS = {"TMUA"}
 
-    One paper per sitting, not per part: the published PDF contains every part
-    of that year's Section 1, so Part A and Part B of ENGAA 2021 are two rows
-    in the tracker pointing at the same document.
+
+def pdf_stem(subject, year, part=None):
+    """The filename stem one row's PDF is stored under, or None if unpublished.
+
+    `part` is required for a test in PER_PART_PDFS and ignored otherwise.
+    "Paper 1" becomes P1; the suffix is built from the part's own digits so a
+    third paper would need no change here.
     """
-    return f"{test_name(subject)}_{year}_S1"
+    if not has_published_paper(subject):
+        return None
+    test = test_name(subject)
+    if test not in PER_PART_PDFS:
+        return f"{test}_{year}_S1"
+    digits = "".join(ch for ch in (part or "") if ch.isdigit())
+    if not digits:
+        return None
+    return f"{test}_{year}_P{digits}"
 
 
 def official_papers(subject):
@@ -161,7 +177,11 @@ def official_papers(subject):
                 "auto_marked": key is not None,
                 "published": has_published_paper(subject),
                 "scaled": reports_scaled_score(subject),
-                "pdf_stem": pdf_stem(subject, year) if has_published_paper(subject) else None,
+                # Whether this row's document is its own or shared with the
+                # other parts of the same sitting — the interface puts the
+                # download in a different place for each.
+                "own_pdf": test_name(subject) in PER_PART_PDFS,
+                "pdf_stem": pdf_stem(subject, year, paper["code"]),
             })
     return out
 

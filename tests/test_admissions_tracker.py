@@ -41,7 +41,8 @@ try:
     with get_db() as db:
         uid = fresh_user(db, EMAIL, "trackeruser", generate_password_hash(PW))
     A.set_user_subjects(uid, ["UAT-UK|ENGAA (2019-2023)|Admissions test",
-                              "UAT-UK|TMUA|Admissions test"])
+                              "UAT-UK|TMUA|Admissions test",
+                              "UAT-UK|ESAT|Admissions test"])
 
     c = app.test_client()
     c.post("/login", data={"email": EMAIL, "password": PW})
@@ -51,7 +52,11 @@ try:
     check("the tab offers past papers for a tracked test",
           "/admissions/engaa-2019-2023" in body, True)
     check("and says how many are marked for you", "10 marked for you" in body, True)
-    check("TMUA is offered as self-marked", "self-marked" in body, True)
+    # ESAT is the only self-marked test left: UAT-UK publishes no ESAT papers
+    # at all, so there is nothing to extract a key from. TMUA used to be here
+    # too, until its nine official keys were extracted.
+    check("ESAT is offered as self-marked", "self-marked" in body, True)
+    check("TMUA is marked for you", "18 papers · 18 marked for you" in body, True)
 
     # ── one test's paper list ───────────────────────────────────────────────
     r = c.get("/admissions/engaa-2019-2023")
@@ -126,21 +131,21 @@ try:
                          (rows[0]["id"],)).fetchone()["n"], len(key))
 
     # ── a self-marked test ──────────────────────────────────────────────────
-    r = c.get("/admissions/tmua/2022/paper-1")
+    r = c.get("/admissions/esat/2024/mathematics-1")
     check("a test with no key renders the right/wrong grid", r.status_code, 200)
     tm = r.get_data(as_text=True)
     check("and offers right/wrong rather than letters",
           'value="right"' in tm and 'value="A"' not in tm, True)
-    r = c.post("/admissions/tmua/2022/paper-1",
+    r = c.post("/admissions/esat/2024/mathematics-1",
                data={f"q{i}": ("right" if i <= 14 else "wrong")
-                     for i in range(1, 21)})
+                     for i in range(1, 28)})
     check("self-marking saves", r.status_code, 200)
     with get_db() as db:
         row = db.execute(
-            "SELECT score, max_marks FROM papers WHERE user_id=? AND subject='TMUA'",
+            "SELECT score, max_marks FROM papers WHERE user_id=? AND subject='ESAT'",
             (uid,)).fetchone()
         check("the self-marked score is what was tapped", row["score"], 14.0)
-        check("out of the paper's length", row["max_marks"], 20.0)
+        check("out of the paper's length", row["max_marks"], 27.0)
 
     # ── the PDF route refuses anything it does not recognise ────────────────
     check("a traversal attempt 404s",
