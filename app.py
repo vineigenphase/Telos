@@ -2344,6 +2344,54 @@ def _sget(obj, key, default=None):
         return default
 
 
+def _grant_one_time_purchase(db, sess):
+    """Record a one-off paper purchase from a completed Checkout Session.
+
+    Why this exists, and why it duplicates the /success routes. Both the Exam
+    Mode papers and the marketplace question banks recorded a sale only in the
+    route Stripe redirects back to. That route is excellent at verifying — it
+    asks Stripe directly rather than trusting the redirect — but it only runs if
+    the student comes back. Close the tab on Stripe's confirmation screen, lose
+    signal on the train, tap the home button: the card is charged and nothing
+    unlocks. From inside the app that is indistinguishable from never having
+    paid, and the student has no way to tell either.
+
+    The subscription path never had this hole, because entitlements there are
+    webhook-written by design. This gives the one-off purchases the same
+    footing. Both paths now write, whichever arrives first; the UNIQUE
+    constraint on each table makes the second one a no-op rather than a
+    duplicate sale.
+
+    Silently ignores any session that is not one of ours — the metadata is what
+    identifies it, and a session without it belongs to something else.
+
+    `_sget` throughout: a StripeObject routes attribute access through
+    __getattr__, so `.get()` raises on a missing key.
+    """
+    if _sget(sess, "payment_status") != "paid":
+        return
+    meta = _sget(sess, "metadata") or {}
+    user_id = _sget(meta, "user_id")
+    if not user_id:
+        return
+    session_id = _sget(sess, "id")
+
+    exam_paper_id = _sget(meta, "exam_paper_id")
+    mock_paper_id = _sget(meta, "mock_paper_id")
+    if exam_paper_id:
+        db.execute(
+            "INSERT INTO exam_purchases (user_id, paper_id, stripe_session_id) "
+            "VALUES (?,?,?) ON CONFLICT (user_id, paper_id) DO NOTHING",
+            (int(user_id), int(exam_paper_id), session_id))
+        log_event("exam_paper_granted_webhook", int(user_id), str(exam_paper_id))
+    elif mock_paper_id:
+        db.execute(
+            "INSERT INTO purchases (user_id, mock_paper_id, stripe_session_id) "
+            "VALUES (?,?,?) ON CONFLICT (user_id, mock_paper_id) DO NOTHING",
+            (int(user_id), int(mock_paper_id), session_id))
+        log_event("mock_paper_granted_webhook", int(user_id), str(mock_paper_id))
+
+
 def _apply_subscription(db, customer_id, sub):
     """Write entitlement state from a Stripe subscription object."""
     status = _sget(sub, "status")
@@ -2407,6 +2455,11 @@ def stripe_webhook():
                 if sub_id:
                     sub = stripe.Subscription.retrieve(sub_id)
                     _apply_subscription(db, customer, sub)
+                else:
+                    # A one-off paper or question bank. Granted here as well as
+                    # in the /success route, because the student may never come
+                    # back to that route — see _grant_one_time_purchase.
+                    _grant_one_time_purchase(db, obj)
 
             elif etype in ("customer.subscription.updated",
                            "customer.subscription.created"):

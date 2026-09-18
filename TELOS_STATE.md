@@ -362,6 +362,30 @@ already been argued out. The reasoning, and what it cost to find out, is in
   all of them. It links rather than checks out: buying and sitting stay in Exam
   Mode, so there is one purchase path per paper rather than two.
 
+*One-off purchases are webhook-written now (2026-09-18)*
+
+- **A charge could land without the paper unlocking, and nothing anywhere would
+  say so.** Both the £1 Exam Mode papers and the marketplace question banks
+  recorded the sale only in the route Stripe redirects back to. That route
+  verifies properly — it asks Stripe rather than trusting the redirect — but it
+  only runs if the student returns. Close the tab on Stripe's confirmation
+  screen, lose signal, tap home: charged, and nothing unlocked. From inside the
+  app that is indistinguishable from never having paid.
+- **Both paths write now**, through `app._grant_one_time_purchase`, dispatching
+  on the session metadata (`exam_paper_id` or `mock_paper_id`). The UNIQUE
+  constraint on each table makes whichever lands second a no-op. The
+  subscription path never had this hole because it was webhook-written from the
+  start; the one-off purchases now match it.
+- **`tests/test_one_time_grants.py` posts real signed events** at the live
+  route, signing with `STRIPE_WEBHOOK_SECRET` the way Stripe's own CLI does, so
+  it tests the wiring rather than the helper. It skips cleanly where no secret
+  is configured.
+- **A Stripe event payload needs `"object": "event"` at the top level.** stripe
+  15.x reads it to tell a v1 event from a v2 one and raises before looking at
+  anything else, which the route turns into a 400 that looks exactly like a bad
+  signature. Cost twenty minutes of suspecting the HMAC, which was correct all
+  along.
+
 *Payments, proven live*
 
 - The live payment lifecycle is proven with a real card.
