@@ -1246,9 +1246,21 @@ PASSES = {
         "label": "TMUA Pass",
         "price_pence": 399,
         "days": 30,
-        "blurb": "Every TMUA paper for a month — both timed mocks, all 18 "
-                 "official past papers marked against the real answer keys, "
-                 "and the papers themselves to download.",
+        # Sells the marking, not the papers. UAT-UK publishes the 18 official
+        # papers free, and an earlier version of this line led with them —
+        # which invites the only question that kills the sale: "why would I pay
+        # for something I can download?" The honest answer is that the papers
+        # are the free part and the marking is the work, and saying so plainly
+        # is a better pitch than hoping nobody checks.
+        "blurb": "Every TMUA paper you sit, marked for you. Both original "
+                 "Telos mocks under a real clock, and all 18 official past "
+                 "papers scored against the published answer keys — with the "
+                 "topics you dropped marks on feeding your heatmap and "
+                 "revision queue.",
+        "honesty": "The 18 official papers are free from UAT-UK, and we say so "
+                   "— what the pass buys is the marking, the topic analysis "
+                   "and the two Telos mocks, which are not published anywhere "
+                   "else.",
     },
 }
 

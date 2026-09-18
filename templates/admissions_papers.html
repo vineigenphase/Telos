@@ -52,6 +52,12 @@
           Your last pass has run out.
         {% endif %}
       </p>
+      {% if pass_cfg.honesty %}
+      {# Said before they buy rather than discovered afterwards. A student who
+         works out mid-purchase that half of this is free elsewhere trusts none
+         of the rest of it. #}
+      <p class="hint" style="margin-top:8px;">{{ pass_cfg.honesty }}</p>
+      {% endif %}
       <p class="hint" style="margin-top:8px;">
         One payment. Nothing renews, there is nothing to cancel, and you will
         not be charged again — this is for a test you sit once, not a
