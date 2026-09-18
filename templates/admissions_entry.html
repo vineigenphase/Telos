@@ -104,6 +104,12 @@
   {% endif %}
 
   <p class="hint" style="margin-top:16px;">
+    Find solutions on TikTok:
+    <a href="https://www.tiktok.com/{{ TIKTOK_HANDLE }}" target="_blank"
+       rel="noopener">{{ TIKTOK_HANDLE }}</a>
+  </p>
+
+  <p class="hint" style="margin-top:10px;">
     <a href="{{ url_for('exam.log_paper', subject_slug=subject_slug,
                         year=paper.year, part_slug=paper.part|lower|replace(' ', '-')) }}">Re-enter
       this paper</a> if something above is not what you put.

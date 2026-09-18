@@ -23,61 +23,6 @@
 
 <div class="page-body page-wide">
 
-  {# The pass, where this test has one. The list below stays visible either
-     way — Exam Mode's rule, for the same reason: a student who cannot see what
-     they would be buying is being asked to buy an idea. #}
-  {% if pass_cfg %}
-    {% if has_access and pass_reason == 'pro' %}
-    <p class="hint" style="margin-bottom:20px;">
-      Every {{ test }} paper below is included with your Pro subscription.
-    </p>
-    {% elif has_access %}
-    <div class="card" style="border-color:var(--accent); margin-bottom:22px;">
-      <div class="card-title">{{ pass_cfg.label }} — active</div>
-      <p class="hint" style="margin-top:6px;">
-        Runs until <strong>{{ pass_expires.strftime('%d %B %Y') }}</strong>.
-        Nothing renews and there is nothing to cancel; buying again adds
-        another {{ pass_cfg.days }} days to whatever is left.
-      </p>
-    </div>
-    {% else %}
-    <div class="card" style="border-color:var(--accent); margin-bottom:22px;">
-      <div class="card-title">
-        {{ pass_cfg.label }} — £{{ '%.2f'|format(pass_cfg.price_pence / 100) }}
-        for {{ pass_cfg.days }} days
-      </div>
-      <p class="hint" style="margin-top:6px;">
-        {{ pass_cfg.blurb }}
-        {% if pass_reason == 'lapsed' %}
-          Your last pass has run out.
-        {% endif %}
-      </p>
-      {% if pass_cfg.honesty %}
-      {# Said before they buy rather than discovered afterwards. A student who
-         works out mid-purchase that half of this is free elsewhere trusts none
-         of the rest of it. #}
-      <p class="hint" style="margin-top:8px;">{{ pass_cfg.honesty }}</p>
-      {% endif %}
-      <p class="hint" style="margin-top:8px;">
-        One payment. Nothing renews, there is nothing to cancel, and you will
-        not be charged again — this is for a test you sit once, not a
-        subscription you have to remember to stop.
-      </p>
-      <form method="post"
-            action="{{ url_for('exam.buy_pass', subject_slug=subject_slug) }}"
-            style="margin-top:14px;">
-        <button class="btn btn-primary" type="submit">
-          Get the {{ pass_cfg.label }}
-        </button>
-      </form>
-      <p class="hint" style="margin-top:10px;">
-        Or <a href="{{ url_for('subscription', **{'from': 'tmua-pass'}) }}">Telos
-        Pro</a>, which includes every admissions test and the A-level tracker.
-      </p>
-    </div>
-    {% endif %}
-  {% endif %}
-
   {% set auto = years and years[0].parts and years[0].parts[0].auto_marked %}
   <p class="hint" style="margin-bottom:22px;">
     Every question is worth one mark and there is no negative marking, so a
@@ -100,14 +45,10 @@
   <section class="exam-group">
     <div class="exam-group-head">
       <div class="exam-group-name">{{ y.year if y.year != 'SPEC' else 'Specimen' }}</div>
-      {% if y.pdf and has_access %}
+      {% if y.pdf %}
       <a class="exam-group-note auth-link"
          href="{{ url_for('exam.admissions_pdf', stem=y.pdf) }}" target="_blank"
          rel="noopener">Download the paper (PDF)</a>
-      {% elif y.pdf %}
-      {# Held, but behind the pass. ENGAA and NSAA are not gated, so this only
-         fires if a year-level test is ever added to PASSES. #}
-      <div class="exam-group-note">Paper included in the pass</div>
       {% elif y.per_part %}
       {# Each paper of this sitting is its own document, so the downloads are
          on the rows below rather than here. #}
@@ -130,10 +71,9 @@
           {{ p.max_marks }} questions
           {%- if p.optional %} · optional section{% endif %}
           {%- if not p.auto_marked %} · self-marked{% endif %}
-          {%- if p.pdf and has_access %} ·
+          {%- if p.pdf %} ·
           <a href="{{ url_for('exam.admissions_pdf', stem=p.pdf) }}"
              target="_blank" rel="noopener">Download (PDF)</a>
-          {%- elif p.pdf %} · paper included in the pass
           {%- elif p.own_pdf and p.published %} · paper not stored{% endif %}
         </div>
       </div>
@@ -146,15 +86,11 @@
         </div>
         {% endif %}
         <div class="exam-action">
-          {% if has_access %}
           <a class="btn btn-primary btn-sm"
              href="{{ url_for('exam.log_paper', subject_slug=subject_slug,
                               year=p.year, part_slug=slugify(p.part)) }}">
             {{ 'Review' if p.logged else 'Enter answers' }}
           </a>
-          {% else %}
-          <span class="pill">Locked</span>
-          {% endif %}
         </div>
       </div>
     </div>
@@ -163,6 +99,16 @@
   {% else %}
   <p class="empty-inline">No papers listed for this test.</p>
   {% endfor %}
+
+  {# Where the worked solutions live. The official papers ship with the
+     awarding body's own answers but not with anything that explains them, and
+     the videos are the explanation — so the pointer belongs next to the papers
+     rather than buried in a footer. #}
+  <p class="hint" style="margin-top:22px;">
+    Find solutions on TikTok:
+    <a href="https://www.tiktok.com/{{ TIKTOK_HANDLE }}" target="_blank"
+       rel="noopener">{{ TIKTOK_HANDLE }}</a>
+  </p>
 
 </div>
 {% endblock %}

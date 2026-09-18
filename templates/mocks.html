@@ -41,5 +41,58 @@
     <div class="empty-body">Original question sets will appear here when they are published.</div>
   </div>
   {% endif %}
+
+  {% if exam_papers %}
+  {# Exam Mode's papers, listed here so "the mock papers" means all of them.
+     Sold and sat over there: this page links, it does not check out, so there
+     is only ever one purchase path per paper to get wrong. #}
+  <div class="card" style="margin-top:22px;">
+    <div class="card-header">
+      <div class="card-title">Timed Exam Mode papers</div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
+    </div>
+    <p class="hint" style="margin-top:6px;">
+      Original TMUA and ESAT papers, sat under a clock and marked the moment
+      you finish, with a worked solution for every question.
+    </p>
+    <div style="margin-top:10px;">
+      {% for p in exam_papers %}
+      <div class="exam-row">
+        <div class="exam-mod">{{ p.module }}</div>
+        <div class="exam-body">
+          <div class="exam-title">{{ p.family }} · {{ p.title }}</div>
+          <div class="exam-meta">
+            {{ p.question_count }} questions · {{ p.duration_sec // 60 }} minutes
+            {%- if p.series %} · {{ p.series }}{% endif %}
+          </div>
+        </div>
+        <div class="exam-side">
+          <div>
+            {% if is_pro %}<span class="pill pill-owned">Included</span>
+            {% elif p.id in exam_owned %}<span class="pill pill-owned">Owned</span>
+            {% elif not p.price_pence %}<span class="pill pill-free">Free</span>
+            {% else %}
+            <span class="exam-price">£{{ '%.2f'|format(p.price_pence / 100) }}</span>
+            {% endif %}
+          </div>
+          <div class="exam-action">
+            <a class="btn btn-primary btn-sm" href="{{ url_for('exam.index') }}">
+              {% if is_pro or p.id in exam_owned %}Sit paper{% else %}Get it{% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# The videos are where these get worked through, so the pointer sits with
+     the papers rather than in a footer nobody reads. #}
+  <p class="hint" style="margin-top:22px;">
+    Find solutions on TikTok:
+    <a href="https://www.tiktok.com/{{ TIKTOK_HANDLE }}" target="_blank"
+       rel="noopener">{{ TIKTOK_HANDLE }}</a>
+  </p>
 </div>
 {% endblock %}

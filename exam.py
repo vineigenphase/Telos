@@ -295,16 +295,7 @@ def _access(db, paper):
     owned = db.execute(
         "SELECT 1 FROM exam_purchases WHERE user_id=? AND paper_id=?",
         (current_user.id, paper["id"])).fetchone()
-    if owned:
-        return True, "owned"
-    # A pass for this test covers its mocks too — the pass is sold as "every
-    # TMUA paper", and a student who bought that and then found the two timed
-    # mocks still asking for £1 each would be right to feel misled.
-    if paper["family"] in PASSES:
-        held, _expires, _reason = pass_state(db, paper["family"])
-        if held:
-            return True, "pass"
-    return False, None
+    return (True, "owned") if owned else (False, None)
 
 
 def _owned_paper_ids(db):
@@ -957,21 +948,15 @@ def test_papers(subject_slug):
             pdf=(row["pdf_stem"] if row["own_pdf"]
                  and _admissions_pdf_path(row["pdf_stem"]) else None)))
 
-    # The list stays visible without a pass, the same rule Exam Mode follows:
-    # showing a student what they would get is the point, and hiding it makes
-    # the purchase abstract. Only the downloads and the entry screen are gated.
-    scope = _scope_of(subject)
-    with get_db() as db:
-        has_access, expires, reason = pass_state(db, scope) if scope             else (True, None, "free")
-
+    # The official past papers are free, for every test. They are published
+    # free by the awarding bodies themselves, and charging for a copy of a
+    # document a student can download in one click was never a product — it
+    # was a toll. What Telos sells is its own papers, at £1 each.
     return render_template("admissions_papers.html",
                            subject=subject, subject_slug=subject_slug,
                            years=years,
                            test=admissions_papers.test_name(subject),
-                           slugify=admissions_papers.slug,
-                           scope=scope, pass_cfg=PASSES.get(scope),
-                           has_access=has_access, pass_expires=expires,
-                           pass_reason=reason)
+                           slugify=admissions_papers.slug)
 
 
 def _save_admissions_paper(subject, paper, marked, raw, out_of):
@@ -1038,19 +1023,6 @@ def log_paper(subject_slug, year, part_slug):
     their own answers against the key.
     """
     subject, paper = _admissions_paper_or_404(subject_slug, year, part_slug)
-
-    scope = _scope_of(subject)
-    if scope:
-        with get_db() as db:
-            has, _expires, reason = pass_state(db, scope)
-        if not has:
-            flash(f"Your {PASSES[scope]['label']} has run out."
-                  if reason == "lapsed" else
-                  f"{PASSES[scope]['label']} needed to log a {scope} paper.",
-                  "error")
-            return redirect(url_for("exam.test_papers",
-                                    subject_slug=subject_slug))
-
     key = admissions_papers.answer_key(subject, year, paper["part"])
     n = paper["max_marks"]
 
@@ -1155,20 +1127,6 @@ def admissions_pdf(stem):
     Login-required rather than public: these are third-party materials, and a
     URL that works for anyone who has it is a URL that gets indexed.
     """
-    # The pass is checked BEFORE the file is looked for, so that a student
-    # without one cannot tell a paper the volume holds from one it does not:
-    # every gated stem answers the same way. The stem carries the test in
-    # front of its first underscore.
-    scope = stem.split("_", 1)[0].upper() if stem else ""
-    if scope in PASSES:
-        with get_db() as db:
-            has, _expires, _reason = pass_state(db, scope)
-        if not has:
-            flash(f"{PASSES[scope]['label']} needed to download that paper.",
-                  "error")
-            return redirect(url_for("exam.test_papers",
-                                    subject_slug=admissions_papers.slug(scope)))
-
     path = _admissions_pdf_path(stem)
     if not path:
         abort(404)
@@ -1220,209 +1178,3 @@ def admin_admissions_papers():
     return render_template("admin_admissions_papers.html",
                            held=held, wanted=wanted,
                            missing=[w for w in wanted if w not in held])
-
-
-# ---------------------------------------------------------------------------
-# Access passes — one test, thirty days, one payment
-# ---------------------------------------------------------------------------
-#
-# Between the £1 paper and the £4.99 subscription there was nothing for the
-# candidate this product is actually for: someone four weeks from the TMUA who
-# wants the whole of one test and will never need Telos again. Buying the two
-# mocks individually gets them two mocks and none of the eighteen official
-# papers; a subscription is a commitment they will want to undo in November.
-#
-# Deliberately not a subscription. Nothing renews and there is nothing to
-# cancel, so a student who forgets about it is charged once. A recurring charge
-# sold to people with a deadline collects most of its money from the months
-# after they stop caring, and that is not a business worth building.
-#
-# A scope appearing in PASSES is what makes that test gated. ENGAA, NSAA and
-# ESAT are absent, so they stay free — removing TMUA from this dict is the
-# whole of the work required to make TMUA free again.
-
-PASSES = {
-    "TMUA": {
-        "label": "TMUA Pass",
-        "price_pence": 399,
-        "days": 30,
-        # Sells the marking, not the papers. UAT-UK publishes the 18 official
-        # papers free, and an earlier version of this line led with them —
-        # which invites the only question that kills the sale: "why would I pay
-        # for something I can download?" The honest answer is that the papers
-        # are the free part and the marking is the work, and saying so plainly
-        # is a better pitch than hoping nobody checks.
-        "blurb": "Every TMUA paper you sit, marked for you. Both original "
-                 "Telos mocks under a real clock, and all 18 official past "
-                 "papers scored against the published answer keys — with the "
-                 "topics you dropped marks on feeding your heatmap and "
-                 "revision queue.",
-        "honesty": "The 18 official papers are free from UAT-UK, and we say so "
-                   "— what the pass buys is the marking, the topic analysis "
-                   "and the two Telos mocks, which are not published anywhere "
-                   "else.",
-    },
-}
-
-
-def _pass_row(db, scope, user_id=None):
-    """The furthest-future pass this user holds for `scope`, expired or not."""
-    return db.execute(
-        "SELECT expires_at, granted_at FROM access_passes "
-        "WHERE user_id=? AND scope=? ORDER BY expires_at DESC LIMIT 1",
-        (user_id or current_user.id, scope)).fetchone()
-
-
-def pass_state(db, scope, user_id=None):
-    """(has_access, expires_at, reason).
-
-    `reason` is why access is granted, because "included with Pro" and "your
-    pass runs until 14 October" are different facts to the person reading them,
-    and a page that says the wrong one invites a support email.
-    """
-    if scope not in PASSES:
-        return True, None, "free"
-    if user_is_pro(current_user):
-        return True, None, "pro"
-    row = _pass_row(db, scope, user_id)
-    if not row:
-        return False, None, None
-    live = row["expires_at"] > datetime.datetime.now(datetime.timezone.utc)
-    return live, row["expires_at"], ("pass" if live else "lapsed")
-
-
-def grant_pass(db, user_id, scope, session_id, price_pence):
-    """Record a bought pass. Safe to call twice for the same Stripe session.
-
-    Both the webhook and the /success route call this, because either may
-    arrive first and neither is guaranteed to arrive at all — the student may
-    close the tab before redirecting, and a webhook may be delayed. The unique
-    constraint on stripe_session_id is what makes the second call a no-op.
-
-    A pass bought while one is still running extends it rather than replacing
-    it: thirty days are added to whatever is left, not instead of it.
-    """
-    days = PASSES[scope]["days"]
-    existing = db.execute(
-        "SELECT 1 FROM access_passes WHERE stripe_session_id=?",
-        (session_id,)).fetchone()
-    if existing:
-        return False
-
-    row = _pass_row(db, scope, user_id)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    start = row["expires_at"] if row and row["expires_at"] > now else now
-    db.execute(
-        "INSERT INTO access_passes (user_id, scope, expires_at, price_pence, "
-        "stripe_session_id) VALUES (?,?,?,?,?)",
-        (user_id, scope, start + datetime.timedelta(days=days), price_pence,
-         session_id))
-    return True
-
-
-def _scope_of(subject):
-    """The pass scope a tracked qualification belongs to, or None if free."""
-    name = admissions_papers.test_name(subject)
-    return name if name in PASSES else None
-
-
-@exam.route("/admissions/<subject_slug>/pass", methods=["POST"])
-@login_required
-def buy_pass(subject_slug):
-    """One-time Checkout for a test's pass."""
-    from app import STRIPE_ENABLED, log_event, stripe
-
-    subject = admissions_papers.from_slug(subject_slug)
-    scope = _scope_of(subject) if subject else None
-    if not scope:
-        abort(404)
-
-    with get_db() as db:
-        has, expires, reason = pass_state(db, scope)
-    if has:
-        flash("Pro includes every TMUA paper." if reason == "pro"
-              else f"Your {PASSES[scope]['label']} is already running.",
-              "success")
-        return redirect(url_for("exam.test_papers", subject_slug=subject_slug))
-
-    if not STRIPE_ENABLED:
-        flash("Payments aren't configured yet.", "error")
-        return redirect(url_for("exam.test_papers", subject_slug=subject_slug))
-
-    cfg = PASSES[scope]
-    try:
-        customer_id = current_user.stripe_customer_id
-        if not customer_id:
-            cust = stripe.Customer.create(email=current_user.email,
-                                          metadata={"user_id": current_user.id})
-            customer_id = cust.id
-            with get_db() as db:
-                db.execute("UPDATE users SET stripe_customer_id=? WHERE id=?",
-                           (customer_id, current_user.id))
-        sess = stripe.checkout.Session.create(
-            mode="payment",
-            customer=customer_id,
-            line_items=[{
-                "price_data": {
-                    "currency": "gbp",
-                    "product_data": {
-                        "name": f"{cfg['label']} — {cfg['days']} days",
-                        "description": cfg["blurb"],
-                    },
-                    "unit_amount": cfg["price_pence"],
-                },
-                "quantity": 1,
-            }],
-            metadata={"user_id": current_user.id, "pass_scope": scope},
-            success_url=url_for("exam.pass_success", _external=True)
-                        + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=url_for("exam.test_papers", subject_slug=subject_slug,
-                               _external=True),
-        )
-        log_event("pass_checkout_started", current_user.id, scope)
-        return redirect(sess.url)
-    except Exception as e:
-        flash(str(e), "error")
-        return redirect(url_for("exam.test_papers", subject_slug=subject_slug))
-
-
-@exam.route("/admissions/pass/success")
-@login_required
-def pass_success():
-    """Verify the session with Stripe, then grant.
-
-    The redirect is not evidence — the same rule the subscription and
-    exam-paper paths follow. Access is written only when Stripe itself says the
-    session is complete, is paid, and belongs to this user.
-    """
-    from app import STRIPE_ENABLED, log_event, stripe
-
-    session_id = request.args.get("session_id")
-    if not (STRIPE_ENABLED and session_id):
-        flash("Couldn't confirm your purchase.", "error")
-        return redirect(url_for("exam.tracking"))
-    try:
-        sess = stripe.checkout.Session.retrieve(session_id)
-    except Exception:
-        flash("Couldn't confirm your purchase.", "error")
-        return redirect(url_for("exam.tracking"))
-
-    meta = sess["metadata"] or {}
-    paid = sess["status"] == "complete" and sess["payment_status"] == "paid"
-    mine = ("user_id" in meta) and str(meta["user_id"]) == str(current_user.id)
-    scope = meta["pass_scope"] if "pass_scope" in meta else None
-
-    if not (paid and mine and scope in PASSES):
-        flash("Couldn't confirm your purchase.", "error")
-        return redirect(url_for("exam.tracking"))
-
-    with get_db() as db:
-        fresh = grant_pass(db, current_user.id, scope, session_id,
-                           PASSES[scope]["price_pence"])
-        _has, expires, _reason = pass_state(db, scope)
-    if fresh:
-        log_event("pass_granted", current_user.id, scope)
-    flash(f"{PASSES[scope]['label']} active until "
-          f"{expires.strftime('%d %B %Y')}.", "success")
-    return redirect(url_for("exam.test_papers",
-                            subject_slug=admissions_papers.slug(scope)))

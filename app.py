@@ -260,6 +260,7 @@ NAV_ITEMS = [
 ]
 
 app.jinja_env.globals["NAV_ITEMS"] = NAV_ITEMS
+app.jinja_env.globals["TIKTOK_HANDLE"] = TIKTOK_HANDLE
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "telos.db")
 
@@ -2343,31 +2344,6 @@ def _sget(obj, key, default=None):
         return default
 
 
-def _grant_pass_from_session(db, sess):
-    """Grant an access pass from a completed one-time Checkout session.
-
-    Reads nothing but the session's own metadata, and silently does nothing for
-    any other one-time payment — the Exam Mode paper purchases come through
-    this same event and are recorded by their own success route.
-
-    `_sget` rather than `.get` throughout: a StripeObject routes attribute
-    access through __getattr__, so `obj.get("x")` raises AttributeError on a
-    key that is not there. That gotcha has cost this codebase time before.
-    """
-    from exam import PASSES, grant_pass
-
-    meta = _sget(sess, "metadata") or {}
-    scope = _sget(meta, "pass_scope")
-    user_id = _sget(meta, "user_id")
-    if not (scope in PASSES and user_id):
-        return
-    if _sget(sess, "payment_status") != "paid":
-        return
-    if grant_pass(db, int(user_id), scope, _sget(sess, "id"),
-                  PASSES[scope]["price_pence"]):
-        log_event("pass_granted_webhook", int(user_id), scope)
-
-
 def _apply_subscription(db, customer_id, sub):
     """Write entitlement state from a Stripe subscription object."""
     status = _sget(sub, "status")
@@ -2431,13 +2407,7 @@ def stripe_webhook():
                 if sub_id:
                     sub = stripe.Subscription.retrieve(sub_id)
                     _apply_subscription(db, customer, sub)
-                else:
-                    # A one-time payment. An access pass is granted here as
-                    # well as in its /success route, because the student may
-                    # close the tab before being redirected and then have paid
-                    # for nothing. Both paths call the same idempotent grant,
-                    # so whichever lands second changes nothing.
-                    _grant_pass_from_session(db, obj)
+
             elif etype in ("customer.subscription.updated",
                            "customer.subscription.created"):
                 _apply_subscription(db, customer, obj)
@@ -2477,7 +2447,25 @@ def mocks():
                 "SELECT mock_paper_id FROM purchases WHERE user_id=?", (current_user.id,)
             ).fetchall()
         }
-    return render_template("mocks.html", papers=papers, owned=owned)
+        # Exam Mode's own papers belong on this page too. A student looking
+        # for "the mock papers" should find all of them in one place, not
+        # discover later that a second, differently-named tab had five more.
+        # Listed, not sold here: buying and sitting stay in Exam Mode, which
+        # owns the timing, the marking and the entitlement. This is a shop
+        # window onto it, so there is only ever one checkout to get wrong.
+        exam_papers = db.execute(
+            "SELECT id, paper_code, family, module, title, series, "
+            "       question_count, duration_sec, price_pence "
+            "FROM exam_papers WHERE is_published "
+            "ORDER BY family DESC, module, paper_code").fetchall()
+        exam_owned = {
+            r["paper_id"] for r in db.execute(
+                "SELECT paper_id FROM exam_purchases WHERE user_id=?",
+                (current_user.id,)).fetchall()
+        }
+    return render_template("mocks.html", papers=papers, owned=owned,
+                           exam_papers=exam_papers, exam_owned=exam_owned,
+                           is_pro=user_is_pro(current_user))
 
 
 @app.route("/mocks/<int:mid>/checkout", methods=["POST"])

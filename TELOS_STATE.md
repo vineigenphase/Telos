@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-09-17.** Living handoff document. Read this first, then
+**Last updated: 2026-09-18.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -96,7 +96,7 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 11 | Exam Mode pages styled — the Phase 11 templates used five classes that were in no stylesheet | `784ca7a` | **live** |
 | 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `784ca7a` | **live** |
 | 11 | TMUA papers and keys — 70 of 80 tracked papers now mark themselves | `7f1e3e9` | **live** |
-| 12 | TMUA Pass — £3.99 for 30 days of everything TMUA, one payment, nothing renews | `pending` | on `feat/tmua-pass` |
+| 12 | TMUA Pass — £3.99 for 30 days | `7d883b1` | **removed** 2026-09-18, see below |
 | 7, 10 | Percentile, boundary simulator | — | not started |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -338,6 +338,29 @@ already been argued out. The reasoning, and what it cost to find out, is in
   out of reach, and it would look like the student being wrong.
 - **Re-entering a paper replaces it.** A student fixing a mistyped answer means
   to correct the sitting, not to claim they sat it twice.
+
+*The pass that lasted a day (2026-09-18)*
+
+- **The £3.99 TMUA pass was built, shipped and removed, and the reason is worth
+  keeping.** It sold thirty days of "everything TMUA" — the two Telos mocks and
+  the eighteen official past papers. UAT-UK publishes those eighteen free, so
+  most of what the pass gated was a toll on a document a student can download
+  in one click, and the first question anyone would ask is the one that ends
+  the sale. The owner asked for it removed the day after it went live.
+- **What is sold now is only what Telos made:** the five Exam Mode papers at £1
+  each, and the question bank at £1. The official papers, their keys, the
+  marking and the topic analysis are free to any signed-in student.
+- **The mechanism is gone, not disabled.** `PASSES`, `pass_state`, `grant_pass`,
+  the two routes, the webhook branch and `test_access_passes.py` were removed.
+  Migration 045 and the `access_passes` table are left in place, empty and
+  unused — a table with no rows costs nothing and dropping it would be the one
+  irreversible part of undoing a feature that took a day to decide against.
+- **Worked solutions live on TikTok**, and the pointer to @vini_noesis now sits
+  on the admissions paper list, the marked-paper screen and the Mock Papers
+  page rather than in a footer.
+- **Mock Papers lists the Exam Mode papers too**, so "the mock papers" means
+  all of them. It links rather than checks out: buying and sitting stay in Exam
+  Mode, so there is one purchase path per paper rather than two.
 
 *Payments, proven live*
 
