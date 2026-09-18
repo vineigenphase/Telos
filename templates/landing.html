@@ -57,6 +57,10 @@
       <span class="lp-logo-name">Tel<span>os</span></span>
     </a>
     <div class="lp-nav-actions">
+      <a class="lp-tiktok" href="https://www.tiktok.com/{{ tiktok_handle }}"
+         target="_blank" rel="noopener">
+        <span class="lp-tiktok-label">TikTok:</span> {{ tiktok_handle }}
+      </a>
       <a class="btn btn-ghost btn-sm" href="{{ url_for('login') }}">Log in</a>
       <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">Start free</a>
     </div>
@@ -156,6 +160,68 @@
       </div>
     </div>
   </section>
+
+  {# ── From TikTok ──────────────────────────────────────────────────────── #}
+  {# Placed directly under the hero on purpose. Someone arriving from a video
+     is looking for one specific thing, and every section they have to scroll
+     past first is a chance to leave. The two steps are stated as two steps,
+     because an account is genuinely required before anything can be bought
+     and pretending otherwise just moves the surprise later. #}
+  {% if banks %}
+  <section class="lp-section lp-bank" id="question-bank">
+    <div class="lp-wrap">
+      <div class="lp-section-head reveal">
+        <p class="lp-eyebrow">Came from {{ tiktok_handle }}?</p>
+        <h2 class="lp-title">
+          {{ banks[0].title }}{% if bank_from %} — from {{ bank_from }}{% endif %}
+        </h2>
+        <p class="lp-lede">
+          {% if banks[0].description %}{{ banks[0].description }}{% else %}
+          The question bank from the videos, written to stretch you past the
+          standard past-paper question.{% endif %}
+        </p>
+      </div>
+
+      <div class="lp-bank-steps reveal">
+        <div class="lp-bank-step">
+          <span class="lp-bank-n">1</span>
+          <div>
+            <div class="lp-bank-step-title">Start your free trial</div>
+            <div class="lp-bank-step-body">
+              {{ trial_days }} days, free. It takes an email and a password —
+              you need an account before anything can be bought.
+            </div>
+          </div>
+        </div>
+        <div class="lp-bank-step">
+          <span class="lp-bank-n">2</span>
+          <div>
+            <div class="lp-bank-step-title">
+              Buy the question bank{% if bank_from %} for {{ bank_from }}{% endif %}
+            </div>
+            <div class="lp-bank-step-body">
+              It is waiting on your Mock Papers page the moment you land.
+              A one-off payment — it is yours, and it is not the subscription.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-cta reveal">
+        <a class="btn btn-primary btn-lg"
+           href="{{ url_for('register', next=url_for('mocks')) }}">
+          Start free trial{% if bank_from %} — then {{ bank_from }}{% endif %}
+        </a>
+        <a class="btn btn-ghost btn-lg" href="{{ url_for('login', next=url_for('mocks')) }}">
+          Already have an account
+        </a>
+      </div>
+      <p class="lp-bank-note reveal">
+        Both links take you straight to the question bank once you are in.
+      </p>
+    </div>
+  </section>
+  {% endif %}
 
   {# ── Diagnosis ────────────────────────────────────────────────────────── #}
   <section class="lp-section">
@@ -584,10 +650,22 @@
       <a href="#tutoring">Tutoring</a>
       <a href="{{ url_for('terms') }}">Terms</a>
       <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="mailto:{{ tutoring_email }}?subject=Telos">Contact</a>
     </nav>
+    <p class="lp-footer-contact">
+      Questions, or something not working?
+      <a href="mailto:{{ tutoring_email }}?subject=Telos">{{ tutoring_email }}</a>
+      · TikTok <a href="https://www.tiktok.com/{{ tiktok_handle }}"
+                  target="_blank" rel="noopener">{{ tiktok_handle }}</a>
+    </p>
     <p class="lp-footer-note">
-      Telos does not host or distribute exam-board papers. Predicted grades are
-      estimates from your own logged marks, not results.
+      {# This used to read "Telos does not host or distribute exam-board
+         papers", which stopped being true the day the ENGAA and NSAA papers
+         went on the volume. A claim on a public page has to keep up with what
+         the product actually does. #}
+      Telos is not affiliated with any awarding organisation. Admissions-test
+      papers are reproduced from their publishers' own free releases. Predicted
+      grades are estimates from your own logged marks, not results.
     </p>
   </div>
 </footer>
@@ -638,17 +716,44 @@
     // whether text is visible should rest on as little machinery as possible.
     var last = 0;
 
+    // Dropped once an element has arrived. `will-change` is declared on every
+    // reveal in the stylesheet, which keeps a compositor layer alive for each
+    // one for the life of the page; on a page this long that is a lot of
+    // layers doing nothing. The class that releases it is added when the
+    // transition ends, and on a timer as well — transitionend does not fire if
+    // the element was never actually animated.
+    function settle(el) {
+      var done = function () { el.classList.add('settled'); };
+      el.addEventListener('transitionend', done, { once: true });
+      setTimeout(done, 1200);
+    }
+
     function check() {
       var h = window.innerHeight || root.clientHeight;
+      var batch = [];
       for (var i = targets.length - 1; i >= 0; i--) {
         var r = targets[i].getBoundingClientRect();
         // Trigger a little before the top edge arrives, so the movement
         // finishes about when the element does.
         if (r.top < h * 0.92 && r.bottom > 0) {
-          targets[i].classList.add('in');
+          batch.push(targets[i]);
           targets.splice(i, 1);
         }
       }
+      // Anything crossing the line together is staggered rather than snapped
+      // in at once. A section whose heading, panel and caption all appear on
+      // the same frame reads as a pop; 60ms apart it reads as a cascade. The
+      // delay is capped so a long batch — the first paint, or a fast scroll
+      // past several sections — never leaves the last element waiting.
+      batch.sort(function (a, b) {
+        return a.getBoundingClientRect().top - b.getBoundingClientRect().top;
+      });
+      batch.forEach(function (el, n) {
+        var wait = Math.min(n * 60, 240);
+        if (wait) el.style.transitionDelay = wait + 'ms';
+        el.classList.add('in');
+        settle(el);
+      });
       if (!targets.length) {
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener('resize', onScroll);
@@ -657,7 +762,11 @@
 
     function onScroll() {
       var now = Date.now();
-      if (now - last < 80) return;
+      // 40ms rather than 80. The check is a dozen getBoundingClientRect reads
+      // and costs nothing; sampling twice as often is the difference between
+      // elements arriving when they cross the line and arriving in clumps up
+      // to a frame and a half late, which is most of what read as jerky.
+      if (now - last < 40) return;
       last = now;
       check();
     }

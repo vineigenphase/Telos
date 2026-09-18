@@ -40,7 +40,7 @@
   </form>
 
   <div class="section-head">
-    <h2 class="section-title">Add a golden tip</h2>
+    <h2 class="section-title">Add Peak Advice</h2>
   </div>
   <form method="POST" class="admin-form">
     <input type="hidden" name="form_type" value="tip">
@@ -58,7 +58,7 @@
       <label class="form-label" for="t-body">Body</label>
       <textarea class="form-control" id="t-body" name="body" rows="4" required></textarea>
     </div>
-    <button class="btn btn-primary" type="submit">Add tip</button>
+    <button class="btn btn-primary" type="submit">Add advice</button>
   </form>
 
   <div class="section-head">
@@ -110,7 +110,7 @@
   </div>
   {% else %}<div class="empty-inline">None yet.</div>{% endif %}
 
-  <div class="res-cat" style="margin-top:22px;">Tips &amp; notes ({{ posts|length }})</div>
+  <div class="res-cat" style="margin-top:22px;">Peak Advice &amp; notes ({{ posts|length }})</div>
   {% if posts %}
   <div class="admin-list">
     {% for p in posts %}

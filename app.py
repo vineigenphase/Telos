@@ -127,6 +127,10 @@ TRIAL_DAYS = 7
 # checkout with nothing configured. Still an environment variable, so it can be
 # repointed without a deploy.
 TUTORING_EMAIL = os.environ.get("TUTORING_EMAIL", "tutor.telos@gmail.com")
+# The TikTok account the question banks are made for. Shown on the landing
+# page so a viewer who arrives from a video can tell they are in the right
+# place before they read anything else.
+TIKTOK_HANDLE = os.environ.get("TIKTOK_HANDLE", "@vini_noesis")
 
 # ── Legal ─────────────────────────────────────────────────────────────────────
 #
@@ -176,7 +180,7 @@ PRICING_FEATURES = {
         {"label": "Predicted grade + marks to next boundary"},
         {"label": "Your next 3 questions"},
         {"label": "Full stats & topic analytics"},
-        {"label": "Pro Zone — resources, golden tips, monthly notes"},
+        {"label": "Pro Zone — resources, Peak Advice, monthly notes"},
         {"label": "Original mock papers"},
         {"label": "Unlimited file uploads"},
         {"label": "Pro badge"},
@@ -612,8 +616,28 @@ def login():
     return render_template("login.html")
 
 
+# Where to send a student after the subject picker, when they arrived on their
+# way to something specific. A new account cannot go straight there — every
+# screen but the picker is gated until they have chosen subjects — so the
+# destination waits in the session instead of being lost. Only in-app paths are
+# ever stored: an absolute URL here would make this an open redirect.
+AFTER_SETUP = "after_setup"
+
+
+def _remember_destination():
+    nxt = request.args.get("next") or ""
+    if nxt.startswith("/") and not nxt.startswith("//"):
+        session[AFTER_SETUP] = nxt
+
+
+def _destination_or(default_endpoint):
+    nxt = session.pop(AFTER_SETUP, None)
+    return nxt if nxt else url_for(default_endpoint)
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    _remember_destination()
     if current_user.is_authenticated:
         return redirect(url_for("onboarding"))
     if request.method == "POST":
@@ -625,12 +649,20 @@ def register():
             return render_template("register.html")
         try:
             with get_db() as db:
-                db.execute(
+                uid = db.execute(
                     "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
                     (email, username, generate_password_hash(pw))
-                )
-            flash("Account created — log in to get started.", "success")
-            return redirect(url_for("login"))
+                ).lastrowid
+                row = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
+            # Signed in on the spot rather than sent to the login form. They
+            # chose that password a second ago, so asking them to type it again
+            # proves nothing and costs a step — and a step is where people
+            # leave, particularly the ones arriving from a video with one
+            # specific thing in mind.
+            login_user(User(row), remember=True)
+            log_event("registered", uid)
+            flash("Account created.", "success")
+            return redirect(url_for("onboarding"))
         except psycopg.errors.UniqueViolation:
             flash("That email is already registered.", "error")
     return render_template("register.html")
@@ -761,7 +793,18 @@ def dashboard():
                 "       duration_sec, price_pence, spec_version "
                 "FROM exam_papers WHERE is_published "
                 "ORDER BY family DESC, module, paper_code").fetchall()
+            # The question banks, for the TikTok landing path. Same rule as
+            # every other price on this page: read from the row, never typed
+            # into the template.
+            banks = db.execute(
+                "SELECT id, title, subject, description, price_pence "
+                "FROM mock_papers ORDER BY price_pence, title").fetchall()
         prices = {p["price_pence"] for p in exam_papers if p["price_pence"]}
+        bank_prices = [b["price_pence"] for b in banks if b["price_pence"]]
+        bank_from = (f"£{min(bank_prices) // 100}"
+                     if bank_prices and min(bank_prices) % 100 == 0
+                     else (f"£{min(bank_prices) / 100:.2f}" if bank_prices
+                           else None))
         return render_template(
             "landing.html",
             pricing=PRICING,
@@ -770,6 +813,9 @@ def dashboard():
             default_interval=DEFAULT_INTERVAL,
             pricing_features=PRICING_FEATURES,
             exam_papers=exam_papers,
+            banks=banks,
+            bank_from=bank_from,
+            tiktok_handle=TIKTOK_HANDLE,
             # Only quote a single price when every paper shares it. If they
             # ever differ, the page says nothing rather than something wrong.
             exam_price=(f"£{min(prices) // 100}" if len(prices) == 1
@@ -3055,8 +3101,12 @@ def onboarding():
             flash("Pick at least one subject to get started.", "error")
             return redirect(url_for("onboarding"))
         log_event("onboarding_completed", current_user.id, str(n))
-        flash("You're set up. Log your first paper whenever you're ready.", "success")
-        return redirect(url_for("dashboard"))
+        where = _destination_or("dashboard")
+        flash("You're set up. Here's what you came for."
+              if where != url_for("dashboard") else
+              "You're set up. Log your first paper whenever you're ready.",
+              "success")
+        return redirect(where)
 
     chosen_papers = set()
     for key, codes in get_user_papers(current_user.id).items():

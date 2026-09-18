@@ -39,8 +39,8 @@ Three questions, in order:
 | Components | 219 papers, modules, parts and coursework units |
 | Routes | 72 |
 | Tables | 28, under 45 numbered migrations |
-| Tests | 28 suites, ~814 assertions |
-| Code | ~39,000 lines across 229 tracked files |
+| Tests | 29 suites, ~823 assertions |
+| Code | ~39,000 lines across 230 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -62,7 +62,7 @@ every run rather than hiding it or treating it as an error.
 ## Architecture
 
 ```
-app.py            Flask routes, session, entitlement gates      (~3,100 lines)
+app.py            Flask routes, session, entitlement gates      (~3,200 lines)
 db.py             psycopg3 shim — Postgres behind a sqlite3 API
 prediction.py     grade engine        — pure, no Flask, no DB
 prescription.py   "your next 3 questions" — pure
@@ -73,7 +73,7 @@ sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  67 qualifications, 219 components
 migrations/       45 numbered idempotent SQL migrations
-tests/            28 standalone suites
+tests/            29 standalone suites
 scripts/boundaries/  36 board-document scripts
 ```
 
@@ -270,7 +270,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~4,100 lines of hand-written CSS and 1122 of vanilla JS.
+no CSS framework — ~4,200 lines of hand-written CSS and 1122 of vanilla JS.
 
 ---
 
@@ -305,7 +305,7 @@ scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
 scripts/upload_admissions_papers.py  push the official PDFs to the volume
-tests/               28 suites, ~814 assertions
+tests/               29 suites, ~823 assertions
 templates/           42 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker
