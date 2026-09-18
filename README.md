@@ -38,9 +38,9 @@ Three questions, in order:
 | Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
 | Components | 219 papers, modules, parts and coursework units |
 | Routes | 70 |
-| Tables | 28, under 45 numbered migrations |
+| Tables | 28, under 46 numbered migrations |
 | Tests | 29 suites, ~801 assertions |
-| Code | ~39,000 lines across 230 tracked files |
+| Code | ~39,000 lines across 231 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -72,7 +72,7 @@ admissions_papers.py  the official ENGAA/NSAA/TMUA papers and keys — pure
 sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  67 qualifications, 219 components
-migrations/       45 numbered idempotent SQL migrations
+migrations/       46 numbered idempotent SQL migrations
 tests/            29 standalone suites
 scripts/boundaries/  36 board-document scripts
 ```
@@ -300,7 +300,7 @@ app.py  db.py  auth.py  mailer.py  brand.py       core application
 prediction.py  prescription.py  revision.py       pure engines
 admissions.py  admissions_papers.py               pure engines, admissions
 sharecards.py  paper_templates.py                 rendering, catalogue
-migrations/          45 numbered SQL migrations
+migrations/          46 numbered SQL migrations
 scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file

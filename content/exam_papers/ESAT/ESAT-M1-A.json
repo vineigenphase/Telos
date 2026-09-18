@@ -13,7 +13,7 @@
  "questions": [
   {
    "n": 1,
-   "topic": "Density & similar solids",
+   "topic": "Mensuration & 3D",
    "spec_refs": [
     "M1.1",
     "M3.10"
@@ -33,43 +33,45 @@
    "traps": {
     "B": "5 is the length scale factor, not the side length.",
     "C": "Used volume ratio 1000 for the length scale.",
-    "D": "Used mass ratio 125 \u00f7 5.",
+    "D": "Used mass ratio 125 ÷ 5.",
     "E": "Confused grams and kilograms by a factor of 10."
-   }
+   },
+   "detail": "Density & similar solids"
   },
   {
    "n": 2,
-   "topic": "Standard form",
+   "topic": "Number",
    "spec_refs": [
     "M2.8"
    ],
    "difficulty": 1,
-   "stem_html": "<p>Work out <span class=\"fr\"><span>(3 \u00d7 10<sup>8</sup>)<sup>2</sup></span><span>6 \u00d7 10<sup>5</sup></span></span>, giving your answer in standard form.</p>",
+   "stem_html": "<p>Work out <span class=\"fr\"><span>(3 × 10<sup>8</sup>)<sup>2</sup></span><span>6 × 10<sup>5</sup></span></span>, giving your answer in standard form.</p>",
    "diagram_svg": null,
    "options": {
-    "A": "1.5 \u00d7 10<sup>10</sup>",
-    "B": "1.5 \u00d7 10<sup>11</sup>",
-    "C": "4.5 \u00d7 10<sup>11</sup>",
-    "D": "1.5 \u00d7 10<sup>12</sup>",
-    "E": "15 \u00d7 10<sup>10</sup>"
+    "A": "1.5 × 10<sup>10</sup>",
+    "B": "1.5 × 10<sup>11</sup>",
+    "C": "4.5 × 10<sup>11</sup>",
+    "D": "1.5 × 10<sup>12</sup>",
+    "E": "15 × 10<sup>10</sup>"
    },
    "answer": "B",
-   "solution_html": "<p>9 \u00d7 10<sup>16</sup> \u00f7 6 \u00d7 10<sup>5</sup> = 1.5 \u00d7 10<sup>11</sup>. <span class=\"key\">1.5 \u00d7 10<sup>11</sup></span></p>",
+   "solution_html": "<p>9 × 10<sup>16</sup> ÷ 6 × 10<sup>5</sup> = 1.5 × 10<sup>11</sup>. <span class=\"key\">1.5 × 10<sup>11</sup></span></p>",
    "traps": {
-    "A": "Power slip: 16 \u2212 5 = 11.",
+    "A": "Power slip: 16 − 5 = 11.",
     "C": "Divided 9 by 2.",
     "D": "Power slip.",
-    "E": "Equal in value but not in standard form (needs 1 \u2264 a < 10)."
-   }
+    "E": "Equal in value but not in standard form (needs 1 ≤ a < 10)."
+   },
+   "detail": "Standard form"
   },
   {
    "n": 3,
-   "topic": "Recurring decimals",
+   "topic": "Number",
    "spec_refs": [
     "M2.9"
    ],
    "difficulty": 2,
-   "stem_html": "<p>Express 0.2777\u2026 (with the 7 recurring) as a fraction in its lowest terms.</p>",
+   "stem_html": "<p>Express 0.2777… (with the 7 recurring) as a fraction in its lowest terms.</p>",
    "diagram_svg": null,
    "options": {
     "A": "<span class=\"fr\"><span>5</span><span>18</span></span>",
@@ -79,17 +81,18 @@
     "E": "<span class=\"fr\"><span>5</span><span>19</span></span>"
    },
    "answer": "A",
-   "solution_html": "<p>Let <span class=\"math\">x</span> = 0.2777\u2026; 10<span class=\"math\">x</span> = 2.777\u2026, 100<span class=\"math\">x</span> = 27.777\u2026, so 90<span class=\"math\">x</span> = 25 and <span class=\"math\">x</span> = 25/90 = <span class=\"key\">5/18</span>.</p>",
+   "solution_html": "<p>Let <span class=\"math\">x</span> = 0.2777…; 10<span class=\"math\">x</span> = 2.777…, 100<span class=\"math\">x</span> = 27.777…, so 90<span class=\"math\">x</span> = 25 and <span class=\"math\">x</span> = 25/90 = <span class=\"key\">5/18</span>.</p>",
    "traps": {
-    "B": "3/11 = 0.272727\u2026, both digits recurring.",
+    "B": "3/11 = 0.272727…, both digits recurring.",
     "C": "Terminating 0.27.",
     "D": "0.28.",
     "E": "Arithmetic slip in 25/90."
-   }
+   },
+   "detail": "Recurring decimals"
   },
   {
    "n": 4,
-   "topic": "HCF and LCM",
+   "topic": "Number",
    "spec_refs": [
     "M2.3"
    ],
@@ -104,17 +107,18 @@
     "E": "8"
    },
    "answer": "D",
-   "solution_html": "<p>Write <span class=\"math\">a</span> = 6<span class=\"math\">p</span>, <span class=\"math\">b</span> = 6<span class=\"math\">q</span> with <span class=\"math\">p</span>, <span class=\"math\">q</span> coprime. Then LCM = 6<span class=\"math\">pq</span> = 180, so <span class=\"math\">pq</span> = 30 = 2 \u00d7 3 \u00d7 5.</p><p>Coprime splits of 30 with <span class=\"math\">p</span> &lt; <span class=\"math\">q</span>: (1, 30), (2, 15), (3, 10), (5, 6). <span class=\"key\">4</span> pairs.</p>",
+   "solution_html": "<p>Write <span class=\"math\">a</span> = 6<span class=\"math\">p</span>, <span class=\"math\">b</span> = 6<span class=\"math\">q</span> with <span class=\"math\">p</span>, <span class=\"math\">q</span> coprime. Then LCM = 6<span class=\"math\">pq</span> = 180, so <span class=\"math\">pq</span> = 30 = 2 × 3 × 5.</p><p>Coprime splits of 30 with <span class=\"math\">p</span> &lt; <span class=\"math\">q</span>: (1, 30), (2, 15), (3, 10), (5, 6). <span class=\"key\">4</span> pairs.</p>",
    "traps": {
     "A": "Assumed one number must be 6.",
     "B": "Missed the splits that move a single prime.",
     "C": "Missed one coprime split.",
     "E": "8 counts ordered pairs (a, b) and (b, a) separately."
-   }
+   },
+   "detail": "HCF and LCM"
   },
   {
    "n": 5,
-   "topic": "Upper and lower bounds",
+   "topic": "Number",
    "spec_refs": [
     "M2.12"
    ],
@@ -135,11 +139,12 @@
     "B": "4.55/2.05, the upper bound of x over the upper bound of y.",
     "C": "4.45/1.95, lower over lower.",
     "E": "4.45/2.05, lower over upper: the lower bound of the quotient."
-   }
+   },
+   "detail": "Upper and lower bounds"
   },
   {
    "n": 6,
-   "topic": "Reverse percentages",
+   "topic": "Ratio, proportion & percentages",
    "spec_refs": [
     "M3.8"
    ],
@@ -160,11 +165,12 @@
     "B": "Arithmetic slip in 1.1/0.8.",
     "C": "Guessed the midpoint.",
     "E": "Assumed the 20% cut needs a 25% rise to undo, then added 10 + 5."
-   }
+   },
+   "detail": "Reverse percentages"
   },
   {
    "n": 7,
-   "topic": "Inverse proportion with powers",
+   "topic": "Ratio, proportion & percentages",
    "spec_refs": [
     "M3.9"
    ],
@@ -179,17 +185,18 @@
     "E": "64%"
    },
    "answer": "B",
-   "solution_html": "<p><span class=\"math\">x</span> \u2192 1.25<span class=\"math\">x</span>, so <span class=\"math\">y</span> \u2192 <span class=\"math\">y</span>/1.25<sup>2</sup> = <span class=\"math\">y</span>/1.5625 = 0.64<span class=\"math\">y</span>. Decrease of <span class=\"key\">36%</span>.</p>",
+   "solution_html": "<p><span class=\"math\">x</span> → 1.25<span class=\"math\">x</span>, so <span class=\"math\">y</span> → <span class=\"math\">y</span>/1.25<sup>2</sup> = <span class=\"math\">y</span>/1.5625 = 0.64<span class=\"math\">y</span>. Decrease of <span class=\"key\">36%</span>.</p>",
    "traps": {
     "A": "25% is the change in x, not in y.",
-    "C": "44% comes from 1 \u2212 0.56, a mis-squared 1.25.",
-    "D": "1.25\u00b2 \u2212 1 = 0.5625, the increase in x\u00b2, not the decrease in y.",
+    "C": "44% comes from 1 − 0.56, a mis-squared 1.25.",
+    "D": "1.25² − 1 = 0.5625, the increase in x², not the decrease in y.",
     "E": "0.64 is the multiplier, not the decrease."
-   }
+   },
+   "detail": "Inverse proportion with powers"
   },
   {
    "n": 8,
-   "topic": "Decay & iteration",
+   "topic": "Ratio, proportion & percentages",
    "spec_refs": [
     "M3.11"
    ],
@@ -204,118 +211,123 @@
     "E": "10"
    },
    "answer": "A",
-   "solution_html": "<p>0.9<sup>2</sup> = 0.81, 0.9<sup>4</sup> = 0.6561, 0.9<sup>6</sup> = 0.6561 \u00d7 0.81 \u2248 0.531, 0.9<sup>7</sup> \u2248 0.478. First below 0.5 after <span class=\"key\">7</span> hours.</p>",
+   "solution_html": "<p>0.9<sup>2</sup> = 0.81, 0.9<sup>4</sup> = 0.6561, 0.9<sup>6</sup> = 0.6561 × 0.81 ≈ 0.531, 0.9<sup>7</sup> ≈ 0.478. First below 0.5 after <span class=\"key\">7</span> hours.</p>",
    "traps": {
-    "B": "0.9\u2076 \u2248 0.53, still above half.",
-    "C": "Linear thinking: 5 \u00d7 10% = 50%.",
+    "B": "0.9⁶ ≈ 0.53, still above half.",
+    "C": "Linear thinking: 5 × 10% = 50%.",
     "D": "One too many.",
     "E": "Linear thinking with 5% steps."
-   }
+   },
+   "detail": "Decay & iteration"
   },
   {
    "n": 9,
-   "topic": "Algebraic fractions",
+   "topic": "Algebra & sequences",
    "spec_refs": [
     "M4.6"
    ],
    "difficulty": 2,
-   "stem_html": "<p>Simplify fully</p><p style=\"text-align:center\"><span class=\"fr\"><span><span class=\"math\">x</span><sup>2</sup> \u2212 9</span><span><span class=\"math\">x</span><sup>2</sup> \u2212 <span class=\"math\">x</span> \u2212 6</span></span> \u00f7 <span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span><sup>2</sup> \u2212 4</span></span></p>",
+   "stem_html": "<p>Simplify fully</p><p style=\"text-align:center\"><span class=\"fr\"><span><span class=\"math\">x</span><sup>2</sup> − 9</span><span><span class=\"math\">x</span><sup>2</sup> − <span class=\"math\">x</span> − 6</span></span> ÷ <span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span><sup>2</sup> − 4</span></span></p>",
    "diagram_svg": null,
    "options": {
-    "A": "<span class=\"math\">x</span> \u2212 2",
+    "A": "<span class=\"math\">x</span> − 2",
     "B": "1",
     "C": "<span class=\"math\">x</span> + 2",
-    "D": "<span class=\"fr\"><span><span class=\"math\">x</span> \u2212 2</span><span><span class=\"math\">x</span> + 2</span></span>",
+    "D": "<span class=\"fr\"><span><span class=\"math\">x</span> − 2</span><span><span class=\"math\">x</span> + 2</span></span>",
     "E": "<span class=\"math\">x</span> + 3"
    },
    "answer": "A",
-   "solution_html": "<p><span class=\"fr\"><span>(<span class=\"math\">x</span> \u2212 3)(<span class=\"math\">x</span> + 3)</span><span>(<span class=\"math\">x</span> \u2212 3)(<span class=\"math\">x</span> + 2)</span></span> \u00d7 <span class=\"fr\"><span>(<span class=\"math\">x</span> \u2212 2)(<span class=\"math\">x</span> + 2)</span><span><span class=\"math\">x</span> + 3</span></span> = <span class=\"key\">x \u2212 2</span>.</p>",
+   "solution_html": "<p><span class=\"fr\"><span>(<span class=\"math\">x</span> − 3)(<span class=\"math\">x</span> + 3)</span><span>(<span class=\"math\">x</span> − 3)(<span class=\"math\">x</span> + 2)</span></span> × <span class=\"fr\"><span>(<span class=\"math\">x</span> − 2)(<span class=\"math\">x</span> + 2)</span><span><span class=\"math\">x</span> + 3</span></span> = <span class=\"key\">x − 2</span>.</p>",
    "traps": {
     "B": "Over-cancelled.",
-    "C": "Cancelled the wrong factor of x\u00b2 \u2212 4.",
+    "C": "Cancelled the wrong factor of x² − 4.",
     "D": "Forgot to invert the second fraction properly.",
     "E": "Left the x + 3 in the numerator."
-   }
+   },
+   "detail": "Algebraic fractions"
   },
   {
    "n": 10,
-   "topic": "Changing the subject",
+   "topic": "Algebra & sequences",
    "spec_refs": [
     "M4.7"
    ],
    "difficulty": 2,
-   "stem_html": "<p>Make <span class=\"math\">a</span> the subject of <span class=\"math\">v</span> = <span class=\"rt\">\u221a<span class=\"ov\"><span class=\"fr\"><span><span class=\"math\">a</span> + <span class=\"math\">b</span></span><span><span class=\"math\">a</span> \u2212 <span class=\"math\">b</span></span></span></span></span>.</p>",
+   "stem_html": "<p>Make <span class=\"math\">a</span> the subject of <span class=\"math\">v</span> = <span class=\"rt\">√<span class=\"ov\"><span class=\"fr\"><span><span class=\"math\">a</span> + <span class=\"math\">b</span></span><span><span class=\"math\">a</span> − <span class=\"math\">b</span></span></span></span></span>.</p>",
    "diagram_svg": null,
    "options": {
-    "A": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1)</span><span><span class=\"math\">v</span><sup>2</sup> \u2212 1</span></span>",
-    "B": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> \u2212 1)</span><span><span class=\"math\">v</span><sup>2</sup> + 1</span></span>",
-    "C": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span> + 1)</span><span><span class=\"math\">v</span> \u2212 1</span></span>",
-    "D": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">v</span><sup>2</sup> + <span class=\"math\">b</span></span><span><span class=\"math\">v</span><sup>2</sup> \u2212 1</span></span>",
+    "A": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1)</span><span><span class=\"math\">v</span><sup>2</sup> − 1</span></span>",
+    "B": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> − 1)</span><span><span class=\"math\">v</span><sup>2</sup> + 1</span></span>",
+    "C": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">b</span>(<span class=\"math\">v</span> + 1)</span><span><span class=\"math\">v</span> − 1</span></span>",
+    "D": "<span class=\"math\">a</span> = <span class=\"fr\"><span><span class=\"math\">v</span><sup>2</sup> + <span class=\"math\">b</span></span><span><span class=\"math\">v</span><sup>2</sup> − 1</span></span>",
     "E": "<span class=\"math\">a</span> = <span class=\"math\">b</span><span class=\"math\">v</span><sup>2</sup> + <span class=\"math\">b</span>"
    },
    "answer": "A",
-   "solution_html": "<p><span class=\"math\">v</span><sup>2</sup>(<span class=\"math\">a</span> \u2212 <span class=\"math\">b</span>) = <span class=\"math\">a</span> + <span class=\"math\">b</span>, so <span class=\"math\">a</span>(<span class=\"math\">v</span><sup>2</sup> \u2212 1) = <span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1). <span class=\"key\">a = b(v\u00b2 + 1)/(v\u00b2 \u2212 1)</span></p>",
+   "solution_html": "<p><span class=\"math\">v</span><sup>2</sup>(<span class=\"math\">a</span> − <span class=\"math\">b</span>) = <span class=\"math\">a</span> + <span class=\"math\">b</span>, so <span class=\"math\">a</span>(<span class=\"math\">v</span><sup>2</sup> − 1) = <span class=\"math\">b</span>(<span class=\"math\">v</span><sup>2</sup> + 1). <span class=\"key\">a = b(v² + 1)/(v² − 1)</span></p>",
    "traps": {
     "B": "Signs swapped.",
     "C": "Forgot to square.",
     "D": "Did not factor b out correctly.",
     "E": "Dropped the a on the right."
-   }
+   },
+   "detail": "Changing the subject"
   },
   {
    "n": 11,
-   "topic": "Linear\u2013quadratic simultaneous equations",
+   "topic": "Algebra & sequences",
    "spec_refs": [
     "M4.15"
    ],
    "difficulty": 2,
-   "stem_html": "<p>The line <span class=\"math\">y</span> = 2<span class=\"math\">x</span> \u2212 1 meets the circle <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 13 at two points.</p><p>What is the sum of the <span class=\"math\">x</span>-coordinates of these points?</p>",
+   "stem_html": "<p>The line <span class=\"math\">y</span> = 2<span class=\"math\">x</span> − 1 meets the circle <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 13 at two points.</p><p>What is the sum of the <span class=\"math\">x</span>-coordinates of these points?</p>",
    "diagram_svg": null,
    "options": {
-    "A": "\u2212<span class=\"fr\"><span>6</span><span>5</span></span>",
-    "B": "\u2212<span class=\"fr\"><span>4</span><span>5</span></span>",
+    "A": "−<span class=\"fr\"><span>6</span><span>5</span></span>",
+    "B": "−<span class=\"fr\"><span>4</span><span>5</span></span>",
     "C": "<span class=\"fr\"><span>4</span><span>5</span></span>",
     "D": "2",
     "E": "4"
    },
    "answer": "C",
-   "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> + 4<span class=\"math\">x</span><sup>2</sup> \u2212 4<span class=\"math\">x</span> + 1 = 13, so 5<span class=\"math\">x</span><sup>2</sup> \u2212 4<span class=\"math\">x</span> \u2212 12 = 0, (5<span class=\"math\">x</span> + 6)(<span class=\"math\">x</span> \u2212 2) = 0. Sum = 2 \u2212 6/5 = <span class=\"key\">4/5</span>.</p>",
+   "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> + 4<span class=\"math\">x</span><sup>2</sup> − 4<span class=\"math\">x</span> + 1 = 13, so 5<span class=\"math\">x</span><sup>2</sup> − 4<span class=\"math\">x</span> − 12 = 0, (5<span class=\"math\">x</span> + 6)(<span class=\"math\">x</span> − 2) = 0. Sum = 2 − 6/5 = <span class=\"key\">4/5</span>.</p>",
    "traps": {
     "A": "One of the roots.",
     "B": "Sign error.",
     "D": "The other root.",
     "E": "Used the y-coordinates' difference or a factorisation slip."
-   }
+   },
+   "detail": "Linear–quadratic simultaneous equations"
   },
   {
    "n": 12,
-   "topic": "Quadratic graphs & completing the square",
+   "topic": "Algebra & sequences",
    "spec_refs": [
     "M4.11",
     "M5.6"
    ],
    "difficulty": 2,
-   "stem_html": "<p>The curve <span class=\"math\">y</span> = 2<span class=\"math\">x</span><sup>2</sup> \u2212 8<span class=\"math\">x</span> + 5 is reflected in the <span class=\"math\">x</span>-axis.</p><p>What is the maximum value of <span class=\"math\">y</span> on the reflected curve?</p>",
+   "stem_html": "<p>The curve <span class=\"math\">y</span> = 2<span class=\"math\">x</span><sup>2</sup> − 8<span class=\"math\">x</span> + 5 is reflected in the <span class=\"math\">x</span>-axis.</p><p>What is the maximum value of <span class=\"math\">y</span> on the reflected curve?</p>",
    "diagram_svg": null,
    "options": {
-    "A": "\u22125",
-    "B": "\u22123",
+    "A": "−5",
+    "B": "−3",
     "C": "2",
     "D": "3",
     "E": "5"
    },
    "answer": "D",
-   "solution_html": "<p>2<span class=\"math\">x</span><sup>2</sup> \u2212 8<span class=\"math\">x</span> + 5 = 2(<span class=\"math\">x</span> \u2212 2)<sup>2</sup> \u2212 3, minimum \u22123. Reflection gives maximum <span class=\"key\">3</span>.</p>",
+   "solution_html": "<p>2<span class=\"math\">x</span><sup>2</sup> − 8<span class=\"math\">x</span> + 5 = 2(<span class=\"math\">x</span> − 2)<sup>2</sup> − 3, minimum −3. Reflection gives maximum <span class=\"key\">3</span>.</p>",
    "traps": {
     "A": "The negated y-intercept.",
     "B": "The original minimum.",
     "C": "The x-coordinate of the vertex.",
     "E": "The y-intercept."
-   }
+   },
+   "detail": "Quadratic graphs & completing the square"
   },
   {
    "n": 13,
-   "topic": "Quadratic sequences",
+   "topic": "Algebra & sequences",
    "spec_refs": [
     "M4.19"
    ],
@@ -330,23 +342,24 @@
     "E": "821"
    },
    "answer": "C",
-   "solution_html": "<p>Second differences are 4, so the <span class=\"math\">n</span><sup>2</sup> coefficient is 2. Subtracting 2<span class=\"math\">n</span><sup>2</sup> leaves 0, \u22121, \u22122, \u22123, \u22124 = 1 \u2212 <span class=\"math\">n</span>. Term = 2<span class=\"math\">n</span><sup>2</sup> \u2212 <span class=\"math\">n</span> + 1. <span class=\"math\">n</span> = 20: 800 \u2212 20 + 1 = <span class=\"key\">781</span>.</p>",
+   "solution_html": "<p>Second differences are 4, so the <span class=\"math\">n</span><sup>2</sup> coefficient is 2. Subtracting 2<span class=\"math\">n</span><sup>2</sup> leaves 0, −1, −2, −3, −4 = 1 − <span class=\"math\">n</span>. Term = 2<span class=\"math\">n</span><sup>2</sup> − <span class=\"math\">n</span> + 1. <span class=\"math\">n</span> = 20: 800 − 20 + 1 = <span class=\"key\">781</span>.</p>",
    "traps": {
-    "A": "2n\u00b2 \u2212 2n + 1.",
+    "A": "2n² − 2n + 1.",
     "B": "Forgot the +1.",
-    "D": "2n\u00b2 + 1.",
-    "E": "2n\u00b2 + n + 1."
-   }
+    "D": "2n² + 1.",
+    "E": "2n² + n + 1."
+   },
+   "detail": "Quadratic sequences"
   },
   {
    "n": 14,
-   "topic": "Integer points in a region",
+   "topic": "Coordinate geometry & vectors",
    "spec_refs": [
     "M4.17",
     "M2.5"
    ],
    "difficulty": 3,
-   "stem_html": "<p>How many pairs of positive integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy 2<span class=\"math\">x</span> + 3<span class=\"math\">y</span> \u2264 12 ?</p>",
+   "stem_html": "<p>How many pairs of positive integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy 2<span class=\"math\">x</span> + 3<span class=\"math\">y</span> ≤ 12 ?</p>",
    "diagram_svg": null,
    "options": {
     "A": "6",
@@ -356,22 +369,23 @@
     "E": "10"
    },
    "answer": "C",
-   "solution_html": "<p><span class=\"math\">y</span> = 1: 2<span class=\"math\">x</span> \u2264 9, <span class=\"math\">x</span> = 1, 2, 3, 4. <span class=\"math\">y</span> = 2: 2<span class=\"math\">x</span> \u2264 6, three values. <span class=\"math\">y</span> = 3: 2<span class=\"math\">x</span> \u2264 3, one value. <span class=\"math\">y</span> = 4: none. Total <span class=\"key\">8</span>.</p>",
+   "solution_html": "<p><span class=\"math\">y</span> = 1: 2<span class=\"math\">x</span> ≤ 9, <span class=\"math\">x</span> = 1, 2, 3, 4. <span class=\"math\">y</span> = 2: 2<span class=\"math\">x</span> ≤ 6, three values. <span class=\"math\">y</span> = 3: 2<span class=\"math\">x</span> ≤ 3, one value. <span class=\"math\">y</span> = 4: none. Total <span class=\"key\">8</span>.</p>",
    "traps": {
     "A": "Missed two boundary points.",
     "B": "Missed (3, 2), the boundary point.",
-    "D": "Included (0, 4) or (6, 0); positive means \u2265 1.",
+    "D": "Included (0, 4) or (6, 0); positive means ≥ 1.",
     "E": "Included both axis points."
-   }
+   },
+   "detail": "Integer points in a region"
   },
   {
    "n": 15,
-   "topic": "Perpendicular lines",
+   "topic": "Coordinate geometry & vectors",
    "spec_refs": [
     "M4.10"
    ],
    "difficulty": 2,
-   "stem_html": "<p>The line through (2, 3) perpendicular to 3<span class=\"math\">x</span> \u2212 2<span class=\"math\">y</span> = 7 crosses the <span class=\"math\">x</span>-axis at (<span class=\"math\">k</span>, 0). What is <span class=\"math\">k</span>?</p>",
+   "stem_html": "<p>The line through (2, 3) perpendicular to 3<span class=\"math\">x</span> − 2<span class=\"math\">y</span> = 7 crosses the <span class=\"math\">x</span>-axis at (<span class=\"math\">k</span>, 0). What is <span class=\"math\">k</span>?</p>",
    "diagram_svg": null,
    "options": {
     "A": "2",
@@ -381,17 +395,18 @@
     "E": "<span class=\"fr\"><span>13</span><span>2</span></span>"
    },
    "answer": "E",
-   "solution_html": "<p>Given line has gradient 3/2, so the perpendicular has gradient \u22122/3: <span class=\"math\">y</span> \u2212 3 = \u2212(2/3)(<span class=\"math\">x</span> \u2212 2). <span class=\"math\">y</span> = 0 gives <span class=\"math\">x</span> \u2212 2 = 9/2, <span class=\"math\">x</span> = <span class=\"key\">13/2</span>.</p>",
+   "solution_html": "<p>Given line has gradient 3/2, so the perpendicular has gradient −2/3: <span class=\"math\">y</span> − 3 = −(2/3)(<span class=\"math\">x</span> − 2). <span class=\"math\">y</span> = 0 gives <span class=\"math\">x</span> − 2 = 9/2, <span class=\"math\">x</span> = <span class=\"key\">13/2</span>.</p>",
    "traps": {
     "A": "The x-coordinate of the given point.",
-    "B": "Used gradient \u22123/2.",
+    "B": "Used gradient −3/2.",
     "C": "Forgot to add the 2.",
     "D": "Arithmetic slip."
-   }
+   },
+   "detail": "Perpendicular lines"
   },
   {
    "n": 16,
-   "topic": "Angles in polygons",
+   "topic": "Geometry, angles & trigonometry",
    "spec_refs": [
     "M5.2"
    ],
@@ -399,49 +414,51 @@
    "stem_html": "<p>Each interior angle of a regular polygon is 4 times each exterior angle. What is the sum of the interior angles of the polygon?</p>",
    "diagram_svg": null,
    "options": {
-    "A": "1080<span class=\"deg\">\u00b0</span>",
-    "B": "1260<span class=\"deg\">\u00b0</span>",
-    "C": "1620<span class=\"deg\">\u00b0</span>",
-    "D": "1440<span class=\"deg\">\u00b0</span>",
-    "E": "1800<span class=\"deg\">\u00b0</span>"
+    "A": "1080<span class=\"deg\">°</span>",
+    "B": "1260<span class=\"deg\">°</span>",
+    "C": "1620<span class=\"deg\">°</span>",
+    "D": "1440<span class=\"deg\">°</span>",
+    "E": "1800<span class=\"deg\">°</span>"
    },
    "answer": "D",
-   "solution_html": "<p>Interior + exterior = 180<span class=\"deg\">\u00b0</span>, so exterior = 36<span class=\"deg\">\u00b0</span>, giving 360/36 = 10 sides. Sum = 180 \u00d7 8 = <span class=\"key\">1440\u00b0</span>.</p>",
+   "solution_html": "<p>Interior + exterior = 180<span class=\"deg\">°</span>, so exterior = 36<span class=\"deg\">°</span>, giving 360/36 = 10 sides. Sum = 180 × 8 = <span class=\"key\">1440°</span>.</p>",
    "traps": {
-    "A": "8 sides (from 180 \u00d7 6).",
+    "A": "8 sides (from 180 × 6).",
     "B": "9 sides.",
     "C": "11 sides.",
-    "E": "12 sides (exterior 30\u00b0)."
-   }
+    "E": "12 sides (exterior 30°)."
+   },
+   "detail": "Angles in polygons"
   },
   {
    "n": 17,
-   "topic": "Alternate segment theorem",
+   "topic": "Geometry, angles & trigonometry",
    "spec_refs": [
     "M5.9"
    ],
    "difficulty": 3,
-   "stem_html": "<p>In the diagram, the line through <span class=\"math\">A</span> is a tangent to the circle at <span class=\"math\">A</span>. <span class=\"math\">B</span> and <span class=\"math\">C</span> lie on the circle with <span class=\"math\">AB</span> = <span class=\"math\">AC</span>, and the angle between the tangent and <span class=\"math\">AB</span> is 65<span class=\"deg\">\u00b0</span>.</p><p>What is angle <span class=\"math\">BAC</span>?</p>",
-   "diagram_svg": "<svg viewBox=\"0 0 320 220\" width=\"330\" role=\"img\" aria-label=\"Circle with tangent at A, chord AB, point C on the circle, AB = AC, angle between tangent and AB is 65 degrees\">\n<circle cx=\"160\" cy=\"120\" r=\"70\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<line x1=\"40\" y1=\"190\" x2=\"290\" y2=\"190\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<g stroke=\"#111\" stroke-width=\"1.5\"><line x1=\"160\" y1=\"190\" x2=\"222.8\" y2=\"87.7\"/><line x1=\"160\" y1=\"190\" x2=\"97.2\" y2=\"87.7\"/><line x1=\"222.8\" y1=\"87.7\" x2=\"97.2\" y2=\"87.7\"/></g>\n<path d=\"M 186 190 A 26 26 0 0 0 173.6 168\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.2\"/>\n<g fill=\"#111\"><circle cx=\"160\" cy=\"190\" r=\"2.6\"/><circle cx=\"222.8\" cy=\"87.7\" r=\"2.6\"/><circle cx=\"97.2\" cy=\"87.7\" r=\"2.6\"/></g>\n<g font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"15\" fill=\"#111\"><text x=\"154\" y=\"210\">A</text><text x=\"230\" y=\"84\">B</text><text x=\"82\" y=\"84\">C</text></g>\n<text x=\"190\" y=\"180\" font-family=\"Arial\" font-size=\"13\" fill=\"#111\">65\u00b0</text>\n<text x=\"112\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text><text x=\"200\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text></svg>",
+   "stem_html": "<p>In the diagram, the line through <span class=\"math\">A</span> is a tangent to the circle at <span class=\"math\">A</span>. <span class=\"math\">B</span> and <span class=\"math\">C</span> lie on the circle with <span class=\"math\">AB</span> = <span class=\"math\">AC</span>, and the angle between the tangent and <span class=\"math\">AB</span> is 65<span class=\"deg\">°</span>.</p><p>What is angle <span class=\"math\">BAC</span>?</p>",
+   "diagram_svg": "<svg viewBox=\"0 0 320 220\" width=\"330\" role=\"img\" aria-label=\"Circle with tangent at A, chord AB, point C on the circle, AB = AC, angle between tangent and AB is 65 degrees\">\n<circle cx=\"160\" cy=\"120\" r=\"70\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<line x1=\"40\" y1=\"190\" x2=\"290\" y2=\"190\" stroke=\"#111\" stroke-width=\"1.6\"/>\n<g stroke=\"#111\" stroke-width=\"1.5\"><line x1=\"160\" y1=\"190\" x2=\"222.8\" y2=\"87.7\"/><line x1=\"160\" y1=\"190\" x2=\"97.2\" y2=\"87.7\"/><line x1=\"222.8\" y1=\"87.7\" x2=\"97.2\" y2=\"87.7\"/></g>\n<path d=\"M 186 190 A 26 26 0 0 0 173.6 168\" fill=\"none\" stroke=\"#111\" stroke-width=\"1.2\"/>\n<g fill=\"#111\"><circle cx=\"160\" cy=\"190\" r=\"2.6\"/><circle cx=\"222.8\" cy=\"87.7\" r=\"2.6\"/><circle cx=\"97.2\" cy=\"87.7\" r=\"2.6\"/></g>\n<g font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"15\" fill=\"#111\"><text x=\"154\" y=\"210\">A</text><text x=\"230\" y=\"84\">B</text><text x=\"82\" y=\"84\">C</text></g>\n<text x=\"190\" y=\"180\" font-family=\"Arial\" font-size=\"13\" fill=\"#111\">65°</text>\n<text x=\"112\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text><text x=\"200\" y=\"104\" font-family=\"Arial\" font-size=\"12\" fill=\"#111\">|</text></svg>",
    "options": {
-    "A": "40<span class=\"deg\">\u00b0</span>",
-    "B": "65<span class=\"deg\">\u00b0</span>",
-    "C": "60<span class=\"deg\">\u00b0</span>",
-    "D": "50<span class=\"deg\">\u00b0</span>",
-    "E": "115<span class=\"deg\">\u00b0</span>"
+    "A": "40<span class=\"deg\">°</span>",
+    "B": "65<span class=\"deg\">°</span>",
+    "C": "60<span class=\"deg\">°</span>",
+    "D": "50<span class=\"deg\">°</span>",
+    "E": "115<span class=\"deg\">°</span>"
    },
    "answer": "D",
-   "solution_html": "<p>Alternate segment theorem: angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">\u00b0</span>. <span class=\"math\">AB</span> = <span class=\"math\">AC</span> so angle <span class=\"math\">ABC</span> = angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">\u00b0</span>. Then angle <span class=\"math\">BAC</span> = 180 \u2212 130 = <span class=\"key\">50\u00b0</span>.</p>",
+   "solution_html": "<p>Alternate segment theorem: angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">°</span>. <span class=\"math\">AB</span> = <span class=\"math\">AC</span> so angle <span class=\"math\">ABC</span> = angle <span class=\"math\">ACB</span> = 65<span class=\"deg\">°</span>. Then angle <span class=\"math\">BAC</span> = 180 − 130 = <span class=\"key\">50°</span>.</p>",
    "traps": {
-    "A": "Used 70\u00b0 for the base angles.",
+    "A": "Used 70° for the base angles.",
     "B": "This is angle ACB, not BAC.",
     "C": "Assumed the triangle is equilateral.",
-    "E": "Supplement of 65\u00b0, the angle in the other segment."
-   }
+    "E": "Supplement of 65°, the angle in the other segment."
+   },
+   "detail": "Alternate segment theorem"
   },
   {
    "n": 18,
-   "topic": "Similar solids: area and volume scale factors",
+   "topic": "Mensuration & 3D",
    "spec_refs": [
     "M5.17",
     "M3.10"
@@ -457,17 +474,18 @@
     "E": "81 cm<sup>3</sup>"
    },
    "answer": "C",
-   "solution_html": "<p>Length ratio 2 : 3, volume ratio 8 : 27. 16 \u00d7 27/8 = <span class=\"key\">54</span>.</p>",
+   "solution_html": "<p>Length ratio 2 : 3, volume ratio 8 : 27. 16 × 27/8 = <span class=\"key\">54</span>.</p>",
    "traps": {
     "A": "Used the length ratio 2 : 3 for volumes.",
     "B": "Used the area ratio 4 : 9.",
-    "D": "64 = 16 \u00d7 4, using the area ratio squared.",
-    "E": "81 = 16 \u00d7 81/16, using 9\u00b2 as the volume factor."
-   }
+    "D": "64 = 16 × 4, using the area ratio squared.",
+    "E": "81 = 16 × 81/16, using 9² as the volume factor."
+   },
+   "detail": "Similar solids: area and volume scale factors"
   },
   {
    "n": 19,
-   "topic": "Pythagoras in 3D",
+   "topic": "Mensuration & 3D",
    "spec_refs": [
     "M5.7"
    ],
@@ -475,75 +493,78 @@
    "stem_html": "<p>The diagram shows a cube of side 2. <span class=\"math\">A</span> is a vertex and <span class=\"math\">M</span> is the midpoint of the vertical edge furthest from <span class=\"math\">A</span>.</p><p>What is the length <span class=\"math\">AM</span>?</p>",
    "diagram_svg": "<svg viewBox=\"0 0 300 230\" width=\"300\" role=\"img\" aria-label=\"Cube of side 2 with vertex A at the bottom front left and M the midpoint of the vertical edge at the back right\">\n<g fill=\"none\" stroke=\"#111\" stroke-width=\"1.6\"><polygon points=\"60,190 180,190 180,70 60,70\"/><polygon points=\"180,190 240,150 240,30 180,70\"/><polygon points=\"60,70 180,70 240,30 120,30\"/></g>\n<g fill=\"none\" stroke=\"#777\" stroke-width=\"1.2\" stroke-dasharray=\"4 3\"><line x1=\"60\" y1=\"190\" x2=\"120\" y2=\"150\"/><line x1=\"120\" y1=\"150\" x2=\"240\" y2=\"150\"/><line x1=\"120\" y1=\"150\" x2=\"120\" y2=\"30\"/></g>\n<line x1=\"60\" y1=\"190\" x2=\"240\" y2=\"90\" stroke=\"#1f4e8c\" stroke-width=\"1.8\"/>\n<g fill=\"#111\"><circle cx=\"60\" cy=\"190\" r=\"2.8\"/><circle cx=\"240\" cy=\"90\" r=\"2.8\"/></g>\n<g font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"15\" fill=\"#111\"><text x=\"44\" y=\"206\">A</text><text x=\"248\" y=\"95\">M</text></g>\n<g font-family=\"Arial\" font-size=\"13\" fill=\"#111\"><text x=\"112\" y=\"208\">2</text><text x=\"264\" y=\"70\">2</text></g></svg>",
    "options": {
-    "A": "<span class=\"rt\">\u221a<span class=\"ov\">5</span></span>",
-    "B": "2<span class=\"rt\">\u221a<span class=\"ov\">2</span></span>",
+    "A": "<span class=\"rt\">√<span class=\"ov\">5</span></span>",
+    "B": "2<span class=\"rt\">√<span class=\"ov\">2</span></span>",
     "C": "3",
-    "D": "<span class=\"rt\">\u221a<span class=\"ov\">10</span></span>",
-    "E": "2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>"
+    "D": "<span class=\"rt\">√<span class=\"ov\">10</span></span>",
+    "E": "2<span class=\"rt\">√<span class=\"ov\">3</span></span>"
    },
    "answer": "C",
-   "solution_html": "<p>Put <span class=\"math\">A</span> at (0, 0, 0). The far vertical edge runs from (2, 2, 0) to (2, 2, 2), so <span class=\"math\">M</span> = (2, 2, 1). <span class=\"math\">AM</span> = <span class=\"rt\">\u221a<span class=\"ov\">4 + 4 + 1</span></span> = <span class=\"key\">3</span>.</p>",
+   "solution_html": "<p>Put <span class=\"math\">A</span> at (0, 0, 0). The far vertical edge runs from (2, 2, 0) to (2, 2, 2), so <span class=\"math\">M</span> = (2, 2, 1). <span class=\"math\">AM</span> = <span class=\"rt\">√<span class=\"ov\">4 + 4 + 1</span></span> = <span class=\"key\">3</span>.</p>",
    "traps": {
-    "A": "\u221a(4 + 1): forgot one horizontal dimension.",
+    "A": "√(4 + 1): forgot one horizontal dimension.",
     "B": "The face diagonal.",
     "D": "Used the far vertex's height 2 with one dimension dropped.",
     "E": "The space diagonal to the far vertex, not its midpoint edge."
-   }
+   },
+   "detail": "Pythagoras in 3D"
   },
   {
    "n": 20,
-   "topic": "Exact trig values in a composite triangle",
+   "topic": "Geometry, angles & trigonometry",
    "spec_refs": [
     "M5.18"
    ],
    "difficulty": 3,
-   "stem_html": "<p>In triangle <span class=\"math\">ABC</span>, angle <span class=\"math\">B</span> = 45<span class=\"deg\">\u00b0</span> and angle <span class=\"math\">C</span> = 60<span class=\"deg\">\u00b0</span>. The perpendicular from <span class=\"math\">A</span> to <span class=\"math\">BC</span> has length 6.</p><p>What is the length of <span class=\"math\">BC</span>?</p>",
+   "stem_html": "<p>In triangle <span class=\"math\">ABC</span>, angle <span class=\"math\">B</span> = 45<span class=\"deg\">°</span> and angle <span class=\"math\">C</span> = 60<span class=\"deg\">°</span>. The perpendicular from <span class=\"math\">A</span> to <span class=\"math\">BC</span> has length 6.</p><p>What is the length of <span class=\"math\">BC</span>?</p>",
    "diagram_svg": null,
    "options": {
     "A": "12",
-    "B": "6 + 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>",
-    "C": "6 + 3<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>",
-    "D": "6 + 6<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>",
-    "E": "6<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> + 4<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>"
+    "B": "6 + 2<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "C": "6 + 3<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "D": "6 + 6<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "E": "6<span class=\"rt\">√<span class=\"ov\">2</span></span> + 4<span class=\"rt\">√<span class=\"ov\">3</span></span>"
    },
    "answer": "B",
-   "solution_html": "<p>Let the foot be <span class=\"math\">D</span>. In the 45<span class=\"deg\">\u00b0</span> triangle, <span class=\"math\">BD</span> = 6. In the 60<span class=\"deg\">\u00b0</span> triangle, <span class=\"math\">DC</span> = 6/tan 60<span class=\"deg\">\u00b0</span> = 6/<span class=\"rt\">\u221a<span class=\"ov\">3</span></span> = 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span>. <span class=\"math\">BC</span> = <span class=\"key\">6 + 2<span class=\"rt\">\u221a<span class=\"ov\">3</span></span></span>.</p>",
+   "solution_html": "<p>Let the foot be <span class=\"math\">D</span>. In the 45<span class=\"deg\">°</span> triangle, <span class=\"math\">BD</span> = 6. In the 60<span class=\"deg\">°</span> triangle, <span class=\"math\">DC</span> = 6/tan 60<span class=\"deg\">°</span> = 6/<span class=\"rt\">√<span class=\"ov\">3</span></span> = 2<span class=\"rt\">√<span class=\"ov\">3</span></span>. <span class=\"math\">BC</span> = <span class=\"key\">6 + 2<span class=\"rt\">√<span class=\"ov\">3</span></span></span>.</p>",
    "traps": {
     "A": "Assumed both parts are 6.",
-    "C": "Used 6 \u00d7 tan 30\u00b0 = 2\u221a3 correctly but then added 3\u221a3 by a slip.",
-    "D": "Used tan 30\u00b0 instead of tan 60\u00b0.",
+    "C": "Used 6 × tan 30° = 2√3 correctly but then added 3√3 by a slip.",
+    "D": "Used tan 30° instead of tan 60°.",
     "E": "Used the slant sides AB and AC instead of the base."
-   }
+   },
+   "detail": "Exact trig values in a composite triangle"
   },
   {
    "n": 21,
-   "topic": "Sectors and cones",
+   "topic": "Mensuration & 3D",
    "spec_refs": [
     "M5.15",
     "M5.16"
    ],
    "difficulty": 3,
-   "stem_html": "<p>A sector of a circle of radius 12 cm with angle 120<span class=\"deg\">\u00b0</span> is folded to make a cone (the two straight edges are joined). What is the vertical height of the cone?</p>",
+   "stem_html": "<p>A sector of a circle of radius 12 cm with angle 120<span class=\"deg\">°</span> is folded to make a cone (the two straight edges are joined). What is the vertical height of the cone?</p>",
    "diagram_svg": null,
    "options": {
     "A": "4 cm",
-    "B": "4<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> cm",
-    "C": "4<span class=\"rt\">\u221a<span class=\"ov\">5</span></span> cm",
+    "B": "4<span class=\"rt\">√<span class=\"ov\">2</span></span> cm",
+    "C": "4<span class=\"rt\">√<span class=\"ov\">5</span></span> cm",
     "D": "8 cm",
-    "E": "8<span class=\"rt\">\u221a<span class=\"ov\">2</span></span> cm"
+    "E": "8<span class=\"rt\">√<span class=\"ov\">2</span></span> cm"
    },
    "answer": "E",
-   "solution_html": "<p>Arc length = (120/360) \u00d7 2\u03c0 \u00d7 12 = 8\u03c0 = circumference of the base, so base radius = 4. Slant height = 12. Height = <span class=\"rt\">\u221a<span class=\"ov\">144 \u2212 16</span></span> = <span class=\"rt\">\u221a<span class=\"ov\">128</span></span> = <span class=\"key\">8<span class=\"rt\">\u221a<span class=\"ov\">2</span></span></span> cm.</p>",
+   "solution_html": "<p>Arc length = (120/360) × 2π × 12 = 8π = circumference of the base, so base radius = 4. Slant height = 12. Height = <span class=\"rt\">√<span class=\"ov\">144 − 16</span></span> = <span class=\"rt\">√<span class=\"ov\">128</span></span> = <span class=\"key\">8<span class=\"rt\">√<span class=\"ov\">2</span></span></span> cm.</p>",
    "traps": {
     "A": "This is the base radius.",
-    "B": "\u221a32 from 144 \u2212 16 misread as 32.",
-    "C": "\u221a80 from an arc-length slip giving radius 8.",
-    "D": "Used 12 \u2212 4."
-   }
+    "B": "√32 from 144 − 16 misread as 32.",
+    "C": "√80 from an arc-length slip giving radius 8.",
+    "D": "Used 12 − 4."
+   },
+   "detail": "Sectors and cones"
   },
   {
    "n": 22,
-   "topic": "Vectors",
+   "topic": "Coordinate geometry & vectors",
    "spec_refs": [
     "M5.19"
    ],
@@ -552,23 +573,24 @@
    "diagram_svg": null,
    "options": {
     "A": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>a</b> + <b>b</b>)",
-    "B": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>b</b> \u2212 2<b>a</b>)",
-    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>b</b> \u2212 <b>a</b>)",
-    "D": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>a</b> \u2212 <b>b</b>)",
-    "E": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>a</b> \u2212 <b>b</b>)"
+    "B": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>b</b> − 2<b>a</b>)",
+    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>b</b> − <b>a</b>)",
+    "D": "<span class=\"fr\"><span>1</span><span>3</span></span>(<b>a</b> − <b>b</b>)",
+    "E": "<span class=\"fr\"><span>1</span><span>3</span></span>(2<b>a</b> − <b>b</b>)"
    },
    "answer": "B",
-   "solution_html": "<p><b>OM</b> = \u00bd(<b>a</b> + <b>b</b>), <b>OP</b> = \u2154<b>OM</b> = \u2153(<b>a</b> + <b>b</b>). <b>AP</b> = <b>OP</b> \u2212 <b>a</b> = <span class=\"key\">\u2153(b \u2212 2a)</span>.</p>",
+   "solution_html": "<p><b>OM</b> = ½(<b>a</b> + <b>b</b>), <b>OP</b> = ⅔<b>OM</b> = ⅓(<b>a</b> + <b>b</b>). <b>AP</b> = <b>OP</b> − <b>a</b> = <span class=\"key\">⅓(b − 2a)</span>.</p>",
    "traps": {
     "A": "This is OP.",
-    "C": "Subtracted \u2153a instead of a.",
+    "C": "Subtracted ⅓a instead of a.",
     "D": "AM direction with the wrong scale.",
     "E": "PA, the reverse vector."
-   }
+   },
+   "detail": "Vectors"
   },
   {
    "n": 23,
-   "topic": "Means of subsets",
+   "topic": "Statistics & probability",
    "spec_refs": [
     "M6.3"
    ],
@@ -585,15 +607,16 @@
    "answer": "B",
    "solution_html": "<p>Total 60. Smallest four sum to 8, largest four to 44. Remaining two sum to 8, mean <span class=\"key\">4</span>.</p>",
    "traps": {
-    "A": "Slip in 60 \u2212 52.",
+    "A": "Slip in 60 − 52.",
     "C": "Averaged 2 and 11 with weighting error.",
     "D": "Assumed the middle pair has the overall mean.",
     "E": "The sum of the remaining two, not the mean."
-   }
+   },
+   "detail": "Means of subsets"
   },
   {
    "n": 24,
-   "topic": "Probability without replacement",
+   "topic": "Statistics & probability",
    "spec_refs": [
     "M7.7"
    ],
@@ -611,14 +634,15 @@
    "solution_html": "<p>P(RRB in a given order) = (5/8)(4/7)(3/6) = 60/336 = 5/28. Three orders: <span class=\"key\">15/28</span>.</p>",
    "traps": {
     "A": "One order only.",
-    "B": "Used 5/8 \u00b7 4/7 \u00b7 3/8 (replaced the last counter).",
+    "B": "Used 5/8 · 4/7 · 3/8 (replaced the last counter).",
     "C": "Two orders.",
     "D": "Miscounted the blue as 5/8."
-   }
+   },
+   "detail": "Probability without replacement"
   },
   {
    "n": 25,
-   "topic": "Conditional probability from a two-way table",
+   "topic": "Statistics & probability",
    "spec_refs": [
     "M7.7",
     "M7.5"
@@ -634,17 +658,18 @@
     "E": "<span class=\"fr\"><span>8</span><span>15</span></span>"
    },
    "answer": "A",
-   "solution_html": "<p>Both = 18 + 15 + 5 \u2212 30 = 8. P = 8/18 = <span class=\"key\">4/9</span>.</p>",
+   "solution_html": "<p>Both = 18 + 15 + 5 − 30 = 8. P = 8/18 = <span class=\"key\">4/9</span>.</p>",
    "traps": {
     "B": "8/25, conditioned on 'studies at least one'.",
     "C": "8/30, not conditioned on French.",
     "D": "Guess.",
     "E": "8/15, conditioned on Spanish instead."
-   }
+   },
+   "detail": "Conditional probability from a two-way table"
   },
   {
    "n": 26,
-   "topic": "Possibility spaces",
+   "topic": "Statistics & probability",
    "spec_refs": [
     "M7.6",
     "M2.5"
@@ -660,17 +685,18 @@
     "E": "<span class=\"fr\"><span>5</span><span>12</span></span>"
    },
    "answer": "E",
-   "solution_html": "<p>Pairs containing a 6: 6 + 6 \u2212 1 = 11. Pairs with no 6 whose product is a multiple of 6 need a 3 and an even number from {2, 4}: (2, 3), (3, 2), (4, 3), (3, 4): 4 more. 15/36 = <span class=\"key\">5/12</span>.</p>",
+   "solution_html": "<p>Pairs containing a 6: 6 + 6 − 1 = 11. Pairs with no 6 whose product is a multiple of 6 need a 3 and an even number from {2, 4}: (2, 3), (3, 2), (4, 3), (3, 4): 4 more. 15/36 = <span class=\"key\">5/12</span>.</p>",
    "traps": {
     "A": "9/36: missed some pairs.",
     "B": "Only counted pairs with a 6.",
     "C": "12/36: missed one pair.",
     "D": "14/36: missed one pair."
-   }
+   },
+   "detail": "Possibility spaces"
   },
   {
    "n": 27,
-   "topic": "Prime factorisation: squares and cubes",
+   "topic": "Number",
    "spec_refs": [
     "M2.3",
     "M2.6"
@@ -686,13 +712,14 @@
     "E": "144"
    },
    "answer": "C",
-   "solution_html": "<p>Let <span class=\"math\">N</span> = 2<sup><span class=\"math\">a</span></sup>3<sup><span class=\"math\">b</span></sup>. 2<span class=\"math\">N</span> square: <span class=\"math\">a</span> + 1 even, <span class=\"math\">b</span> even. 3<span class=\"math\">N</span> cube: <span class=\"math\">a</span> a multiple of 3, <span class=\"math\">b</span> + 1 a multiple of 3.</p><p>Smallest: <span class=\"math\">a</span> = 3, <span class=\"math\">b</span> = 2. <span class=\"math\">N</span> = 8 \u00d7 9 = <span class=\"key\">72</span>. Check: 144 = 12<sup>2</sup>, 216 = 6<sup>3</sup>.</p>",
+   "solution_html": "<p>Let <span class=\"math\">N</span> = 2<sup><span class=\"math\">a</span></sup>3<sup><span class=\"math\">b</span></sup>. 2<span class=\"math\">N</span> square: <span class=\"math\">a</span> + 1 even, <span class=\"math\">b</span> even. 3<span class=\"math\">N</span> cube: <span class=\"math\">a</span> a multiple of 3, <span class=\"math\">b</span> + 1 a multiple of 3.</p><p>Smallest: <span class=\"math\">a</span> = 3, <span class=\"math\">b</span> = 2. <span class=\"math\">N</span> = 8 × 9 = <span class=\"key\">72</span>. Check: 144 = 12<sup>2</sup>, 216 = 6<sup>3</sup>.</p>",
    "traps": {
-    "A": "2 \u00d7 18 = 36 is square but 3 \u00d7 18 = 54 is not a cube.",
-    "B": "2 \u00d7 36 = 72 is not a square.",
-    "D": "3 \u00d7 108 = 324 is not a cube.",
-    "E": "2 \u00d7 144 = 288 is not a square."
-   }
+    "A": "2 × 18 = 36 is square but 3 × 18 = 54 is not a cube.",
+    "B": "2 × 36 = 72 is not a square.",
+    "D": "3 × 108 = 324 is not a cube.",
+    "E": "2 × 144 = 288 is not a square."
+   },
+   "detail": "Prime factorisation: squares and cubes"
   }
  ],
  "rebalanced": true
