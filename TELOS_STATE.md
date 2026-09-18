@@ -152,9 +152,14 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
    promises the same for material changes to the terms. `mailer.py` sends one
    message at a time and nothing iterates the user table. That promise cannot
    currently be kept — build the path before the first repricing, not during.
-11. **Buy one Exam Mode paper with a real card.** The £1 checkout mirrors
-   the mock-paper flow that IS proven live, but that path has never taken a
-   payment itself. It needs a SECOND account — the founder account is
+11. **Buy one Exam Mode paper with a real card.** Still outstanding, and
+   narrower than it was: on 2026-09-18 the owner bought the £1 question bank
+   with a real card and it worked end to end — live charge, `purchases` row,
+   download unlocked (user 1295, `cs_live_a1Dghs…`). That proves the
+   **marketplace** path. `exam_purchases` is still empty, so the Exam Mode
+   £1 checkout has taken no money yet. Same shape, different route and
+   different table; the £1 checkout mirrors the mock-paper flow that IS now
+   proven live, but that path has never taken a payment itself. It needs a SECOND account — the founder account is
    grandfathered Pro and is never offered a purchase. Confirm the charge reads
    £1, that the paper unlocks, and that a refund does not silently leave it
    unlocked.

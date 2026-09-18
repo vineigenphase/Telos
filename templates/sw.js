@@ -20,7 +20,19 @@ const CACHE_NAME = "telos-" + CACHE_VERSION;
 //
 // Found in phase 5 QA: the state restored correctly from the server while the
 // page in the browser showed none of it.
-const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout", "/exam"];
+// /mocks is here for both of the reasons above at once, found 2026-09-18.
+//
+// The page shows what you own, and ownership changes the moment you buy. Coming
+// back to a cached copy shows "Buy" against a paper already paid for, which
+// reads as the payment having failed.
+//
+// And /mocks/<id>/download shares the prefix. A click on it is a NAVIGATION, so
+// the code below was intercepting it, fetching the whole PDF, cloning it, and
+// writing the clone into the cache before handing any of it to the browser —
+// a multi-megabyte round trip through the cache API on every download, which is
+// what made going back to the page feel broken.
+const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout",
+                              "/exam", "/mocks"];
 
 // How long a navigation waits for the network before falling back to the copy
 // we already have. This is the fix for the cold open: Railway may be starting a
