@@ -528,3 +528,29 @@ document.addEventListener('submit', e => {
   grid.addEventListener('change', sync);
   sync();
 })();
+
+// ── Pages that must not come back stale from the back button ────────────────
+//
+// The back/forward cache restores a page exactly as it was — same DOM, no
+// network, and the service worker never consulted. That is the right default
+// for reading, and wrong for any page that shows what you own: buy a paper,
+// download it, press back, and the restored page still says "Buy £1.00"
+// against something already paid for. It reads as the payment having failed.
+//
+// So those pages opt in, with data-revalidate, and reload when they are
+// restored. `persisted` is the documented signal and is enough on Chrome and
+// Safari; the navigation type is checked as well because a back navigation
+// served from the HTTP cache is the same problem without the same flag.
+(function () {
+  if (!document.querySelector('[data-revalidate]')) return;
+
+  window.addEventListener('pageshow', function (e) {
+    var nav = null;
+    try {
+      nav = (performance.getEntriesByType('navigation') || [])[0];
+    } catch (err) { /* unsupported; persisted alone will have to do */ }
+    if (e.persisted || (nav && nav.type === 'back_forward')) {
+      window.location.reload();
+    }
+  });
+})();
