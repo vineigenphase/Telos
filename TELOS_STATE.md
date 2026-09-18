@@ -40,7 +40,7 @@ Pro tier = prediction and prescription.
 | DNS | Cloudflare. Apex CNAME-flattened to Railway. **Records must stay DNS-only (grey cloud)** or Railway cert validation breaks |
 | Email | Resend, sending as `noreply@telosapp.co.uk`, DKIM/SPF/MX verified |
 | Exam Mode | 8 tables (`exam_papers`, `exam_questions`, `exam_attempts`, `exam_responses`, `exam_purchases`, `exam_scale_anchors`, `exam_spec_refs`), migrations 041-043. Five Mock A papers published, 121 questions, £1 each |
-| Admissions papers | 16 official ENGAA/NSAA PDFs on the volume at `STORAGE_DIR/admissions`, uploaded through `/admin/admissions/papers` — **never committed**. `scripts/admissions/answer_keys.json` (tracked) is what marks them. The 9 TMUA papers are not held yet |
+| Admissions papers | All 34 official PDFs on the volume at `STORAGE_DIR/admissions` — 16 ENGAA/NSAA (one per sitting) and 18 TMUA (one per paper) — uploaded through `/admin/admissions/papers`, **never committed**. `scripts/admissions/answer_keys.json` (tracked, 25 keys) is what marks them. Free to every signed-in student |
 | Payments | Stripe, **live mode** since 2026-08-28. Full lifecycle verified with a real card — charge, webhook, Pro granted, cancel, access removed. 7-day free trial, card up front. Re-checked 2026-09-16 with `scripts/check_stripe.py`: `READY`, both prices on `prod_V9MGf8ekk9ZPDp`, webhook enabled with all 7 events, portal configured |
 | Git auth | Repo-scoped PAT in Windows Credential Manager, so `git push` just works |
 

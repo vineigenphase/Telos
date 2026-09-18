@@ -874,3 +874,18 @@ html { scroll-behavior: smooth; }
 
 /* Set by the script when an element has finished arriving. */
 .reveal.settled, .lp-device.settled { will-change: auto; }
+
+/* The line under the tutoring button, explaining what the link will do before
+   it hijacks their mail client. A mailto that opens a half-written email is a
+   pleasant surprise only if you were expecting it. */
+.lp-tutor-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 12px;
+}
+.lp-tutor-note a { color: var(--accent); text-decoration: none; }
+
+@media (hover: hover) {
+  .lp-tutor-note a:hover { text-decoration: underline; }
+}

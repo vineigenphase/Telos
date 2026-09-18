@@ -606,15 +606,36 @@
           </ul>
         </div>
 
+        {# The draft is written out here rather than assembled in JavaScript so
+           that it works with the link disabled, copies correctly, and can be
+           read in the page source. `urlencode` handles the newlines and the
+           brackets; writing the body flush-left matters, because anything
+           indented inside a {% raw %}{% set %}{% endraw %} block is indentation in the email. #}
+{% set tutor_body %}Hi,
+
+I am reaching out for (one-to-one tutoring / personal statement review / revision mentoring / other) — delete whichever do not apply.
+
+Where I am up to:
+
+
+Thanks,
+{% endset %}
         <div class="lp-tutor-card lp-tutor-cta-card">
-          <h3 class="lp-tutor-h">Book a free call</h3>
+          <h3 class="lp-tutor-h">Send an email</h3>
           <p class="lp-tutor-p">
-            Twenty minutes, no charge and no obligation — where you are, what
-            you are aiming at, and whether any of this would help.
+            Tell me what you are after and roughly where you are up to. A first
+            conversation is twenty minutes, no charge and no obligation.
           </p>
-          <a class="btn btn-primary" href="mailto:{{ tutoring_email }}?subject=Telos%20tutoring%20%E2%80%94%20free%20call">
-            Book a free call
+          <a class="btn btn-primary"
+             href="mailto:{{ tutoring_email }}?subject={{ 'Telos — tutoring enquiry'|urlencode }}&amp;body={{ tutor_body|urlencode }}">
+            Send an email
           </a>
+          <p class="lp-tutor-note">
+            Opens your email app with a draft ready — pick the one you want from
+            the brackets and send it. Or write to
+            <a href="mailto:{{ tutoring_email }}">{{ tutoring_email }}</a>
+            yourself.
+          </p>
         </div>
       </div>
     </div>
