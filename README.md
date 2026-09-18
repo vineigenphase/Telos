@@ -270,7 +270,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~4,200 lines of hand-written CSS and 1122 of vanilla JS.
+no CSS framework — ~4,200 lines of hand-written CSS and 1148 of vanilla JS.
 
 ---
 
