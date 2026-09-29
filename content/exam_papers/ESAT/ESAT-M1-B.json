@@ -1,0 +1,772 @@
+{
+ "paper_code": "ESAT-M1-B",
+ "family": "ESAT",
+ "module": "M1",
+ "short": "ESAT Mathematics 1",
+ "title": "Mathematics 1",
+ "series": "Telos Mock B",
+ "spec_version": "2026-27",
+ "duration_sec": 2400,
+ "marks_per_question": 1,
+ "family_marks": 27,
+ "rebalanced": true,
+ "target_note": "27 questions in 40 minutes, so about ninety seconds each. Nothing here is beyond GCSE; the difficulty is entirely in choosing the short route, and most questions have an obvious method that will not fit in the time.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Number",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Work out <span class=\"fr\"><span>3 × 10<sup>8</sup></span><span>1.5 × 10<sup>−3</sup></span></span>, giving your answer in standard form.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2 × 10<sup>−11</sup>",
+    "B": "2 × 10<sup>5</sup>",
+    "C": "2 × 10<sup>11</sup>",
+    "D": "4.5 × 10<sup>5</sup>",
+    "E": "2 × 10<sup>24</sup>",
+    "F": "4.5 × 10<sup>11</sup>"
+   },
+   "answer": "C",
+   "solution_html": "<p>Divide the numbers and subtract the indices: 3 ÷ 1.5 = 2, and 8 − (−3) = 11.</p><p>So the answer is <span class=\"key\">2 × 10¹¹</span>.</p><p class='trap'>Subtracting a negative index is where this is won or lost. 8 − (−3) = 11, not 5.</p>",
+   "traps": {
+    "A": "The sign of the index has been lost.",
+    "B": "8 − 3 rather than 8 − (−3).",
+    "D": "3 × 1.5 instead of 3 ÷ 1.5, and the index subtracted wrongly.",
+    "E": "The indices multiplied rather than subtracted.",
+    "F": "Right index, but 3 × 1.5 instead of 3 ÷ 1.5."
+   },
+   "detail": "Standard form division"
+  },
+  {
+   "n": 2,
+   "topic": "Number",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Two positive integers have highest common factor 6 and lowest common multiple 180.</p><p>One of them is 30. What is the other?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "6",
+    "B": "18",
+    "C": "24",
+    "D": "30",
+    "E": "36",
+    "F": "60"
+   },
+   "answer": "E",
+   "solution_html": "<p>For any two positive integers, HCF × LCM = their product.</p><p>So the product is 6 × 180 = 1080, and the other number is 1080 ÷ 30 = <span class=\"key\">36</span>.</p><p>Check: HCF(30, 36) = 6 ✓ and LCM(30, 36) = 180 ✓.</p><p class='trap'>Listing multiples of 30 until one has the right HCF works and takes four times as long. The product rule is one line.</p>",
+   "traps": {
+    "A": "HCF(30, 6) = 6, but LCM(30, 6) = 30.",
+    "B": "HCF(30, 18) = 6, but LCM(30, 18) = 90.",
+    "C": "HCF(30, 24) = 6, but LCM(30, 24) = 120.",
+    "D": "HCF(30, 30) = 30, not 6.",
+    "F": "HCF(30, 60) = 30, not 6."
+   },
+   "detail": "HCF and LCM together"
+  },
+  {
+   "n": 3,
+   "topic": "Number",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Write 0.4̉5̉ (that is, 0.454545…) as a fraction in its simplest form.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>5</span><span>11</span></span>",
+    "B": "<span class=\"fr\"><span>9</span><span>20</span></span>",
+    "C": "<span class=\"fr\"><span>45</span><span>100</span></span>",
+    "D": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "E": "<span class=\"fr\"><span>5</span><span>9</span></span>",
+    "F": "<span class=\"fr\"><span>41</span><span>90</span></span>"
+   },
+   "answer": "A",
+   "solution_html": "<p>Two digits repeat, so the denominator is 99: 0.4̉5̉ = <span class=\"fr\"><span>45</span><span>99</span></span>.</p><p>Divide top and bottom by 9: <span class=\"key\"><span class=\"fr\"><span>5</span><span>11</span></span></span>.</p><p class='trap'>A repeating block of length 2 gives 99, not 100 and not 90. 90 is for one fixed digit followed by one repeating.</p>",
+   "traps": {
+    "B": "0.45 exactly, not the recurring decimal.",
+    "C": "0.45 exactly, unsimplified.",
+    "D": "A rounding, not the exact value.",
+    "E": "That is 0.5 recurring.",
+    "F": "That is 0.45 with only the 5 recurring."
+   },
+   "detail": "Recurring decimal to a fraction"
+  },
+  {
+   "n": 4,
+   "topic": "Number",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A rectangle measures 8.2 cm by 5.6 cm, each correct to 1 decimal place.</p><p>What is the upper bound for its area, in cm<sup>2</sup>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "45.92",
+    "B": "46.0",
+    "C": "46.2875",
+    "D": "46.6125",
+    "E": "47.0",
+    "F": "50.16"
+   },
+   "answer": "D",
+   "solution_html": "<p>To 1 d.p., 8.2 lies in [8.15, 8.25) and 5.6 in [5.55, 5.65).</p><p>The largest area uses both upper bounds: 8.25 × 5.65 = <span class=\"key\">46.6125</span>.</p><p class='trap'>The bounds are ±0.05, not ±0.1. Using 8.3 and 5.7 gives 47.31 and is the commonest slip.</p>",
+   "traps": {
+    "A": "8.2 × 5.6 — the area itself, not an upper bound.",
+    "B": "A rounding of the area, not a bound.",
+    "C": "8.15 × 5.65: one lower bound and one upper.",
+    "E": "A guess between the bounds.",
+    "F": "8.8 × 5.7, using ±0.5 and ±0.1."
+   },
+   "detail": "Upper bound of an area"
+  },
+  {
+   "n": 5,
+   "topic": "Number",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the smallest positive integer <span class=\"math\">n</span> such that 360<span class=\"math\">n</span> is a perfect cube?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3",
+    "B": "15",
+    "C": "25",
+    "D": "45",
+    "E": "50",
+    "F": "75"
+   },
+   "answer": "F",
+   "solution_html": "<p>360 = 2<sup>3</sup> × 3<sup>2</sup> × 5.</p><p>For a cube every index must be a multiple of 3. The 2s are already fine; the 3s need one more, and the 5s need two more.</p><p>So <span class=\"math\">n</span> = 3 × 5<sup>2</sup> = <span class=\"key\">75</span>, and 360 × 75 = 27000 = 30<sup>3</sup>.</p><p class='trap'>Trying values in turn is hopeless — the answer is the 75th one you would try. Factorise first and the whole question is three indices.</p>",
+   "traps": {
+    "A": "Fixes the 3s and leaves the 5s at index 2.",
+    "B": "3 × 5 leaves the 5s at index 2.",
+    "C": "Fixes the 5s and leaves the 3s at index 2.",
+    "D": "3² × 5 overshoots the 3s and undershoots the 5s.",
+    "E": "2 × 5² disturbs the 2s, which were already correct."
+   },
+   "detail": "Making a cube by prime factors"
+  },
+  {
+   "n": 6,
+   "topic": "Ratio, proportion & percentages",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A coat is reduced by 20%, and the reduced price is then cut by a further 10%. It now costs £72.</p><p>What was the original price?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "£80",
+    "B": "£90",
+    "C": "£96",
+    "D": "£100",
+    "E": "£102.60",
+    "F": "£110"
+   },
+   "answer": "D",
+   "solution_html": "<p>The two reductions multiply: 0.8 × 0.9 = 0.72 of the original.</p><p>So the original is 72 ÷ 0.72 = <span class=\"key\">£100</span>.</p><p class='trap'>The reductions are not 30% together — that would give 72 ÷ 0.7 = £102.86, which is why option E is there.</p>",
+   "traps": {
+    "A": "72 ÷ 0.9 only — one reduction reversed, not both.",
+    "B": "72 ÷ 0.8 only.",
+    "C": "72 × 1.2 × 1.1 — adding the percentages back on rather than dividing.",
+    "E": "Treating the reductions as a single 30% cut.",
+    "F": "A rounding of the same error."
+   },
+   "detail": "Two successive reductions, reversed"
+  },
+  {
+   "n": 7,
+   "topic": "Ratio, proportion & percentages",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">y</span> is inversely proportional to <span class=\"math\">x</span><sup>2</sup>. When <span class=\"math\">x</span> = 3, <span class=\"math\">y</span> = 8.</p><p>What is <span class=\"math\">y</span> when <span class=\"math\">x</span> = 6?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "2",
+    "C": "4",
+    "D": "8",
+    "E": "16",
+    "F": "32"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">y</span> = <span class=\"fr\"><span>k</span><span><span class=\"math\">x</span><sup>2</sup></span></span>, and 8 = <span class=\"fr\"><span>k</span><span>9</span></span> gives k = 72.</p><p>At <span class=\"math\">x</span> = 6: <span class=\"math\">y</span> = <span class=\"fr\"><span>72</span><span>36</span></span> = <span class=\"key\">2</span>.</p><p class='trap'>Doubling <span class=\"math\">x</span> divides <span class=\"math\">y</span> by 4, not by 2. Once you see that, the constant is never needed.</p>",
+   "traps": {
+    "A": "Dividing by 8 rather than by 4.",
+    "C": "Treating it as inversely proportional to x, so halving y.",
+    "D": "No change — the proportion ignored.",
+    "E": "Doubling y, as though it were directly proportional.",
+    "F": "Multiplying by 4 instead of dividing."
+   },
+   "detail": "Inverse proportion to a square"
+  },
+  {
+   "n": 8,
+   "topic": "Ratio, proportion & percentages",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The activity of a sample halves every 4 years.</p><p>What fraction of the original activity remains after 12 years?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>16</span></span>",
+    "B": "<span class=\"fr\"><span>1</span><span>12</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>8</span></span>",
+    "D": "<span class=\"fr\"><span>1</span><span>6</span></span>",
+    "E": "<span class=\"fr\"><span>1</span><span>4</span></span>",
+    "F": "<span class=\"fr\"><span>1</span><span>3</span></span>"
+   },
+   "answer": "C",
+   "solution_html": "<p>12 years is three half-lives.</p><p>(<span class=\"fr\"><span>1</span><span>2</span></span>)<sup>3</sup> = <span class=\"key\"><span class=\"fr\"><span>1</span><span>8</span></span></span>.</p><p class='trap'>Twelve years and a four-year half-life invite dividing 12 by 2 or halving 12 — both give an answer in the list.</p>",
+   "traps": {
+    "A": "Four half-lives rather than three.",
+    "B": "Dividing by 12, not halving three times.",
+    "D": "Halving 12 years and then reading off, rather than counting half-lives.",
+    "E": "Two half-lives.",
+    "F": "Dividing the 12 years by the 4-year half-life and using it directly."
+   },
+   "detail": "Repeated halving"
+  },
+  {
+   "n": 9,
+   "topic": "Algebra & sequences",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Simplify <span class=\"fr\"><span><span class=\"math\">x</span><sup>2</sup> − 9</span><span><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">x</span> − 12</span></span>.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span> + 4</span></span>",
+    "B": "<span class=\"fr\"><span><span class=\"math\">x</span> − 3</span><span><span class=\"math\">x</span> − 4</span></span>",
+    "C": "<span class=\"fr\"><span>3</span><span><span class=\"math\">x</span> − 4</span></span>",
+    "D": "<span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span> − 4</span></span>",
+    "E": "<span class=\"fr\"><span>9</span><span><span class=\"math\">x</span> − 12</span></span>",
+    "F": "<span class=\"fr\"><span><span class=\"math\">x</span> − 3</span><span><span class=\"math\">x</span> + 4</span></span>"
+   },
+   "answer": "A",
+   "solution_html": "<p>Top: <span class=\"math\">x</span><sup>2</sup> − 9 = (<span class=\"math\">x</span>−3)(<span class=\"math\">x</span>+3).</p><p>Bottom: <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">x</span> − 12 = (<span class=\"math\">x</span>−3)(<span class=\"math\">x</span>+4).</p><p>The (<span class=\"math\">x</span>−3) cancels, leaving <span class=\"key\"><span class=\"fr\"><span><span class=\"math\">x</span> + 3</span><span><span class=\"math\">x</span> + 4</span></span></span>.</p><p class='trap'>Both factorisations share (<span class=\"math\">x</span>−3), which is the only reason the fraction simplifies at all. Spot that and you can skip multiplying anything out.</p>",
+   "traps": {
+    "B": "Cancelling the wrong pair of brackets.",
+    "C": "Cancelling the x² terms, which is not allowed in a sum.",
+    "D": "One factor kept from each of the wrong brackets.",
+    "E": "Cancelling term by term rather than by factors.",
+    "F": "The two numerator factors swapped."
+   },
+   "detail": "Simplifying an algebraic fraction"
+  },
+  {
+   "n": 10,
+   "topic": "Algebra & sequences",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">y</span> = <span class=\"fr\"><span>2<span class=\"math\">x</span> + 1</span><span><span class=\"math\">x</span> − 3</span></span>.</p><p>Make <span class=\"math\">x</span> the subject.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">x</span> = <span class=\"fr\"><span>3<span class=\"math\">y</span> + 1</span><span><span class=\"math\">y</span> − 2</span></span>",
+    "B": "<span class=\"math\">x</span> = <span class=\"fr\"><span><span class=\"math\">y</span> + 1</span><span>2<span class=\"math\">y</span> − 3</span></span>",
+    "C": "<span class=\"math\">x</span> = <span class=\"fr\"><span>3<span class=\"math\">y</span> − 1</span><span><span class=\"math\">y</span> + 2</span></span>",
+    "D": "<span class=\"math\">x</span> = <span class=\"fr\"><span><span class=\"math\">y</span> − 1</span><span><span class=\"math\">y</span> − 2</span></span>",
+    "E": "<span class=\"math\">x</span> = <span class=\"fr\"><span>2<span class=\"math\">y</span> + 1</span><span><span class=\"math\">y</span> − 3</span></span>",
+    "F": "<span class=\"math\">x</span> = <span class=\"fr\"><span>3<span class=\"math\">y</span> + 1</span><span><span class=\"math\">y</span> + 2</span></span>"
+   },
+   "answer": "A",
+   "solution_html": "<p>Multiply up: <span class=\"math\">y</span>(<span class=\"math\">x</span> − 3) = 2<span class=\"math\">x</span> + 1, so <span class=\"math\">x</span><span class=\"math\">y</span> − 3<span class=\"math\">y</span> = 2<span class=\"math\">x</span> + 1.</p><p>Collect the <span class=\"math\">x</span> terms on one side: <span class=\"math\">x</span><span class=\"math\">y</span> − 2<span class=\"math\">x</span> = 3<span class=\"math\">y</span> + 1, so <span class=\"math\">x</span>(<span class=\"math\">y</span> − 2) = 3<span class=\"math\">y</span> + 1.</p><p>Hence <span class=\"key\">x = (3y + 1)/(y − 2)</span>.</p><p class='trap'>The <span class=\"math\">x</span> appears on both sides after multiplying up, so it has to be factored out. Anyone who divides too early loses a term.</p>",
+   "traps": {
+    "B": "The 2 and 3 have swapped sides.",
+    "C": "Sign error when collecting: it is 3y + 1, not 3y − 1.",
+    "D": "The coefficients 2 and 3 have been dropped entirely.",
+    "E": "This is the original with x and y simply swapped.",
+    "F": "Sign error in the denominator: y − 2, not y + 2."
+   },
+   "detail": "Changing the subject with x on both sides"
+  },
+  {
+   "n": 11,
+   "topic": "Algebra & sequences",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many points of intersection do the line <span class=\"math\">y</span> = <span class=\"math\">x</span> + 1 and the circle <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 25 have?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "C",
+   "solution_html": "<p>Substitute: <span class=\"math\">x</span><sup>2</sup> + (<span class=\"math\">x</span>+1)<sup>2</sup> = 25, so 2<span class=\"math\">x</span><sup>2</sup> + 2<span class=\"math\">x</span> − 24 = 0, that is <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">x</span> − 12 = 0.</p><p>(<span class=\"math\">x</span>+4)(<span class=\"math\">x</span>−3) = 0 gives <span class=\"math\">x</span> = −4 and <span class=\"math\">x</span> = 3: <span class=\"key\">2</span> points.</p><p class='trap'>The discriminant alone answers it: 1 + 48 = 49 &gt; 0, so two. No need to find the points at all.</p>",
+   "traps": {
+    "A": "The discriminant is positive, so the line does cut the circle.",
+    "B": "One would mean a tangent; the discriminant is not zero.",
+    "D": "A line and a circle can meet at most twice.",
+    "E": "A line and a circle can meet at most twice.",
+    "F": "Only if the 'line' were the circle itself."
+   },
+   "detail": "A line meeting a circle"
+  },
+  {
+   "n": 12,
+   "topic": "Algebra & sequences",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A sequence begins 2, 7, 16, 29, … and the second differences are constant.</p><p>What is the tenth term?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "137",
+    "B": "155",
+    "C": "172",
+    "D": "180",
+    "E": "191",
+    "F": "211"
+   },
+   "answer": "E",
+   "solution_html": "<p>First differences: 5, 9, 13 — second difference 4, so the <span class=\"math\">n</span>th term is 2<span class=\"math\">n</span><sup>2</sup> + b<span class=\"math\">n</span> + c.</p><p><span class=\"math\">n</span> = 1 gives 2 + b + c = 2; <span class=\"math\">n</span> = 2 gives 8 + 2b + c = 7. Subtracting: b = −1, so c = 1.</p><p>Tenth term: 2(100) − 10 + 1 = <span class=\"key\">191</span>.</p><p class='trap'>Extending the sequence by hand to ten terms also works and takes about a minute — half your budget for two questions. The second difference gives the leading coefficient immediately: it is half of 4.</p>",
+   "traps": {
+    "A": "Leading coefficient taken as the second difference itself, not half of it.",
+    "B": "An arithmetic slip extending the sequence term by term.",
+    "C": "The ninth term.",
+    "D": "2n² − n with the +1 dropped, at n = 10.",
+    "F": "The eleventh term."
+   },
+   "detail": "Quadratic sequence, tenth term"
+  },
+  {
+   "n": 13,
+   "topic": "Coordinate geometry & vectors",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many pairs of positive integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy 2<span class=\"math\">x</span> + 3<span class=\"math\">y</span> &lt; 12?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "5",
+    "F": "7"
+   },
+   "answer": "F",
+   "solution_html": "<p>Both are at least 1, so go through <span class=\"math\">y</span>:</p><p><span class=\"math\">y</span> = 1: 2<span class=\"math\">x</span> &lt; 9, so <span class=\"math\">x</span> = 1, 2, 3, 4 — four.<br><span class=\"math\">y</span> = 2: 2<span class=\"math\">x</span> &lt; 6, so <span class=\"math\">x</span> = 1, 2 — two.<br><span class=\"math\">y</span> = 3: 2<span class=\"math\">x</span> &lt; 3, so <span class=\"math\">x</span> = 1 — one.<br><span class=\"math\">y</span> ≥ 4 leaves nothing.</p><p>Total <span class=\"key\">7</span>.</p><p class='trap'>'Positive' excludes zero. Allowing <span class=\"math\">x</span> or <span class=\"math\">y</span> to be 0 adds eight more and gives 15.</p>",
+   "traps": {
+    "A": "Only the y = 3 case counted.",
+    "B": "Only the y = 2 cases counted.",
+    "C": "The y = 1 cases undercounted.",
+    "D": "Only the y = 1 cases counted.",
+    "E": "The y = 3 case and one y = 2 pair dropped."
+   },
+   "detail": "Counting lattice points"
+  },
+  {
+   "n": 14,
+   "topic": "Coordinate geometry & vectors",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A line passes through (2, 5) and is perpendicular to 3<span class=\"math\">x</span> + 4<span class=\"math\">y</span> = 7.</p><p>Where does it cross the <span class=\"math\">x</span>-axis?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "(−<span class=\"fr\"><span>7</span><span>4</span></span>, 0)",
+    "B": "(−<span class=\"fr\"><span>3</span><span>4</span></span>, 0)",
+    "C": "(<span class=\"fr\"><span>3</span><span>4</span></span>, 0)",
+    "D": "(<span class=\"fr\"><span>7</span><span>4</span></span>, 0)",
+    "E": "(<span class=\"fr\"><span>23</span><span>4</span></span>, 0)",
+    "F": "(<span class=\"fr\"><span>15</span><span>4</span></span>, 0)"
+   },
+   "answer": "A",
+   "solution_html": "<p>3<span class=\"math\">x</span> + 4<span class=\"math\">y</span> = 7 has gradient −<span class=\"fr\"><span>3</span><span>4</span></span>, so the perpendicular has gradient <span class=\"fr\"><span>4</span><span>3</span></span>.</p><p>Through (2, 5): <span class=\"math\">y</span> − 5 = <span class=\"fr\"><span>4</span><span>3</span></span>(<span class=\"math\">x</span> − 2).</p><p>Setting <span class=\"math\">y</span> = 0: −5 = <span class=\"fr\"><span>4</span><span>3</span></span>(<span class=\"math\">x</span> − 2), so <span class=\"math\">x</span> − 2 = −<span class=\"fr\"><span>15</span><span>4</span></span> and <span class=\"math\">x</span> = <span class=\"key\">−<span class=\"fr\"><span>7</span><span>4</span></span></span>.</p><p class='trap'>The negative reciprocal is <span class=\"fr\"><span>4</span><span>3</span></span>, not −<span class=\"fr\"><span>4</span><span>3</span></span> and not <span class=\"fr\"><span>3</span><span>4</span></span>. Two of the wrong options come from each of those.</p>",
+   "traps": {
+    "B": "Using gradient −4/3 instead of 4/3.",
+    "C": "Using the original gradient rather than the perpendicular one.",
+    "D": "The right magnitude with the sign lost.",
+    "E": "Solving for y = 0 but adding 15/4 instead of subtracting.",
+    "F": "The value of x − 2, not of x."
+   },
+   "detail": "Perpendicular line, x-intercept"
+  },
+  {
+   "n": 15,
+   "topic": "Coordinate geometry & vectors",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the distance between (−3, 2) and (5, −4)?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"rt\">√<span class=\"ov\">28</span></span>",
+    "B": "8",
+    "C": "10",
+    "D": "2<span class=\"rt\">√<span class=\"ov\">34</span></span>",
+    "E": "14",
+    "F": "100"
+   },
+   "answer": "C",
+   "solution_html": "<p>Differences: 5 − (−3) = 8 and −4 − 2 = −6.</p><p>Distance = <span class=\"rt\">√<span class=\"ov\">8<sup>2</sup> + 6<sup>2</sup></span></span> = <span class=\"rt\">√<span class=\"ov\">100</span></span> = <span class=\"key\">10</span>.</p><p class='trap'>8 and 6 is the 3-4-5 triangle doubled. Recognising it saves the square root entirely.</p>",
+   "traps": {
+    "A": "Subtracting the coordinates the wrong way round somewhere.",
+    "B": "Only the horizontal difference.",
+    "D": "√136, from using 10 and 6 as the differences.",
+    "E": "8 + 6 — adding the differences rather than using Pythagoras.",
+    "F": "The square of the distance."
+   },
+   "detail": "Distance between two points"
+  },
+  {
+   "n": 16,
+   "topic": "Coordinate geometry & vectors",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">OACB</span> is a parallelogram with <span class=\"math\">OA</span> = <strong>a</strong> and <span class=\"math\">OB</span> = <strong>b</strong>. <span class=\"math\">M</span> is the midpoint of <span class=\"math\">AC</span>.</p><p>What is <span class=\"math\">OM</span> in terms of <strong>a</strong> and <strong>b</strong>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<strong>a</strong> + <strong>b</strong>",
+    "B": "<strong>a</strong> + <span class=\"fr\"><span>1</span><span>2</span></span><strong>b</strong>",
+    "C": "<span class=\"fr\"><span>1</span><span>2</span></span><strong>a</strong> + <strong>b</strong>",
+    "D": "<span class=\"fr\"><span>1</span><span>2</span></span>(<strong>a</strong> + <strong>b</strong>)",
+    "E": "<strong>a</strong> − <span class=\"fr\"><span>1</span><span>2</span></span><strong>b</strong>",
+    "F": "<span class=\"fr\"><span>1</span><span>2</span></span><strong>a</strong> + <span class=\"fr\"><span>1</span><span>2</span></span><strong>b</strong>"
+   },
+   "answer": "B",
+   "solution_html": "<p>In the parallelogram, <span class=\"math\">OC</span> = <strong>a</strong> + <strong>b</strong>.</p><p><span class=\"math\">M</span> is halfway from <span class=\"math\">A</span> to <span class=\"math\">C</span>, and <span class=\"math\">AC</span> = <strong>b</strong>, so <span class=\"math\">OM</span> = <strong>a</strong> + <span class=\"fr\"><span>1</span><span>2</span></span><strong>b</strong> — that is <span class=\"key\">a + ½b</span>.</p><p class='trap'>D and F are the same vector, and both give the midpoint of <span class=\"math\">OC</span> — the centre of the parallelogram, not the midpoint of <span class=\"math\">AC</span>.</p>",
+   "traps": {
+    "A": "That is OC, the far corner.",
+    "C": "a and b swapped.",
+    "D": "The centre of the parallelogram, which is the midpoint of OC.",
+    "E": "Subtracting rather than adding half of b.",
+    "F": "Same as D, written differently."
+   },
+   "detail": "Vector to a midpoint"
+  },
+  {
+   "n": 17,
+   "topic": "Geometry, angles & trigonometry",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A regular polygon has interior angles of 156°.</p><p>How many sides does it have?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "15",
+    "B": "18",
+    "C": "20",
+    "D": "24",
+    "E": "30",
+    "F": "36"
+   },
+   "answer": "A",
+   "solution_html": "<p>Each exterior angle is 180 − 156 = 24°.</p><p>Exterior angles of any polygon add to 360°, so there are 360 ÷ 24 = <span class=\"key\">15</span> of them.</p><p class='trap'>Going via the interior-angle sum ((<span class=\"math\">n</span>−2) × 180 = 156<span class=\"math\">n</span>) gets there too and takes three times as long. The exterior angle is always the shorter route.</p>",
+   "traps": {
+    "B": "360 ÷ 20 — using an exterior angle of 20°.",
+    "C": "360 ÷ 18.",
+    "D": "The exterior angle itself, mistaken for the number of sides.",
+    "E": "360 ÷ 12.",
+    "F": "360 ÷ 10."
+   },
+   "detail": "Interior angle to number of sides"
+  },
+  {
+   "n": 18,
+   "topic": "Geometry, angles & trigonometry",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">ABCD</span> is a cyclic quadrilateral. Angle <span class=\"math\">ABC</span> = 73°.</p><p>What is angle <span class=\"math\">ADC</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "17°",
+    "B": "73°",
+    "C": "90°",
+    "D": "107°",
+    "E": "146°",
+    "F": "287°"
+   },
+   "answer": "D",
+   "solution_html": "<p>Opposite angles of a cyclic quadrilateral add to 180°.</p><p><span class=\"math\">ABC</span> and <span class=\"math\">ADC</span> are opposite, so <span class=\"math\">ADC</span> = 180 − 73 = <span class=\"key\">107°</span>.</p><p class='trap'>Opposite angles sum to 180°; it is the angle at the centre that is double the angle at the circumference. E is there for anyone who reaches for the wrong theorem.</p>",
+   "traps": {
+    "A": "90 − 73 — treating them as complementary.",
+    "B": "Equal angles would make it a rectangle-like case, not a general cyclic quadrilateral.",
+    "C": "Only if AC were a diameter, which is not given.",
+    "E": "2 × 73 — the angle-at-the-centre theorem, which does not apply here.",
+    "F": "360 − 73, the reflex angle."
+   },
+   "detail": "Cyclic quadrilateral"
+  },
+  {
+   "n": 19,
+   "topic": "Geometry, angles & trigonometry",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Work out the exact value of</p><p style='text-align:center'>sin 60° cos 30° + cos 60° sin 30°.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "C": "<span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span>",
+    "D": "1",
+    "E": "<span class=\"fr\"><span>1 + <span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span>",
+    "F": "<span class=\"rt\">√<span class=\"ov\">3</span></span>"
+   },
+   "answer": "D",
+   "solution_html": "<p>This is sin(<span class=\"math\">A</span> + <span class=\"math\">B</span>) with <span class=\"math\">A</span> = 60° and <span class=\"math\">B</span> = 30°.</p><p>So it equals sin 90° = <span class=\"key\">1</span>.</p><p class='trap'>Substituting the exact values works: <span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span> × <span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span> + <span class=\"fr\"><span>1</span><span>2</span></span> × <span class=\"fr\"><span>1</span><span>2</span></span> = <span class=\"fr\"><span>3</span><span>4</span></span> + <span class=\"fr\"><span>1</span><span>4</span></span> = 1. Same answer, four times the writing.</p>",
+   "traps": {
+    "A": "That would be sin(60° − 30°) with the signs muddled.",
+    "B": "sin 30° — the answer to cos60cos30 − sin60sin30 is different again.",
+    "C": "sin 60°, from evaluating only the first product.",
+    "E": "Adding the two exact values without multiplying them.",
+    "F": "√3, from a slip in the surd arithmetic."
+   },
+   "detail": "An addition formula in disguise"
+  },
+  {
+   "n": 20,
+   "topic": "Mensuration & 3D",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Two similar solids have surface areas in the ratio 9 : 25.</p><p>What is the ratio of their volumes?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3 : 5",
+    "B": "9 : 25",
+    "C": "27 : 125",
+    "D": "81 : 625",
+    "E": "243 : 3125",
+    "F": "729 : 15625"
+   },
+   "answer": "C",
+   "solution_html": "<p>Areas scale as the square of the length ratio, so 9 : 25 gives lengths 3 : 5.</p><p>Volumes scale as the cube: <span class=\"key\">27 : 125</span>.</p><p class='trap'>Cubing the <em>area</em> ratio gives 729 : 15625, which is option F. The cube applies to the length ratio, not the area one.</p>",
+   "traps": {
+    "A": "The length ratio, not the volume ratio.",
+    "B": "The area ratio, unchanged.",
+    "D": "Squaring the area ratio.",
+    "E": "Mixing a square and a cube.",
+    "F": "Cubing the area ratio instead of the length ratio."
+   },
+   "detail": "Similar solids: area to volume"
+  },
+  {
+   "n": 21,
+   "topic": "Mensuration & 3D",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A cuboid measures 3 cm by 4 cm by 12 cm.</p><p>How long is the diagonal from one corner to the opposite corner?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "5 cm",
+    "B": "13 cm",
+    "C": "<span class=\"rt\">√<span class=\"ov\">181</span></span> cm",
+    "D": "19 cm",
+    "E": "144 cm",
+    "F": "169 cm"
+   },
+   "answer": "B",
+   "solution_html": "<p>Apply Pythagoras twice, or use the 3D form directly:</p><p style='text-align:center'><span class=\"rt\">√<span class=\"ov\">3<sup>2</sup> + 4<sup>2</sup> + 12<sup>2</sup></span></span> = <span class=\"rt\">√<span class=\"ov\">9 + 16 + 144</span></span> = <span class=\"rt\">√<span class=\"ov\">169</span></span> = <span class=\"key\">13 cm</span>.</p><p class='trap'>3, 4, 12, 13 is a standard quadruple, like 3-4-5 one dimension up. Recognising it removes the arithmetic.</p>",
+   "traps": {
+    "A": "The diagonal of the 3 by 4 face only.",
+    "C": "√(36 + 145), an arithmetic slip.",
+    "D": "3 + 4 + 12 — adding the edges.",
+    "E": "12², the largest square alone.",
+    "F": "The square of the answer — the final root not taken."
+   },
+   "detail": "Space diagonal of a cuboid"
+  },
+  {
+   "n": 22,
+   "topic": "Mensuration & 3D",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A cone has base radius 6 cm and slant height 10 cm.</p><p>What is its curved surface area, in cm<sup>2</sup>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "30π",
+    "B": "36π",
+    "C": "48π",
+    "D": "54π",
+    "E": "60π",
+    "F": "96π"
+   },
+   "answer": "E",
+   "solution_html": "<p>Curved surface area = π<span class=\"math\">r</span>l, with <span class=\"math\">r</span> = 6 and l = 10.</p><p>= <span class=\"key\">60π</span> cm<sup>2</sup>.</p><p class='trap'>The slant height is given, so no Pythagoras is needed. Working out the vertical height (8 cm) is a wasted step, and 48π is what you get if you then use it by mistake.</p>",
+   "traps": {
+    "A": "πrl with the slant height halved.",
+    "B": "πr² — the base area, not the curved surface.",
+    "C": "Using the vertical height 8 instead of the slant height 10.",
+    "D": "An arithmetic slip in 6 × 10.",
+    "F": "πr² + πrl, the total surface area, computed wrongly."
+   },
+   "detail": "Curved surface of a cone"
+  },
+  {
+   "n": 23,
+   "topic": "Mensuration & 3D",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A metal has density 8 g/cm<sup>3</sup>.</p><p>What is the volume of a 2 kg block of it?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.25 cm<sup>3</sup>",
+    "B": "4 cm<sup>3</sup>",
+    "C": "16 cm<sup>3</sup>",
+    "D": "250 cm<sup>3</sup>",
+    "E": "2000 cm<sup>3</sup>",
+    "F": "16000 cm<sup>3</sup>"
+   },
+   "answer": "D",
+   "solution_html": "<p>Convert first: 2 kg = 2000 g.</p><p>Volume = mass ÷ density = 2000 ÷ 8 = <span class=\"key\">250 cm³</span>.</p><p class='trap'>The units are the whole question. Using 2 kg directly with a density in g/cm<sup>3</sup> gives 0.25, which is option A and is out by a factor of a thousand.</p>",
+   "traps": {
+    "A": "2 ÷ 8 — the kilograms never converted to grams.",
+    "B": "8 ÷ 2, the division inverted.",
+    "C": "2 × 8, multiplying instead of dividing.",
+    "E": "The mass in grams, not the volume.",
+    "F": "2000 × 8 — multiplying instead of dividing."
+   },
+   "detail": "Density, mass and units"
+  },
+  {
+   "n": 24,
+   "topic": "Statistics & probability",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The mean of five numbers is 12. One of them is removed, and the mean of the remaining four is 13.</p><p>What number was removed?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "8",
+    "C": "11",
+    "D": "12",
+    "E": "13",
+    "F": "17"
+   },
+   "answer": "B",
+   "solution_html": "<p>Total of the five: 5 × 12 = 60. Total of the four: 4 × 13 = 52.</p><p>The removed number is 60 − 52 = <span class=\"key\">8</span>.</p><p class='trap'>The mean went <em>up</em> when the number was taken away, so the number must be below the old mean of 12. That alone rules out D, E and F.</p>",
+   "traps": {
+    "A": "13 − 12 — the difference of the means, not of the totals.",
+    "C": "A guess just below the original mean.",
+    "D": "Removing the mean itself would leave the mean unchanged.",
+    "E": "Removing 13 would pull the mean down, not up.",
+    "F": "Removing a number above the mean lowers the mean."
+   },
+   "detail": "A mean before and after"
+  },
+  {
+   "n": 25,
+   "topic": "Statistics & probability",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A bag holds 4 red counters and 6 blue counters. Two are taken at random without replacement.</p><p>What is the probability that they are the same colour?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>15</span></span>",
+    "B": "<span class=\"fr\"><span>2</span><span>15</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>",
+    "D": "<span class=\"fr\"><span>2</span><span>5</span></span>",
+    "E": "<span class=\"fr\"><span>7</span><span>15</span></span>",
+    "F": "<span class=\"fr\"><span>1</span><span>2</span></span>"
+   },
+   "answer": "E",
+   "solution_html": "<p>Both red: <span class=\"fr\"><span>4</span><span>10</span></span> × <span class=\"fr\"><span>3</span><span>9</span></span> = <span class=\"fr\"><span>12</span><span>90</span></span>.</p><p>Both blue: <span class=\"fr\"><span>6</span><span>10</span></span> × <span class=\"fr\"><span>5</span><span>9</span></span> = <span class=\"fr\"><span>30</span><span>90</span></span>.</p><p>Total <span class=\"fr\"><span>42</span><span>90</span></span> = <span class=\"key\"><span class=\"fr\"><span>7</span><span>15</span></span></span>.</p><p class='trap'>Without replacement, so the second denominator is 9. Using 10 twice gives <span class=\"fr\"><span>13</span><span>25</span></span> — option F.</p>",
+   "traps": {
+    "A": "Both red only, with the second denominator wrong.",
+    "B": "Both red only.",
+    "C": "Both blue only, roughly.",
+    "D": "Calculated with replacement for one colour only.",
+    "F": "A guess at even odds."
+   },
+   "detail": "Two draws without replacement"
+  },
+  {
+   "n": 26,
+   "topic": "Statistics & probability",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Of 50 people surveyed, 30 like tea, 20 like coffee and 8 like both.</p><p>A person who likes tea is chosen at random. What is the probability that they also like coffee?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>4</span><span>25</span></span>",
+    "B": "<span class=\"fr\"><span>4</span><span>15</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>",
+    "D": "<span class=\"fr\"><span>2</span><span>5</span></span>",
+    "E": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "F": "<span class=\"fr\"><span>3</span><span>5</span></span>"
+   },
+   "answer": "B",
+   "solution_html": "<p>Conditioning on tea restricts us to those 30 people.</p><p>Of them, 8 also like coffee: <span class=\"fr\"><span>8</span><span>30</span></span> = <span class=\"key\"><span class=\"fr\"><span>4</span><span>15</span></span></span>.</p><p class='trap'>The denominator is 30, not 50. Dividing by 50 gives <span class=\"fr\"><span>4</span><span>25</span></span> — option A — which is the probability of liking both, not the conditional probability.</p>",
+   "traps": {
+    "A": "8/50: the probability of liking both, not the conditional probability.",
+    "C": "A rounding of 4/15.",
+    "D": "8/20 — conditioned on coffee instead of tea.",
+    "E": "A guess.",
+    "F": "30/50, the probability of liking tea at all."
+   },
+   "detail": "Conditional probability from a survey"
+  },
+  {
+   "n": 27,
+   "topic": "Statistics & probability",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Two fair six-sided dice are rolled.</p><p>What is the probability that the product of the scores is a multiple of 6?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>6</span></span>",
+    "B": "<span class=\"fr\"><span>1</span><span>4</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>",
+    "D": "<span class=\"fr\"><span>5</span><span>12</span></span>",
+    "E": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "F": "<span class=\"fr\"><span>7</span><span>12</span></span>"
+   },
+   "answer": "D",
+   "solution_html": "<p>Of the 36 equally likely outcomes, count those whose product is divisible by 6.</p><p>A quick way: the product needs a factor 2 and a factor 3. Listing by the first die and counting gives 15 outcomes.</p><p><span class=\"fr\"><span>15</span><span>36</span></span> = <span class=\"key\"><span class=\"fr\"><span>5</span><span>12</span></span></span>.</p><p class='trap'>It is not just 'one die shows a 6'. (2, 3), (3, 4), (4, 3) and several others qualify, which is why the answer is well above <span class=\"fr\"><span>1</span><span>6</span></span>.</p>",
+   "traps": {
+    "A": "The probability that a chosen die shows a 6.",
+    "B": "Nine outcomes, usually only those with a 6 or a (2,3) pair.",
+    "C": "Twelve outcomes — three of the qualifying pairs missed.",
+    "E": "Eighteen outcomes, over-counting.",
+    "F": "Twenty-one outcomes, counting multiples of 2 or 3 rather than of 6."
+   },
+   "detail": "Product of two dice"
+  }
+ ]
+}

@@ -1,0 +1,579 @@
+{
+ "paper_code": "TMUA-P2-B",
+ "family": "TMUA",
+ "module": "P2",
+ "short": "TMUA Paper 2",
+ "title": "Paper 2: Mathematical Reasoning",
+ "series": "Telos Mock B",
+ "spec_version": "2026-27",
+ "duration_sec": 4500,
+ "marks_per_question": 1,
+ "family_marks": 40,
+ "rebalanced": true,
+ "target_note": "Reasoning, not algebra: the marks are in knowing which way an implication runs and what a negation actually says. Several questions have options that are all true, where only the logical form separates them.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Logic & conditionals",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Consider the statement, about integers <span class=\"math\">n</span>:</p><p style='text-align:center'>If <span class=\"math\">n</span><sup>2</sup> is even, then <span class=\"math\">n</span> is even.</p><p>Which of the following is its <strong>contrapositive</strong>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "If <span class=\"math\">n</span> is not even, then <span class=\"math\">n</span><sup>2</sup> is not even.",
+    "B": "If <span class=\"math\">n</span> is odd, then <span class=\"math\">n</span><sup>2</sup> is odd.",
+    "C": "If <span class=\"math\">n</span><sup>2</sup> is odd, then <span class=\"math\">n</span> is odd.",
+    "D": "If <span class=\"math\">n</span> is even, then <span class=\"math\">n</span><sup>2</sup> is even.",
+    "E": "<span class=\"math\">n</span><sup>2</sup> is even if and only if <span class=\"math\">n</span> is even.",
+    "F": "If <span class=\"math\">n</span><sup>2</sup> is not even, then <span class=\"math\">n</span> is not even."
+   },
+   "answer": "A",
+   "solution_html": "<p>The contrapositive of 'if <span class=\"math\">P</span> then <span class=\"math\">Q</span>' is 'if not <span class=\"math\">Q</span> then not <span class=\"math\">P</span>': both parts negated <em>and</em> swapped.</p><p>Here <span class=\"math\">P</span> is '<span class=\"math\">n</span><sup>2</sup> is even' and <span class=\"math\">Q</span> is '<span class=\"math\">n</span> is even'. So not <span class=\"math\">Q</span> is '<span class=\"math\">n</span> is not even', and not <span class=\"math\">P</span> is '<span class=\"math\">n</span><sup>2</sup> is not even'.</p><p>The contrapositive is <span class=\"key\">if n is not even, then n&sup2; is not even</span>.</p><p class=\"trap\">Every option here is a true statement, which is the point: truth is no guide to logical form. F negates both parts without swapping them — that is the inverse, and it is the option that catches most people.</p>",
+   "traps": {
+    "B": "True, and logically equivalent to the contrapositive, but stated with 'odd' rather than as the negation of the original's own parts.",
+    "C": "True, but this is the contrapositive of the converse.",
+    "E": "A biconditional. True here, but it asserts more than the original does.",
+    "F": "The inverse: both parts negated, but not swapped.",
+    "D": "The converse: P and Q swapped without negating either."
+   },
+   "detail": "Contrapositive, not converse"
+  },
+  {
+   "n": 2,
+   "topic": "Quantifiers & negation",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Consider:</p><p style='text-align:center'>For every real <span class=\"math\">x</span>, there exists a real <span class=\"math\">y</span> such that <span class=\"math\">y</span><sup>2</sup> = <span class=\"math\">x</span>.</p><p>Which of the following is the negation of this statement?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "For every real <span class=\"math\">x</span>, there is no real <span class=\"math\">y</span> with <span class=\"math\">y</span><sup>2</sup> = <span class=\"math\">x</span>.",
+    "B": "There exists a real <span class=\"math\">x</span> such that for every real <span class=\"math\">y</span>, <span class=\"math\">y</span><sup>2</sup> ≠ <span class=\"math\">x</span>.",
+    "C": "There exists a real <span class=\"math\">x</span> and a real <span class=\"math\">y</span> with <span class=\"math\">y</span><sup>2</sup> ≠ <span class=\"math\">x</span>.",
+    "D": "For every real <span class=\"math\">y</span>, there exists a real <span class=\"math\">x</span> with <span class=\"math\">y</span><sup>2</sup> ≠ <span class=\"math\">x</span>.",
+    "E": "There exists a real <span class=\"math\">y</span> such that for every real <span class=\"math\">x</span>, <span class=\"math\">y</span><sup>2</sup> ≠ <span class=\"math\">x</span>.",
+    "F": "For every real <span class=\"math\">x</span>, there exists a real <span class=\"math\">y</span> with <span class=\"math\">y</span><sup>2</sup> ≠ <span class=\"math\">x</span>."
+   },
+   "answer": "B",
+   "solution_html": "<p>Negating swaps every quantifier and negates the predicate: ∀ becomes ∃, ∃ becomes ∀, and = becomes ≠. The order of the quantifiers does not change.</p><p>∀<span class=\"math\">x</span> ∃<span class=\"math\">y</span> (<span class=\"math\">y</span><sup>2</sup> = <span class=\"math\">x</span>) negates to <span class=\"key\">∃<span class=\"math\">x</span> ∀<span class=\"math\">y</span> (<span class=\"math\">y</span>² ≠ <span class=\"math\">x</span>)</span>.</p><p>Worth noticing: the original is <em>false</em> — take <span class=\"math\">x</span> = −1 — so its negation is true, and <span class=\"math\">x</span> = −1 is the witness.</p><p class='trap'>C is the most tempting: it negates the predicate and makes both quantifiers existential, which is a much weaker claim and is trivially true of almost any pair.</p>",
+   "traps": {
+    "A": "Far too strong: it claims no x has a square root at all.",
+    "C": "Both quantifiers existential — true, but a much weaker statement than the negation.",
+    "D": "The quantifiers have been reordered as well as swapped.",
+    "E": "x and y have swapped roles.",
+    "F": "Neither quantifier has been changed; only the predicate was negated."
+   },
+   "detail": "Negating two quantifiers"
+  },
+  {
+   "n": 3,
+   "topic": "Logic & conditionals",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Which of the following conditions on a real number <span class=\"math\">x</span> is <strong>necessary but not sufficient</strong> for <span class=\"math\">x</span><sup>2</sup> &gt; 9?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">x</span> &gt; 3",
+    "B": "<span class=\"math\">x</span> ≥ 3",
+    "C": "|<span class=\"math\">x</span>| &gt; 3",
+    "D": "<span class=\"math\">x</span> &gt; 0",
+    "E": "<span class=\"math\">x</span><sup>2</sup> &gt; 0",
+    "F": "<span class=\"math\">x</span> &gt; −3"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> &gt; 9 is exactly |<span class=\"math\">x</span>| &gt; 3, so C is necessary <em>and</em> sufficient — which disqualifies it.</p><p>A and B are sufficient but not necessary: <span class=\"math\">x</span> = −4 satisfies <span class=\"math\">x</span><sup>2</sup> &gt; 9 without satisfying either.</p><p>D and E are neither: <span class=\"math\">x</span> = −4 again fails both while <span class=\"math\">x</span><sup>2</sup> &gt; 9 holds, so they are not necessary.</p><p><span class=\"key\"><span class=\"math\">x</span>² > 0</span> is implied by <span class=\"math\">x</span><sup>2</sup> &gt; 9 and does not imply it — <span class=\"math\">x</span> = 1 satisfies it and not the original.</p><p class='trap'>Four of the six are eliminated by the single witness <span class=\"math\">x</span> = −4. Finding one good counterexample early is worth more than testing each option in turn.</p>",
+   "traps": {
+    "A": "Sufficient but not necessary — x = −4 is a counterexample to necessity.",
+    "B": "Same as A, and also excludes x = 3 where x² = 9 anyway.",
+    "C": "Necessary AND sufficient — it is equivalent to the original.",
+    "D": "Neither: x = −4 satisfies x² > 9 but not x > 0.",
+    "F": "Neither, for the same reason as D."
+   },
+   "detail": "Necessary but not sufficient"
+  },
+  {
+   "n": 4,
+   "topic": "Counterexamples & conjecture",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A student notices that <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 41 is prime for <span class=\"math\">n</span> = 1, 2, 3, … and conjectures that it is prime for every positive integer <span class=\"math\">n</span>.</p><p>What is the smallest positive integer <span class=\"math\">n</span> for which the conjecture fails?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "11",
+    "B": "21",
+    "C": "40",
+    "D": "41",
+    "E": "43",
+    "F": "It never fails"
+   },
+   "answer": "C",
+   "solution_html": "<p>The expression factorises the moment <span class=\"math\">n</span> is a multiple of 41 — but it fails earlier than that.</p><p>At <span class=\"math\">n</span> = <span class=\"key\">40</span>: 1600 + 40 + 41 = 1681 = 41<sup>2</sup>.</p><p>Every value from <span class=\"math\">n</span> = 1 to 39 really is prime, which is why the conjecture is tempting in the first place.</p><p class='trap'><span class=\"math\">n</span> = 41 also fails — 41<sup>2</sup> + 41 + 41 = 41 × 43 — and is the failure most people remember. The question asks for the smallest, and 40 comes first.</p>",
+   "traps": {
+    "A": "11 gives 173, which is prime.",
+    "B": "21 gives 503, which is prime.",
+    "D": "41 does fail — 41 × 43 — but 40 fails first.",
+    "E": "43 gives 1933, which is prime.",
+    "F": "It fails; no polynomial in n is prime for every n."
+   },
+   "detail": "Where a famous conjecture fails"
+  },
+  {
+   "n": 5,
+   "topic": "Flawed proofs & common errors",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Which of these statements about integers <span class=\"math\">n</span> is <strong>false</strong>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> is divisible by 12 for every integer <span class=\"math\">n</span>.",
+    "B": "<span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> is divisible by 3 for every integer <span class=\"math\">n</span>.",
+    "C": "<span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> is divisible by 6 for every integer <span class=\"math\">n</span>.",
+    "D": "<span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> is divisible by 2 for every integer <span class=\"math\">n</span>.",
+    "E": "<span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> is divisible by 2 for every integer <span class=\"math\">n</span>.",
+    "F": "<span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 1 is odd for every integer <span class=\"math\">n</span>."
+   },
+   "answer": "A",
+   "solution_html": "<p><span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> = (<span class=\"math\">n</span>−1)<span class=\"math\">n</span>(<span class=\"math\">n</span>+1): three consecutive integers. One is a multiple of 2 and one a multiple of 3, so the product is always divisible by 6. A, B and C all hold.</p><p><span class=\"key\">D is false</span>. Take <span class=\"math\">n</span> = 2: 8 − 2 = 6, which is not a multiple of 12.</p><p>E and F are the same fact twice: <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> = <span class=\"math\">n</span>(<span class=\"math\">n</span>+1) is a product of consecutive integers and so always even, which makes <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 1 always odd.</p><p class='trap'>The tempting reasoning for D is that among three consecutive integers you get a 2, a 3 and sometimes a 4. 'Sometimes' is the word that breaks it — and <span class=\"math\">n</span> = 2 is the smallest witness, not <span class=\"math\">n</span> = 3.</p>",
+   "traps": {
+    "B": "True: one of any three consecutive integers is a multiple of 3.",
+    "C": "True: it follows from A and B, since 2 and 3 are coprime.",
+    "E": "True: n(n+1) is a product of consecutive integers.",
+    "F": "True, and it is just E restated.",
+    "D": "True: one of any two consecutive integers is even."
+   },
+   "detail": "A divisibility claim that is nearly true"
+  },
+  {
+   "n": 6,
+   "topic": "Number & divisibility",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many pairs of <strong>positive</strong> integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy <span class=\"math\">x</span><sup>2</sup> − <span class=\"math\">y</span><sup>2</sup> = 60?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "2",
+    "C": "4",
+    "D": "6",
+    "E": "12",
+    "F": "Infinitely many"
+   },
+   "answer": "B",
+   "solution_html": "<p>(<span class=\"math\">x</span>−<span class=\"math\">y</span>)(<span class=\"math\">x</span>+<span class=\"math\">y</span>) = 60. The two factors have the same parity, since their sum 2<span class=\"math\">x</span> is even — and since 60 is even, both must be even.</p><p>Write <span class=\"math\">x</span>−<span class=\"math\">y</span> = 2<span class=\"math\">a</span> and <span class=\"math\">x</span>+<span class=\"math\">y</span> = 2<span class=\"math\">b</span>: then 4<span class=\"math\">a</span><span class=\"math\">b</span> = 60, so <span class=\"math\">a</span><span class=\"math\">b</span> = 15 with <span class=\"math\">b</span> &gt; <span class=\"math\">a</span> &gt; 0.</p><p>That gives (<span class=\"math\">a</span>, <span class=\"math\">b</span>) = (1, 15) or (3, 5), so (<span class=\"math\">x</span>, <span class=\"math\">y</span>) = (16, 14) or (8, 2) — <span class=\"key\">2</span> pairs.</p><p class='trap'>Listing the factor pairs of 60 gives six, and four of them — (1, 60), (3, 20), (4, 15), (5, 12) — mix parities and produce no integer solution at all. Checking parity first is the whole saving.</p>",
+   "traps": {
+    "A": "There are solutions: 8² − 2² = 60.",
+    "C": "Four counts the ordered sign variants, but x and y were required positive.",
+    "D": "Six is the number of factor pairs of 60; four of them fail the parity test.",
+    "E": "Twelve counts every factorisation including negatives.",
+    "F": "The factorisations of 60 are finite in number."
+   },
+   "detail": "Difference of two squares, counted"
+  },
+  {
+   "n": 7,
+   "topic": "Flawed proofs & common errors",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">a</span> and <span class=\"math\">b</span> are real numbers with <span class=\"math\">a</span><sup>2</sup> = <span class=\"math\">b</span><sup>2</sup>.</p><p>Which of the following <strong>must</strong> be true?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">a</span> = <span class=\"math\">b</span>",
+    "B": "<span class=\"math\">a</span> = −<span class=\"math\">b</span>",
+    "C": "<span class=\"math\">a</span> + <span class=\"math\">b</span> = 0",
+    "D": "<span class=\"math\">a</span><span class=\"math\">b</span> &gt; 0",
+    "E": "|<span class=\"math\">a</span>| = |<span class=\"math\">b</span>|",
+    "F": "<span class=\"math\">a</span> − <span class=\"math\">b</span> = 0"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">a</span><sup>2</sup> = <span class=\"math\">b</span><sup>2</sup> gives <span class=\"math\">a</span><sup>2</sup> − <span class=\"math\">b</span><sup>2</sup> = 0, so (<span class=\"math\">a</span>−<span class=\"math\">b</span>)(<span class=\"math\">a</span>+<span class=\"math\">b</span>) = 0 and therefore <span class=\"math\">a</span> = <span class=\"math\">b</span> <em>or</em> <span class=\"math\">a</span> = −<span class=\"math\">b</span>.</p><p>Either way the magnitudes agree, so <span class=\"key\">|<span class=\"math\">a</span>| = |<span class=\"math\">b</span>|</span> always holds — and it is the only option that covers both cases.</p><p>A, B, E and F each assert one branch of the 'or' as though it were the whole thing. D fails outright at <span class=\"math\">a</span> = <span class=\"math\">b</span> = 0.</p><p class='trap'>This is the step behind most false proofs that 1 = 2: cancelling a square root and keeping only the positive branch.</p>",
+   "traps": {
+    "A": "Only one of the two branches — a = 3, b = −3 is a counterexample.",
+    "B": "The other branch — a = b = 3 is a counterexample.",
+    "D": "Fails at a = b = 0, where ab = 0.",
+    "F": "This is A restated, and fails for a = 3, b = −3.",
+    "C": "This is B restated, and fails for a = b = 3."
+   },
+   "detail": "What a² = b² does give you"
+  },
+  {
+   "n": 8,
+   "topic": "Algebraic & graphical reasoning",
+   "spec_refs": [
+    "MM1.6",
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>For how many positive integers <span class=\"math\">n</span> is 2<sup><span class=\"math\">n</span></sup> ≤ <span class=\"math\">n</span><sup>2</sup>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "5",
+    "F": "Infinitely many"
+   },
+   "answer": "C",
+   "solution_html": "<p>Check the small cases, which is all this needs:</p><p><span class=\"math\">n</span> = 1: 2 &gt; 1. <span class=\"math\">n</span> = 2: 4 = 4 ✓. <span class=\"math\">n</span> = 3: 8 &gt; 9? No, 8 &lt; 9 ✓. <span class=\"math\">n</span> = 4: 16 = 16 ✓. <span class=\"math\">n</span> = 5: 32 &gt; 25.</p><p>From <span class=\"math\">n</span> = 5 onward the exponential stays ahead for good, so the answer is <span class=\"key\">3</span> — namely <span class=\"math\">n</span> = 2, 3 and 4.</p><p class='trap'>Both <span class=\"math\">n</span> = 2 and <span class=\"math\">n</span> = 4 give equality, and the ≤ includes them. With a strict &lt; the answer would be 1.</p>",
+   "traps": {
+    "A": "n = 3 gives 8 < 9, so there is at least one.",
+    "B": "Two misses one of the equality cases, n = 2 or n = 4.",
+    "D": "Four usually includes n = 1, where 2 > 1.",
+    "E": "Five includes n = 5, where 32 > 25.",
+    "F": "2ⁿ overtakes n² permanently from n = 5."
+   },
+   "detail": "Where an exponential overtakes a square"
+  },
+  {
+   "n": 9,
+   "topic": "Logic & conditionals",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The statement 'if <span class=\"math\">x</span> &gt; <span class=\"math\">y</span> then <span class=\"math\">x</span><sup>2</sup> &gt; <span class=\"math\">y</span><sup>2</sup>' is false for real <span class=\"math\">x</span> and <span class=\"math\">y</span>.</p><p>Adding which <strong>one</strong> of the following conditions makes it true?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">x</span> &gt; 0",
+    "B": "<span class=\"math\">x</span> + <span class=\"math\">y</span> &gt; 0",
+    "C": "<span class=\"math\">x</span><span class=\"math\">y</span> &gt; 0",
+    "D": "<span class=\"math\">y</span> ≥ 0",
+    "E": "<span class=\"math\">x</span> ≠ <span class=\"math\">y</span>",
+    "F": "<span class=\"math\">y</span> &lt; 0"
+   },
+   "answer": "D",
+   "solution_html": "<p>The counterexamples all have the larger number smaller in magnitude: <span class=\"math\">x</span> = 1, <span class=\"math\">y</span> = −5 for instance.</p><p><span class=\"key\"><span class=\"math\">y</span> ≥ 0</span> rules them out. If <span class=\"math\">x</span> &gt; <span class=\"math\">y</span> ≥ 0 then both are non-negative and squaring preserves the order.</p><p>A fails: <span class=\"math\">x</span> = 1, <span class=\"math\">y</span> = −5. C fails: <span class=\"math\">x</span> = −1, <span class=\"math\">y</span> = −5 gives <span class=\"math\">x</span><span class=\"math\">y</span> = 5 &gt; 0 but 1 &lt; 25. E adds nothing, since <span class=\"math\">x</span> &gt; <span class=\"math\">y</span> already implies it.</p><p class='trap'>D is the one worth a second look: <span class=\"math\">x</span> + <span class=\"math\">y</span> &gt; 0 with <span class=\"math\">x</span> &gt; <span class=\"math\">y</span> does force <span class=\"math\">x</span> &gt; 0, and in fact makes the statement true — but so does B, and the question asks for a condition that works, with B the cleanest. Check D yourself: <span class=\"math\">x</span> = 3, <span class=\"math\">y</span> = −2 gives 9 &gt; 4 ✓.</p>",
+   "traps": {
+    "A": "x = 1, y = −5 satisfies x > y and x > 0, but 1 < 25.",
+    "C": "x = −1, y = −5 gives xy = 5 > 0, x > y, and 1 < 25.",
+    "E": "x > y already implies x ≠ y, so this adds nothing.",
+    "F": "y < 0 makes matters worse, not better — x = 1, y = −5.",
+    "B": "This does in fact repair it, but B is the standard and simpler condition; see the note."
+   },
+   "detail": "Repairing a false implication"
+  },
+  {
+   "n": 10,
+   "topic": "Logic & conditionals",
+   "spec_refs": [
+    "MM2.1",
+    "MM2.4"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>For which values of the real number <span class=\"math\">k</span> does</p><p style='text-align:center'><span class=\"math\">x</span><sup>2</sup> − <span class=\"math\">k</span><span class=\"math\">x</span> + 9 = 0</p><p>have two <strong>distinct positive</strong> real roots?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">k</span> &gt; 0",
+    "B": "<span class=\"math\">k</span> &gt; 3",
+    "C": "−6 &lt; <span class=\"math\">k</span> &lt; 6",
+    "D": "<span class=\"math\">k</span> ≥ 6",
+    "E": "|<span class=\"math\">k</span>| &gt; 6",
+    "F": "<span class=\"math\">k</span> &gt; 6"
+   },
+   "answer": "F",
+   "solution_html": "<p>Three conditions, all needed at once. Distinct real roots: <span class=\"math\">k</span><sup>2</sup> − 36 &gt; 0, so |<span class=\"math\">k</span>| &gt; 6.</p><p>Product of roots = 9 &gt; 0, so they share a sign. Sum of roots = <span class=\"math\">k</span>, so that sign is positive exactly when <span class=\"math\">k</span> &gt; 0.</p><p>Together: <span class=\"key\"><span class=\"math\">k</span> > 6</span>.</p><p class='trap'>E is the trap for anyone who checks the discriminant and stops. <span class=\"math\">k</span> = −7 gives two distinct roots that are both negative.</p>",
+   "traps": {
+    "A": "k = 1 gives no real roots at all.",
+    "B": "k = 4 gives a negative discriminant.",
+    "D": "k = 6 gives a repeated root, which is not two distinct roots.",
+    "E": "k = −7 satisfies this and gives two negative roots.",
+    "C": "This range gives no real roots at all."
+   },
+   "detail": "Necessary and sufficient for two positive roots"
+  },
+  {
+   "n": 11,
+   "topic": "Algebraic & graphical reasoning",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many integers <span class=\"math\">n</span> with 1 ≤ <span class=\"math\">n</span> ≤ 200 are such that <span class=\"math\">n</span><sup>2</sup> ends in the digit 6?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "20",
+    "B": "24",
+    "C": "40",
+    "D": "44",
+    "E": "50",
+    "F": "80"
+   },
+   "answer": "C",
+   "solution_html": "<p>The last digit of <span class=\"math\">n</span><sup>2</sup> depends only on the last digit of <span class=\"math\">n</span>. Squaring 0–9 gives last digits 0, 1, 4, 9, 6, 5, 6, 9, 4, 1.</p><p>So <span class=\"math\">n</span><sup>2</sup> ends in 6 exactly when <span class=\"math\">n</span> ends in 4 or 6 — two of every ten.</p><p>In 1 to 200 that is <span class=\"fr\"><span>2</span><span>10</span></span> × 200 = <span class=\"key\">40</span>.</p><p class='trap'>Listing squares is hopeless in the time. The whole question is the observation that only the last digit matters, which takes one line to establish.</p>",
+   "traps": {
+    "A": "Twenty counts only the numbers ending in 4, or only those ending in 6.",
+    "B": "Twenty-four does not correspond to any consistent rule here.",
+    "D": "Forty-four over-counts, usually by including numbers ending in 0.",
+    "E": "Fifty would be one in four.",
+    "F": "Eighty is four digits out of ten — but only two digits square to something ending in 6."
+   },
+   "detail": "Counting by last digit"
+  },
+  {
+   "n": 12,
+   "topic": "Quantifiers & negation",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Which integers <strong>cannot</strong> be written as <span class=\"math\">x</span><sup>2</sup> − <span class=\"math\">y</span><sup>2</sup> for some integers <span class=\"math\">x</span> and <span class=\"math\">y</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "The integers that are 2 more than a multiple of 4",
+    "B": "The multiples of 4",
+    "C": "The odd integers",
+    "D": "The prime numbers",
+    "E": "The perfect squares",
+    "F": "Every integer can be written this way"
+   },
+   "answer": "A",
+   "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> − <span class=\"math\">y</span><sup>2</sup> = (<span class=\"math\">x</span>−<span class=\"math\">y</span>)(<span class=\"math\">x</span>+<span class=\"math\">y</span>), and the two factors always have the same parity — their sum is 2<span class=\"math\">x</span>.</p><p>Both odd gives an odd product. Both even gives a product divisible by 4. There is nothing in between.</p><p>So the unreachable integers are exactly the ones that are even but not divisible by 4 — <span class=\"key\">2 more than a multiple of 4</span>. The smallest is 2 itself.</p><p class='trap'>Every odd number <em>is</em> reachable: 2<span class=\"math\">k</span>+1 = (<span class=\"math\">k</span>+1)<sup>2</sup> − <span class=\"math\">k</span><sup>2</sup>. That makes A the option most likely to be picked by someone who has only tried a few small cases.</p>",
+   "traps": {
+    "B": "Multiples of 4 all work: 4k = (k+1)² − (k−1)².",
+    "D": "Every odd prime works, being odd; only the prime 2 fails, and it fails as an even number not a prime.",
+    "E": "n² = n² − 0² always works.",
+    "F": "2 cannot be written this way.",
+    "C": "Every odd number works: 2k+1 = (k+1)² − k²."
+   },
+   "detail": "Which integers are a difference of squares"
+  },
+  {
+   "n": 13,
+   "topic": "Flawed proofs & common errors",
+   "spec_refs": [
+    "MM7.1",
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>For real <span class=\"math\">p</span> and <span class=\"math\">q</span>, the cubic <span class=\"math\">x</span><sup>3</sup> + <span class=\"math\">p</span><span class=\"math\">x</span> + <span class=\"math\">q</span> has three distinct real roots.</p><p>Which of the following must be true?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">p</span> &gt; 0",
+    "B": "<span class=\"math\">p</span> &lt; 0",
+    "C": "<span class=\"math\">q</span> = 0",
+    "D": "<span class=\"math\">p</span><sup>3</sup> + <span class=\"math\">q</span><sup>2</sup> &lt; 0",
+    "E": "4<span class=\"math\">p</span><sup>3</sup> + 27<span class=\"math\">q</span><sup>2</sup> &lt; 0",
+    "F": "4<span class=\"math\">p</span><sup>3</sup> + 27<span class=\"math\">q</span><sup>2</sup> &gt; 0"
+   },
+   "answer": "E",
+   "solution_html": "<p>The cubic has turning points only when <span class=\"math\">p</span> &lt; 0, and it crosses the axis three times exactly when the two turning values straddle it.</p><p>Writing that condition out gives the standard discriminant: <span class=\"key\">4<span class=\"math\">p</span>³ + 27q² < 0</span>.</p><p>B is <em>implied</em> by E — if 4<span class=\"math\">p</span><sup>3</sup> &lt; −27<span class=\"math\">q</span><sup>2</sup> ≤ 0 then <span class=\"math\">p</span> &lt; 0 — so B is also true. But E is the condition that is both necessary and sufficient, and B alone is not enough: <span class=\"math\">p</span> = −1, <span class=\"math\">q</span> = 10 has one real root.</p><p class='trap'>Check the constant: 4 and 27, not 1 and 1. Option D is the same inequality with the coefficients forgotten, and it is wrong — <span class=\"math\">p</span> = −3, <span class=\"math\">q</span> = 4 satisfies D but the cubic has one real root.</p>",
+   "traps": {
+    "A": "p > 0 gives a strictly increasing cubic and exactly one real root.",
+    "B": "Necessary, but not sufficient — p = −1, q = 10 has one real root.",
+    "C": "q = 0 is not required; x³ − 3x − 1 has three real roots.",
+    "D": "The right shape with the wrong coefficients; p = −3, q = 4 satisfies it and fails.",
+    "F": "This is the condition for exactly one real root."
+   },
+   "detail": "When a depressed cubic has three roots"
+  },
+  {
+   "n": 14,
+   "topic": "Number & divisibility",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>For how many prime numbers <span class=\"math\">p</span> is <span class=\"math\">p</span><sup>2</sup> + 2 also prime?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "B",
+   "solution_html": "<p>Work modulo 3. Any prime other than 3 is congruent to 1 or 2 mod 3, and in both cases <span class=\"math\">p</span><sup>2</sup> ≡ 1, so <span class=\"math\">p</span><sup>2</sup> + 2 ≡ 0 mod 3 — and being bigger than 3, it is composite.</p><p>That leaves only <span class=\"math\">p</span> = 3: 9 + 2 = 11, which is prime.</p><p>So the answer is <span class=\"key\">1</span>.</p><p class='trap'><span class=\"math\">p</span> = 2 is the natural first try: 4 + 2 = 6, not prime. Trying primes one at a time will convince you the answer is small but never that it is exactly one — only the mod 3 argument does that.</p>",
+   "traps": {
+    "A": "p = 3 works: 9 + 2 = 11.",
+    "C": "Two would need a second prime; every p ≠ 3 gives a multiple of 3.",
+    "D": "Three is not reachable.",
+    "E": "Four is not reachable.",
+    "F": "The mod 3 argument rules out every prime except 3."
+   },
+   "detail": "Primes whose square plus two is prime"
+  },
+  {
+   "n": 15,
+   "topic": "Counterexamples & conjecture",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the smallest positive integer <span class=\"math\">n</span> for which <span class=\"math\">n</span>! + 1 is <strong>not</strong> prime?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "5",
+    "F": "<span class=\"math\">n</span>! + 1 is always prime"
+   },
+   "answer": "D",
+   "solution_html": "<p>1! + 1 = 2, 2! + 1 = 3, 3! + 1 = 7 — all prime.</p><p><span class=\"key\">4</span>! + 1 = 25 = 5<sup>2</sup>, which is not.</p><p class='trap'>The argument that <span class=\"math\">n</span>! + 1 has no prime factor below <span class=\"math\">n</span> is correct and is often misremembered as proving primality. It only proves that any factor is larger than <span class=\"math\">n</span> — and 5 is larger than 4.</p>",
+   "traps": {
+    "A": "1! + 1 = 2, prime.",
+    "B": "2! + 1 = 3, prime.",
+    "C": "3! + 1 = 7, prime.",
+    "E": "5! + 1 = 121 = 11², also composite — but 4 comes first.",
+    "F": "4! + 1 = 25 is composite."
+   },
+   "detail": "Factorials plus one"
+  },
+  {
+   "n": 16,
+   "topic": "Algebraic & graphical reasoning",
+   "spec_refs": [
+    "MM5.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many subsets of {1, 2, 3, …, 8} have an even sum? (The empty set counts, and its sum is 0.)</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "64",
+    "B": "70",
+    "C": "120",
+    "D": "128",
+    "E": "136",
+    "F": "256"
+   },
+   "answer": "D",
+   "solution_html": "<p>The set has 2<sup>8</sup> = 256 subsets. Pair each subset with the one obtained by adding 1 if it is absent and removing it if it is present.</p><p>That pairing swaps the parity of the sum every time, and pairs every subset with exactly one other. So exactly half have an even sum: <span class=\"key\">128</span>.</p><p class='trap'>The four odd elements (1, 3, 5, 7) must be chosen an even number of times, giving 2<sup>3</sup> × 2<sup>4</sup> = 128 the long way. Both routes work; the pairing takes ten seconds.</p>",
+   "traps": {
+    "A": "64 is 2⁶ — a quarter of the subsets.",
+    "B": "70 is ⁸C₄, the number of four-element subsets.",
+    "C": "120 undercounts; the answer is exactly half of 256.",
+    "E": "136 overcounts, usually by adding the empty set to an already complete count.",
+    "F": "256 is every subset, not just those with an even sum."
+   },
+   "detail": "Subsets with an even sum"
+  },
+  {
+   "n": 17,
+   "topic": "Flawed proofs & common errors",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The statement 'if <span class=\"math\">a</span> divides <span class=\"math\">b</span><span class=\"math\">c</span> then <span class=\"math\">a</span> divides <span class=\"math\">b</span> or <span class=\"math\">a</span> divides <span class=\"math\">c</span>' is false for positive integers.</p><p>Which of the following is a counterexample?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"math\">a</span> = 2, <span class=\"math\">b</span> = 3, <span class=\"math\">c</span> = 4",
+    "B": "<span class=\"math\">a</span> = 3, <span class=\"math\">b</span> = 6, <span class=\"math\">c</span> = 5",
+    "C": "<span class=\"math\">a</span> = 7, <span class=\"math\">b</span> = 14, <span class=\"math\">c</span> = 2",
+    "D": "<span class=\"math\">a</span> = 5, <span class=\"math\">b</span> = 10, <span class=\"math\">c</span> = 3",
+    "E": "<span class=\"math\">a</span> = 6, <span class=\"math\">b</span> = 12, <span class=\"math\">c</span> = 2",
+    "F": "<span class=\"math\">a</span> = 4, <span class=\"math\">b</span> = 2, <span class=\"math\">c</span> = 6"
+   },
+   "answer": "F",
+   "solution_html": "<p>A counterexample needs <span class=\"math\">a</span> to divide <span class=\"math\">bc</span> while dividing neither <span class=\"math\">b</span> nor <span class=\"math\">c</span>.</p><p><span class=\"key\">C</span>: 4 divides 2 × 6 = 12, but 4 divides neither 2 nor 6.</p><p>In every other option <span class=\"math\">a</span> divides <span class=\"math\">b</span> outright, so the 'or' is satisfied and no counterexample arises.</p><p class=\"trap\">The statement is true whenever <span class=\"math\">a</span> is prime — that is Euclid's lemma — so A, B, D and F can be discarded at sight, leaving only C and E to check.</p>",
+   "traps": {
+    "A": "2 divides 12, and 2 divides 4. Not a counterexample.",
+    "B": "3 divides 30, and 3 divides 6.",
+    "D": "5 divides 30, and 5 divides 10.",
+    "E": "6 divides 24, and 6 divides 12.",
+    "C": "7 divides 28, and 7 divides 14."
+   },
+   "detail": "Divisibility does not distribute"
+  },
+  {
+   "n": 18,
+   "topic": "Flawed proofs & common errors",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A student solves <span class=\"math\">x</span><sup>2</sup> = 5<span class=\"math\">x</span> by dividing both sides by <span class=\"math\">x</span> to get <span class=\"math\">x</span> = 5.</p><p>How many real solutions does the equation actually have?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "5",
+    "F": "Infinitely many"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">x</span><sup>2</sup> − 5<span class=\"math\">x</span> = 0 factorises as <span class=\"math\">x</span>(<span class=\"math\">x</span> − 5) = 0, so <span class=\"math\">x</span> = 0 or <span class=\"math\">x</span> = 5: <span class=\"key\">2</span> solutions.</p><p>Dividing by <span class=\"math\">x</span> assumes <span class=\"math\">x</span> ≠ 0, and that assumption throws away the root <span class=\"math\">x</span> = 0 without comment.</p><p class='trap'>Never divide by an expression that can vanish — factorise instead. The same error is what makes most 'proofs' that 1 = 2 work.</p>",
+   "traps": {
+    "A": "x = 5 certainly works.",
+    "B": "One is the student's answer — the root x = 0 was divided away.",
+    "D": "A quadratic has at most two roots.",
+    "E": "5 is a root, not the number of roots.",
+    "F": "x² = 5x is not an identity; x = 1 fails it."
+   },
+   "detail": "The root lost by dividing"
+  },
+  {
+   "n": 19,
+   "topic": "Logic & conditionals",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Let <span class=\"math\">n</span> be an integer. Which of these statements has a <strong>false</strong> converse?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "If <span class=\"math\">n</span> is even then <span class=\"math\">n</span><sup>2</sup> is even.",
+    "B": "If <span class=\"math\">n</span><sup>2</sup> is odd then <span class=\"math\">n</span> is odd.",
+    "C": "If <span class=\"math\">n</span> is divisible by 6 then <span class=\"math\">n</span> is divisible by 2 and by 3.",
+    "D": "If <span class=\"math\">n</span> = 2 then <span class=\"math\">n</span> + 1 = 3.",
+    "E": "If <span class=\"math\">n</span> is odd then <span class=\"math\">n</span><sup>2</sup> is odd.",
+    "F": "If <span class=\"math\">n</span> &gt; 3 then <span class=\"math\">n</span> &gt; 2."
+   },
+   "answer": "F",
+   "solution_html": "<p>Turn each one round and look for a counterexample.</p><p>A and E are each other's converse and both hold; F is the converse of E. C's converse — divisible by 2 and by 3 implies divisible by 6 — is true, because 2 and 3 are coprime. D's converse, <span class=\"math\">n</span> + 1 = 3 implies <span class=\"math\">n</span> = 2, is true by arithmetic.</p><p><span class=\"key\">B</span>'s converse says <span class=\"math\">n</span> &gt; 2 implies <span class=\"math\">n</span> &gt; 3, and <span class=\"math\">n</span> = 3 refutes it.</p><p class=\"trap\">Five of the six converses are true, so scanning for one that looks doubtful gets you nowhere — each has to be turned round and tested.</p>",
+   "traps": {
+    "A": "Converse: if n² is even then n is even — true.",
+    "C": "Converse is true: 2 and 3 are coprime, so both together force 6.",
+    "D": "Converse is true: n + 1 = 3 gives n = 2.",
+    "E": "Converse: if n² is odd then n is odd — true.",
+    "B": "Converse: if n is odd then n² is odd — true."
+   },
+   "detail": "A converse that happens to be false"
+  },
+  {
+   "n": 20,
+   "topic": "Quantifiers & negation",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Consider these three statements about integers:</p><p>I. <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> is even for every integer <span class=\"math\">n</span>.<br>II. There is an integer <span class=\"math\">n</span> with <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 1 even.<br>III. <span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> is divisible by 6 for every integer <span class=\"math\">n</span>.</p><p>Which are true?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "I only",
+    "B": "III only",
+    "C": "I and II only",
+    "D": "I and III only",
+    "E": "II and III only",
+    "F": "I, II and III"
+   },
+   "answer": "D",
+   "solution_html": "<p>I: <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> = <span class=\"math\">n</span>(<span class=\"math\">n</span>+1), a product of consecutive integers, so always even. <strong>True.</strong></p><p>II: since <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> is always even, <span class=\"math\">n</span><sup>2</sup> + <span class=\"math\">n</span> + 1 is always odd. No such <span class=\"math\">n</span> exists. <strong>False.</strong></p><p>III: <span class=\"math\">n</span><sup>3</sup> − <span class=\"math\">n</span> = (<span class=\"math\">n</span>−1)<span class=\"math\">n</span>(<span class=\"math\">n</span>+1), three consecutive integers, divisible by both 2 and 3. <strong>True.</strong></p><p>So <span class=\"key\">I and III only</span>.</p><p class='trap'>II is an existence claim, and existence claims feel easy to satisfy — you only need one <span class=\"math\">n</span>. Here I has already ruled every <span class=\"math\">n</span> out, which is why reading the three statements together is faster than testing them separately.</p>",
+   "traps": {
+    "A": "III is also true.",
+    "B": "I is also true.",
+    "C": "II is false: n² + n + 1 is always odd.",
+    "E": "II is false, and I is true.",
+    "F": "II is false."
+   },
+   "detail": "Which of I, II and III hold"
+  }
+ ]
+}

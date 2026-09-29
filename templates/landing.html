@@ -387,10 +387,14 @@
       <div class="lp-exam-grid reveal">
         {% for p in exam_papers %}
         <div class="lp-exam-card">
+          {# The series is load-bearing here, not decoration: Mock A and Mock B
+             share a family, a module and a title, so without it the grid reads
+             as five cards accidentally printed twice. #}
           <div class="lp-exam-test">{{ p.family }} · {{ p.module }}</div>
           <h3 class="lp-exam-h">{{ p.title }}</h3>
           <div class="lp-exam-meta">
             {{ p.question_count }} questions · {{ p.duration_sec // 60 }} minutes
+            {%- if p.series %}<br>{{ p.series }}{% endif %}
           </div>
         </div>
         {% endfor %}

@@ -790,8 +790,9 @@ def dashboard():
         # the "never hardcode a price" rule exists to prevent.
         with get_db() as db:
             exam_papers = db.execute(
-                "SELECT paper_code, family, module, title, question_count, "
-                "       duration_sec, price_pence, spec_version "
+                "SELECT paper_code, family, module, title, series, "
+                "       question_count, duration_sec, price_pence, "
+                "       spec_version "
                 "FROM exam_papers WHERE is_published "
                 "ORDER BY family DESC, module, paper_code").fetchall()
             # The question banks, for the TikTok landing path. Same rule as

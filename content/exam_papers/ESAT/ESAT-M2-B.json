@@ -1,0 +1,772 @@
+{
+ "paper_code": "ESAT-M2-B",
+ "family": "ESAT",
+ "module": "M2",
+ "short": "ESAT Mathematics 2",
+ "title": "Mathematics 2",
+ "series": "Telos Mock B",
+ "spec_version": "2026-27",
+ "duration_sec": 2400,
+ "marks_per_question": 1,
+ "family_marks": 27,
+ "rebalanced": true,
+ "target_note": "27 questions in 40 minutes. A-level content, and almost every question has a standard method that will not fit in ninety seconds alongside a shorter one that will.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Surds, indices, logarithms & exponentials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Simplify <span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">12</span></span> + <span class=\"rt\">√<span class=\"ov\">27</span></span></span><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span></span>.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "B": "3",
+    "C": "3<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "D": "5",
+    "E": "5<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "F": "13"
+   },
+   "answer": "D",
+   "solution_html": "<p><span class=\"rt\">√<span class=\"ov\">12</span></span> = 2<span class=\"rt\">√<span class=\"ov\">3</span></span> and <span class=\"rt\">√<span class=\"ov\">27</span></span> = 3<span class=\"rt\">√<span class=\"ov\">3</span></span>, so the top is 5<span class=\"rt\">√<span class=\"ov\">3</span></span>.</p><p>Dividing by <span class=\"rt\">√<span class=\"ov\">3</span></span> leaves <span class=\"key\">5</span>.</p><p class='trap'>Simplify the surds before dividing and the <span class=\"rt\">√<span class=\"ov\">3</span></span> cancels outright. Rationalising the denominator first works and wastes thirty seconds.</p>",
+   "traps": {
+    "A": "The result of dividing only one term.",
+    "B": "√27/√3 alone, forgetting √12/√3 = 2.",
+    "C": "The numerator's second term, undivided.",
+    "E": "The numerator, with the division not carried out.",
+    "F": "12 + 27 = 39, then √39 mis-simplified — the surds were added inside the root."
+   },
+   "detail": "Surds that cancel"
+  },
+  {
+   "n": 2,
+   "topic": "Surds, indices, logarithms & exponentials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Work out 8<sup>2/3</sup> × 16<sup>−1/4</sup>.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "B": "2",
+    "C": "4",
+    "D": "8",
+    "E": "16",
+    "F": "32"
+   },
+   "answer": "B",
+   "solution_html": "<p>8<sup>2/3</sup> = (<span class=\"rt\">√<span class=\"ov\">8</span></span><sup>3</sup>)<sup>2</sup> = 2<sup>2</sup> = 4, and 16<sup>−1/4</sup> = <span class=\"fr\"><span>1</span><span>16<sup>1/4</sup></span></span> = <span class=\"fr\"><span>1</span><span>2</span></span>.</p><p>4 × <span class=\"fr\"><span>1</span><span>2</span></span> = <span class=\"key\">2</span>.</p><p class='trap'>The negative index inverts; it does not make the answer negative. Taking the root before the power keeps every number small.</p>",
+   "traps": {
+    "A": "Only the second factor.",
+    "C": "Only the first factor — the 16 term dropped.",
+    "D": "8^(2/3) read as 8^2 ÷ 3, or the indices added.",
+    "E": "4 × 4 — the negative index ignored.",
+    "F": "4 × 8, from misreading both indices."
+   },
+   "detail": "Fractional and negative indices"
+  },
+  {
+   "n": 3,
+   "topic": "Surds, indices, logarithms & exponentials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Solve log<sub>2</sub> <span class=\"math\">x</span> + log<sub>2</sub>(<span class=\"math\">x</span> − 6) = 4.</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−2",
+    "B": "2",
+    "C": "4",
+    "D": "6",
+    "E": "8",
+    "F": "Both −2 and 8"
+   },
+   "answer": "E",
+   "solution_html": "<p>Combine: log<sub>2</sub>(<span class=\"math\">x</span>(<span class=\"math\">x</span>−6)) = 4, so <span class=\"math\">x</span><sup>2</sup> − 6<span class=\"math\">x</span> = 16.</p><p><span class=\"math\">x</span><sup>2</sup> − 6<span class=\"math\">x</span> − 16 = 0 factorises as (<span class=\"math\">x</span>−8)(<span class=\"math\">x</span>+2) = 0.</p><p><span class=\"math\">x</span> = −2 makes both logarithms undefined, so the only solution is <span class=\"key\">8</span>.</p><p class='trap'>The quadratic has two roots and the question has one answer. Option F exists for anyone who solves correctly and forgets that a logarithm needs a positive argument.</p>",
+   "traps": {
+    "A": "A root of the quadratic, but log₂(−2) is undefined.",
+    "B": "2 × (−4) = −8, not 16.",
+    "C": "4 × (−2) = −8, not 16.",
+    "D": "log₂(0) is undefined.",
+    "F": "−2 must be rejected: the logarithms are undefined there."
+   },
+   "detail": "A log equation with a rejected root"
+  },
+  {
+   "n": 4,
+   "topic": "Surds, indices, logarithms & exponentials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Solve 2<sup>2<span class=\"math\">x</span></sup> − 5 × 2<sup><span class=\"math\">x</span></sup> + 4 = 0.</p><p>What is the sum of the solutions?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "4",
+    "E": "5",
+    "F": "There are no real solutions"
+   },
+   "answer": "C",
+   "solution_html": "<p>2<sup>2<span class=\"math\">x</span></sup> = (2<sup><span class=\"math\">x</span></sup>)<sup>2</sup>, so with <span class=\"math\">t</span> = 2<sup><span class=\"math\">x</span></sup> this is <span class=\"math\">t</span><sup>2</sup> − 5<span class=\"math\">t</span> + 4 = 0.</p><p>(<span class=\"math\">t</span>−1)(<span class=\"math\">t</span>−4) = 0 gives <span class=\"math\">t</span> = 1 or 4, so <span class=\"math\">x</span> = 0 or <span class=\"math\">x</span> = 2.</p><p>Sum <span class=\"key\">2</span>.</p><p class='trap'><span class=\"math\">x</span> = 0 is easy to discard as 'no solution'. 2<sup>0</sup> = 1 is perfectly valid and it is half the answer.</p>",
+   "traps": {
+    "A": "One of the two solutions, not their sum.",
+    "B": "A value of t, not of x.",
+    "D": "The other value of t.",
+    "E": "The sum of the two values of t.",
+    "F": "There are two."
+   },
+   "detail": "A quadratic in disguise"
+  },
+  {
+   "n": 5,
+   "topic": "Surds, indices, logarithms & exponentials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The curve <span class=\"math\">y</span> = 3<sup><span class=\"math\">x</span></sup> is reflected in the <span class=\"math\">y</span>-axis.</p><p>What is the <span class=\"math\">y</span>-coordinate of the image curve when <span class=\"math\">x</span> = 2?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>9</span></span>",
+    "B": "<span class=\"fr\"><span>1</span><span>6</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>3</span></span>",
+    "D": "3",
+    "E": "6",
+    "F": "9"
+   },
+   "answer": "A",
+   "solution_html": "<p>Reflecting in the <span class=\"math\">y</span>-axis replaces <span class=\"math\">x</span> by −<span class=\"math\">x</span>, giving <span class=\"math\">y</span> = 3<sup>−<span class=\"math\">x</span></sup>.</p><p>At <span class=\"math\">x</span> = 2: 3<sup>−2</sup> = <span class=\"key\"><span class=\"fr\"><span>1</span><span>9</span></span></span>.</p><p class='trap'>Reflection in the <span class=\"math\">y</span>-axis changes the sign of <span class=\"math\">x</span>; reflection in the <span class=\"math\">x</span>-axis changes the sign of <span class=\"math\">y</span> and would give −9.</p>",
+   "traps": {
+    "B": "1/(3 × 2) — the index treated as a multiplier.",
+    "C": "3^(−1), reading the reflection as a shift of one.",
+    "D": "3^1 — the reflection applied to the wrong variable.",
+    "E": "3 × 2, not 3 to a power.",
+    "F": "3² — the original curve, unreflected."
+   },
+   "detail": "Reflecting an exponential"
+  },
+  {
+   "n": 6,
+   "topic": "Algebra & polynomials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The equation <span class=\"math\">x</span><sup>2</sup> − (<span class=\"math\">k</span>+1)<span class=\"math\">x</span> + <span class=\"math\">k</span> = 0 has two roots that differ by 3.</p><p>What is the sum of the possible values of <span class=\"math\">k</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−4",
+    "B": "−2",
+    "C": "0",
+    "D": "2",
+    "E": "4",
+    "F": "6"
+   },
+   "answer": "D",
+   "solution_html": "<p>The equation factorises for every <span class=\"math\">k</span>: (<span class=\"math\">x</span>−1)(<span class=\"math\">x</span>−<span class=\"math\">k</span>) = 0, so the roots are 1 and <span class=\"math\">k</span>.</p><p>They differ by 3 when |<span class=\"math\">k</span> − 1| = 3, giving <span class=\"math\">k</span> = 4 or <span class=\"math\">k</span> = −2.</p><p>Sum <span class=\"key\">2</span>.</p><p class='trap'>Spotting that <span class=\"math\">x</span> = 1 is always a root removes the discriminant entirely. Going via (<span class=\"math\">x</span>₁−<span class=\"math\">x</span>₂)<sup>2</sup> = (<span class=\"math\">k</span>+1)<sup>2</sup> − 4<span class=\"math\">k</span> reaches the same place through far more algebra.</p>",
+   "traps": {
+    "A": "The product of the two values of k.",
+    "B": "One of the two values.",
+    "C": "Assuming the values are symmetric about zero; they are symmetric about 1.",
+    "E": "The other value.",
+    "F": "4 + 2, with the sign of −2 lost."
+   },
+   "detail": "Roots that differ by a fixed amount"
+  },
+  {
+   "n": 7,
+   "topic": "Algebra & polynomials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many integers <span class=\"math\">x</span> satisfy <span class=\"math\">x</span><sup>2</sup> − 5<span class=\"math\">x</span> + 6 &lt; 0?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "5",
+    "F": "Infinitely many"
+   },
+   "answer": "A",
+   "solution_html": "<p>(<span class=\"math\">x</span>−2)(<span class=\"math\">x</span>−3) &lt; 0 holds exactly for 2 &lt; <span class=\"math\">x</span> &lt; 3.</p><p>There is no integer strictly between 2 and 3, so the answer is <span class=\"key\">0</span>.</p><p class='trap'>The roots 2 and 3 are integers, which makes it feel as though they should count. The inequality is strict, and they are the endpoints, not the interior.</p>",
+   "traps": {
+    "B": "There is no integer strictly between 2 and 3.",
+    "C": "Counting the roots 2 and 3, which do not satisfy a strict inequality.",
+    "D": "Counting 2, 3 and one more.",
+    "E": "Counting every integer from −1 to 3, ignoring the inequality.",
+    "F": "The solution set is an interval of length 1 containing no integers."
+   },
+   "detail": "A quadratic inequality with no integers"
+  },
+  {
+   "n": 8,
+   "topic": "Algebra & polynomials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">p</span>(<span class=\"math\">x</span>) = 2<span class=\"math\">x</span><sup>3</sup> + <span class=\"math\">a</span><span class=\"math\">x</span><sup>2</sup> − 5<span class=\"math\">x</span> + <span class=\"math\">b</span> has (<span class=\"math\">x</span> − 1) as a factor, and leaves remainder 12 when divided by (<span class=\"math\">x</span> − 2).</p><p>What is <span class=\"math\">a</span><span class=\"math\">b</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−2",
+    "B": "2",
+    "C": "3",
+    "D": "6",
+    "E": "8",
+    "F": "12"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">p</span>(1) = 0: 2 + <span class=\"math\">a</span> − 5 + <span class=\"math\">b</span> = 0, so <span class=\"math\">a</span> + <span class=\"math\">b</span> = 3.</p><p><span class=\"math\">p</span>(2) = 12: 16 + 4<span class=\"math\">a</span> − 10 + <span class=\"math\">b</span> = 12, so 4<span class=\"math\">a</span> + <span class=\"math\">b</span> = 6.</p><p>Subtracting: 3<span class=\"math\">a</span> = 3, so <span class=\"math\">a</span> = 1 and <span class=\"math\">b</span> = 2, giving <span class=\"math\">a</span><span class=\"math\">b</span> = <span class=\"key\">2</span>.</p><p class='trap'>Two substitutions and one subtraction. Long division of the cubic by both linear factors gets there and costs three minutes.</p>",
+   "traps": {
+    "A": "Sign error in one of the substitutions.",
+    "C": "a + b, not ab.",
+    "D": "The right-hand side of the second equation.",
+    "E": "A slip solving the simultaneous equations.",
+    "F": "The remainder, not the product."
+   },
+   "detail": "Factor and remainder together"
+  },
+  {
+   "n": 9,
+   "topic": "Algebra & polynomials",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">f</span>(<span class=\"math\">x</span>) = 2<span class=\"math\">x</span> + 1 and <span class=\"math\">g</span>(<span class=\"math\">x</span>) = <span class=\"math\">x</span><sup>2</sup>.</p><p>How many real solutions does <span class=\"math\">fg</span>(<span class=\"math\">x</span>) = <span class=\"math\">gf</span>(<span class=\"math\">x</span>) have?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">fg</span>(<span class=\"math\">x</span>) = 2<span class=\"math\">x</span><sup>2</sup> + 1 and <span class=\"math\">gf</span>(<span class=\"math\">x</span>) = (2<span class=\"math\">x</span>+1)<sup>2</sup> = 4<span class=\"math\">x</span><sup>2</sup> + 4<span class=\"math\">x</span> + 1.</p><p>Setting them equal: 2<span class=\"math\">x</span><sup>2</sup> + 4<span class=\"math\">x</span> = 0, so 2<span class=\"math\">x</span>(<span class=\"math\">x</span>+2) = 0 and <span class=\"math\">x</span> = 0 or −2 — <span class=\"key\">2</span> solutions.</p><p class='trap'>The constant 1 cancels from both sides, which is what keeps this to a two-line question. Expanding and then solving a general quadratic is the slow route.</p>",
+   "traps": {
+    "A": "The equation does have solutions; x = 0 is one.",
+    "B": "x = 0 is easy to lose by dividing through by x.",
+    "D": "The resulting equation is a quadratic, so at most two.",
+    "E": "Both composites are quadratics, but their difference is not quartic.",
+    "F": "The two composites are different functions."
+   },
+   "detail": "Composite functions that agree"
+  },
+  {
+   "n": 10,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">u</span><sub>1</sub> = 2 and <span class=\"math\">u</span><sub><span class=\"math\">n</span>+1</sub> = 3<span class=\"math\">u</span><sub><span class=\"math\">n</span></sub> − 2.</p><p>What is <span class=\"math\">u</span><sub>6</sub>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "28",
+    "B": "82",
+    "C": "86",
+    "D": "160",
+    "E": "242",
+    "F": "244"
+   },
+   "answer": "F",
+   "solution_html": "<p>2, 4, 10, 28, 82, <span class=\"key\">244</span>.</p><p>Each term is 3 times the last, less 2. Five steps is quicker than finding the closed form — though it is <span class=\"math\">u</span><sub><span class=\"math\">n</span></sub> = 3<sup><span class=\"math\">n</span>−1</sup> + 1 if you want to check.</p><p class='trap'>Six terms means five applications of the rule, not six. Stopping at 82 is the commonest way to lose this.</p>",
+   "traps": {
+    "A": "The fourth term.",
+    "B": "The fifth term — one step short.",
+    "C": "An arithmetic slip at the last step.",
+    "D": "Multiplying by 3 and subtracting 2 in the wrong order somewhere.",
+    "E": "3⁵ − 1 rather than 3⁵ + 1."
+   },
+   "detail": "A recurrence, six terms in"
+  },
+  {
+   "n": 11,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The sum of the first <span class=\"math\">n</span> terms of a series is <span class=\"math\">S</span><sub><span class=\"math\">n</span></sub> = 3<span class=\"math\">n</span><sup>2</sup> + 2<span class=\"math\">n</span>.</p><p>What is the tenth term?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "23",
+    "B": "32",
+    "C": "35",
+    "D": "53",
+    "E": "59",
+    "F": "320"
+   },
+   "answer": "E",
+   "solution_html": "<p>The <span class=\"math\">n</span>th term is <span class=\"math\">S</span><sub><span class=\"math\">n</span></sub> − <span class=\"math\">S</span><sub><span class=\"math\">n</span>−1</sub>.</p><p><span class=\"math\">S</span><sub>10</sub> = 320 and <span class=\"math\">S</span><sub>9</sub> = 261, so the tenth term is <span class=\"key\">59</span>.</p><p class='trap'>The series is arithmetic with first term 5 and common difference 6, so the tenth term is 5 + 9(6) = 59 as well. Either route is quick; computing all ten terms is not.</p>",
+   "traps": {
+    "A": "S₂ − S₁, the second term.",
+    "B": "S₁₀ ÷ 10, the mean term.",
+    "C": "A slip in S₉.",
+    "D": "The ninth term.",
+    "F": "S₁₀ itself — the sum, not the term."
+   },
+   "detail": "A term from a sum formula"
+  },
+  {
+   "n": 12,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A geometric series has first term 8 and sum to infinity 12.</p><p>What is its third term?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>4</span><span>9</span></span>",
+    "B": "<span class=\"fr\"><span>8</span><span>9</span></span>",
+    "C": "<span class=\"fr\"><span>4</span><span>3</span></span>",
+    "D": "<span class=\"fr\"><span>8</span><span>3</span></span>",
+    "E": "4",
+    "F": "<span class=\"fr\"><span>16</span><span>3</span></span>"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">S</span><sub>∞</sub> = <span class=\"fr\"><span><span class=\"math\">a</span></span><span>1 − r</span></span>, so 12 = <span class=\"fr\"><span>8</span><span>1 − r</span></span> and <span class=\"math\">r</span> = <span class=\"fr\"><span>1</span><span>3</span></span>.</p><p>Third term = 8<span class=\"math\">r</span><sup>2</sup> = 8 × <span class=\"fr\"><span>1</span><span>9</span></span> = <span class=\"key\"><span class=\"fr\"><span>8</span><span>9</span></span></span>.</p><p class='trap'>The third term uses <span class=\"math\">r</span><sup>2</sup>, not <span class=\"math\">r</span>. Option D is the second term and is the one most often chosen.</p>",
+   "traps": {
+    "A": "Half the third term, or 8r² with r = 1/6.",
+    "C": "8r with r mis-solved.",
+    "D": "The second term, 8r.",
+    "E": "12 − 8, the remaining sum rather than a term.",
+    "F": "Twice the second term."
+   },
+   "detail": "Third term of a convergent series"
+  },
+  {
+   "n": 13,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the coefficient of <span class=\"math\">x</span><sup>3</sup> in the expansion of (1 + 2<span class=\"math\">x</span>)<sup>5</sup>(1 − <span class=\"math\">x</span>)?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "20",
+    "B": "30",
+    "C": "40",
+    "D": "60",
+    "E": "80",
+    "F": "120"
+   },
+   "answer": "C",
+   "solution_html": "<p>(1 + 2<span class=\"math\">x</span>)<sup>5</sup> has <span class=\"math\">x</span><sup>2</sup> coefficient <sup>5</sup>C<sub>2</sub> × 4 = 40 and <span class=\"math\">x</span><sup>3</sup> coefficient <sup>5</sup>C<sub>3</sub> × 8 = 80.</p><p>Multiplying by (1 − <span class=\"math\">x</span>): the <span class=\"math\">x</span><sup>3</sup> term is 80 × 1 + 40 × (−1) = <span class=\"key\">40</span>.</p><p class='trap'>Only two terms of the binomial matter. Expanding all six and then multiplying out is the long way round.</p>",
+   "traps": {
+    "A": "⁵C₃ × 2 — the 2 not cubed.",
+    "B": "An arithmetic slip in ⁵C₃ × 8.",
+    "D": "80 − 20, using the wrong lower coefficient.",
+    "E": "The x³ coefficient of the binomial alone, forgetting the (1 − x).",
+    "F": "80 + 40 — the minus sign lost."
+   },
+   "detail": "A binomial times a bracket"
+  },
+  {
+   "n": 14,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the <span class=\"math\">y</span>-intercept of the perpendicular bisector of the line segment joining (1, 2) and (5, 8)?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3",
+    "B": "5",
+    "C": "<span class=\"fr\"><span>16</span><span>3</span></span>",
+    "D": "6",
+    "E": "7",
+    "F": "9"
+   },
+   "answer": "E",
+   "solution_html": "<p>Midpoint (3, 5). The segment has gradient <span class=\"fr\"><span>6</span><span>4</span></span> = <span class=\"fr\"><span>3</span><span>2</span></span>, so the bisector has gradient −<span class=\"fr\"><span>2</span><span>3</span></span>.</p><p><span class=\"math\">y</span> − 5 = −<span class=\"fr\"><span>2</span><span>3</span></span>(<span class=\"math\">x</span> − 3). At <span class=\"math\">x</span> = 0: <span class=\"math\">y</span> = 5 + 2 = <span class=\"key\">7</span>.</p><p class='trap'>Two things have to be right at once: the midpoint and the negative reciprocal. Getting the gradient as −<span class=\"fr\"><span>3</span><span>2</span></span> instead gives 9.</p>",
+   "traps": {
+    "A": "The x-coordinate of the midpoint.",
+    "B": "The y-coordinate of the midpoint — the intercept of a horizontal line through it.",
+    "C": "A slip substituting x = 0.",
+    "D": "Using gradient −1/3.",
+    "F": "Using gradient −3/2, the negative rather than the negative reciprocal."
+   },
+   "detail": "Perpendicular bisector, y-intercept"
+  },
+  {
+   "n": 15,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A chord of length 8 is drawn in a circle of radius 5.</p><p>How far is the chord from the centre?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2",
+    "B": "3",
+    "C": "<span class=\"rt\">√<span class=\"ov\">11</span></span>",
+    "D": "4",
+    "E": "<span class=\"rt\">√<span class=\"ov\">41</span></span>",
+    "F": "9"
+   },
+   "answer": "B",
+   "solution_html": "<p>The perpendicular from the centre bisects the chord, giving a right-angled triangle with hypotenuse 5 and one leg 4.</p><p>The distance is <span class=\"rt\">√<span class=\"ov\">25 − 16</span></span> = <span class=\"key\">3</span>.</p><p class='trap'>Half the chord is 4, not 8. Using the full chord gives <span class=\"rt\">√<span class=\"ov\">25−64</span></span>, which is not real — a useful sign you have gone wrong.</p>",
+   "traps": {
+    "A": "Half of the correct answer.",
+    "C": "√(25 − 14), an arithmetic slip.",
+    "D": "Half the chord, not the distance.",
+    "E": "√(25 + 16) — added instead of subtracted.",
+    "F": "25 − 16 without taking the root."
+   },
+   "detail": "Chord to distance from the centre"
+  },
+  {
+   "n": 16,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The point (5, 7) lies on the circle (<span class=\"math\">x</span> − 2)<sup>2</sup> + (<span class=\"math\">y</span> − 3)<sup>2</sup> = 25.</p><p>What is the gradient of the tangent there?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−<span class=\"fr\"><span>4</span><span>3</span></span>",
+    "B": "−<span class=\"fr\"><span>3</span><span>4</span></span>",
+    "C": "<span class=\"fr\"><span>3</span><span>4</span></span>",
+    "D": "<span class=\"fr\"><span>4</span><span>3</span></span>",
+    "E": "<span class=\"fr\"><span>5</span><span>3</span></span>",
+    "F": "3"
+   },
+   "answer": "B",
+   "solution_html": "<p>The centre is (2, 3), so the radius to (5, 7) has gradient <span class=\"fr\"><span>7 − 3</span><span>5 − 2</span></span> = <span class=\"fr\"><span>4</span><span>3</span></span>.</p><p>The tangent is perpendicular to the radius, so its gradient is <span class=\"key\">−<span class=\"fr\"><span>3</span><span>4</span></span></span>.</p><p class='trap'>No differentiation needed — the radius does all the work. Implicit differentiation gets the same answer in four times the space.</p>",
+   "traps": {
+    "A": "The negative of the radius gradient, not its negative reciprocal.",
+    "C": "The reciprocal without the sign change.",
+    "D": "The gradient of the radius itself.",
+    "E": "Using the coordinates of the point rather than the differences.",
+    "F": "The y-coordinate of the centre."
+   },
+   "detail": "Tangent gradient at a point on a circle"
+  },
+  {
+   "n": 17,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>In triangle <span class=\"math\">ABC</span>, angle <span class=\"math\">A</span> = 40°, <span class=\"math\">a</span> = 10 and <span class=\"math\">b</span> = 12.</p><p>How many distinct triangles satisfy this?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "C",
+   "solution_html": "<p>By the sine rule, sin <span class=\"math\">B</span> = <span class=\"fr\"><span>12 sin 40°</span><span>10</span></span> ≈ 0.771, so <span class=\"math\">B</span> ≈ 50.5° or 129.5°.</p><p>Both leave room for angle <span class=\"math\">C</span>: 40 + 50.5 &lt; 180 and 40 + 129.5 &lt; 180. So there are <span class=\"key\">2</span> triangles.</p><p class='trap'>The obtuse option is only valid if the angles still sum to less than 180°. Here 169.5° leaves 10.5° for <span class=\"math\">C</span> — tight, but real.</p>",
+   "traps": {
+    "A": "sin B < 1, so at least one triangle exists.",
+    "B": "The obtuse case also fits: 40° + 129.5° is still under 180°.",
+    "D": "The sine rule offers at most two values of B in range.",
+    "E": "Not reachable.",
+    "F": "Two sides and a non-included angle fix the triangle up to the ambiguity."
+   },
+   "detail": "The ambiguous case"
+  },
+  {
+   "n": 18,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A triangle has sides 5 and 7 with an angle of 60° between them.</p><p>What is its area?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>35</span><span>4</span></span>",
+    "B": "<span class=\"fr\"><span>35<span class=\"rt\">√<span class=\"ov\">2</span></span></span><span>4</span></span>",
+    "C": "<span class=\"fr\"><span>35</span><span>2</span></span>",
+    "D": "<span class=\"fr\"><span>35<span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>4</span></span>",
+    "E": "<span class=\"fr\"><span>35<span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span>",
+    "F": "35"
+   },
+   "answer": "D",
+   "solution_html": "<p>Area = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">a</span><span class=\"math\">b</span> sin <span class=\"math\">C</span> = <span class=\"fr\"><span>1</span><span>2</span></span> × 5 × 7 × sin 60°.</p><p>sin 60° = <span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span>, so the area is <span class=\"key\"><span class=\"fr\"><span>35<span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>4</span></span></span>.</p><p class='trap'>The 60° is between the two given sides, so no cosine rule is needed — finding the third side first is a minute wasted.</p>",
+   "traps": {
+    "A": "sin 60° replaced by 1/2.",
+    "B": "sin 45° used instead of sin 60°.",
+    "C": "The ½ ab product with sin 60° omitted entirely.",
+    "E": "The factor of ½ dropped.",
+    "F": "5 × 7 — neither the half nor the sine applied."
+   },
+   "detail": "Area from two sides and the angle between"
+  },
+  {
+   "n": 19,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.5"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A sector of a circle has radius 6 and angle <span class=\"fr\"><span>π</span><span>3</span></span> radians.</p><p>What is the area of the segment cut off by the chord?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "6π − 18",
+    "B": "6π − 9<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "C": "6π − 9",
+    "D": "6π",
+    "E": "12π − 9<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "F": "18π − 9<span class=\"rt\">√<span class=\"ov\">3</span></span>"
+   },
+   "answer": "B",
+   "solution_html": "<p>Sector area = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">r</span><sup>2</sup>θ = <span class=\"fr\"><span>1</span><span>2</span></span> × 36 × <span class=\"fr\"><span>π</span><span>3</span></span> = 6π.</p><p>Triangle area = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">r</span><sup>2</sup> sin θ = 18 × <span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">3</span></span></span><span>2</span></span> = 9<span class=\"rt\">√<span class=\"ov\">3</span></span>.</p><p>Segment = sector − triangle = <span class=\"key\">6π − 9<span class=\"rt\">√<span class=\"ov\">3</span></span></span>.</p><p class='trap'>The formula <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">r</span><sup>2</sup>(θ − sin θ) does both steps at once, and only works in radians.</p>",
+   "traps": {
+    "A": "Triangle area taken as ½r² without the sine.",
+    "C": "sin(π/3) read as 1/2 rather than √3/2.",
+    "D": "The sector area alone — the triangle not subtracted.",
+    "E": "Sector area doubled.",
+    "F": "½r²θ computed with θ = π."
+   },
+   "detail": "Area of a segment"
+  },
+  {
+   "n": 20,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many solutions does 2cos<sup>2</sup><span class=\"math\">x</span> + cos <span class=\"math\">x</span> − 1 = 0 have for 0 ≤ <span class=\"math\">x</span> &lt; 2π?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "5",
+    "F": "6"
+   },
+   "answer": "C",
+   "solution_html": "<p>Factorise in cos <span class=\"math\">x</span>: (2cos <span class=\"math\">x</span> − 1)(cos <span class=\"math\">x</span> + 1) = 0.</p><p>cos <span class=\"math\">x</span> = <span class=\"fr\"><span>1</span><span>2</span></span> gives <span class=\"math\">x</span> = <span class=\"fr\"><span>π</span><span>3</span></span> and <span class=\"fr\"><span>5π</span><span>3</span></span>. cos <span class=\"math\">x</span> = −1 gives <span class=\"math\">x</span> = π.</p><p><span class=\"key\">3</span> solutions in all.</p><p class='trap'>cos <span class=\"math\">x</span> = −1 has only one solution in the interval, not two — the curve touches −1 rather than crossing it. Assuming every value of cos gives two solutions is what makes 4 so tempting.</p>",
+   "traps": {
+    "A": "Only the cos x = −1 branch.",
+    "B": "Only the cos x = ½ branch.",
+    "D": "Assuming cos x = −1 gives two solutions; it gives one.",
+    "E": "Over-counting both branches.",
+    "F": "Three values of cos x with two solutions each — but there are only two values."
+   },
+   "detail": "Counting solutions of a trig quadratic"
+  },
+  {
+   "n": 21,
+   "topic": "Differentiation",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">y</span> = <span class=\"fr\"><span><span class=\"math\">x</span><sup>3</sup> + 2<span class=\"math\">x</span></span><span><span class=\"math\">x</span></span></span>.</p><p>What is <span class=\"fr\"><span>d<span class=\"math\">y</span></span><span>d<span class=\"math\">x</span></span></span> when <span class=\"math\">x</span> = 3?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2",
+    "B": "3",
+    "C": "6",
+    "D": "9",
+    "E": "11",
+    "F": "29"
+   },
+   "answer": "C",
+   "solution_html": "<p>Divide first: <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>2</sup> + 2.</p><p><span class=\"fr\"><span>d<span class=\"math\">y</span></span><span>d<span class=\"math\">x</span></span></span> = 2<span class=\"math\">x</span>, which at <span class=\"math\">x</span> = 3 is <span class=\"key\">6</span>.</p><p class='trap'>The quotient rule works and takes four lines. Dividing through takes one, and this is the whole reason the question is worth asking.</p>",
+   "traps": {
+    "A": "The constant term, which differentiates to zero.",
+    "B": "The value of x, not the gradient.",
+    "D": "x² at x = 3 — the function, not its derivative.",
+    "E": "The value of y at x = 3.",
+    "F": "The numerator at x = 3, undivided."
+   },
+   "detail": "Simplify before differentiating"
+  },
+  {
+   "n": 22,
+   "topic": "Differentiation",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The normal to <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>2</sup> at the point (1, 1) meets the curve again.</p><p>What is the <span class=\"math\">x</span>-coordinate of that second point?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−<span class=\"fr\"><span>3</span><span>2</span></span>",
+    "B": "−1",
+    "C": "−<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "D": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "E": "<span class=\"fr\"><span>3</span><span>2</span></span>",
+    "F": "2"
+   },
+   "answer": "A",
+   "solution_html": "<p><span class=\"fr\"><span>d<span class=\"math\">y</span></span><span>d<span class=\"math\">x</span></span></span> = 2<span class=\"math\">x</span> = 2 at (1, 1), so the normal has gradient −<span class=\"fr\"><span>1</span><span>2</span></span>.</p><p>Normal: <span class=\"math\">y</span> = 1 − <span class=\"fr\"><span>1</span><span>2</span></span>(<span class=\"math\">x</span> − 1). Setting <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>2</sup>:</p><p><span class=\"math\">x</span><sup>2</sup> − 1 = −<span class=\"fr\"><span>1</span><span>2</span></span>(<span class=\"math\">x</span> − 1), and dividing by (<span class=\"math\">x</span> − 1) — valid for the <em>other</em> point — gives <span class=\"math\">x</span> + 1 = −<span class=\"fr\"><span>1</span><span>2</span></span>, so <span class=\"math\">x</span> = <span class=\"key\">−<span class=\"fr\"><span>3</span><span>2</span></span></span>.</p><p class='trap'>(<span class=\"math\">x</span> − 1) is a factor of both sides, because <span class=\"math\">x</span> = 1 is already known to be a solution. Cancelling it turns a quadratic into a linear equation.</p>",
+   "traps": {
+    "B": "The reflection of x = 1, which is where the tangent would be parallel.",
+    "C": "The gradient of the normal, not an x-coordinate.",
+    "D": "Sign error after cancelling.",
+    "E": "The right magnitude with the sign lost.",
+    "F": "A guess at the far side of the curve."
+   },
+   "detail": "Where a normal meets the curve again"
+  },
+  {
+   "n": 23,
+   "topic": "Differentiation",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>For how many integer values of <span class=\"math\">k</span> does <span class=\"math\">x</span><sup>3</sup> − 3<span class=\"math\">x</span> + <span class=\"math\">k</span> = 0 have three distinct real roots?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "5"
+   },
+   "answer": "D",
+   "solution_html": "<p><span class=\"math\">f</span>(<span class=\"math\">x</span>) = <span class=\"math\">x</span><sup>3</sup> − 3<span class=\"math\">x</span> + <span class=\"math\">k</span> has turning points at <span class=\"math\">x</span> = ±1, with values <span class=\"math\">k</span> + 2 and <span class=\"math\">k</span> − 2.</p><p>Three distinct roots need those to straddle zero: (<span class=\"math\">k</span>+2)(<span class=\"math\">k</span>−2) &lt; 0, that is −2 &lt; <span class=\"math\">k</span> &lt; 2.</p><p>The integers are −1, 0 and 1 — <span class=\"key\">3</span> of them.</p><p class='trap'><span class=\"math\">k</span> = ±2 gives a repeated root, not three distinct ones, so the endpoints are excluded. Including them gives 5.</p>",
+   "traps": {
+    "A": "k = 0 alone gives three roots: x = 0 and ±√3.",
+    "B": "Only k = 0 counted.",
+    "C": "One of ±1 missed.",
+    "E": "One endpoint wrongly included.",
+    "F": "Both endpoints included; k = ±2 give repeated roots."
+   },
+   "detail": "Integer values giving three roots"
+  },
+  {
+   "n": 24,
+   "topic": "Integration",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the area of the region between the curve <span class=\"math\">y</span> = 4 − <span class=\"math\">x</span><sup>2</sup>, the <span class=\"math\">x</span>-axis, and the lines <span class=\"math\">x</span> = 0 and <span class=\"math\">x</span> = 2?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>8</span><span>3</span></span>",
+    "B": "4",
+    "C": "<span class=\"fr\"><span>16</span><span>3</span></span>",
+    "D": "6",
+    "E": "<span class=\"fr\"><span>20</span><span>3</span></span>",
+    "F": "8"
+   },
+   "answer": "C",
+   "solution_html": "<p>∫<sub>0</sub><sup>2</sup>(4 − <span class=\"math\">x</span><sup>2</sup>) d<span class=\"math\">x</span> = [4<span class=\"math\">x</span> − <span class=\"fr\"><span><span class=\"math\">x</span><sup>3</sup></span><span>3</span></span>]<sub>0</sub><sup>2</sup>.</p><p>= 8 − <span class=\"fr\"><span>8</span><span>3</span></span> = <span class=\"key\"><span class=\"fr\"><span>16</span><span>3</span></span></span>.</p><p class='trap'>The curve stays above the axis on [0, 2], touching it exactly at <span class=\"math\">x</span> = 2, so there is no sign change to worry about.</p>",
+   "traps": {
+    "A": "The second term alone.",
+    "B": "The value of y at x = 0, not an area.",
+    "D": "A slip: 8 − 2 rather than 8 − 8/3.",
+    "E": "8 − 4/3, from a slip evaluating x³/3 at x = 2 as 4/3 rather than 8/3.",
+    "F": "The 4x term alone, with the x³/3 forgotten."
+   },
+   "detail": "Area under a parabola"
+  },
+  {
+   "n": 25,
+   "topic": "Integration",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>∫<sub>1</sub><sup>4</sup><span class=\"math\">f</span>(<span class=\"math\">x</span>) d<span class=\"math\">x</span> = 10 and ∫<sub>1</sub><sup>2</sup><span class=\"math\">f</span>(<span class=\"math\">x</span>) d<span class=\"math\">x</span> = 3.</p><p>What is ∫<sub>2</sub><sup>4</sup><span class=\"math\">f</span>(<span class=\"math\">x</span>) d<span class=\"math\">x</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−7",
+    "B": "−3",
+    "C": "3",
+    "D": "<span class=\"fr\"><span>10</span><span>3</span></span>",
+    "E": "13",
+    "F": "7"
+   },
+   "answer": "F",
+   "solution_html": "<p>Integrals join end to end: ∫<sub>1</sub><sup>4</sup> = ∫<sub>1</sub><sup>2</sup> + ∫<sub>2</sub><sup>4</sup>.</p><p>So the answer is 10 − 3 = <span class=\"key\">7</span>.</p><p class='trap'>No function is given and none is needed. Anyone looking for <span class=\"math\">f</span> has misread the question.</p>",
+   "traps": {
+    "A": "3 − 10 — the subtraction the wrong way round.",
+    "B": "The sign of the known piece, negated.",
+    "C": "The piece that was given, not the one asked for.",
+    "D": "Dividing the integrals rather than subtracting.",
+    "E": "10 + 3 — added instead of subtracted."
+   },
+   "detail": "Splitting an integral"
+  },
+  {
+   "n": 26,
+   "topic": "Integration",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The trapezium rule with two strips is used to estimate ∫<sub>0</sub><sup>2</sup><span class=\"math\">x</span><sup>2</sup> d<span class=\"math\">x</span>.</p><p>What is the estimate, and how does it compare with the true value?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2, an underestimate",
+    "B": "3, an overestimate",
+    "C": "3, an underestimate",
+    "D": "<span class=\"fr\"><span>8</span><span>3</span></span>, exact",
+    "E": "4, an overestimate",
+    "F": "4, an underestimate"
+   },
+   "answer": "B",
+   "solution_html": "<p>With <span class=\"math\">h</span> = 1 and ordinates 0, 1, 4:</p><p style='text-align:center'><span class=\"fr\"><span>1</span><span>2</span></span> × 1 × [0 + 2(1) + 4] = 3.</p><p>The true value is <span class=\"fr\"><span>8</span><span>3</span></span> ≈ 2.67, so the estimate is an <span class=\"key\">overestimate</span>.</p><p>That is no accident: <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>2</sup> is convex, so every chord lies above the curve and the trapezia always overshoot.</p><p class='trap'>The direction of the error follows from the shape alone — convex means over, concave means under — so you can answer the second half without computing anything.</p>",
+   "traps": {
+    "A": "The wrong estimate and, as it happens, the wrong direction too.",
+    "C": "The right estimate; the curve is convex, so the chords lie above it.",
+    "D": "That is the exact integral — the trapezium rule is not exact for a quadratic.",
+    "E": "4 is the final ordinate, not the estimate.",
+    "F": "Wrong on both counts."
+   },
+   "detail": "Is the trapezium rule over or under?"
+  },
+  {
+   "n": 27,
+   "topic": "Integration",
+   "spec_refs": [
+    "M2.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"fr\"><span>d<span class=\"math\">y</span></span><span>d<span class=\"math\">x</span></span></span> = 6<span class=\"math\">x</span><sup>2</sup>, and <span class=\"math\">y</span> = 5 when <span class=\"math\">x</span> = 1.</p><p>What is <span class=\"math\">y</span> when <span class=\"math\">x</span> = 2?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "11",
+    "B": "13",
+    "C": "16",
+    "D": "17",
+    "E": "18",
+    "F": "19"
+   },
+   "answer": "F",
+   "solution_html": "<p><span class=\"math\">y</span> = 2<span class=\"math\">x</span><sup>3</sup> + <span class=\"math\">c</span>. At (1, 5): 5 = 2 + <span class=\"math\">c</span>, so <span class=\"math\">c</span> = 3.</p><p>At <span class=\"math\">x</span> = 2: <span class=\"math\">y</span> = 16 + 3 = <span class=\"key\">19</span>.</p><p class='trap'>The constant is the question. Integrating and stopping at <span class=\"math\">y</span> = 2<span class=\"math\">x</span><sup>3</sup> gives 16, which is sitting in the options.</p>",
+   "traps": {
+    "A": "c taken as −5.",
+    "B": "2x³ − 3 — the sign of c reversed.",
+    "C": "2x³ with the constant of integration omitted.",
+    "D": "A slip: 2(2)³ read as 14.",
+    "E": "6x² evaluated at x = 2 and halved — the derivative, not y."
+   },
+   "detail": "Integrating with a condition"
+  }
+ ]
+}

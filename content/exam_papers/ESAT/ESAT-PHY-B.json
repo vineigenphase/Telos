@@ -1,0 +1,772 @@
+{
+ "paper_code": "ESAT-PHY-B",
+ "family": "ESAT",
+ "module": "PHY",
+ "short": "ESAT Physics",
+ "title": "Physics",
+ "series": "Telos Mock B",
+ "spec_version": "2026-27",
+ "duration_sec": 2400,
+ "marks_per_question": 1,
+ "family_marks": 27,
+ "rebalanced": true,
+ "target_note": "27 questions in 40 minutes, with g = 10 m/s² throughout. The physics is GCSE; the marks are lost to units. Most wrong options here are the right number in the wrong unit, or off by the factor the question invites.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Electricity & circuits",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A charge of 4.8 C flows past a point.</p><p>How many electrons is that? (electron charge = 1.6 × 10<sup>−19</sup> C)</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3.0 × 10<sup>18</sup>",
+    "B": "7.7 × 10<sup>18</sup>",
+    "C": "3.0 × 10<sup>19</sup>",
+    "D": "4.8 × 10<sup>19</sup>",
+    "E": "3.0 × 10<sup>20</sup>",
+    "F": "7.7 × 10<sup>−19</sup>"
+   },
+   "answer": "C",
+   "solution_html": "<p>Number = <span class=\"fr\"><span>total charge</span><span>charge per electron</span></span> = <span class=\"fr\"><span>4.8</span><span>1.6 × 10<sup>−19</sup></span></span>.</p><p>4.8 ÷ 1.6 = 3, and dividing by 10<sup>−19</sup> multiplies by 10<sup>19</sup>: <span class=\"key\">3.0 × 10¹⁹</span>.</p><p class='trap'>Dividing by a negative power of ten <em>raises</em> the index. Getting 10<sup>−19</sup> in the answer means the division went the wrong way.</p>",
+   "traps": {
+    "A": "One power of ten short.",
+    "B": "4.8 × 1.6 rather than 4.8 ÷ 1.6.",
+    "D": "The charge itself with an index attached.",
+    "E": "One power of ten too many.",
+    "F": "Multiplied instead of divided, and the index sign kept."
+   },
+   "detail": "Charge to a count of electrons"
+  },
+  {
+   "n": 2,
+   "topic": "Electricity & circuits",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 12 V supply drives a current of 2 A through a heater for 5 minutes.</p><p>How much energy is transferred?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "24 J",
+    "B": "120 J",
+    "C": "1440 J",
+    "D": "3600 J",
+    "E": "7200 J",
+    "F": "14400 J"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">E</span> = <span class=\"math\">VIt</span>, and <span class=\"math\">t</span> must be in seconds: 5 minutes = 300 s.</p><p>12 × 2 × 300 = <span class=\"key\">7200 J</span>.</p><p class='trap'>Leaving <span class=\"math\">t</span> as 5 gives 120 J, which is in the list. Every energy formula in this paper wants seconds.</p>",
+   "traps": {
+    "A": "VI — the power in watts, not the energy.",
+    "B": "Time left in minutes.",
+    "C": "12 × 120 — a partial conversion.",
+    "D": "Half the answer, or 12 × 300.",
+    "F": "Time taken as 600 s."
+   },
+   "detail": "Energy delivered over a stated time"
+  },
+  {
+   "n": 3,
+   "topic": "Electricity & circuits",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 6 Ω and a 3 Ω resistor are connected in parallel, and that combination is in series with a 4 Ω resistor across a 12 V supply.</p><p>What current flows from the supply?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1.33 A",
+    "B": "2 A",
+    "C": "3 A",
+    "D": "4 A",
+    "E": "6 A",
+    "F": "8 A"
+   },
+   "answer": "B",
+   "solution_html": "<p>Parallel pair: <span class=\"fr\"><span>1</span><span><span class=\"math\">R</span></span></span> = <span class=\"fr\"><span>1</span><span>6</span></span> + <span class=\"fr\"><span>1</span><span>3</span></span> = <span class=\"fr\"><span>1</span><span>2</span></span>, so <span class=\"math\">R</span> = 2 Ω.</p><p>Total resistance 2 + 4 = 6 Ω, so <span class=\"math\">I</span> = <span class=\"fr\"><span>12</span><span>6</span></span> = <span class=\"key\">2 A</span>.</p><p class='trap'>Adding all three (13 Ω) gives 0.92 A. The parallel pair is always <em>smaller</em> than either resistor in it — a useful sanity check.</p>",
+   "traps": {
+    "A": "Using 9 Ω — the 6 and 3 added rather than combined in parallel.",
+    "C": "Using the 4 Ω resistor alone.",
+    "D": "Using the 2 Ω parallel pair alone.",
+    "E": "Total resistance taken as 2 Ω.",
+    "F": "Total resistance taken as 1.5 Ω."
+   },
+   "detail": "Series and parallel together"
+  },
+  {
+   "n": 4,
+   "topic": "Electricity & circuits",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A filament lamp draws 2 A when connected across 12 V.</p><p>What is its resistance at that moment?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.17 Ω",
+    "B": "2 Ω",
+    "C": "6 Ω",
+    "D": "10 Ω",
+    "E": "14 Ω",
+    "F": "24 Ω"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">R</span> = <span class=\"fr\"><span><span class=\"math\">V</span></span><span><span class=\"math\">I</span></span></span> = <span class=\"fr\"><span>12</span><span>2</span></span> = <span class=\"key\">6 Ω</span>.</p><p class='trap'>'At that moment' matters: a filament's resistance rises with temperature, so this value does not hold at other currents. The question asks only for the ratio at this one reading.</p>",
+   "traps": {
+    "A": "I/V rather than V/I.",
+    "B": "The current, not the resistance.",
+    "D": "12 − 2.",
+    "E": "12 + 2.",
+    "F": "VI — that is power in watts."
+   },
+   "detail": "Resistance from a reading"
+  },
+  {
+   "n": 5,
+   "topic": "Electricity & circuits",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 12 V supply is connected across a 2 kΩ thermistor in series with a 4 kΩ resistor.</p><p>What is the voltage across the 4 kΩ resistor?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2 V",
+    "B": "4 V",
+    "C": "6 V",
+    "D": "8 V",
+    "E": "10 V",
+    "F": "12 V"
+   },
+   "answer": "D",
+   "solution_html": "<p>The same current flows through both, so the voltages divide in the ratio of the resistances.</p><p>Across the 4 kΩ: 12 × <span class=\"fr\"><span>4</span><span>2 + 4</span></span> = <span class=\"key\">8 V</span>.</p><p class='trap'>The larger resistance takes the larger share. Getting 4 V means the fraction was the wrong way up.</p>",
+   "traps": {
+    "A": "12 × 2/12 — wrong denominator.",
+    "B": "12 × 2/6 — the voltage across the thermistor instead.",
+    "C": "Splitting the supply equally, as if the resistances matched.",
+    "E": "A guess weighted too far.",
+    "F": "The whole supply — the thermistor takes some of it."
+   },
+   "detail": "Potential divider"
+  },
+  {
+   "n": 6,
+   "topic": "Magnetism & induction",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A transformer has 1200 turns on the primary and 50 turns on the secondary. The primary is connected to 240 V a.c.</p><p>What is the secondary voltage?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "5 V",
+    "B": "10 V",
+    "C": "24 V",
+    "D": "48 V",
+    "E": "480 V",
+    "F": "5760 V"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"fr\"><span><span class=\"math\">V</span><sub>s</sub></span><span><span class=\"math\">V</span><sub>p</sub></span></span> = <span class=\"fr\"><span><span class=\"math\">N</span><sub>s</sub></span><span><span class=\"math\">N</span><sub>p</sub></span></span>, so <span class=\"math\">V</span><sub>s</sub> = 240 × <span class=\"fr\"><span>50</span><span>1200</span></span> = <span class=\"key\">10 V</span>.</p><p class='trap'>Fewer turns on the secondary means a step-<em>down</em>: the answer must be well below 240 V. Anything larger has the ratio inverted.</p>",
+   "traps": {
+    "A": "Turns ratio taken as 50/2400.",
+    "C": "Dividing by 10 — the ratio approximated too crudely.",
+    "D": "240 ÷ 5.",
+    "E": "The ratio inverted and then halved.",
+    "F": "240 × 1200/50 — the ratio fully inverted."
+   },
+   "detail": "Transformer turns ratio"
+  },
+  {
+   "n": 7,
+   "topic": "Magnetism & induction",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Electricity is sent along a cable of fixed resistance. The current is halved and the cable is unchanged.</p><p>The power wasted in the cable becomes</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "one eighth",
+    "B": "one quarter",
+    "C": "one half",
+    "D": "unchanged",
+    "E": "double",
+    "F": "four times"
+   },
+   "answer": "B",
+   "solution_html": "<p>Power wasted in the cable is <span class=\"math\">I</span><sup>2</sup><span class=\"math\">R</span>.</p><p>Halving <span class=\"math\">I</span> multiplies <span class=\"math\">I</span><sup>2</sup> by <span class=\"fr\"><span>1</span><span>4</span></span>, so the loss falls to <span class=\"key\">one quarter</span>.</p><p class='trap'>Use <span class=\"math\">I</span><sup>2</sup><span class=\"math\">R</span>, not <span class=\"math\">V</span><sup>2</sup>/<span class=\"math\">R</span> — it is the current through the cable that is known, not the voltage across it. That choice is the entire reason the grid transmits at high voltage.</p>",
+   "traps": {
+    "A": "I³R — the power law is squared, not cubed.",
+    "C": "Treating the loss as proportional to I.",
+    "D": "The loss depends on the current.",
+    "E": "The wrong direction entirely.",
+    "F": "Doubling the current rather than halving it."
+   },
+   "detail": "Transmission loss against current"
+  },
+  {
+   "n": 8,
+   "topic": "Magnetism & induction",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A wire of length 20 cm carries 3 A at right angles to a magnetic field of 0.5 T.</p><p>What force acts on it?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.03 N",
+    "B": "0.3 N",
+    "C": "1.5 N",
+    "D": "3 N",
+    "E": "30 N",
+    "F": "300 N"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">F</span> = <span class=\"math\">BIL</span> with <span class=\"math\">L</span> in metres: 20 cm = 0.20 m.</p><p>0.5 × 3 × 0.20 = <span class=\"key\">0.3 N</span>.</p><p class='trap'>Leaving the length as 20 gives 30 N — a hundred times too big, and in the list.</p>",
+   "traps": {
+    "A": "Length taken as 2 cm, or an extra factor of ten lost.",
+    "C": "BI only — the length omitted.",
+    "D": "The current, with the field and length dropped.",
+    "E": "Length left in centimetres.",
+    "F": "Length in centimetres and an extra factor of ten."
+   },
+   "detail": "Force on a current-carrying wire"
+  },
+  {
+   "n": 9,
+   "topic": "Magnetism & induction",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>An a.c. generator turning at 50 Hz produces a peak emf of 5 V.</p><p>It is now turned at 100 Hz. What is the new peak emf?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2.5 V",
+    "B": "5 V",
+    "C": "7.5 V",
+    "D": "10 V",
+    "E": "20 V",
+    "F": "25 V"
+   },
+   "answer": "D",
+   "solution_html": "<p>The induced emf depends on the rate of change of flux, which is proportional to the rotation rate.</p><p>Doubling the rate doubles the peak emf: <span class=\"key\">10 V</span>.</p><p class='trap'>The frequency of the output doubles too. Both double together — it is the same cause.</p>",
+   "traps": {
+    "A": "Halved rather than doubled.",
+    "B": "Unchanged — but the flux now changes twice as fast.",
+    "C": "An average of the two, not a proportionality.",
+    "E": "Squaring the ratio; emf is proportional to the rate, not its square.",
+    "F": "5² — a confusion with a power relationship."
+   },
+   "detail": "Generator output against rotation rate"
+  },
+  {
+   "n": 10,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A car travels at a constant 20 m/s for 5 s, then decelerates uniformly to rest over the next 4 s.</p><p>How far does it travel in total?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "100 m",
+    "B": "120 m",
+    "C": "140 m",
+    "D": "180 m",
+    "E": "200 m",
+    "F": "240 m"
+   },
+   "answer": "C",
+   "solution_html": "<p>Distance is the area under a velocity-time graph.</p><p>Rectangle: 20 × 5 = 100 m. Triangle: <span class=\"fr\"><span>1</span><span>2</span></span> × 20 × 4 = 40 m.</p><p>Total <span class=\"key\">140 m</span>.</p><p class='trap'>The deceleration phase covers 40 m, not 80 — the triangle is half the rectangle it sits in. Forgetting the half gives 180 m.</p>",
+   "traps": {
+    "A": "The constant-speed phase only.",
+    "B": "Deceleration phase taken as 20 m.",
+    "D": "The triangle counted as a full rectangle: 20 × 4 = 80.",
+    "E": "20 m/s assumed for the whole 9 s, roughly.",
+    "F": "20 m/s assumed throughout and rounded up."
+   },
+   "detail": "Distance from a velocity-time graph"
+  },
+  {
+   "n": 11,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A stone is dropped from rest and falls 45 m. Take <span class=\"math\">g</span> = 10 m/s<sup>2</sup> and ignore air resistance.</p><p>How long does it take?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1.5 s",
+    "B": "2 s",
+    "C": "3 s",
+    "D": "4.5 s",
+    "E": "6 s",
+    "F": "9 s"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">s</span> = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">gt</span><sup>2</sup>, so 45 = 5<span class=\"math\">t</span><sup>2</sup> and <span class=\"math\">t</span><sup>2</sup> = 9.</p><p><span class=\"math\">t</span> = <span class=\"key\">3 s</span>.</p><p class='trap'>45 ÷ 10 = 4.5 is the tempting first move and gives the wrong answer. The half and the square both matter.</p>",
+   "traps": {
+    "A": "Half the correct answer.",
+    "B": "Using s = gt rather than ½gt², roughly.",
+    "D": "45 ÷ 10 — neither the half nor the square applied.",
+    "E": "Doubling the correct answer.",
+    "F": "t² read as t."
+   },
+   "detail": "Time to fall a given height"
+  },
+  {
+   "n": 12,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Two blocks, 2 kg and 3 kg, sit in contact on a frictionless surface. A horizontal force of 10 N is applied to the 2 kg block, pushing both.</p><p>What force does the 2 kg block exert on the 3 kg block?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2 N",
+    "B": "4 N",
+    "C": "5 N",
+    "D": "6 N",
+    "E": "8 N",
+    "F": "10 N"
+   },
+   "answer": "D",
+   "solution_html": "<p>Treat the pair as one body: <span class=\"math\">a</span> = <span class=\"fr\"><span>10</span><span>2 + 3</span></span> = 2 m/s<sup>2</sup>.</p><p>Now isolate the 3 kg block. The only horizontal force on it is the contact force, so <span class=\"math\">F</span> = 3 × 2 = <span class=\"key\">6 N</span>.</p><p class='trap'>The contact force is not 10 N. The applied force accelerates both blocks; only part of it is transmitted to the second.</p>",
+   "traps": {
+    "A": "The acceleration, not a force.",
+    "B": "The force needed for the 2 kg block alone.",
+    "C": "Splitting the 10 N equally between the blocks.",
+    "E": "10 − 2, subtracting the acceleration from the force.",
+    "F": "The applied force — all of it would accelerate the 3 kg block alone."
+   },
+   "detail": "Connected bodies and the force between them"
+  },
+  {
+   "n": 13,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 2 kg trolley moving at 6 m/s collides with a stationary 4 kg trolley and they move off together.</p><p>How much kinetic energy is lost in the collision?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0 J",
+    "B": "6 J",
+    "C": "9 J",
+    "D": "12 J",
+    "E": "18 J",
+    "F": "24 J"
+   },
+   "answer": "F",
+   "solution_html": "<p>Momentum is conserved: 2 × 6 = 6<span class=\"math\">v</span>, so <span class=\"math\">v</span> = 2 m/s.</p><p>Before: <span class=\"fr\"><span>1</span><span>2</span></span> × 2 × 6<sup>2</sup> = 36 J. After: <span class=\"fr\"><span>1</span><span>2</span></span> × 6 × 2<sup>2</sup> = 12 J.</p><p>Lost: <span class=\"key\">24 J</span>.</p><p class='trap'>Momentum is conserved and kinetic energy is not — that is what 'move off together' signals. Answering 0 J confuses the two.</p>",
+   "traps": {
+    "A": "Momentum is conserved; kinetic energy is not, in a sticking collision.",
+    "B": "Half the energy after the collision.",
+    "C": "A slip in ½mv² for the combined trolleys.",
+    "D": "The kinetic energy after, not the loss.",
+    "E": "Half the initial energy."
+   },
+   "detail": "Energy lost in a sticking collision"
+  },
+  {
+   "n": 14,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 0.20 kg ball hits a wall at 10 m/s and rebounds at 10 m/s. It is in contact with the wall for 0.020 s.</p><p>What average force does the wall exert on it?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0 N",
+    "B": "50 N",
+    "C": "100 N",
+    "D": "200 N",
+    "E": "400 N",
+    "F": "2000 N"
+   },
+   "answer": "D",
+   "solution_html": "<p>Momentum before is +2.0 kg m/s and after is −2.0 kg m/s, so the change in magnitude is 4.0 kg m/s — not 2.0.</p><p><span class=\"math\">F</span> = <span class=\"fr\"><span>change in momentum</span><span>time</span></span> = <span class=\"fr\"><span>4.0</span><span>0.020</span></span> = <span class=\"key\">200 N</span>.</p><p class='trap'>The rebound doubles the momentum change. Treating the ball as simply stopping gives 100 N, which is in the list.</p>",
+   "traps": {
+    "A": "The speed is unchanged, but the velocity is reversed, so momentum changes.",
+    "B": "Momentum change of 1.0 kg m/s — mass and speed muddled.",
+    "C": "Treating the ball as stopping rather than rebounding.",
+    "E": "Contact time taken as 0.010 s.",
+    "F": "Contact time left as 0.002 s."
+   },
+   "detail": "Force from a change of momentum"
+  },
+  {
+   "n": 15,
+   "topic": "Motion, forces & momentum",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 0.50 kg object falls through air where the drag force is 0.20<span class=\"math\">v</span><sup>2</sup> newtons at speed <span class=\"math\">v</span> m/s. Take <span class=\"math\">g</span> = 10 m/s<sup>2</sup>.</p><p>What is its terminal velocity?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1 m/s",
+    "B": "2 m/s",
+    "C": "2.5 m/s",
+    "D": "4 m/s",
+    "E": "5 m/s",
+    "F": "25 m/s"
+   },
+   "answer": "E",
+   "solution_html": "<p>At terminal velocity the acceleration is zero, so drag balances weight.</p><p>0.20<span class=\"math\">v</span><sup>2</sup> = 0.50 × 10 = 5, so <span class=\"math\">v</span><sup>2</sup> = 25 and <span class=\"math\">v</span> = <span class=\"key\">5 m/s</span>.</p><p class='trap'>The drag goes as <span class=\"math\">v</span><sup>2</sup>, so the final step is a square root. Forgetting it gives 25 m/s.</p>",
+   "traps": {
+    "A": "Weight and drag coefficient divided the wrong way round.",
+    "B": "√(0.2/0.05) — the balance equation inverted.",
+    "C": "Half the answer, or weight taken as 2.5 N.",
+    "D": "Weight taken as 3.2 N.",
+    "F": "v², with the square root not taken."
+   },
+   "detail": "Terminal velocity with quadratic drag"
+  },
+  {
+   "n": 16,
+   "topic": "Energy, work & power",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A spring of stiffness 200 N/m is stretched by 10 cm.</p><p>How much elastic potential energy is stored?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1 J",
+    "B": "2 J",
+    "C": "4 J",
+    "D": "10 J",
+    "E": "20 J",
+    "F": "1000 J"
+   },
+   "answer": "A",
+   "solution_html": "<p><span class=\"math\">E</span> = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">kx</span><sup>2</sup> with <span class=\"math\">x</span> in metres: 10 cm = 0.10 m.</p><p><span class=\"fr\"><span>1</span><span>2</span></span> × 200 × 0.10<sup>2</sup> = <span class=\"fr\"><span>1</span><span>2</span></span> × 200 × 0.01 = <span class=\"key\">1 J</span>.</p><p class='trap'>Both the half and the square are easy to drop, and the centimetres are easier still. Leaving <span class=\"math\">x</span> = 10 gives 10000 J.</p>",
+   "traps": {
+    "B": "The factor of ½ omitted.",
+    "C": "Extension taken as 0.2 m.",
+    "D": "kx rather than ½kx².",
+    "E": "kx with x partly unconverted.",
+    "F": "x left as 10 cm, then halved twice."
+   },
+   "detail": "Energy stored in a stretched spring"
+  },
+  {
+   "n": 17,
+   "topic": "Energy, work & power",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A 2.0 kg ball is dropped from a height of 20 m and reaches the ground at 15 m/s. Take <span class=\"math\">g</span> = 10 m/s<sup>2</sup>.</p><p>How much energy has been lost to air resistance?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "25 J",
+    "B": "50 J",
+    "C": "100 J",
+    "D": "150 J",
+    "E": "175 J",
+    "F": "225 J"
+   },
+   "answer": "E",
+   "solution_html": "<p>Potential energy lost: <span class=\"math\">mgh</span> = 2.0 × 10 × 20 = 400 J.</p><p>Kinetic energy gained: <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">mv</span><sup>2</sup> = <span class=\"fr\"><span>1</span><span>2</span></span> × 2.0 × 225 = 225 J.</p><p>The difference went to air resistance: <span class=\"key\">175 J</span>.</p><p class='trap'>Without air resistance the ball would arrive at 20 m/s, not 15. The gap between those two speeds is the whole question.</p>",
+   "traps": {
+    "A": "400 − 375, from a slip in the kinetic energy.",
+    "B": "A quarter of the potential energy lost.",
+    "C": "Kinetic energy taken as ½mv with v = 15.",
+    "D": "Landing speed taken as 16 m/s, roughly.",
+    "F": "The kinetic energy on landing, not the loss."
+   },
+   "detail": "Energy lost to air resistance"
+  },
+  {
+   "n": 18,
+   "topic": "Energy, work & power",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A motor rated at 500 W lifts a 20 kg load through 5.0 m in 4.0 s. Take <span class=\"math\">g</span> = 10 m/s<sup>2</sup>.</p><p>What is its efficiency?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "20%",
+    "B": "25%",
+    "C": "40%",
+    "D": "50%",
+    "E": "80%",
+    "F": "100%"
+   },
+   "answer": "D",
+   "solution_html": "<p>Useful work = <span class=\"math\">mgh</span> = 20 × 10 × 5.0 = 1000 J, done in 4.0 s, so the useful power is 250 W.</p><p>Efficiency = <span class=\"fr\"><span>250</span><span>500</span></span> = <span class=\"key\">50%</span>.</p><p class='trap'>Compare <em>powers</em> or <em>energies</em>, not one of each. Dividing 1000 J by 500 W gives 2 — a time, not an efficiency.</p>",
+   "traps": {
+    "A": "Using the work done and the rating without the time.",
+    "B": "Useful power taken as 125 W.",
+    "C": "Height or time misread by a factor.",
+    "E": "A guess; the numbers give exactly half.",
+    "F": "No motor lifting a load at this rate is lossless."
+   },
+   "detail": "Efficiency of a motor"
+  },
+  {
+   "n": 19,
+   "topic": "Thermal physics",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How much energy is needed to raise the temperature of 2.0 kg of water by 10 °C? (specific heat capacity of water = 4200 J/kg°C)</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "840 J",
+    "B": "4200 J",
+    "C": "8400 J",
+    "D": "21000 J",
+    "E": "42000 J",
+    "F": "84000 J"
+   },
+   "answer": "F",
+   "solution_html": "<p><span class=\"math\">E</span> = <span class=\"math\">mc</span>Δ<span class=\"math\">T</span> = 2.0 × 4200 × 10 = <span class=\"key\">84000 J</span>.</p><p class='trap'>Three numbers, one multiplication, and the only real risk is a factor of ten. 84 thousand, not 8.4 thousand.</p>",
+   "traps": {
+    "A": "Two factors of ten lost.",
+    "B": "The specific heat capacity alone.",
+    "C": "The temperature rise omitted.",
+    "D": "Mass and rise muddled.",
+    "E": "Mass omitted, or a factor of ten lost."
+   },
+   "detail": "Heating water"
+  },
+  {
+   "n": 20,
+   "topic": "Thermal physics",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How much energy is needed to melt 0.50 kg of ice already at 0 °C? (specific latent heat of fusion = 340000 J/kg)</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "17000 J",
+    "B": "68000 J",
+    "C": "170000 J",
+    "D": "340000 J",
+    "E": "680000 J",
+    "F": "1700000 J"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">E</span> = <span class=\"math\">mL</span> = 0.50 × 340000 = <span class=\"key\">170000 J</span>.</p><p class='trap'>The ice is already at 0 °C, so there is no <span class=\"math\">mc</span>Δ<span class=\"math\">T</span> term — melting happens at constant temperature. Adding a heating stage is the commonest overreach.</p>",
+   "traps": {
+    "A": "A factor of ten lost.",
+    "B": "0.2 × 340000.",
+    "D": "The latent heat for one kilogram, not for half.",
+    "E": "Multiplied by 2 instead of by 0.5.",
+    "F": "A factor of ten too many."
+   },
+   "detail": "Melting ice"
+  },
+  {
+   "n": 21,
+   "topic": "Matter & pressure",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the pressure due to the water alone at a depth of 2.0 m? (density of water = 1000 kg/m<sup>3</sup>, <span class=\"math\">g</span> = 10 m/s<sup>2</sup>)</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2000 Pa",
+    "B": "5000 Pa",
+    "C": "20000 Pa",
+    "D": "50000 Pa",
+    "E": "100000 Pa",
+    "F": "200000 Pa"
+   },
+   "answer": "C",
+   "solution_html": "<p><span class=\"math\">p</span> = ρ<span class=\"math\">gh</span> = 1000 × 10 × 2.0 = <span class=\"key\">20000 Pa</span>.</p><p class='trap'>'Due to the water alone' excludes atmospheric pressure. Adding 100 kPa would be right for the total pressure and wrong for this question.</p>",
+   "traps": {
+    "A": "One factor of ten lost, or g omitted.",
+    "B": "Density taken as 250 kg/m³.",
+    "D": "Depth taken as 5 m.",
+    "E": "Atmospheric pressure — the question asks for the water alone.",
+    "F": "A factor of ten too many."
+   },
+   "detail": "Pressure with depth"
+  },
+  {
+   "n": 22,
+   "topic": "Matter & pressure",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Equal <strong>volumes</strong> of two liquids, of densities 800 and 1200 kg/m<sup>3</sup>, are mixed.</p><p>What is the density of the mixture?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "400 kg/m<sup>3</sup>",
+    "B": "800 kg/m<sup>3</sup>",
+    "C": "900 kg/m<sup>3</sup>",
+    "D": "960 kg/m<sup>3</sup>",
+    "E": "980 kg/m<sup>3</sup>",
+    "F": "1000 kg/m<sup>3</sup>"
+   },
+   "answer": "F",
+   "solution_html": "<p>Take 1 m<sup>3</sup> of each. Total mass 800 + 1200 = 2000 kg in 2 m<sup>3</sup>.</p><p>Density = <span class=\"fr\"><span>2000</span><span>2</span></span> = <span class=\"key\">1000 kg/m³</span> — the plain average, because the volumes are equal.</p><p class='trap'>If equal <em>masses</em> were mixed the answer would be 960, the harmonic mean — option B. Which quantity is equal decides which average applies.</p>",
+   "traps": {
+    "A": "The difference halved.",
+    "B": "The lighter liquid alone.",
+    "C": "A guess between the two densities.",
+    "D": "The harmonic mean — correct for equal masses, not equal volumes.",
+    "E": "A weighted average with the wrong weights."
+   },
+   "detail": "Density of a mixture"
+  },
+  {
+   "n": 23,
+   "topic": "Matter & pressure",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A block exerts a force of 600 N on the ground over a contact area of 0.020 m<sup>2</sup>.</p><p>What pressure does it exert?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "12 Pa",
+    "B": "300 Pa",
+    "C": "3000 Pa",
+    "D": "12000 Pa",
+    "E": "30000 Pa",
+    "F": "300000 Pa"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">p</span> = <span class=\"fr\"><span><span class=\"math\">F</span></span><span><span class=\"math\">A</span></span></span> = <span class=\"fr\"><span>600</span><span>0.020</span></span> = <span class=\"key\">30000 Pa</span>.</p><p class='trap'>Dividing by a number smaller than one makes the answer larger. Anything under 600 has the division inverted somewhere.</p>",
+   "traps": {
+    "A": "600 × 0.020 — multiplied instead of divided.",
+    "B": "Area taken as 2 m².",
+    "C": "Area taken as 0.2 m².",
+    "D": "A factor of a thousand from the multiplication route.",
+    "F": "Area taken as 0.002 m²."
+   },
+   "detail": "Pressure under a block"
+  },
+  {
+   "n": 24,
+   "topic": "Waves",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A shout is reflected from a cliff and the echo is heard 2.0 s later. Sound travels at 340 m/s.</p><p>How far away is the cliff?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "340 m",
+    "B": "510 m",
+    "C": "680 m",
+    "D": "1020 m",
+    "E": "1360 m",
+    "F": "2040 m"
+   },
+   "answer": "A",
+   "solution_html": "<p>In 2.0 s the sound covers 340 × 2.0 = 680 m — but that is there <em>and back</em>.</p><p>The cliff is half that away: <span class=\"key\">340 m</span>.</p><p class='trap'>680 m is the total path and is the answer to a different question. The halving is the entire point of an echo problem.</p>",
+   "traps": {
+    "B": "1.5 s used, or three quarters of the path.",
+    "C": "The total path there and back, not the distance to the cliff.",
+    "D": "3.0 s used.",
+    "E": "The total path doubled again.",
+    "F": "6.0 s used."
+   },
+   "detail": "Distance from an echo"
+  },
+  {
+   "n": 25,
+   "topic": "Waves",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Light of wavelength 600 nm in air enters glass of refractive index 1.5.</p><p>Which statement is correct?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "The frequency falls to 3.3 × 10<sup>14</sup> Hz",
+    "B": "The wavelength is unchanged and the frequency falls",
+    "C": "The wavelength becomes 900 nm and the frequency is unchanged",
+    "D": "Both the speed and the frequency fall by a factor of 1.5",
+    "E": "The speed is unchanged and the wavelength falls",
+    "F": "The wavelength becomes 400 nm and the frequency is unchanged"
+   },
+   "answer": "F",
+   "solution_html": "<p>The frequency is set by the source and does not change at a boundary.</p><p>The speed falls to <span class=\"fr\"><span>3 × 10<sup>8</sup></span><span>1.5</span></span> = 2 × 10<sup>8</sup> m/s, so since <span class=\"math\">v</span> = <span class=\"math\">f</span>λ and <span class=\"math\">f</span> is fixed, the wavelength falls by the same factor: <span class=\"fr\"><span>600</span><span>1.5</span></span> = <span class=\"key\">400 nm</span>.</p><p class='trap'>Frequency is the invariant at a boundary. Everything else — speed, wavelength — scales with the refractive index.</p>",
+   "traps": {
+    "A": "That is the frequency divided by 1.5; frequency does not change at a boundary.",
+    "C": "The wavelength falls in the denser medium, not rises.",
+    "D": "The speed falls; the frequency does not.",
+    "E": "If the frequency is fixed and the wavelength falls, the speed must fall too.",
+    "B": "This has it exactly the wrong way round."
+   },
+   "detail": "What changes when light enters glass"
+  },
+  {
+   "n": 26,
+   "topic": "Radioactivity",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A nucleus of uranium-238 (proton number 92) emits an alpha particle.</p><p>What is the daughter nucleus?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "Proton number 90, mass number 234",
+    "B": "Proton number 88, mass number 230",
+    "C": "Proton number 90, mass number 238",
+    "D": "Proton number 92, mass number 234",
+    "E": "Proton number 93, mass number 238",
+    "F": "Proton number 94, mass number 234"
+   },
+   "answer": "A",
+   "solution_html": "<p>An alpha particle is a helium nucleus: 2 protons and 2 neutrons, so mass number 4 and proton number 2.</p><p>238 − 4 = 234 and 92 − 2 = <span class=\"key\">90</span>.</p><p class='trap'>Beta decay would raise the proton number by one and leave the mass number alone — option E. Alpha lowers both.</p>",
+   "traps": {
+    "C": "Proton number reduced but mass number left alone.",
+    "D": "Mass number reduced but proton number left alone.",
+    "E": "That is beta-minus decay.",
+    "F": "Proton number raised by 2 instead of lowered.",
+    "B": "Two alpha decays, not one."
+   },
+   "detail": "Alpha decay"
+  },
+  {
+   "n": 27,
+   "topic": "Radioactivity",
+   "spec_refs": [
+    "M7.7"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A sample contains 80 g of a radioactive isotope with a half-life of 6 days.</p><p>How much remains after 24 days?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0.6 g",
+    "B": "1.25 g",
+    "C": "2.5 g",
+    "D": "3.3 g",
+    "E": "4 g",
+    "F": "5 g"
+   },
+   "answer": "F",
+   "solution_html": "<p>24 days is four half-lives.</p><p>80 → 40 → 20 → 10 → <span class=\"key\">5 g</span>.</p><p class='trap'>Four halvings, not three. Counting 24 ÷ 6 = 4 and then halving three times is the usual slip and gives 10 g.</p>",
+   "traps": {
+    "A": "Seven half-lives.",
+    "B": "Six half-lives.",
+    "C": "Five half-lives.",
+    "D": "80 ÷ 24 — dividing the mass by the days.",
+    "E": "A rounding of five half-lives."
+   },
+   "detail": "Counting half-lives"
+  }
+ ]
+}

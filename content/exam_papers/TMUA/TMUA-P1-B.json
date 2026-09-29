@@ -1,0 +1,588 @@
+{
+ "paper_code": "TMUA-P1-B",
+ "family": "TMUA",
+ "module": "P1",
+ "short": "TMUA Paper 1",
+ "title": "Paper 1: Applications of Mathematical Knowledge",
+ "series": "Telos Mock B",
+ "spec_version": "2026-27",
+ "duration_sec": 4500,
+ "marks_per_question": 1,
+ "family_marks": 40,
+ "rebalanced": true,
+ "target_note": "Harder than Mock A on purpose, and harder in the way the real test is: no question needs anything beyond the specification, and most have an obvious method that will not fit in the time. A 7+ candidate should expect to leave two or three and still finish.",
+ "questions": [
+  {
+   "n": 1,
+   "topic": "Indices, logarithms & exponentials",
+   "spec_refs": [
+    "MM1.1",
+    "MM1.6"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Solve 9<sup><span class=\"math\">x</span></sup> + 27 = 4 × 3<sup><span class=\"math\">x</span>+1</sup>.</p><p>What is the sum of the solutions?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "3",
+    "C": "4",
+    "D": "6",
+    "E": "12",
+    "F": "There are no real solutions"
+   },
+   "answer": "B",
+   "solution_html": "<p>Write everything in powers of 3. The trap is on the right: 4 × 3<sup><span class=\"math\">x</span>+1</sup> = 4 × 3 × 3<sup><span class=\"math\">x</span></sup> = 12 × 3<sup><span class=\"math\">x</span></sup>, not 4 × 3<sup><span class=\"math\">x</span></sup>.</p><p>With <span class=\"math\">t</span> = 3<sup><span class=\"math\">x</span></sup>: <span class=\"math\">t</span><sup>2</sup> − 12<span class=\"math\">t</span> + 27 = 0, so (<span class=\"math\">t</span> − 3)(<span class=\"math\">t</span> − 9) = 0 and <span class=\"math\">t</span> = 3 or 9.</p><p>Then <span class=\"math\">x</span> = 1 or <span class=\"math\">x</span> = 2, and the sum is <span class=\"key\">3</span>.</p><p class='trap'>Both roots are positive, so neither is lost — but check that habit anyway: <span class=\"math\">t</span> = 3<sup><span class=\"math\">x</span></sup> can never be negative, and on a different quadratic that is the whole question.</p>",
+   "traps": {
+    "A": "One of the two solutions, not the sum.",
+    "C": "Reading 4 × 3ˣ⁺¹ as 4 × 3ˣ, which gives t² − 4t + 27 = 0 and no real roots — then answering anyway.",
+    "D": "Doubling the larger solution, or adding 4 and 2.",
+    "E": "The sum of the two values of t (3 + 9), not of x.",
+    "F": "There are two."
+   },
+   "detail": "Exponential equation by substitution"
+  },
+  {
+   "n": 2,
+   "topic": "Indices, logarithms & exponentials",
+   "spec_refs": [
+    "MM1.5",
+    "MM1.6"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">x</span> &gt; 1 and</p><p style='text-align:center'>log<sub>3</sub> <span class=\"math\">x</span> + log<sub><span class=\"math\">x</span></sub> 3 = <span class=\"fr\"><span>5</span><span>2</span></span>.</p><p>What is the product of the possible values of <span class=\"math\">x</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>9</span><span>2</span></span>",
+    "B": "3<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "C": "9",
+    "D": "<span class=\"rt\">√<span class=\"ov\">3</span></span> + 9",
+    "E": "9<span class=\"rt\">√<span class=\"ov\">3</span></span>",
+    "F": "27"
+   },
+   "answer": "E",
+   "solution_html": "<p>log<sub><span class=\"math\">x</span></sub> 3 is the reciprocal of log<sub>3</sub> <span class=\"math\">x</span>. That one line is the whole question.</p><p>Let <span class=\"math\">u</span> = log<sub>3</sub> <span class=\"math\">x</span>. Then <span class=\"math\">u</span> + <span class=\"fr\"><span>1</span><span><span class=\"math\">u</span></span></span> = <span class=\"fr\"><span>5</span><span>2</span></span>, so 2<span class=\"math\">u</span><sup>2</sup> − 5<span class=\"math\">u</span> + 2 = 0 and <span class=\"math\">u</span> = 2 or <span class=\"fr\"><span>1</span><span>2</span></span>.</p><p>So <span class=\"math\">x</span> = 3<sup>2</sup> = 9 or <span class=\"math\">x</span> = 3<sup>1/2</sup> = <span class=\"rt\">√<span class=\"ov\">3</span></span>, and the product is <span class=\"key\">9<span class=\"rt\">√<span class=\"ov\">3</span></span></span>.</p><p class='trap'>Or skip the values entirely: the product is 3<sup><span class=\"math\">u</span>₁</sup> × 3<sup><span class=\"math\">u</span>₂</sup> = 3<sup><span class=\"math\">u</span>₁+<span class=\"math\">u</span>₂</sup>, and the sum of the roots is <span class=\"fr\"><span>5</span><span>2</span></span> by inspection. 3<sup>5/2</sup> = 9<span class=\"rt\">√<span class=\"ov\">3</span></span> in one step.</p>",
+   "traps": {
+    "A": "Dividing 9 by 2 rather than multiplying 9 by √3.",
+    "B": "3^(3/2). Comes from taking the sum of the roots as 3/2 rather than 5/2.",
+    "C": "Only one of the two values.",
+    "D": "The sum of the two values of x, not their product.",
+    "F": "3³ — adding the exponents as 2 + 1 instead of 2 + ½."
+   },
+   "detail": "Reciprocal logarithms"
+  },
+  {
+   "n": 3,
+   "topic": "Algebra & equations",
+   "spec_refs": [
+    "MM2.1",
+    "MM2.4"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many integers <span class=\"math\">k</span> are there for which</p><p style='text-align:center'><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">k</span><span class=\"math\">x</span> + 36 = 0</p><p>has two <strong>distinct</strong> integer roots?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "8",
+    "B": "9",
+    "C": "10",
+    "D": "12",
+    "E": "18",
+    "F": "Infinitely many"
+   },
+   "answer": "A",
+   "solution_html": "<p>If the roots are <span class=\"math\">p</span> and <span class=\"math\">q</span> then <span class=\"math\">p</span><span class=\"math\">q</span> = 36 and <span class=\"math\">k</span> = −(<span class=\"math\">p</span> + <span class=\"math\">q</span>).</p><p>Positive factor pairs of 36: (1, 36), (2, 18), (3, 12), (4, 9), (6, 6). The negatives of each pair work too, since (−<span class=\"math\">p</span>)(−<span class=\"math\">q</span>) = 36.</p><p><strong>Distinct</strong> rules out (6, 6).</p><p>That leaves four pairs, each giving a <span class=\"math\">k</span> and its negative: <span class=\"math\">k</span> = ±13, ±15, ±20, ±37 — <span class=\"key\">8</span> values.</p><p class='trap'>The word doing the work is 'distinct'. Without it the answer is 10, which is sitting in the options waiting.</p>",
+   "traps": {
+    "B": "One stray value has crept in, usually k = −12 counted once.",
+    "C": "The answer to this question without the word 'distinct': (6, 6) adds k = ±12.",
+    "D": "Counting the divisors of 36 rather than the factor pairs.",
+    "E": "Counting ordered pairs (p, q) rather than values of k — each pair and its reverse give the same k.",
+    "F": "36 has finitely many factors."
+   },
+   "detail": "Integer roots with a parameter"
+  },
+  {
+   "n": 4,
+   "topic": "Algebra & equations",
+   "spec_refs": [
+    "MM2.4"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The cubic <span class=\"math\">p</span>(<span class=\"math\">x</span>) = <span class=\"math\">x</span><sup>3</sup> + <span class=\"math\">a</span><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">b</span><span class=\"math\">x</span> + <span class=\"math\">c</span> has three roots which are consecutive integers, and <span class=\"math\">p</span>(0) = −6.</p><p>What is <span class=\"math\">a</span> + <span class=\"math\">b</span> + <span class=\"math\">c</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "−6",
+    "B": "−1",
+    "C": "0",
+    "D": "1",
+    "E": "6",
+    "F": "11"
+   },
+   "answer": "B",
+   "solution_html": "<p>The fast route never finds <span class=\"math\">a</span>, <span class=\"math\">b</span> or <span class=\"math\">c</span> at all.</p><p><span class=\"math\">p</span>(1) = 1 + <span class=\"math\">a</span> + <span class=\"math\">b</span> + <span class=\"math\">c</span>. So if 1 is a root, <span class=\"math\">a</span> + <span class=\"math\">b</span> + <span class=\"math\">c</span> = −1 immediately.</p><p>And 1 is a root: with roots <span class=\"math\">n</span>−1, <span class=\"math\">n</span>, <span class=\"math\">n</span>+1 we have <span class=\"math\">p</span>(0) = −(<span class=\"math\">n</span>−1)<span class=\"math\">n</span>(<span class=\"math\">n</span>+1) = −6, so <span class=\"math\">n</span>(<span class=\"math\">n</span><sup>2</sup>−1) = 6, giving <span class=\"math\">n</span> = 2 and roots 1, 2, 3.</p><p>Hence <span class=\"math\">a</span> + <span class=\"math\">b</span> + <span class=\"math\">c</span> = <span class=\"key\">−1</span>.</p><p class='trap'>Expanding (<span class=\"math\">x</span>−1)(<span class=\"math\">x</span>−2)(<span class=\"math\">x</span>−3) to get <span class=\"math\">a</span> = −6, <span class=\"math\">b</span> = 11, <span class=\"math\">c</span> = −6 and then adding is perfectly correct and costs you two minutes you did not have.</p>",
+   "traps": {
+    "A": "That is c on its own, or a on its own — both are −6.",
+    "C": "Zero is what you get if you set p(1) = 1 rather than 0.",
+    "D": "Sign slip: p(1) = 0 gives 1 + a + b + c = 0, so the sum is −1, not +1.",
+    "E": "The product of the roots, or −c.",
+    "F": "That is b on its own."
+   },
+   "detail": "Consecutive integer roots"
+  },
+  {
+   "n": 5,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "MM3.2",
+    "MM3.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The circle <span class=\"math\">C</span> has equation <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> − 2<span class=\"math\">x</span> = 0.</p><p>For how many values of <span class=\"math\">m</span> is the line <span class=\"math\">y</span> = <span class=\"math\">m</span><span class=\"math\">x</span> + 4 a tangent to <span class=\"math\">C</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "B",
+   "solution_html": "<p><span class=\"math\">C</span> is (<span class=\"math\">x</span>−1)<sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 1: centre (1, 0), radius 1. The point (0, 4) is at distance <span class=\"rt\">√<span class=\"ov\">17</span></span> from the centre, so it lies outside, and from an external point there are <em>two</em> tangents.</p><p>But one of them is the vertical line <span class=\"math\">x</span> = 0, whose distance from (1, 0) is exactly 1. A vertical line has no gradient, so it is not of the form <span class=\"math\">y</span> = <span class=\"math\">m</span><span class=\"math\">x</span> + 4.</p><p>That leaves <span class=\"key\">1</span> value of <span class=\"math\">m</span>. (Solving properly: |<span class=\"math\">m</span> + 4| = <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">m</span><sup>2</sup>+1</span></span> gives <span class=\"math\">m</span> = −<span class=\"fr\"><span>15</span><span>8</span></span>.)</p><p class='trap'>Every instinct says 2, and the geometry agrees — it is the <em>parametrisation</em> that loses one. Any question asking 'how many values of m' rather than 'how many tangents' is asking exactly this.</p>",
+   "traps": {
+    "A": "There is one; the point (0,4) is outside the circle, not inside it.",
+    "C": "Two tangents exist, but one is vertical and so has no value of m.",
+    "D": "Three is the count of common tangents to two circles, not this.",
+    "E": "Four is not reachable here.",
+    "F": "Only a degenerate circle would give infinitely many."
+   },
+   "detail": "A tangent with no gradient"
+  },
+  {
+   "n": 6,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "MM5.2",
+    "MM6.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>Evaluate</p><p style='text-align:center'><span class=\"fr\"><span>1</span><span><span class=\"rt\">√<span class=\"ov\">2</span></span> + 1</span></span> + <span class=\"fr\"><span>1</span><span><span class=\"rt\">√<span class=\"ov\">3</span></span> + <span class=\"rt\">√<span class=\"ov\">2</span></span></span></span> + … + <span class=\"fr\"><span>1</span><span><span class=\"rt\">√<span class=\"ov\">25</span></span> + <span class=\"rt\">√<span class=\"ov\">24</span></span></span></span></p><p>(that is, the sum of 1/(<span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span>+1</span></span> + <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span></span></span>) for <span class=\"math\">r</span> = 1 to 24).</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>1</span><span>2</span></span>(5 − 1)",
+    "B": "5 − <span class=\"rt\">√<span class=\"ov\">2</span></span>",
+    "C": "4",
+    "D": "<span class=\"rt\">√<span class=\"ov\">24</span></span>",
+    "E": "5",
+    "F": "24"
+   },
+   "answer": "C",
+   "solution_html": "<p>Rationalise one term and the sum collapses:</p><p style='text-align:center'><span class=\"fr\"><span>1</span><span><span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span>+1</span></span> + <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span></span></span></span></span> = <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span>+1</span></span> − <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span></span></span>.</p><p>(Multiply top and bottom by <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span>+1</span></span> − <span class=\"rt\">√<span class=\"ov\"><span class=\"math\">r</span></span></span>; the denominator becomes (<span class=\"math\">r</span>+1) − <span class=\"math\">r</span> = 1.)</p><p>Every middle term cancels, leaving <span class=\"rt\">√<span class=\"ov\">25</span></span> − <span class=\"rt\">√<span class=\"ov\">1</span></span> = 5 − 1 = <span class=\"key\">4</span>.</p><p class='trap'>Adding the 24 terms on a calculator is not available to you and would not be faster if it were. The rationalising step is the only route in.</p>",
+   "traps": {
+    "A": "A halving that comes from rationalising a difference of squares that is not there.",
+    "B": "This is what you get rationalising the wrong way round, giving √r − √(r+1).",
+    "D": "√24 is the last term's index, not the sum.",
+    "E": "√25 on its own — the −√1 at the start of the telescope is still there.",
+    "F": "The number of terms, not their sum."
+   },
+   "detail": "A telescoping sum"
+  },
+  {
+   "n": 7,
+   "topic": "Sequences & series",
+   "spec_refs": [
+    "MM5.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the coefficient of <span class=\"math\">x</span><sup>4</sup> in the expansion of</p><p style='text-align:center'>(1 + <span class=\"math\">x</span> + <span class=\"math\">x</span><sup>2</sup>)<sup>5</sup>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "20",
+    "B": "30",
+    "C": "40",
+    "D": "42",
+    "E": "45",
+    "F": "80"
+   },
+   "answer": "E",
+   "solution_html": "<p>The binomial theorem does not apply directly — three terms, not two. Two ways in, and only one is quick.</p><p>Write 1 + <span class=\"math\">x</span> + <span class=\"math\">x</span><sup>2</sup> = <span class=\"fr\"><span>1 − <span class=\"math\">x</span><sup>3</sup></span><span>1 − <span class=\"math\">x</span></span></span>. Then the expansion is (1 − <span class=\"math\">x</span><sup>3</sup>)<sup>5</sup>(1 − <span class=\"math\">x</span>)<sup>−5</sup>.</p><p>For <span class=\"math\">x</span><sup>4</sup>: take <span class=\"math\">x</span><sup>0</sup> from the first bracket and <span class=\"math\">x</span><sup>4</sup> from the second, or <span class=\"math\">x</span><sup>3</sup> from the first and <span class=\"math\">x</span><sup>1</sup> from the second.</p><p>(1 − <span class=\"math\">x</span>)<sup>−5</sup> has <span class=\"math\">x</span><sup>j</sup> coefficient <sup>j+4</sup>C<sub>4</sub>. So the answer is 1 × <sup>8</sup>C<sub>4</sub> − 5 × <sup>5</sup>C<sub>4</sub> = 70 − 25 = <span class=\"key\">45</span>.</p><p class='trap'>Multiplying (1+<span class=\"math\">x</span>+<span class=\"math\">x</span><sup>2</sup>) by itself five times is the obvious route and takes about four minutes. It is also the route most likely to drop a term.</p>",
+   "traps": {
+    "A": "Counts only the arrangements using two x² terms.",
+    "B": "One of the three families of terms contributing to x⁴ is missing.",
+    "C": "Drops the correction term entirely — this is ⁸C₄ with an arithmetic slip.",
+    "D": "70 − 25 done wrong; the method is right.",
+    "F": "Double counting: 2 × 40, or ⁸C₄ plus its own correction instead of minus."
+   },
+   "detail": "Coefficient in a trinomial power"
+  },
+  {
+   "n": 8,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "MM3.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The points <span class=\"math\">A</span>(3, 4) and <span class=\"math\">B</span>(−4, 3) both lie on the circle <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 25.</p><p>What is the perpendicular distance from the origin to the chord <span class=\"math\">AB</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span><span class=\"rt\">√<span class=\"ov\">2</span></span></span><span>2</span></span>",
+    "B": "<span class=\"rt\">√<span class=\"ov\">2</span></span>",
+    "C": "<span class=\"fr\"><span>5</span><span>2</span></span>",
+    "D": "<span class=\"fr\"><span>5<span class=\"rt\">√<span class=\"ov\">2</span></span></span><span>2</span></span>",
+    "E": "5",
+    "F": "<span class=\"fr\"><span>25</span><span>2</span></span>"
+   },
+   "answer": "D",
+   "solution_html": "<p>Both points are on the circle, so the perpendicular from the centre bisects <span class=\"math\">AB</span> — and its foot is the midpoint.</p><p>Midpoint of <span class=\"math\">AB</span> is (−<span class=\"fr\"><span>1</span><span>2</span></span>, <span class=\"fr\"><span>7</span><span>2</span></span>).</p><p>Distance from the origin: <span class=\"rt\">√<span class=\"ov\"><span class=\"fr\"><span>1</span><span>4</span></span> + <span class=\"fr\"><span>49</span><span>4</span></span></span></span> = <span class=\"rt\">√<span class=\"ov\"><span class=\"fr\"><span>50</span><span>4</span></span></span></span> = <span class=\"key\"><span class=\"fr\"><span>5<span class=\"rt\">√<span class=\"ov\">2</span></span></span><span>2</span></span></span>.</p><p class='trap'>Finding the equation of <span class=\"math\">AB</span> and using the point-to-line formula gets the same answer and takes three times as long. The midpoint shortcut only exists because both points are on the circle.</p>",
+   "traps": {
+    "A": "√2/2 loses the factor of 5.",
+    "B": "√2 is the square root of the midpoint's x-coordinate squared, doubled — a slip.",
+    "C": "Half the radius — true only if the chord subtended 120°, which it does not.",
+    "E": "5 is the radius, the distance to the circle itself, not to the chord.",
+    "F": "25/2 is the square of the distance, not the distance."
+   },
+   "detail": "Distance from centre to a chord"
+  },
+  {
+   "n": 9,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "MM3.2",
+    "MM3.3"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many lines are tangent to both of the circles</p><p style='text-align:center'><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 9 and (<span class=\"math\">x</span> − 5)<sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 4?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "D",
+   "solution_html": "<p>Centres (0, 0) and (5, 0); radii 3 and 2. The distance between the centres is 5.</p><p>3 + 2 = 5, so the circles touch externally at exactly one point.</p><p>Two circles that touch externally have <span class=\"key\">3</span> common tangents: two external ones, and the single line through the point of contact.</p><p class='trap'>The arithmetic is trivial and the whole question is whether you notice that <span class=\"math\">d</span> = <span class=\"math\">r</span><sub>1</sub> + <span class=\"math\">r</span><sub>2</sub> exactly. One unit either way and the answer is 4 or 2.</p>",
+   "traps": {
+    "A": "Zero applies when one circle lies strictly inside the other.",
+    "B": "One applies when the circles touch internally.",
+    "C": "Two applies when the circles properly overlap — here they only touch.",
+    "E": "Four applies when the circles are fully separate; here d is exactly r₁ + r₂, not more.",
+    "F": "Only identical circles would give infinitely many."
+   },
+   "detail": "Common tangents to two circles"
+  },
+  {
+   "n": 10,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many solutions does</p><p style='text-align:center'>sin 3<span class=\"math\">x</span> = sin <span class=\"math\">x</span></p><p>have for 0 ≤ <span class=\"math\">x</span> ≤ 2π?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "4",
+    "B": "5",
+    "C": "6",
+    "D": "7",
+    "E": "8",
+    "F": "9"
+   },
+   "answer": "D",
+   "solution_html": "<p>Do not expand sin 3<span class=\"math\">x</span>. Use the difference:</p><p style='text-align:center'>sin 3<span class=\"math\">x</span> − sin <span class=\"math\">x</span> = 2 cos 2<span class=\"math\">x</span> sin <span class=\"math\">x</span> = 0.</p><p>sin <span class=\"math\">x</span> = 0 gives <span class=\"math\">x</span> = 0, π, 2π — three solutions, and <em>both</em> endpoints count because the interval is closed.</p><p>cos 2<span class=\"math\">x</span> = 0 gives 2<span class=\"math\">x</span> = <span class=\"fr\"><span>π</span><span>2</span></span>, <span class=\"fr\"><span>3π</span><span>2</span></span>, <span class=\"fr\"><span>5π</span><span>2</span></span>, <span class=\"fr\"><span>7π</span><span>2</span></span>, so <span class=\"math\">x</span> = <span class=\"fr\"><span>π</span><span>4</span></span>, <span class=\"fr\"><span>3π</span><span>4</span></span>, <span class=\"fr\"><span>5π</span><span>4</span></span>, <span class=\"fr\"><span>7π</span><span>4</span></span> — four more.</p><p>Total <span class=\"key\">7</span>.</p><p class='trap'>Expanding sin 3<span class=\"math\">x</span> = 3 sin <span class=\"math\">x</span> − 4 sin<sup>3</sup><span class=\"math\">x</span> also works and takes far longer. The endpoints are where the marks are lost either way.</p>",
+   "traps": {
+    "A": "Four counts only the cos 2x family.",
+    "B": "Five usually means one endpoint was dropped from the sin x family.",
+    "C": "Six is the answer on the open interval 0 < x < 2π — the interval here is closed.",
+    "E": "Eight double-counts one of the endpoints.",
+    "F": "Nine counts 2x-values rather than x-values somewhere in the cos 2x family."
+   },
+   "detail": "Counting solutions of a trigonometric equation"
+  },
+  {
+   "n": 11,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A triangle has sides of length 13, 14 and 15.</p><p>What is the radius of its inscribed circle?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "6",
+    "F": "8"
+   },
+   "answer": "D",
+   "solution_html": "<p>Semi-perimeter <span class=\"math\">s</span> = <span class=\"fr\"><span>13 + 14 + 15</span><span>2</span></span> = 21.</p><p>Heron: area = <span class=\"rt\">√<span class=\"ov\">21 × 8 × 7 × 6</span></span> = <span class=\"rt\">√<span class=\"ov\">7056</span></span> = 84.</p><p>The incircle touches all three sides, so the triangle splits into three triangles of heights <span class=\"math\">r</span>: area = <span class=\"math\">rs</span>.</p><p>Hence <span class=\"math\">r</span> = <span class=\"fr\"><span>84</span><span>21</span></span> = <span class=\"key\">4</span>.</p><p class='trap'>13-14-15 is the standard 'nice' triangle precisely because Heron gives a whole number. Recognising it saves the minute you would spend checking the arithmetic.</p>",
+   "traps": {
+    "A": "A guess — no route reaches 1.",
+    "B": "Area over perimeter rather than area over semi-perimeter, then halved again.",
+    "C": "84 ÷ 28: the perimeter halved incorrectly.",
+    "E": "84 ÷ 14, using a side length instead of the semi-perimeter.",
+    "F": "One of Heron's factors (s − 13 = 8), not the radius."
+   },
+   "detail": "Inradius from Heron's formula"
+  },
+  {
+   "n": 12,
+   "topic": "Trigonometry",
+   "spec_refs": [
+    "MM4.5",
+    "MM4.6"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A sector of a circle has radius <span class=\"math\">r</span> and angle θ radians. Its perimeter — two radii plus the arc — is 20.</p><p>What is the largest possible area of the sector?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "16",
+    "B": "<span class=\"fr\"><span>50</span><span>3</span></span>",
+    "C": "20",
+    "D": "21",
+    "E": "24",
+    "F": "25"
+   },
+   "answer": "F",
+   "solution_html": "<p>Perimeter: 2<span class=\"math\">r</span> + <span class=\"math\">r</span>θ = 20, so θ = <span class=\"fr\"><span>20 − 2<span class=\"math\">r</span></span><span><span class=\"math\">r</span></span></span>.</p><p>Area = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">r</span><sup>2</sup>θ = <span class=\"fr\"><span>1</span><span>2</span></span><span class=\"math\">r</span>(20 − 2<span class=\"math\">r</span>) = 10<span class=\"math\">r</span> − <span class=\"math\">r</span><sup>2</sup>.</p><p>That is a downward parabola in <span class=\"math\">r</span>, greatest at <span class=\"math\">r</span> = 5, giving area 50 − 25 = <span class=\"key\">25</span>.</p><p class='trap'>The θ disappears the moment you substitute, and with it any need for calculus — completing the square on 10<span class=\"math\">r</span> − <span class=\"math\">r</span><sup>2</sup> is faster than differentiating. At <span class=\"math\">r</span> = 5, θ = 2 radians, which is a perfectly ordinary sector.</p>",
+   "traps": {
+    "A": "The area at r = 2 — a valid sector, just not the largest.",
+    "B": "Maximising with θ fixed at 2π/3 rather than letting it vary.",
+    "C": "The perimeter, not the area.",
+    "D": "The area at r = 3 or r = 7, either side of the maximum.",
+    "E": "The area at r = 4 or r = 6 — very close, and the most tempting wrong answer."
+   },
+   "detail": "Maximising a sector's area"
+  },
+  {
+   "n": 13,
+   "topic": "Calculus",
+   "spec_refs": [
+    "MM7.1",
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p><span class=\"math\">f</span>(<span class=\"math\">x</span>) = <span class=\"math\">x</span><sup>3</sup> − 3<span class=\"math\">x</span>.</p><p>How many distinct real solutions does <span class=\"math\">f</span>(<span class=\"math\">f</span>(<span class=\"math\">x</span>)) = 0 have?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "3",
+    "B": "5",
+    "C": "6",
+    "D": "7",
+    "E": "9",
+    "F": "27"
+   },
+   "answer": "E",
+   "solution_html": "<p><span class=\"math\">f</span>(<span class=\"math\">x</span>) = 0 when <span class=\"math\">x</span>(<span class=\"math\">x</span><sup>2</sup>−3) = 0, so <span class=\"math\">x</span> = 0, ±<span class=\"rt\">√<span class=\"ov\">3</span></span>.</p><p>So <span class=\"math\">f</span>(<span class=\"math\">f</span>(<span class=\"math\">x</span>)) = 0 needs <span class=\"math\">f</span>(<span class=\"math\">x</span>) = 0, <span class=\"rt\">√<span class=\"ov\">3</span></span> or −<span class=\"rt\">√<span class=\"ov\">3</span></span>.</p><p>Now the shape. <span class=\"math\">f</span>′(<span class=\"math\">x</span>) = 3<span class=\"math\">x</span><sup>2</sup> − 3, so there is a local maximum at (−1, 2) and a local minimum at (1, −2). The line <span class=\"math\">y</span> = <span class=\"math\">c</span> therefore meets the curve three times whenever |<span class=\"math\">c</span>| &lt; 2.</p><p>|0| &lt; 2 and <span class=\"rt\">√<span class=\"ov\">3</span></span> ≈ 1.73 &lt; 2, so all three equations have three roots each: <span class=\"key\">9</span> in total, and they are distinct because the three values of <span class=\"math\">c</span> are.</p><p class='trap'>The entire question is whether <span class=\"rt\">√<span class=\"ov\">3</span></span> &lt; 2. If the cubic had been <span class=\"math\">x</span><sup>3</sup> − 3<span class=\"math\">x</span> with roots at ±<span class=\"rt\">√<span class=\"ov\">3</span></span> but a turning value of 1, the answer would be 5.</p>",
+   "traps": {
+    "A": "Three is the number of roots of f(x) = 0, not of f(f(x)) = 0.",
+    "B": "Five is the answer if √3 were greater than the turning value of 2 — check it.",
+    "C": "Six counts only two of the three families.",
+    "D": "Seven would need one family to give a repeated root; none does.",
+    "F": "27 is 3³, the answer if every root split into three again indefinitely."
+   },
+   "detail": "Nested cubic: counting real roots"
+  },
+  {
+   "n": 14,
+   "topic": "Calculus",
+   "spec_refs": [
+    "MM8.1",
+    "MM8.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>What is the total area of the region enclosed between the curve <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>3</sup> − <span class=\"math\">x</span> and the <span class=\"math\">x</span>-axis?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "<span class=\"fr\"><span>1</span><span>4</span></span>",
+    "C": "<span class=\"fr\"><span>1</span><span>2</span></span>",
+    "D": "<span class=\"fr\"><span>3</span><span>4</span></span>",
+    "E": "1",
+    "F": "2"
+   },
+   "answer": "C",
+   "solution_html": "<p>The curve cuts the axis at <span class=\"math\">x</span> = −1, 0, 1, making two loops.</p><p>Between 0 and 1 the curve is below the axis; between −1 and 0 it is above. By symmetry the two loops have equal area.</p><p>One loop: ∫<sub>0</sub><sup>1</sup>(<span class=\"math\">x</span> − <span class=\"math\">x</span><sup>3</sup>) d<span class=\"math\">x</span> = [<span class=\"fr\"><span><span class=\"math\">x</span><sup>2</sup></span><span>2</span></span> − <span class=\"fr\"><span><span class=\"math\">x</span><sup>4</sup></span><span>4</span></span>]<sub>0</sub><sup>1</sup> = <span class=\"fr\"><span>1</span><span>2</span></span> − <span class=\"fr\"><span>1</span><span>4</span></span> = <span class=\"fr\"><span>1</span><span>4</span></span>.</p><p>Total = 2 × <span class=\"fr\"><span>1</span><span>4</span></span> = <span class=\"key\"><span class=\"fr\"><span>1</span><span>2</span></span></span>.</p><p class='trap'>∫<sub>−1</sub><sup>1</sup>(<span class=\"math\">x</span><sup>3</sup>−<span class=\"math\">x</span>) d<span class=\"math\">x</span> = 0, because the curve is odd and the loops cancel. 'Area' is never the signed integral across a root.</p>",
+   "traps": {
+    "A": "The signed integral from −1 to 1 — the two loops cancel. Area does not cancel.",
+    "B": "One loop only.",
+    "D": "3/4 comes from integrating x − x³ over the whole of [−1, 1] without splitting.",
+    "E": "1 is four quarter-loops — there are only two loops.",
+    "F": "2 is the width of the interval, not an area."
+   },
+   "detail": "Area of both loops"
+  },
+  {
+   "n": 15,
+   "topic": "Calculus",
+   "spec_refs": [
+    "MM7.1",
+    "MM7.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many tangents to the curve <span class=\"math\">y</span> = <span class=\"math\">x</span><sup>3</sup> − 3<span class=\"math\">x</span> pass through the point (0, 2)?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "B",
+   "solution_html": "<p>The tangent at <span class=\"math\">x</span> = <span class=\"math\">a</span> has gradient 3<span class=\"math\">a</span><sup>2</sup> − 3 and passes through (<span class=\"math\">a</span>, <span class=\"math\">a</span><sup>3</sup> − 3<span class=\"math\">a</span>).</p><p>Through (0, 2):</p><p style='text-align:center'>2 = (3<span class=\"math\">a</span><sup>2</sup> − 3)(0 − <span class=\"math\">a</span>) + <span class=\"math\">a</span><sup>3</sup> − 3<span class=\"math\">a</span> = −2<span class=\"math\">a</span><sup>3</sup>.</p><p>So <span class=\"math\">a</span><sup>3</sup> = −1, and a cube root is unique over the reals: <span class=\"math\">a</span> = −1. Exactly <span class=\"key\">1</span> tangent.</p><p class='trap'>Everything about the question suggests 3 — it is a cubic, and (0, 2) is the local maximum value. But the tangency condition collapses to a<sup>3</sup> = −1, which has one real root and two complex ones. Note (0,2) lies <em>on</em> the curve's local maximum height, which is what makes the algebra collapse so far.</p>",
+   "traps": {
+    "A": "There is one — the tangent at x = −1, which is the horizontal line y = 2.",
+    "C": "Two would need a³ = −1 to have two real roots; it has one.",
+    "D": "Three is the instinctive answer for a cubic, and the one the question is built to catch.",
+    "E": "Four is not reachable from a cubic equation in a.",
+    "F": "Only a straight line would have infinitely many tangents through a point."
+   },
+   "detail": "How many tangents pass through a point"
+  },
+  {
+   "n": 16,
+   "topic": "Graphs & transformations",
+   "spec_refs": [
+    "MM2.1",
+    "MM7.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>The curve <span class=\"math\">y</span> = <span class=\"math\">f</span>(<span class=\"math\">x</span>) has a minimum point at (1, −2).</p><p>The curve <span class=\"math\">y</span> = 2<span class=\"math\">f</span>(3 − <span class=\"math\">x</span>) − 1 has a stationary point. Where is it, and what kind of point is it?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "A minimum at (2, −5)",
+    "B": "A maximum at (2, −5)",
+    "C": "A minimum at (4, −5)",
+    "D": "A maximum at (−2, −5)",
+    "E": "A minimum at (2, −3)",
+    "F": "A maximum at (4, −3)"
+   },
+   "answer": "A",
+   "solution_html": "<p>Read 3 − <span class=\"math\">x</span> as −(<span class=\"math\">x</span> − 3). The stationary point is where the input to <span class=\"math\">f</span> equals 1: 3 − <span class=\"math\">x</span> = 1, so <span class=\"math\">x</span> = 2.</p><p>The height: 2 × (−2) − 1 = −5.</p><p>Now the nature, which is the whole question. <span class=\"math\">f</span>(3−<span class=\"math\">x</span>) is <span class=\"math\">f</span> <em>reflected in a vertical line</em> — left and right are swapped, up and down are not. A valley reflected sideways is still a valley. The outer ×2 stretches it and the −1 lowers it; neither turns it over, because 2 is positive.</p><p>So it is a <span class=\"key\">minimum at (2, −5)</span>.</p><p class='trap'>Only a negative multiplier <em>outside</em> <span class=\"math\">f</span> turns a minimum into a maximum. The minus inside acts on <span class=\"math\">x</span> and does nothing to the nature of the point — which is exactly why this looks like a maximum at a glance.</p>",
+   "traps": {
+    "B": "The minus is inside f, so it reflects left-to-right. Only a negative multiplier outside f would flip a minimum into a maximum.",
+    "C": "x = 4 comes from solving 3 − x = −1, or from reading the transformation as x − 3.",
+    "D": "x = −2 comes from treating 3 − x as a translation by 3 after the reflection, in the wrong order.",
+    "E": "−3 applies the −1 before the ×2 rather than after.",
+    "F": "Both coordinates and the nature are wrong — this is the every-slip-at-once option."
+   },
+   "detail": "A reflection preserves the nature of a turning point"
+  },
+  {
+   "n": 17,
+   "topic": "Graphs & transformations",
+   "spec_refs": [
+    "MM2.1"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many real values of <span class=\"math\">x</span> satisfy</p><p style='text-align:center'>|<span class=\"math\">x</span> − 1| + |<span class=\"math\">x</span> − 3| = 2|<span class=\"math\">x</span> − 2|?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "1",
+    "C": "2",
+    "D": "3",
+    "E": "4",
+    "F": "Infinitely many"
+   },
+   "answer": "F",
+   "solution_html": "<p>Split at the three critical points and check each region.</p><p>For <span class=\"math\">x</span> ≤ 1: left = (1−<span class=\"math\">x</span>) + (3−<span class=\"math\">x</span>) = 4 − 2<span class=\"math\">x</span>; right = 2(2−<span class=\"math\">x</span>) = 4 − 2<span class=\"math\">x</span>. <strong>Equal for every such <span class=\"math\">x</span>.</strong></p><p>For 1 &lt; <span class=\"math\">x</span> &lt; 3: left = 2 always; right = 2|<span class=\"math\">x</span>−2|, which is less than 2 except at the ends. No solutions strictly inside.</p><p>For <span class=\"math\">x</span> ≥ 3: left = (<span class=\"math\">x</span>−1) + (<span class=\"math\">x</span>−3) = 2<span class=\"math\">x</span> − 4; right = 2(<span class=\"math\">x</span>−2) = 2<span class=\"math\">x</span> − 4. <strong>Equal again.</strong></p><p>So the solution set is <span class=\"math\">x</span> ≤ 1 together with <span class=\"math\">x</span> ≥ 3 — <span class=\"key\">infinitely many</span> values.</p><p class='trap'>Every habit says an equation in one unknown has finitely many solutions. Here two of the three regions give identities, and you only see it by actually evaluating a region rather than solving it.</p>",
+   "traps": {
+    "A": "There are solutions — every x ≤ 1 is one.",
+    "B": "One is what you get by only checking the middle region and finding an endpoint.",
+    "C": "Two comes from treating each outer region as giving a single boundary solution.",
+    "D": "Three counts the critical points 1, 2, 3, but x = 2 is not a solution.",
+    "E": "Four counts boundary cases rather than the intervals themselves."
+   },
+   "detail": "An identity disguised as an equation"
+  },
+  {
+   "n": 18,
+   "topic": "Coordinate geometry & circles",
+   "spec_refs": [
+    "MM3.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>In triangle <span class=\"math\">OAB</span>, <span class=\"math\">M</span> is the midpoint of <span class=\"math\">OA</span>, and <span class=\"math\">N</span> lies on <span class=\"math\">OB</span> with <span class=\"math\">ON</span> : <span class=\"math\">NB</span> = 1 : 2.</p><p><span class=\"math\">AN</span> and <span class=\"math\">BM</span> meet at <span class=\"math\">P</span>.</p><p>What is <span class=\"math\">AP</span> : <span class=\"math\">PN</span>?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "2 : 3",
+    "B": "1 : 1",
+    "C": "3 : 2",
+    "D": "2 : 1",
+    "E": "3 : 1",
+    "F": "4 : 1"
+   },
+   "answer": "C",
+   "solution_html": "<p>Take <span class=\"math\">O</span> as origin, with <span class=\"math\">OA</span> = <strong>a</strong> and <span class=\"math\">OB</span> = <strong>b</strong>. Then <span class=\"math\">M</span> = <span class=\"fr\"><span>1</span><span>2</span></span><strong>a</strong> and <span class=\"math\">N</span> = <span class=\"fr\"><span>1</span><span>3</span></span><strong>b</strong>.</p><p>A point on <span class=\"math\">AN</span>: <strong>a</strong> + <span class=\"math\">t</span>(<span class=\"fr\"><span>1</span><span>3</span></span><strong>b</strong> − <strong>a</strong>).</p><p>A point on <span class=\"math\">BM</span>: <strong>b</strong> + <span class=\"math\">s</span>(<span class=\"fr\"><span>1</span><span>2</span></span><strong>a</strong> − <strong>b</strong>).</p><p>Comparing coefficients: 1 − <span class=\"math\">t</span> = <span class=\"fr\"><span><span class=\"math\">s</span></span><span>2</span></span> and <span class=\"fr\"><span><span class=\"math\">t</span></span><span>3</span></span> = 1 − <span class=\"math\">s</span>.</p><p>Substituting gives <span class=\"math\">t</span> = <span class=\"fr\"><span>3</span><span>5</span></span>, so <span class=\"math\">AP</span> : <span class=\"math\">PN</span> = <span class=\"math\">t</span> : (1 − <span class=\"math\">t</span>) = <span class=\"fr\"><span>3</span><span>5</span></span> : <span class=\"fr\"><span>2</span><span>5</span></span> = <span class=\"key\">3 : 2</span>.</p><p class='trap'>Two equations, two unknowns, and the answer is the parameter itself — there is no need to find <span class=\"math\">P</span>'s position at all. Coordinates with specific numbers for <strong>a</strong> and <strong>b</strong> work equally well and are often faster under pressure.</p>",
+   "traps": {
+    "A": "The ratio the right way round is 3:2; this is PN:AP.",
+    "B": "1:1 would need M and N to be placed symmetrically; they are not.",
+    "D": "2:1 is the ratio you get if N were the midpoint of OB.",
+    "E": "3:1 uses ON:OB = 1:3 as ON:NB, confusing part-to-part with part-to-whole.",
+    "F": "4:1 does not arise from these ratios."
+   },
+   "detail": "Ratio at an intersection of cevians"
+  },
+  {
+   "n": 19,
+   "topic": "Probability",
+   "spec_refs": [
+    "MM5.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>A fair coin is tossed 6 times.</p><p>What is the probability that no two heads occur on consecutive tosses?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "<span class=\"fr\"><span>13</span><span>64</span></span>",
+    "B": "<span class=\"fr\"><span>1</span><span>4</span></span>",
+    "C": "<span class=\"fr\"><span>5</span><span>16</span></span>",
+    "D": "<span class=\"fr\"><span>21</span><span>64</span></span>",
+    "E": "<span class=\"fr\"><span>27</span><span>64</span></span>",
+    "F": "<span class=\"fr\"><span>1</span><span>2</span></span>"
+   },
+   "answer": "D",
+   "solution_html": "<p>Count the sequences with no two adjacent heads. Let <span class=\"math\">a</span><sub><span class=\"math\">n</span></sub> be the number of such sequences of length <span class=\"math\">n</span>.</p><p>A valid sequence ends in T (any valid sequence of length <span class=\"math\">n</span>−1) or in HT (any valid sequence of length <span class=\"math\">n</span>−2). So <span class=\"math\">a</span><sub><span class=\"math\">n</span></sub> = <span class=\"math\">a</span><sub><span class=\"math\">n</span>−1</sub> + <span class=\"math\">a</span><sub><span class=\"math\">n</span>−2</sub> — the Fibonacci numbers.</p><p><span class=\"math\">a</span><sub>1</sub> = 2, <span class=\"math\">a</span><sub>2</sub> = 3, then 5, 8, 13, 21.</p><p>Probability = <span class=\"key\"><span class=\"fr\"><span>21</span><span>64</span></span></span>.</p><p class='trap'>Listing all 64 sequences is possible and is what the question is testing you will not do. The recurrence takes fifteen seconds.</p>",
+   "traps": {
+    "A": "13/64 is a₅/2⁶ — the count for five tosses over the total for six.",
+    "B": "1/4 is a guess-shaped answer with no count behind it.",
+    "C": "5/16 = 20/64, one short: usually the all-tails sequence dropped.",
+    "E": "27/64 counts sequences with at most one head, plus some.",
+    "F": "1/2 would be the answer if the condition were vacuous."
+   },
+   "detail": "No two heads adjacent"
+  },
+  {
+   "n": 20,
+   "topic": "Algebra & equations",
+   "spec_refs": [
+    "MM2.1",
+    "MM3.2"
+   ],
+   "difficulty": null,
+   "stem_html": "<p>How many ordered pairs of integers (<span class=\"math\">x</span>, <span class=\"math\">y</span>) satisfy</p><p style='text-align:center'><span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 2025?</p>",
+   "diagram_svg": null,
+   "options": {
+    "A": "0",
+    "B": "4",
+    "C": "8",
+    "D": "12",
+    "E": "16",
+    "F": "20"
+   },
+   "answer": "D",
+   "solution_html": "<p>2025 = 45<sup>2</sup>, so (−45, 0), (45, 0), (0, −45), (0, 45) work at once — four already, which rules out 0.</p><p>Beyond those, look for <span class=\"math\">x</span><sup>2</sup> + <span class=\"math\">y</span><sup>2</sup> = 2025 with both non-zero. 27<sup>2</sup> + 36<sup>2</sup> = 729 + 1296 = 2025. So do (36, 27), and every sign and swap of those: 8 more.</p><p>Checking the rest of the range turns up nothing else, giving <span class=\"key\">12</span>.</p><p class='trap'>27-36-45 is 9 × (3-4-5). Spotting that the radius is a multiple of 5 and reaching for the Pythagorean triple is the difference between fifteen seconds and trying every square below 2025.</p>",
+   "traps": {
+    "A": "There are solutions — (45, 0) for a start.",
+    "B": "The four axis points only — the (±27, ±36) family is missed.",
+    "C": "The eight off-axis points only, forgetting the four on the axes.",
+    "E": "16 counts an extra family of four that does not exist.",
+    "F": "20 assumes two off-axis triples rather than one."
+   },
+   "detail": "Integer points on a circle"
+  }
+ ]
+}
