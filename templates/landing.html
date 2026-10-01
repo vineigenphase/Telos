@@ -428,8 +428,18 @@
       </div>
 
       <p class="lp-exam-price reveal">
-        {% if exam_price %}
-        <strong>{{ exam_price }} a paper.</strong> No subscription — buy the one
+        {# Three states, all read from the rows rather than typed. Mock A is
+           free and Mock B is £1, so the page has to say both — quoting one
+           price for ten papers was how this line became wrong the moment the
+           lead magnet shipped. #}
+        {% if free_paper_count and paid_price %}
+        <strong>{{ free_paper_count }} papers free.</strong> The rest are
+        {{ paid_price }} each, with no subscription — buy the one you want.
+        Telos Pro includes every paper.
+        {% elif free_paper_count %}
+        <strong>Free</strong> — you only need an account.
+        {% elif paid_price %}
+        <strong>{{ paid_price }} a paper.</strong> No subscription — buy the one
         you want. Telos Pro includes every paper.
         {% else %}
         Included with Telos Pro.

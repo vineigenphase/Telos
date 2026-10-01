@@ -801,7 +801,14 @@ def dashboard():
             banks = db.execute(
                 "SELECT id, title, subject, description, price_pence "
                 "FROM mock_papers ORDER BY price_pence, title").fetchall()
-        prices = {p["price_pence"] for p in exam_papers if p["price_pence"]}
+        # Free papers are counted, not filtered out. The old line dropped
+        # zero-priced papers before taking the price set, so the moment Mock A
+        # became free the page would have carried on announcing "£1 a paper"
+        # — a false claim about the lead magnet, on the page the whole launch
+        # points at.
+        free_papers = [p for p in exam_papers if not p["price_pence"]]
+        paid_prices = {p["price_pence"] for p in exam_papers if p["price_pence"]}
+        prices = paid_prices
         bank_prices = [b["price_pence"] for b in banks if b["price_pence"]]
         bank_from = (f"£{min(bank_prices) // 100}"
                      if bank_prices and min(bank_prices) % 100 == 0
@@ -815,6 +822,11 @@ def dashboard():
             default_interval=DEFAULT_INTERVAL,
             pricing_features=PRICING_FEATURES,
             exam_papers=exam_papers,
+            free_paper_count=len(free_papers),
+            paid_price=(f"£{min(paid_prices) // 100}"
+                        if paid_prices and min(paid_prices) % 100 == 0
+                        else (f"£{min(paid_prices) / 100:.2f}" if paid_prices
+                              else None)),
             banks=banks,
             bank_from=bank_from,
             tiktok_handle=TIKTOK_HANDLE,

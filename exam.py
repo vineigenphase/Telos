@@ -418,7 +418,9 @@ def index():
     return render_template("exam_index.html", groups=groups, papers=papers,
                            attempts=attempts,
                            best=best, is_pro=user_is_pro(current_user),
-                           owned=owned, price_label=_price_label)
+                           owned=owned, price_label=_price_label,
+                           free_count=sum(1 for p in papers
+                                          if not p["price_pence"]))
 
 
 @exam.route("/exam/<paper_code>/start", methods=["POST"])
