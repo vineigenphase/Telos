@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-09-18.** Living handoff document. Read this first, then
+**Last updated: 2026-10-02.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -97,8 +97,65 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 11 | Admissions past-paper tracker — 80 official papers, 52 auto-marked from the official keys | `784ca7a` | **live** |
 | 11 | TMUA papers and keys — 70 of 80 tracked papers now mark themselves | `7f1e3e9` | **live** |
 | 12 | TMUA Pass — £3.99 for 30 days | `7d883b1` | **removed** 2026-09-18, see below |
-| 7, 10 | Percentile, boundary simulator | — | not started |
+| 13 | Mock B — five papers, 121 questions, £1 each | `5792feb` | **live** |
+| 13 | W1 — Mock A made free, as the National Mock lead magnet | `88c3d4f` | **live** |
+| 13 | W2 — the National Mock: event row, `/nm`, `/national-mock`, first-touch attribution, the event lock | — | **in progress** |
+| 7, 10 | Percentile, boundary simulator | — | W4 of the launch; the National Mock is the first cohort |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
+
+---
+
+## The National Mock — the launch event
+
+Running **Friday 2 October 2026, 10:00–22:00 UK**. One free paper, everybody
+inside the same window, a percentile afterwards.
+
+**The date moved twice, and this is why it matters.** The brief set Sunday 4
+October. The owner moved it to Friday 2 October on 29 September, with the cost
+stated and accepted: no announce runway, no Saturday reminder, no beta sitters,
+and most of a school-day cohort in lessons for the first seven of the twelve
+hours. The consequence to watch is `min_cohort` — 20 opted-in sitters per
+paper, below which that paper publishes no percentile at all. There were 16
+accounts in total the night before.
+
+Because it moved twice, **nothing about the window is hardcoded anywhere.** It
+lives in one row, `mock_events` where `slug = 'nm1'`, and three things read it:
+the public countdown, the event lock in `exam._access`, and the results script.
+To change the event on the day, `UPDATE` that row — no deploy, and all three
+follow at once. A hardcoded datetime would let the lock and the countdown
+disagree, and the lock would win silently.
+
+| Thing | Where |
+| --- | --- |
+| The event row | `mock_events` (`nm1`), + `mock_event_entries` |
+| State machine, pure | `nationalmock.py` — `state`, `countdown`, `show_count`, `percentiles_ok` |
+| The public page | `/national-mock`, `templates/national_mock.html` |
+| The short link | `/nm` → 302, query string preserved verbatim |
+| Attribution | `users.signup_source`, `referred_by`, `referral_code`; session key `first_touch` |
+| The lock | `exam._event_lock` + `exam.NM_LOCK_BEFORE_WINDOW` |
+| Results due | `mock_events.results_due_at` — Sat 3 Oct 08:00 BST |
+
+**Settled decisions made during the launch build:**
+
+- **Mock A is free** (migration 047). It is the lead magnet; Mock B and later
+  stay at £1. Pro still includes everything, because a plan change must never
+  take something away from a subscriber.
+- **National Mock percentiles are free to everyone who sat the paper.** Not a
+  Pro feature. Charging for the number the event exists to produce would make
+  the event an advert for itself.
+- **Both opt-ins start unticked** — cohort comparison and marketing email, as
+  separate choices. Most sitters are 16–18, and under the ICO Children's Code
+  these are choices, not defaults. No leaderboard, and no name, username or
+  email is ever shown to another user.
+- **Below `min_cohort`, no percentile at all** rather than one worked out from
+  a handful of scores. The mark, the scaled band and the topics still stand.
+- **The lock is checked before Pro and before ownership.** A Pro subscriber
+  sitting the event paper early is still sitting it early; the fairness of a
+  shared cohort has no paid tier. Admins are exempt so the papers can be
+  checked before the window.
+- **A locked paper returns 403 `event_locked`, never 402.** A 402 makes the
+  client raise a buy prompt, and a buy prompt for a free paper on the morning
+  of a free event is the worst thing this flow could say.
 
 ---
 
@@ -460,6 +517,18 @@ user; use a Neon branch once there are real students.
 
 ## Gotchas that cost real debugging time
 
+- **A test suite had been re-pricing a real paper in production.**
+  `tests/test_exam_attempts.py` picked "the first published TMUA paper" to test
+  entitlement gating on, then wrote `price_pence` onto it — and the LAST price
+  it wrote was 100. The first TMUA paper by id is `TMUA-P1-A`, which migration
+  047 had made free the day before as the National Mock lead magnet. So one run
+  of `tests/run_all.py` silently put the launch paper back on sale, and it was
+  found at 100 pence eight hours before the event, by a different suite failing
+  to start a paper it had been told was free. The suite now builds its own
+  `TEST-LIFECYCLE` paper every time. **The general rule: a suite that mutates a
+  real content row to test a gate will eventually mutate the wrong one.** The
+  tests run against the production database, so a fixture is not a convenience
+  here, it is the safety boundary.
 - **The safe-area rules have to stay last in `telos.css`.** The standalone
   block and the width blocks both style `.page-header` from inside a media
   query, so specificity is identical and only source order separates them —

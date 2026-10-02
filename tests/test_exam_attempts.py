@@ -62,28 +62,36 @@ try:
                        "VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
                        (uid, "Edexcel", "Further Maths", "A-Level"))
 
-        # A published paper to sit. Prefer a real one; make a throwaway if the
-        # Mock A papers are not loaded, so the suite does not depend on content.
-        row = db.execute("SELECT id, question_count FROM exam_papers "
-                         "WHERE family='TMUA' ORDER BY id LIMIT 1").fetchone()
-        if row:
-            paper_id = row["id"]
-            db.execute("UPDATE exam_papers SET is_published=TRUE WHERE id=?", (paper_id,))
-        else:
-            made_paper = True
-            paper_id = db.execute(
-                "INSERT INTO exam_papers (paper_code, family, module, title, "
-                "  duration_sec, question_count, is_published, family_marks) "
-                "VALUES ('TEST-LIFECYCLE','TMUA','P1','Lifecycle test',4500,20,TRUE,40) "
-                "RETURNING id").fetchone()["id"]
-            for i in range(1, 21):
-                db.execute(
-                    "INSERT INTO exam_questions (paper_id, n, topic, spec_refs, "
-                    "  stem_html, options, answer, traps) "
-                    "VALUES (?,?,?,?,?,?,?,?)",
-                    (paper_id, i, "T", ["MM1.1"], f"<p>q{i}</p>",
-                     json.dumps({c: c for c in "ABCDEF"}), "C",
-                     json.dumps({c: "x" for c in "ABDEF"})))
+        # A throwaway paper, always — never a real one.
+        #
+        # This used to prefer the first published TMUA paper and fall back to a
+        # fixture, which looked like the thrifty choice and was not: the suite
+        # writes price_pence onto whatever paper it picked, and the LAST price
+        # it writes is 100. The first TMUA paper by id is TMUA-P1-A, the free
+        # National Mock paper, so one run of the tests quietly put the launch's
+        # lead magnet back on sale in production — and had already done so,
+        # found at 100 pence the day before the event, by a different suite
+        # noticing it could not start a "free" paper.
+        #
+        # A suite that mutates production content to test gating is a suite
+        # that will eventually mutate the wrong row. This one owns its paper.
+        made_paper = True
+        db.execute("DELETE FROM exam_questions WHERE paper_id IN "
+                   "(SELECT id FROM exam_papers WHERE paper_code='TEST-LIFECYCLE')")
+        db.execute("DELETE FROM exam_papers WHERE paper_code='TEST-LIFECYCLE'")
+        paper_id = db.execute(
+            "INSERT INTO exam_papers (paper_code, family, module, title, "
+            "  duration_sec, question_count, is_published, family_marks) "
+            "VALUES ('TEST-LIFECYCLE','TMUA','P1','Lifecycle test',4500,20,TRUE,40) "
+            "RETURNING id").fetchone()["id"]
+        for i in range(1, 21):
+            db.execute(
+                "INSERT INTO exam_questions (paper_id, n, topic, spec_refs, "
+                "  stem_html, options, answer, traps) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (paper_id, i, "T", ["MM1.1"], f"<p>q{i}</p>",
+                 json.dumps({c: c for c in "ABCDEF"}), "C",
+                 json.dumps({c: "x" for c in "ABDEF"})))
 
         code = db.execute("SELECT paper_code FROM exam_papers WHERE id=?",
                           (paper_id,)).fetchone()["paper_code"]

@@ -889,3 +889,274 @@ html { scroll-behavior: smooth; }
 @media (hover: hover) {
   .lp-tutor-note a:hover { text-decoration: underline; }
 }
+
+/* ── The National Mock event page ─────────────────────────────────────────────
+   /national-mock. Reuses this file's shell — .lp-nav, .lp-wrap, .lp-footer,
+   .lp-title, .lp-section — and adds only what the event itself needs: a
+   countdown, a paper grid, and a registration form with two consent boxes.
+
+   Mobile-first throughout, with min-width queries only. There is a hard rule
+   in TELOS_STATE.md against max-width breakpoints in this project, and this
+   page will be opened on a phone by almost everybody who sees it, straight
+   from a video. */
+
+.nm-hero { padding: 92px 0 44px; }
+
+.nm-eyebrow { margin-bottom: 18px; }
+
+/* "Open now" during the window. The dot is the only animated thing on the
+   page, and it only exists while the event is live. */
+.nm-live { color: var(--accent-2); font-weight: 600; }
+.nm-live::before {
+  content: "";
+  display: inline-block;
+  width: 7px; height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: middle;
+  animation: nm-pulse 2.2s ease-in-out infinite;
+}
+@keyframes nm-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nm-live::before { animation: none; }
+}
+
+.nm-title { margin-bottom: 20px; }
+.nm-lede  { max-width: 56ch; margin-bottom: 36px; }
+
+/* ── Countdown ───────────────────────────────────────────────────────────── */
+
+.nm-clock {
+  display: inline-block;
+  padding: 18px 20px 16px;
+  margin-bottom: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  max-width: 100%;
+}
+
+.nm-clock-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin-bottom: 12px;
+}
+
+.nm-clock-digits {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.nm-unit { display: inline-flex; flex-direction: column; align-items: center; }
+
+/* tabular-nums matters more here than anywhere else on the site: without it
+   every second makes the whole row twitch sideways as digit widths change. */
+.nm-unit b {
+  font-family: var(--serif);
+  font-size: 2.1rem;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.nm-unit i {
+  font-style: normal;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin-top: 5px;
+}
+
+.nm-sep {
+  font-size: 1.5rem;
+  color: var(--border);
+  padding: 0 6px;
+  transform: translateY(-6px);
+}
+
+@media (min-width: 420px) {
+  .nm-unit b { font-size: 2.6rem; }
+  .nm-sep    { padding: 0 10px; }
+}
+
+/* ── The call to action ──────────────────────────────────────────────────── */
+
+.nm-cta { max-width: 52ch; }
+
+.nm-cta-note {
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.nm-count {
+  margin-top: 18px;
+  font-size: 0.82rem;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Already registered. Lifted off the ground because it is a confirmation, and
+   a confirmation that looks like body text gets missed. */
+.nm-in {
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(var(--accent-rgb), 0.30);
+  border-radius: var(--radius-sm);
+  background: var(--card-2);
+}
+.nm-in-head {
+  font-weight: 600;
+  color: var(--accent-2);
+  margin-bottom: 6px;
+}
+.nm-in-body { font-size: 0.88rem; color: var(--text); line-height: 1.65; }
+.nm-in-note {
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* ── The join form ───────────────────────────────────────────────────────── */
+
+.nm-join {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+.nm-join-head { font-weight: 600; font-size: 1rem; color: var(--text); }
+
+/* A consent box. The checkbox keeps its own column so the label wraps under
+   itself rather than under the box, and the whole row is the hit target —
+   these get tapped with a thumb. */
+.nm-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 11px;
+  align-items: start;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--muted-2);
+}
+.nm-check input {
+  width: 17px; height: 17px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+.nm-check b { color: var(--text); font-weight: 600; }
+
+.nm-flash {
+  padding: 11px 14px;
+  margin-bottom: 22px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.32);
+  background: var(--card-2);
+  color: var(--accent-2);
+}
+.nm-flash-error {
+  border-color: rgba(176, 74, 74, 0.38);
+  color: #D98A8A;
+}
+
+/* ── The papers, and the steps ───────────────────────────────────────────── */
+
+.nm-h2 { font-size: 1.35rem; color: var(--text); margin-top: 10px; }
+
+.nm-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 28px;
+}
+@media (min-width: 560px) { .nm-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .nm-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.nm-card {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+.nm-card-fam {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 8px;
+}
+.nm-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 7px;
+}
+.nm-card-meta {
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.nm-papers-note {
+  margin-top: 20px;
+  max-width: 62ch;
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  line-height: 1.7;
+}
+
+.nm-steps {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 64ch;
+}
+.nm-steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  align-items: start;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--muted-2);
+}
+.nm-steps b { color: var(--text); font-weight: 600; }
+
+.nm-step-n {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px; height: 25px;
+  flex: none;
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.nm-how { padding-bottom: 96px; }

@@ -32,7 +32,13 @@ const CACHE_NAME = "telos-" + CACHE_VERSION;
 // a multi-megabyte round trip through the cache API on every download, which is
 // what made going back to the page feel broken.
 const NEVER_CACHE_PREFIXES = ["/admin", "/subscription", "/stripe", "/logout",
-                              "/exam", "/mocks"];
+                              "/exam", "/mocks",
+                              // Every word on these is a function of the
+                              // clock. A cached copy would show a countdown
+                              // frozen at whenever it was stored, or offer
+                              // "Register free" an hour after the window
+                              // opened.
+                              "/national-mock", "/nm"];
 
 // How long a navigation waits for the network before falling back to the copy
 // we already have. This is the fix for the cold open: Railway may be starting a
