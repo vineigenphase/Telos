@@ -29,6 +29,7 @@ from flask_login import current_user, login_required
 
 from auth import requires_admin, user_is_pro
 import admissions_papers
+import nationalmock
 from paper_templates import (all_qualifications, get_topics,
                              is_graded)
 from db import get_db
@@ -286,8 +287,58 @@ def _expire_if_overdue(db, attempt):
 # mock, not a subscription, and asking £4.99 a month to sit one paper loses the
 # sale to everyone who only wants the paper.
 
+# An event paper is sealed until its window opens.
+#
+# Without this, Mock A is free and published, so anyone could sit it the day
+# before and the National Mock would be a cohort of people comparing scores on
+# a paper half of them had already seen. The lock is what makes the percentile
+# honest.
+#
+# It is a lock, not a paywall, and the copy must never confuse the two: a
+# student who hits it is not being asked for money, they are being asked to
+# come back at ten. Saying "buy this paper" to someone invited to a free event
+# is the worst mistake this page could make.
+#
+# Set NM_LOCK_BEFORE_WINDOW=0 to lift it — the escape hatch for the night
+# before, when somebody has to sit the papers end to end to check the event
+# works. Admins are exempt without the flag, for the same reason.
+
+NM_LOCK_BEFORE_WINDOW = os.environ.get("NM_LOCK_BEFORE_WINDOW", "1") != "0"
+
+
+def _event_lock(db, paper):
+    """(locked, opens_at_local) for an event paper before its window.
+
+    The window is read from the mock_events row, never from a constant in
+    code. That is the whole point: on the day, the owner shifts or extends the
+    event with one UPDATE and both this lock and the public countdown follow
+    immediately, with no deploy. A hardcoded datetime here could disagree with
+    the page — and the lock would win, silently.
+    """
+    from app import _nm_window
+
+    if not NM_LOCK_BEFORE_WINDOW:
+        return False, None
+    start, _end, start_local = _nm_window()
+    if not start:
+        return False, None
+    if datetime.datetime.now(datetime.timezone.utc) >= start:
+        return False, None
+    on_card = db.execute(
+        "SELECT 1 FROM mock_events WHERE slug=? AND ? = ANY(paper_codes)",
+        ("nm1", paper["paper_code"])).fetchone()
+    return (True, start_local) if on_card else (False, None)
+
+
 def _access(db, paper):
     """(allowed, reason). `reason` is why, so the caller can say so."""
+    # Checked before Pro and before ownership, deliberately. A Pro subscriber
+    # sitting the event paper early would still be sitting it early, and the
+    # fairness of a shared cohort does not have a paid tier.
+    if not getattr(current_user, "is_admin", False):
+        locked, _opens = _event_lock(db, paper)
+        if locked:
+            return False, "locked"
     if user_is_pro(current_user):
         return True, "pro"
     if not paper["price_pence"]:
@@ -320,9 +371,22 @@ def _access_or_402(db, paper):
     "upgrade", and for a paid paper it is now "buy this one" with the price and
     the checkout URL, because that is the smaller ask and usually the right one.
     """
-    allowed, _reason = _access(db, paper)
+    allowed, reason = _access(db, paper)
     if allowed:
         return None
+    if reason == "locked":
+        # 403, not 402: there is nothing to pay. A 402 would make the client
+        # raise a buy prompt for a free paper, which is both wrong and the most
+        # damaging thing the launch could do to its own credibility.
+        _locked, opens = _event_lock(db, paper)
+        return jsonify({
+            "error": "event_locked",
+            "message": f"{paper['title']} unlocks at "
+                       f"{nationalmock.fmt_when(opens)}, when the National "
+                       "Mock opens. Same paper, same clock, everybody at once.",
+            "opens_at": nationalmock.fmt_when(opens),
+            "event_url": url_for("national_mock"),
+        }), 403
     return jsonify({
         "error": "purchase_required",
         "message": f"{paper['title']} is {_price_label(paper['price_pence'])}, "
@@ -415,10 +479,26 @@ def index():
                            "papers": []})
         groups[-1]["papers"].append(p)
 
+    # Which papers are sealed, and when they open. Computed here rather than
+    # in the template so the row can say "Unlocks at 10:00 on Friday" instead
+    # of offering to sell a free paper — the one thing the lock exists to
+    # prevent being said.
+    locked_codes, opens_at = set(), None
+    if not getattr(current_user, "is_admin", False):
+        with get_db() as db:
+            for p in papers:
+                is_locked, opens = _event_lock(db, p)
+                if is_locked:
+                    locked_codes.add(p["paper_code"])
+                    opens_at = opens
+
     return render_template("exam_index.html", groups=groups, papers=papers,
                            attempts=attempts,
                            best=best, is_pro=user_is_pro(current_user),
                            owned=owned, price_label=_price_label,
+                           locked_codes=locked_codes,
+                           locked_opens=nationalmock.fmt_when(opens_at)
+                           if opens_at else "",
                            free_count=sum(1 for p in papers
                                           if not p["price_pence"]))
 
@@ -468,8 +548,10 @@ def start(paper_code):
         # paper's duration, so a fresh attempt and a resumed one are measured
         # the same way and cannot disagree by the round-trip.
         fresh = _attempt_or_404(db, row["id"])
-        return jsonify({"attempt_id": row["id"], "resumed": False,
-                        "remaining_sec": _remaining_sec(fresh)})
+    from app import log_event
+    log_event("exam_started", current_user.id, paper_code)
+    return jsonify({"attempt_id": row["id"], "resumed": False,
+                    "remaining_sec": _remaining_sec(fresh)})
 
 
 @exam.route("/exam/attempt/<int:attempt_id>/answer", methods=["POST"])
@@ -566,6 +648,11 @@ def submit(attempt_id):
                             "metrics": m})
         expired = _remaining_sec(attempt) <= 0
         metrics = _finalise(db, attempt, expired=expired)
+    # The paper code and the scaled band together, so the launch dashboard can
+    # report completions per paper without a join back onto attempts.
+    from app import log_event
+    log_event("exam_submitted", current_user.id,
+              f"{attempt['paper_code']}:{metrics['scaled']}")
     return jsonify({"attempt_id": attempt_id,
                     "status": "expired" if expired else "submitted",
                     "raw": metrics["raw"], "scaled": metrics["scaled"]})
@@ -692,6 +779,17 @@ def buy(paper_code):
         flash("Pro includes every Exam Mode paper." if reason == "pro"
               else "You already have that paper.", "success")
         return redirect(url_for("exam.index"))
+
+    if reason == "locked":
+        # Refused before Stripe is ever reached. The event papers are free, so
+        # a checkout here would be charging for something that is about to cost
+        # nothing — and this route is reachable by anyone who crafts the POST.
+        with get_db() as db:
+            _locked, opens = _event_lock(db, paper)
+        flash(f"That paper is part of the National Mock and unlocks at "
+              f"{nationalmock.fmt_when(opens)}. It's free — nothing to buy.",
+              "success")
+        return redirect(url_for("national_mock"))
 
     if not STRIPE_ENABLED:
         flash("Payments aren't configured yet.", "error")

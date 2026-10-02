@@ -51,6 +51,7 @@ SUITES = [
     ("admissions paper tracker",  "test_admissions_tracker.py"),
     ("one-off purchase grants", "test_one_time_grants.py"),
     ("the question-bank funnel", "test_tiktok_funnel.py"),
+    ("the National Mock",       "test_national_mock.py"),
     ("README counts",             "test_readme.py"),
 ]
 

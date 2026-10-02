@@ -1,0 +1,407 @@
+{# The Telos National Mock — the public event page.
+
+   Standalone rather than extending base.html, for the same reason landing.html
+   is: this is the page a TikTok caption points at, and application chrome means
+   nothing to someone who has never signed in. It reuses landing.css's shell
+   (.lp-nav, .lp-wrap, .lp-footer) so it reads as the same site, and adds only
+   the .nm-* block for what is genuinely new — the countdown and the paper grid.
+
+   Three states, driven by `phase` from nationalmock.state(): before the window,
+   inside it, after it. Each one has exactly one thing to do, and the page says
+   that thing once.
+
+   Every date and time on this page comes from the mock_events row via the
+   *_local columns Postgres converted to Europe/London. Nothing here is typed in
+   — the window has moved once already, and the next time it moves it must move
+   here too, without a deploy. #}
+{% import "_icons.html" as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  <title>{{ event.title }} — free timed mock, {{ event.start_local|uk_date }}</title>
+  <meta name="description" content="One free TMUA or ESAT mock paper, sat by everyone in the same window on {{ event.start_local|uk_date }}. Real timing, instant marking, and a percentile against everybody who sat it.">
+  <link rel="canonical" href="{{ canonical_url('/national-mock') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
+  {# Absolute, through canonical_url. Open Graph consumers do not resolve
+     relative paths and do not report that they failed to — a relative
+     og:image is simply ignored, and every share of this event previews as a
+     blank grey box. That is the whole distribution channel. #}
+  <meta property="og:title" content="{{ event.title }} — {{ event.start_local|uk_date }}">
+  <meta property="og:description" content="One free timed mock. Everyone sits it in the same window, so the percentile afterwards is real.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ canonical_url('/national-mock') }}">
+  <meta property="og:image" content="{{ canonical_url(url_for('static', filename='og-preview.png')) }}">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="Telos — the marks between you and the next grade.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ event.title }} — {{ event.start_local|uk_date }}">
+  <meta name="twitter:description" content="One free timed mock. Everyone sits it in the same window, so the percentile afterwards is real.">
+  <meta name="twitter:image" content="{{ canonical_url(url_for('static', filename='og-preview.png')) }}">
+</head>
+<body class="lp">
+
+<header class="lp-nav" id="lp-nav">
+  <div class="lp-wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(26) }}
+      <span class="lp-logo-name">Tel<span>os</span></span>
+    </a>
+    <div class="lp-nav-actions">
+      <a class="lp-tiktok" href="https://www.tiktok.com/{{ tiktok_handle }}"
+         target="_blank" rel="noopener">
+        <span class="lp-tiktok-label">TikTok:</span> {{ tiktok_handle }}
+      </a>
+      {% if current_user.is_authenticated %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
+      {% else %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('login') }}">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="nm-hero">
+    <div class="lp-wrap">
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+          <p class="nm-flash nm-flash-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {# The eyebrow carries the single most important fact in each state: when
+         it is, how long is left, or that it is over. #}
+      <p class="lp-eyebrow nm-eyebrow">
+        {% if phase == 'before' %}
+          {{ event.start_local|uk_date }} · {{ event.start_local|uk_time }}–{{ event.end_local|uk_time }} UK
+        {% elif phase == 'sitting' %}
+          <span class="nm-live">Open now</span> · closes {{ event.end_local|uk_time }}
+        {% else %}
+          Closed {{ event.end_local|uk_when }}
+        {% endif %}
+      </p>
+
+      <h1 class="lp-title nm-title">
+        {% if phase == 'after' %}
+          That's the <em>window</em> closed.
+        {% else %}
+          One paper.<br>Everyone, <em>at once</em>.
+        {% endif %}
+      </h1>
+
+      <p class="lp-lede nm-lede">
+        {% if phase == 'before' %}
+          The {{ event.title }} is a full TMUA or ESAT paper, properly timed,
+          marked the second you submit. It is free. The only rule is that
+          everybody sits it inside the same window — which is what turns a score
+          into a position.
+        {% elif phase == 'sitting' %}
+          The papers are open. Pick one, give it the full time it asks for, and
+          submit before {{ event.end_local|uk_time }}. You will have your raw
+          mark, your scaled band and your weakest topics before you close the
+          tab.
+        {% else %}
+          The papers are shut and the marking has started. Results, and where you
+          placed against everybody who sat the same paper, land
+          {% if results_due_at %}at {{ event.results_local|uk_when }}{% else %}shortly{% endif %}.
+        {% endif %}
+      </p>
+
+      {# ── The countdown ─────────────────────────────────────────────────────
+         Rendered server-side with real digits, then ticked by JavaScript. A
+         countdown that starts as four dashes waiting on a script is a broken
+         page in its own first frame — and that frame is what a link preview
+         and a slow connection both get. #}
+      {% if phase != 'after' %}
+      <div class="nm-clock" data-countdown-to="{{ countdown_target.isoformat() }}"
+           aria-label="Time until the {{ 'paper unlocks' if phase == 'before' else 'window closes' }}">
+        <div class="nm-clock-label">
+          {{ 'Unlocks in' if phase == 'before' else 'Window closes in' }}
+        </div>
+        <div class="nm-clock-digits">
+          <span class="nm-unit"><b data-unit="d">{{ '%02d'|format(countdown[0]) }}</b><i>days</i></span>
+          <span class="nm-sep">:</span>
+          <span class="nm-unit"><b data-unit="h">{{ '%02d'|format(countdown[1]) }}</b><i>hrs</i></span>
+          <span class="nm-sep">:</span>
+          <span class="nm-unit"><b data-unit="m">{{ '%02d'|format(countdown[2]) }}</b><i>min</i></span>
+          <span class="nm-sep">:</span>
+          <span class="nm-unit"><b data-unit="s">{{ '%02d'|format(countdown[3]) }}</b><i>sec</i></span>
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── The one call to action ────────────────────────────────────────────
+         Exactly one, in every state. The whole reason this page exists is that
+         a visitor from a video has about four seconds of patience, and a page
+         offering them three things offers them nothing. #}
+      <div class="nm-cta">
+        {% if not current_user.is_authenticated %}
+          {# ?next= is carried through the subject picker by AFTER_SETUP, so a
+             brand-new account lands back here rather than on a dashboard
+             wondering what happened to the thing it came for. #}
+          <a class="btn btn-primary btn-lg"
+             href="{{ url_for('register', next=url_for('national_mock')) }}">
+            Register free</a>
+          <p class="nm-cta-note">
+            An email and a password. No card, now or later, for this.
+          </p>
+
+        {% elif entry %}
+          <div class="nm-in">
+            <p class="nm-in-head">You're registered.</p>
+            <p class="nm-in-body">
+              {% if phase == 'before' %}
+                The papers appear in Exam Mode at {{ event.start_local|uk_time }}
+                and stay open until {{ event.end_local|uk_time }}. Sit one,
+                sit all five — the percentile is worked out per paper.
+              {% elif phase == 'sitting' %}
+                Go and sit it.
+              {% else %}
+                {% if event.results_released_at %}
+                  Your result is in Exam Mode.
+                {% else %}
+                  Results land {{ event.results_local|uk_when if results_due_at else 'shortly' }}.
+                {% endif %}
+              {% endif %}
+            </p>
+            {% if not entry.percentile_optin and phase != 'after' %}
+            <p class="nm-in-note">
+              You opted out of the cohort comparison, so you will get your mark
+              and your topics but not a percentile. You can change that below.
+            </p>
+            {% endif %}
+          </div>
+          <a class="btn {{ 'btn-primary' if phase == 'sitting' else 'btn-ghost' }} btn-lg"
+             href="{{ url_for('exam.index') }}">
+            {{ 'Open Exam Mode' if phase == 'sitting' else 'Exam Mode' }}</a>
+
+        {% else %}
+          {# Signed in, not yet registered. The form is the CTA. #}
+          <form class="nm-join" method="post" action="{{ url_for('national_mock_join') }}">
+            <p class="nm-join-head">
+              {% if phase == 'sitting' %}Register and start{% else %}Register free{% endif %}
+            </p>
+
+            {# Both boxes start unticked, and the page does not pretend
+               otherwise. Most people sitting this are sixteen to eighteen: the
+               ICO's Children's Code treats sharing a score into a cohort and
+               receiving marketing email as choices a student makes, not
+               defaults they are enrolled in. #}
+            <label class="nm-check">
+              <input type="checkbox" name="percentile_optin" value="1">
+              <span>
+                <b>Include me in the cohort comparison.</b>
+                Your score counts toward the percentiles and you get told where
+                you placed. Your name is never shown to anyone — not on this
+                site, not on a leaderboard, nowhere.
+              </span>
+            </label>
+
+            <label class="nm-check">
+              <input type="checkbox" name="marketing_optin" value="1">
+              <span>
+                <b>Email me about Telos.</b>
+                New mock papers and the occasional thing worth knowing. Not
+                needed for the mock — you will get your result either way.
+              </span>
+            </label>
+
+            <button class="btn btn-primary btn-lg" type="submit">
+              {% if phase == 'sitting' %}Register and open the papers{% else %}Register free{% endif %}
+            </button>
+            <p class="nm-cta-note">
+              Neither box is required. Leave both unticked and you still sit the
+              paper and still get your mark.
+            </p>
+          </form>
+        {% endif %}
+
+        {% if registered %}
+        {# Published only once it argues for joining — see
+           nationalmock.COUNT_VISIBLE_FROM. Below that the page says nothing
+           about the number rather than something discouraging. #}
+        <p class="nm-count">{{ registered }} registered so far.</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </section>
+
+  {# ── The papers ──────────────────────────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">On the card</p>
+        <h2 class="lp-p nm-h2">
+          Five papers. Pick the one you are actually sitting.
+        </h2>
+      </div>
+      <div class="nm-grid">
+        {% for p in papers %}
+        <article class="nm-card">
+          <p class="nm-card-fam">{{ p.family }}{% if p.module %} · {{ p.module }}{% endif %}</p>
+          <h3 class="nm-card-title">{{ p.title }}</h3>
+          <p class="nm-card-meta">
+            {{ p.question_count }} questions ·
+            {{ (p.duration_sec // 60) }} minutes
+          </p>
+        </article>
+        {% endfor %}
+      </div>
+      <p class="nm-papers-note">
+        These are Telos papers, written for this event — not past papers, and
+        not reproductions of anybody's. They are modelled on the real format,
+        the real timing and the real question styles.
+      </p>
+    </div>
+  </section>
+
+  {# ── How it works ────────────────────────────────────────────────────────── #}
+  <section class="lp-section nm-how">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">How it runs</p>
+        <h2 class="lp-p nm-h2">Three things happen.</h2>
+      </div>
+      {# Numbered because this genuinely is a sequence: each step only makes
+         sense after the one before it. #}
+      <ol class="nm-steps">
+        <li>
+          <span class="nm-step-n">1</span>
+          <div>
+            <b>You sit it in the window.</b>
+            {{ event.start_local|uk_time }} to {{ event.end_local|uk_time }} on
+            {{ event.start_local|uk_date }}. The clock is server-side and starts
+            when you start — closing the tab does not pause it, exactly as it
+            would not on the day.
+          </div>
+        </li>
+        <li>
+          <span class="nm-step-n">2</span>
+          <div>
+            <b>It marks itself immediately.</b>
+            Raw mark, a 1–9 scaled band, and the topics that cost you the most.
+            No waiting for that part.
+          </div>
+        </li>
+        <li>
+          <span class="nm-step-n">3</span>
+          <div>
+            <b>The percentile follows.</b>
+            {% if results_due_at %}At {{ event.results_local|uk_when }}{% else %}Once the window shuts{% endif %},
+            each paper is ranked across everyone who opted in and sat it. If too
+            few people sat a paper for a rank to mean anything, that paper gets
+            no percentile — the mark and the topics still stand. A position
+            among a handful of people is a guess wearing a number.
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lp-wrap">
+  <div class="lp-footer">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(20) }}
+      <span class="lp-logo-name" style="font-size:0.95rem;">Tel<span>os</span></span>
+    </a>
+    <nav class="lp-footer-links" aria-label="Footer">
+      <a href="{{ url_for('dashboard') }}">Telos</a>
+      <a href="{{ url_for('login') }}">Log in</a>
+      <a href="{{ url_for('terms') }}">Terms</a>
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="mailto:{{ tutoring_email }}?subject=Telos%20National%20Mock">Contact</a>
+    </nav>
+    <p class="lp-footer-contact">
+      Questions about the mock?
+      <a href="mailto:{{ tutoring_email }}?subject=Telos%20National%20Mock">{{ tutoring_email }}</a>
+      · TikTok <a href="https://www.tiktok.com/{{ tiktok_handle }}"
+                  target="_blank" rel="noopener">{{ tiktok_handle }}</a>
+    </p>
+    <p class="lp-footer-note">
+      {# The independence line, on every public page, in the same words. The
+         National Mock is not an official anything, and a free event carrying
+         the word "national" has to be unambiguous about that in writing. #}
+      The {{ event.title }} is run by Telos and is not an official test. Telos
+      is not affiliated with any awarding organisation, admissions test provider
+      or university. Scaled bands and percentiles are estimates from this
+      cohort's own marks, not results.
+    </p>
+  </div>
+</footer>
+
+<script>
+  /* The countdown. The server already rendered correct digits, so this only
+     keeps them moving — if it never runs, the page still shows a true time,
+     just a frozen one. That is the right failure.
+
+     Re-reads the target from the attribute each tick rather than caching a
+     deadline, and recomputes against the real clock instead of decrementing a
+     counter, so a laptop that was asleep for six hours shows the right number
+     the moment it wakes rather than six hours of drift. */
+  (function () {
+    var clock = document.querySelector('.nm-clock');
+    if (!clock) return;
+    var target = new Date(clock.getAttribute('data-countdown-to')).getTime();
+    if (isNaN(target)) return;
+    var cells = {};
+    ['d', 'h', 'm', 's'].forEach(function (u) {
+      cells[u] = clock.querySelector('[data-unit="' + u + '"]');
+    });
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+    function tick() {
+      var left = Math.floor((target - Date.now()) / 1000);
+      if (left <= 0) {
+        /* The boundary has passed, so this page is now describing the wrong
+           state — a locked paper has become a sittable one, or an open window
+           has shut. Reload once and let the server decide which. */
+        ['d', 'h', 'm', 's'].forEach(function (u) {
+          if (cells[u]) cells[u].textContent = '00';
+        });
+        window.setTimeout(function () { window.location.reload(); }, 1500);
+        return;
+      }
+      var d = Math.floor(left / 86400);
+      var h = Math.floor((left % 86400) / 3600);
+      var m = Math.floor((left % 3600) / 60);
+      var s = left % 60;
+      if (cells.d) cells.d.textContent = pad(d);
+      if (cells.h) cells.h.textContent = pad(h);
+      if (cells.m) cells.m.textContent = pad(m);
+      if (cells.s) cells.s.textContent = pad(s);
+      window.setTimeout(tick, 1000);
+    }
+    window.setTimeout(tick, 1000);
+
+    /* The nav gains a hairline once it starts overlapping content — same
+       behaviour as the landing page, so the two do not feel like different
+       sites. */
+    var nav = document.getElementById('lp-nav');
+    if (nav) {
+      window.addEventListener('scroll', function () {
+        nav.classList.toggle('stuck', window.scrollY > 8);
+      }, { passive: true });
+    }
+  })();
+</script>
+
+</body>
+</html>

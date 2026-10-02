@@ -26,6 +26,7 @@ from prescription import (prescribe, topic_stats,
                           RECENCY_WINDOW as PRESCRIPTION_RECENCY_WINDOW)
 from auth import requires_admin, requires_pro, user_is_pro
 import sharecards
+import nationalmock
 
 import json as _json
 
@@ -147,7 +148,7 @@ LEGAL_EMAIL = os.environ.get("LEGAL_EMAIL", TUTORING_EMAIL)
 # not when the page was rendered. A policy that redates itself every morning
 # tells a reader nothing and quietly destroys the audit trail of what they
 # agreed to. Change it by hand, in the same commit that changes the wording.
-LEGAL_UPDATED = "30 August 2026"
+LEGAL_UPDATED = "1 October 2026"
 
 STORAGE_DIR   = os.environ.get("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_DIR, "uploads")   # question-bank files
@@ -300,6 +301,11 @@ def canonical_url(path=None):
 
 
 app.jinja_env.globals["canonical_url"] = canonical_url
+# UK local times, formatted from the *_local columns Postgres already
+# converted. See nationalmock.fmt_time for why the conversion is not done here.
+app.jinja_env.filters["uk_time"] = nationalmock.fmt_time
+app.jinja_env.filters["uk_date"] = nationalmock.fmt_date
+app.jinja_env.filters["uk_when"] = nationalmock.fmt_when
 
 
 @app.before_request
@@ -348,7 +354,7 @@ def robots_txt():
 def sitemap_xml():
     # Public pages only — everything else is behind @login_required, so listing
     # it would just feed crawlers a wall of redirects.
-    pages = ["/", "/login", "/register", "/subscription"]
+    pages = ["/", "/login", "/register", "/subscription", "/national-mock"]
     urls = "".join(f"<url><loc>{canonical_url(p)}</loc></url>" for p in pages)
     body = ('<?xml version="1.0" encoding="UTF-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -650,9 +656,22 @@ def register():
             return render_template("register.html")
         try:
             with get_db() as db:
+                # Attribution is written with the account rather than patched
+                # on afterwards: a second statement could fail on its own and
+                # leave a user whose source is lost, and the source is the one
+                # number the whole launch is measured by.
+                src_token = session.get(FIRST_TOUCH) or None
+                signup_source, referred_by = _resolve_first_touch(db, src_token)
+                code = nationalmock.new_code(
+                    lambda c: db.execute(
+                        "SELECT 1 FROM users WHERE referral_code=?",
+                        (c,)).fetchone() is not None)
                 uid = db.execute(
-                    "INSERT INTO users (email, username, password_hash) VALUES (?,?,?)",
-                    (email, username, generate_password_hash(pw))
+                    "INSERT INTO users (email, username, password_hash, "
+                    "                   signup_source, referred_by, referral_code) "
+                    "VALUES (?,?,?,?,?,?)",
+                    (email, username, generate_password_hash(pw),
+                     signup_source, referred_by, code)
                 ).lastrowid
                 row = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
             # Signed in on the spot rather than sent to the login form. They
@@ -661,7 +680,7 @@ def register():
             # leave, particularly the ones arriving from a video with one
             # specific thing in mind.
             login_user(User(row), remember=True)
-            log_event("registered", uid)
+            log_event("registered", uid, signup_source or "direct")
             flash("Account created.", "success")
             return redirect(url_for("onboarding"))
         except psycopg.errors.UniqueViolation:
@@ -3103,6 +3122,213 @@ def subject_keys(user_id):
     return {(s["board"], s["subject"]) for s in get_user_subjects(user_id)}
 
 
+# ── The National Mock ──────────────────────────────────────────────────────
+#
+# One free timed paper, sat by everybody inside the same twelve-hour window, so
+# that a percentile afterwards means something. Friday 2 October 2026,
+# 10:00-22:00 UK — read from the mock_events row, never from a constant here,
+# because the date has already moved once and the only safe way to move it on
+# the day is an UPDATE.
+#
+# Public on purpose: this is the page a TikTok link points at, and a visitor
+# who has to sign in before finding out what the event is will not sign in.
+
+NM_SLUG = "nm1"
+
+# Where a first-touch source code waits until the account exists. First touch
+# rather than last: if someone finds Telos through a video, bookmarks it, and
+# registers four days later from a direct visit, the video is what worked.
+FIRST_TOUCH = "first_touch"
+
+
+# Postgres converts to UK local, not Python. Windows ships no IANA time-zone
+# database, so zoneinfo cannot resolve Europe/London on the development machine
+# without adding the tzdata package — and requirements.txt is held at seven
+# dependencies on purpose. The *_local columns come back as naive datetimes
+# already in London time, for nationalmock.fmt_* to format.
+_LOCAL = ("*, window_start AT TIME ZONE 'Europe/London' AS start_local, "
+          "   window_end   AT TIME ZONE 'Europe/London' AS end_local, "
+          "   results_due_at AT TIME ZONE 'Europe/London' AS results_local")
+
+
+def _nm_event(db, slug=NM_SLUG):
+    return db.execute(
+        "SELECT " + _LOCAL + " FROM mock_events WHERE slug=?", (slug,)).fetchone()
+
+
+def _nm_window(slug=NM_SLUG):
+    """(window_start, window_end, start_local) for an event, or three Nones.
+
+    Its own small query because the Exam Mode access check needs the window
+    and nothing else, on every paper start and every render of the tab. The
+    first two are UTC and get compared; the third is London-local and gets
+    printed. Memoised per request, so a page listing ten papers asks once.
+    """
+    def produce():
+        try:
+            with get_db() as db:
+                row = db.execute(
+                    "SELECT window_start, window_end, "
+                    "       window_start AT TIME ZONE 'Europe/London' AS start_local "
+                    "FROM mock_events WHERE slug=?", (slug,)).fetchone()
+            return ((row["window_start"], row["window_end"], row["start_local"])
+                    if row else (None, None, None))
+        except Exception:
+            # A missing table or an unreachable database must not take the
+            # whole app down with it. Failing open here means the lock does
+            # not apply, which costs an early look at a free paper; failing
+            # closed would mean nobody can sit anything at all.
+            app.logger.warning("national mock window lookup failed",
+                               exc_info=True)
+            return (None, None, None)
+
+    return _memo(("nm_window", slug), produce)
+
+
+@app.before_request
+def _capture_first_touch():
+    """Record where a visitor came from, once per session.
+
+    GETs only, and it writes a single analytics row, so a crawler hitting
+    fifty URLs that all carry the same ?r= does not produce fifty rows.
+    """
+    if request.method not in ("GET", "HEAD"):
+        return None
+    raw = request.args.get("r") or request.args.get("utm_source")
+    if not raw or session.get(FIRST_TOUCH):
+        return None
+    src = nationalmock.clean_source(raw)
+    if not src:
+        return None
+    session[FIRST_TOUCH] = src
+    session.permanent = True
+    log_event("landed", current_user.id if current_user.is_authenticated else None,
+              src)
+    return None
+
+
+def _resolve_first_touch(db, src):
+    """(signup_source, referred_by) for a first-touch token.
+
+    A token is either a campaign code I handed out (tt, tt-03, sch-foo) or
+    another student's referral code. The referral table is tried first so a
+    student's code can never be shadowed by a campaign code added later — and
+    a token matching nothing is still stored, because an unrecognised source
+    is data, not an error.
+    """
+    if not src:
+        return None, None
+    ref = db.execute(
+        "SELECT id FROM users WHERE referral_code=?", (src.upper(),)).fetchone()
+    if ref:
+        return "ref", ref["id"]
+    return src, None
+
+
+@app.route("/nm")
+def nm_short():
+    """The link that goes in a video caption. Short enough to read aloud.
+
+    302 rather than 301: a permanent redirect gets cached by the browser and
+    by every intermediary, and /nm is precisely the URL that might need to
+    point somewhere else — next year's event, or a results page — without
+    waiting for caches to forget it.
+
+    The query string is carried across verbatim rather than rebuilt through
+    url_for, so ?r= survives and nothing else is quietly dropped.
+    """
+    target = url_for("national_mock")
+    qs = request.query_string.decode()
+    return redirect(f"{target}?{qs}" if qs else target, 302)
+
+
+@app.route("/national-mock")
+def national_mock():
+    """The event page. Three states, one call to action in each."""
+    now = datetime.now(timezone.utc)
+    with get_db() as db:
+        event = _nm_event(db)
+        if not event:
+            abort(404)
+        papers = db.execute(
+            "SELECT paper_code, family, module, title, question_count, "
+            "       duration_sec FROM exam_papers "
+            "WHERE paper_code = ANY(?) AND is_published "
+            "ORDER BY family DESC, module", (list(event["paper_codes"]),)
+        ).fetchall()
+        registered = db.execute(
+            "SELECT COUNT(*) AS n FROM mock_event_entries WHERE event_id=?",
+            (event["id"],)).fetchone()["n"]
+        entry = None
+        if current_user.is_authenticated:
+            entry = db.execute(
+                "SELECT * FROM mock_event_entries WHERE event_id=? AND user_id=?",
+                (event["id"], current_user.id)).fetchone()
+
+    phase = nationalmock.state(event["window_start"], event["window_end"], now)
+    target = (event["window_start"] if phase == nationalmock.BEFORE
+              else event["window_end"])
+
+    return render_template(
+        "national_mock.html",
+        event=event,
+        papers=papers,
+        phase=phase,
+        entry=entry,
+        # The count is published only once it argues for joining. Below the
+        # threshold the page says nothing about it rather than something
+        # discouraging — which is also the honest thing to show in the first
+        # hour of a launch.
+        registered=(registered if nationalmock.show_count(registered) else None),
+        countdown_target=target,
+        countdown=nationalmock.countdown(target, now),
+        results_due_at=event["results_due_at"],
+        tutoring_email=TUTORING_EMAIL,
+        tiktok_handle=TIKTOK_HANDLE,
+        trial_days=TRIAL_DAYS,
+    )
+
+
+@app.route("/national-mock/join", methods=["POST"])
+@login_required
+def national_mock_join():
+    """Register for the event. Idempotent, and both opt-ins default to off.
+
+    Unticked by default because most of these users are sixteen to eighteen:
+    under the ICO's Children's Code, sharing a score into a cohort and
+    receiving marketing email are both things a student chooses rather than
+    things they are enrolled in by signing up. A pre-ticked box here would be
+    the clearest compliance failure in the product.
+    """
+    percentile = bool(request.form.get("percentile_optin"))
+    marketing = bool(request.form.get("marketing_optin"))
+    src = session.get(FIRST_TOUCH) or None
+    with get_db() as db:
+        event = _nm_event(db)
+        if not event:
+            abort(404)
+        db.execute(
+            "INSERT INTO mock_event_entries "
+            "       (event_id, user_id, source, percentile_optin) "
+            "VALUES (?,?,?,?) "
+            # A second submit updates the choices instead of failing. Someone
+            # who registers, reads the opt-in copy properly and submits again
+            # is changing their mind, which the form has to let them do. The
+            # source is kept from the first registration, not overwritten.
+            "ON CONFLICT (event_id, user_id) DO UPDATE "
+            "   SET percentile_optin = EXCLUDED.percentile_optin, "
+            "       source = COALESCE(mock_event_entries.source, EXCLUDED.source)",
+            (event["id"], current_user.id, src, percentile))
+        # Marketing consent belongs to the account rather than the event: it
+        # governs every email Telos ever sends this person, so withdrawing it
+        # once has to withdraw it everywhere.
+        db.execute("UPDATE users SET marketing_optin=? WHERE id=?",
+                   (marketing, current_user.id))
+    log_event("nm_registered", current_user.id, src or "direct")
+    flash("You're in. The paper unlocks at 10:00 on Friday.", "success")
+    return redirect(url_for("national_mock"))
+
+
 # Endpoints reachable before a student has told us what they study. Everything
 # else waits until they have, because the dashboard, the paper form and the
 # heatmap are all built around their subjects and are close to meaningless
@@ -3112,6 +3338,10 @@ SETUP_EXEMPT = {
     "forgot_password", "reset_password", "static", "service_worker",
     "offline", "robots_txt", "sitemap_xml", "share_card", "share_card_png",
     "api_templates", "api_template_info",
+    # The National Mock pages. A visitor arriving from a video may well be
+    # signed in with no subjects picked, and bouncing them from the event page
+    # to the subject picker loses them; the join POST would lose its body.
+    "national_mock", "national_mock_join", "nm_short",
 }
 
 

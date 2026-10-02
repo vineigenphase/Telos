@@ -2846,6 +2846,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 .pill-owned { color: var(--accent-2); border-color: rgba(var(--accent-rgb), 0.40); }
 .pill-free  { color: var(--green);    border-color: rgba(94, 158, 107, 0.35); }
+/* Sealed until the National Mock opens. Gold rather than red: this is a paper
+   waiting for its hour, not a paper the student has been refused. */
+.pill-locked { color: var(--gold); border-color: rgba(201, 162, 39, 0.38); }
 
 /* The paper list. A table was the wrong shape here before it was unstyled:
    seven columns at 390px is a horizontal scroll through the one screen that

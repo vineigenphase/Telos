@@ -63,7 +63,13 @@
       </div>
 
       {% for p in g.papers %}
-      {% set sittable = is_pro or p.id in owned or not p.price_pence %}
+      {# A sealed National Mock paper is not sittable and not buyable. The
+         distinction matters: `locked` wins over every entitlement, including
+         Pro, because the cohort has to sit the same paper at the same time for
+         the percentile afterwards to mean anything. #}
+      {% set locked = p.paper_code in locked_codes %}
+      {% set sittable = not locked and (is_pro or p.id in owned
+                                        or not p.price_pence) %}
       <div class="exam-row">
         <div class="exam-mod">{{ p.module }}</div>
 
@@ -90,7 +96,8 @@
              "£1" next to a paper they can already sit would be the worst of
              both. #}
           <div>
-            {% if is_pro %}<span class="pill pill-owned">Included</span>
+            {% if locked %}<span class="pill pill-locked">Locked</span>
+            {% elif is_pro %}<span class="pill pill-owned">Included</span>
             {% elif p.id in owned %}<span class="pill pill-owned">Owned</span>
             {% elif not p.price_pence %}<span class="pill pill-free">Free</span>
             {% else %}<span class="exam-price">{{ price_label(p.price_pence) }}</span>
@@ -98,7 +105,13 @@
           </div>
 
           <div class="exam-action">
-            {% if sittable %}
+            {% if locked %}
+            {# Never a Buy button here. This paper is free and about to be
+               open to everyone; asking for money would be false, and asking
+               at this moment would be the worst version of false. #}
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('national_mock') }}">
+              National Mock</a>
+            {% elif sittable %}
             <button class="btn btn-primary btn-sm js-start"
                     data-paper="{{ p.paper_code }}">Sit paper</button>
             {% else %}
@@ -114,6 +127,18 @@
     {% endfor %}
   {% else %}
     <p class="empty-inline">No papers published yet.</p>
+  {% endif %}
+
+  {% if locked_opens %}
+  {# Said once, under the list, rather than on each of five rows. A student
+     needs the time and the reason; repeating it five times reads as an error
+     message. #}
+  <p class="hint">
+    The Mock A papers unlock at {{ locked_opens }} for the
+    <a href="{{ url_for('national_mock') }}">Telos National Mock</a> — free,
+    and everyone sits them at the same time so the percentile afterwards is
+    real.
+  </p>
   {% endif %}
 
   {% if attempts %}
@@ -171,7 +196,7 @@ document.querySelectorAll('.js-start').forEach(function (b) {
     try {
       const r = await fetch('/exam/' + b.dataset.paper + '/start', { method: 'POST' });
       const d = await r.json();
-      if (r.status === 402) {
+      if (r.status === 402 || r.status === 403) {
         // Reload rather than following buy_url: that route is POST-only, so
         // navigating to it would be a 405. The reloaded row shows the Buy
         // button, which is the same action with the right method.
