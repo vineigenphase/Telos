@@ -330,6 +330,48 @@ def _event_lock(db, paper):
     return (True, start_local) if on_card else (False, None)
 
 
+def _event_result(db, attempt):
+    """This attempt's National Mock result, or None if it is not one.
+
+    Keyed on attempt_id, so it answers for the sitting the student is actually
+    looking at rather than for their best or latest one. An attempt that was
+    not the one the release counted gets None, which is correct: it was a
+    practice run, not an entry.
+
+    Returns None until results are released, even once the rows exist. The
+    release script writes every paper and stamps results_released_at last, so
+    reading the stamp rather than the rows is what stops a student seeing a
+    position from a half-written table.
+    """
+    row = db.execute(
+        "SELECT r.rank, r.percentile, r.cohort_size, r.in_cohort, "
+        "       e.title, e.slug, s.published, s.sitters, s.raw_median "
+        "FROM mock_event_results r "
+        "JOIN mock_events e ON e.id = r.event_id "
+        "LEFT JOIN mock_event_paper_stats s "
+        "       ON s.event_id = r.event_id AND s.paper_id = r.paper_id "
+        "WHERE r.attempt_id = ? AND r.user_id = ? "
+        "  AND e.results_released_at IS NOT NULL",
+        (attempt["id"], current_user.id)).fetchone()
+    if not row:
+        return None
+    return {
+        "title": row["title"],
+        "rank": row["rank"],
+        "percentile": row["percentile"],
+        "cohort_size": row["cohort_size"],
+        "in_cohort": bool(row["in_cohort"]),
+        "published": bool(row["published"]),
+        "sitters": row["sitters"],
+        "median": float(row["raw_median"]) if row["raw_median"] is not None
+                  else None,
+        # Computed server-side rather than in the template: the rule about
+        # which results get a share button is a product decision, and a
+        # decision like that belongs where it can be tested.
+        "shareable": nationalmock.above_median(row["rank"], row["cohort_size"]),
+    }
+
+
 def _access(db, paper):
     """(allowed, reason). `reason` is why, so the caller can say so."""
     # Checked before Pro and before ownership, deliberately. A Pro subscriber
@@ -672,6 +714,7 @@ def results_json(attempt_id):
         questions = db.execute(
             "SELECT " + GRADED_QUESTION_COLUMNS + " FROM exam_questions "
             "WHERE paper_id=? ORDER BY n", (attempt["paper_id"],)).fetchall()
+        event = _event_result(db, attempt)
         return jsonify({
             "attempt_id": attempt["id"],
             "paper": {"code": attempt["paper_code"], "title": attempt["title"],
@@ -681,6 +724,7 @@ def results_json(attempt_id):
             "status": attempt["status"],
             "metrics": attempt["metrics"],
             "questions": [dict(q) for q in questions],
+            "event": event,
             "disclaimer": ESTIMATE_DISCLAIMER,
         })
 

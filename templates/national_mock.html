@@ -172,12 +172,41 @@
                 Go and sit it.
               {% else %}
                 {% if event.results_released_at %}
-                  Your result is in Exam Mode.
+                  {% if my_results %}Here is where you landed.
+                  {% else %}Results are out, but you have no sitting recorded
+                    for this one.{% endif %}
                 {% else %}
                   Results land {{ event.results_local|uk_when if results_due_at else 'shortly' }}.
                 {% endif %}
               {% endif %}
             </p>
+            {% if my_results %}
+            {# One row per paper they sat. Three outcomes, each with its own
+               sentence rather than a shared one with a gap in it — see
+               renderEventResult in exam_results.js, which says the same three
+               things on the results page itself. #}
+            <ul class="nm-results">
+              {% for r in my_results %}
+              <li>
+                <a href="{{ url_for('exam.results', attempt_id=r.attempt_id) }}">
+                  {{ r.title }}</a>
+                <span class="nm-results-mark">{{ r.raw }}/{{ r.question_count }}{% if r.scaled is not none %} · band {{ '%.1f'|format(r.scaled) }}{% endif %}</span>
+                <span class="nm-results-pos">
+                  {%- if not r.in_cohort %}
+                    You didn't join the cohort comparison, so there's no position.
+                  {%- elif not r.published or r.percentile is none %}
+                    Too few people sat this paper for a position to mean anything.
+                  {%- else %}
+                    Higher than {{ r.percentile }}% of the cohort — {{ r.rank }} of
+                    {{ r.cohort_size }}{% if r.raw_median is not none %}, median
+                    {{ '%g'|format(r.raw_median) }}{% endif %}.
+                  {%- endif %}
+                </span>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
             {% if not entry.percentile_optin and phase != 'after' %}
             <p class="nm-in-note">
               You opted out of the cohort comparison, so you will get your mark

@@ -38,9 +38,9 @@ Three questions, in order:
 | Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
 | Components | 219 papers, modules, parts and coursework units |
 | Routes | 73 |
-| Tables | 30, under 49 numbered migrations |
-| Tests | 30 suites, ~856 assertions |
-| Code | ~41,000 lines across 243 tracked files |
+| Tables | 32, under 50 numbered migrations |
+| Tests | 31 suites, ~892 assertions |
+| Code | ~42,000 lines across 246 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -72,8 +72,8 @@ admissions_papers.py  the official ENGAA/NSAA/TMUA papers and keys — pure
 sharecards.py     server-rendered PNG share cards
 brand.py          the Telos mark, drawn in code
 paper_templates.py  67 qualifications, 219 components
-migrations/       49 numbered idempotent SQL migrations
-tests/            30 standalone suites
+migrations/       50 numbered idempotent SQL migrations
+tests/            31 standalone suites
 scripts/boundaries/  36 board-document scripts
 ```
 
@@ -270,7 +270,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~4,500 lines of hand-written CSS and 1148 of vanilla JS.
+no CSS framework — ~4,500 lines of hand-written CSS and 1213 of vanilla JS.
 
 ---
 
@@ -300,12 +300,12 @@ app.py  db.py  auth.py  mailer.py  brand.py       core application
 prediction.py  prescription.py  revision.py       pure engines
 admissions.py  admissions_papers.py               pure engines, admissions
 sharecards.py  paper_templates.py                 rendering, catalogue
-migrations/          49 numbered SQL migrations
+migrations/          50 numbered SQL migrations
 scripts/boundaries/  36 board-document scripts
 scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
 scripts/upload_admissions_papers.py  push the official PDFs to the volume
-tests/               30 suites, ~856 assertions
+tests/               31 suites, ~892 assertions
 templates/           43 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker

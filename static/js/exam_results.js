@@ -49,6 +49,8 @@
     var qs = data.questions || [];
     var N = m.max || qs.length;
 
+    renderEventResult(data.event);
+
     $("#scaled").textContent = (m.scaled != null) ? Number(m.scaled).toFixed(1) : "—";
     $("#raw").textContent = m.raw + " / " + N;
     $("#rawLbl").textContent = "raw marks" + (m.unanswered ? ", " + m.unanswered + " unanswered" : "");
@@ -183,3 +185,66 @@
     });
   }
 })();
+
+/* 1st, 2nd, 3rd, 4th ... 11th, 21st, 101st.
+   The naive version — checking only for 1, 2 and 3 — produces "21th" and
+   "101th", and a cohort of twenty-plus is exactly where this event lands, so
+   those are the ranks people would actually have been shown. The real rule is
+   on the last digit, with the teens as the exception. */
+function ordinal(n) {
+  var tens = n % 100;
+  if (tens >= 11 && tens <= 13) return n + "th";
+  switch (n % 10) {
+    case 1: return n + "st";
+    case 2: return n + "nd";
+    case 3: return n + "rd";
+    default: return n + "th";
+  }
+}
+
+/* The National Mock position, when this attempt was an entry in one.
+   Four outcomes, and each gets its own sentence rather than a shared one with
+   a blank in it:
+
+     * ranked        — they opted in and the paper made the threshold;
+     * not published — the paper's cohort fell short, so there is no position
+                       to give. Said as a fact about the paper, never as
+                       something the student failed to qualify for;
+     * opted out     — they chose not to join the comparison. Stated without
+                       any nudge to change it: the choice was the point;
+     * no event      — an ordinary sitting. The block stays hidden. */
+function renderEventResult(ev) {
+  var box = document.getElementById("nmres");
+  if (!box || !ev) return;
+
+  var label = document.getElementById("nmresLabel");
+  var big = document.getElementById("nmresBig");
+  var note = document.getElementById("nmresNote");
+
+  if (!ev.in_cohort) {
+    label.textContent = ev.title;
+    big.textContent = "No position";
+    note.textContent = "You didn't join the cohort comparison for this one, " +
+                       "so your mark is yours alone. Everything else on this " +
+                       "page still stands.";
+  } else if (!ev.published || ev.percentile == null) {
+    label.textContent = ev.title;
+    big.textContent = "Not enough sitters";
+    note.textContent = "Too few people sat this paper for a position to mean " +
+                       "anything, so there isn't one. A rank among a handful " +
+                       "of people would be a guess with a number on it.";
+  } else {
+    label.textContent = ev.title;
+    /* "Higher than N%" rather than "Nth percentile" — the second phrasing gets
+       read as a grade by about half the people who see it. */
+    big.textContent = "Higher than " + ev.percentile + "% of the cohort";
+    var bits = [];
+    if (ev.rank && ev.cohort_size) {
+      bits.push(ordinal(ev.rank) + " of " + ev.cohort_size +
+                " who sat it and opted in");
+    }
+    if (ev.median != null) bits.push("the median was " + ev.median);
+    note.textContent = bits.join(" · ") + ".";
+  }
+  box.classList.remove("hidden");
+}

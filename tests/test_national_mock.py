@@ -147,6 +147,13 @@ try:
     with get_db() as db:
         purge_user(db, EMAIL)
 
+    # Six hours ahead, for everything that is about the event not having
+    # started yet. Pinned rather than inherited from the real nm1 row: that
+    # window was in the future when this suite was written and is in the past
+    # now that the event has run, which silently turned the whole first half of
+    # this file into assertions about the closed page.
+    with_window(timedelta(hours=6))
+
     # ── The link in the video caption ────────────────────────────────────────
     c = app.test_client()
     r = c.get("/nm?r=tt", follow_redirects=False)
@@ -237,6 +244,8 @@ try:
     # Mock A is free and published, so without the lock this paper could be sat
     # the day before by anybody. That would not break the app; it would break
     # the percentile, quietly, which is worse.
+    #
+    # Still six hours ahead from the pin above, so the papers are sealed.
     with get_db() as db:
         locked_paper = db.execute(
             "SELECT * FROM exam_papers WHERE paper_code='TMUA-P1-A'").fetchone()

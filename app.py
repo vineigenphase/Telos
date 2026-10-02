@@ -3260,10 +3260,28 @@ def national_mock():
             "SELECT COUNT(*) AS n FROM mock_event_entries WHERE event_id=?",
             (event["id"],)).fetchone()["n"]
         entry = None
+        my_results = []
         if current_user.is_authenticated:
             entry = db.execute(
                 "SELECT * FROM mock_event_entries WHERE event_id=? AND user_id=?",
                 (event["id"], current_user.id)).fetchone()
+            # Only once the release has stamped the event. The rows exist
+            # before that — the script writes every paper and stamps last — so
+            # reading the stamp is what stops a student seeing a position from
+            # a half-written table.
+            if event["results_released_at"]:
+                my_results = db.execute(
+                    "SELECT r.attempt_id, r.raw, r.scaled, r.rank, "
+                    "       r.percentile, r.cohort_size, r.in_cohort, "
+                    "       p.paper_code, p.title, p.question_count, "
+                    "       s.published, s.raw_median "
+                    "FROM mock_event_results r "
+                    "JOIN exam_papers p ON p.id = r.paper_id "
+                    "LEFT JOIN mock_event_paper_stats s "
+                    "       ON s.event_id = r.event_id AND s.paper_id = r.paper_id "
+                    "WHERE r.event_id=? AND r.user_id=? "
+                    "ORDER BY p.paper_code",
+                    (event["id"], current_user.id)).fetchall()
 
     phase = nationalmock.state(event["window_start"], event["window_end"], now)
     target = (event["window_start"] if phase == nationalmock.BEFORE
@@ -3275,6 +3293,7 @@ def national_mock():
         papers=papers,
         phase=phase,
         entry=entry,
+        my_results=my_results,
         # The count is published only once it argues for joining. Below the
         # threshold the page says nothing about it rather than something
         # discouraging — which is also the honest thing to show in the first

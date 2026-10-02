@@ -3025,6 +3025,47 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .mcq-opt-right, .mcq-opt-wrong { flex: 0 1 84px; }
 }
 
+/* The National Mock position, on the results page. Shown only when this
+   attempt was an entry in an event whose results have been released, so for
+   most sittings this block is not in the document at all.
+
+   Deliberately quieter than .score above it. The estimated grade is what a
+   student came for; a position relative to other people is context, and given
+   the same visual weight it starts to read as the point. */
+.nmres {
+  margin: 20px 0 4px;
+  padding: 15px 17px;
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+.nmres-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 7px;
+}
+
+.nmres-big {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+.nmres-note {
+  margin-top: 7px;
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Installed to a home screen — must stay LAST in this file.
    ═══════════════════════════════════════════════════════════════════════════

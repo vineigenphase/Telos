@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-10-02.** Living handoff document. Read this first, then
+**Last updated: 2026-10-02 (late).** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -99,7 +99,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 12 | TMUA Pass — £3.99 for 30 days | `7d883b1` | **removed** 2026-09-18, see below |
 | 13 | Mock B — five papers, 121 questions, £1 each | `5792feb` | **live** |
 | 13 | W1 — Mock A made free, as the National Mock lead magnet | `88c3d4f` | **live** |
-| 13 | W2 — the National Mock: event row, `/nm`, `/national-mock`, first-touch attribution, the event lock | — | **in progress** |
+| 13 | W2 — the National Mock: event row, `/nm`, `/national-mock`, first-touch attribution, the event lock | `6aa1962` | **live** |
+| 13 | W4 — cohort ranking, percentile suppression, the release script | — | **built, never run on real data** |
 | 7, 10 | Percentile, boundary simulator | — | W4 of the launch; the National Mock is the first cohort |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -134,6 +135,42 @@ disagree, and the lock would win silently.
 | Attribution | `users.signup_source`, `referred_by`, `referral_code`; session key `first_touch` |
 | The lock | `exam._event_lock` + `exam.NM_LOCK_BEFORE_WINDOW` |
 | Results due | `mock_events.results_due_at` — Sat 3 Oct 08:00 BST |
+| Ranking, pure | `nationalmock.cohort_ranks`, `median`, `above_median` |
+| The release | `scripts/national_mock_release.py` — **dry run by default** |
+| Result rows | `mock_event_results`, `mock_event_paper_stats` |
+| Shown to the student | `exam._event_result` → `results.json` → `exam_results.js` |
+
+### The first event drew nobody. Read this before planning the second.
+
+**The window opened at 10:00 on Friday 2 October and closed at 22:00. Zero
+registrations, zero attempts, zero visitors.** The only traffic in the whole
+twelve hours was the verification hits from the build, at 01:06 and 01:10 UTC.
+User count before: 16. After: 16.
+
+The product worked. `/national-mock` served correctly in all three states, the
+countdown was accurate to the second, `/nm?r=tt` carried its source, the papers
+locked and unlocked on schedule, and the page never showed a price. **Nothing
+failed except distribution.** The videos were written (`Telos-Launch/
+tiktok_scripts.md`, six scripts with per-video link suffixes) and never posted.
+
+This is the cost of the date move landing in full. It was flagged when the date
+moved — no announce runway, no reminder, no beta sitters — and the flag was
+right. Shipping the machinery the night before an event does not create an
+audience for it; a launch is a distribution problem wearing an engineering
+costume, and the engineering half was never the bottleneck.
+
+**What this means for W4.** The release script ran clean against production and
+had nothing to rank, which proves only that it does not crash on an empty
+table. Every claim about the ranking is backed by
+`tests/test_national_mock_release.py` instead, which builds a 24-person cohort
+with deliberate ties, two opt-outs, an empty attempt and a re-sit. 37
+assertions. **Do not treat W4 as proven in production until a real cohort has
+been through it.**
+
+**Do not publish an empty release.** Running `--publish` on nm1 would stamp
+`results_released_at` over nothing, and the event page would then tell nobody
+their results are ready. nm1 is better left unreleased and re-dated, or retired
+in favour of a second event row with a real runway.
 
 **Settled decisions made during the launch build:**
 
@@ -156,6 +193,26 @@ disagree, and the lock would win silently.
 - **A locked paper returns 403 `event_locked`, never 402.** A 402 makes the
   client raise a buy prompt, and a buy prompt for a free paper on the morning
   of a free event is the worst thing this flow could say.
+- **The FIRST completed sitting counts, not the best.** Papers are locked until
+  the window, so everyone's first attempt is a genuine cold sitting, and that
+  is the only thing the cohort claim rests on. Best-of would quietly rank the
+  people who sat it twice above the people who sat it once. An attempt with no
+  answers recorded is skipped in favour of the next one, so an accidental
+  open-and-submit does not become somebody's result — a real zero is kept.
+- **Ranked on raw marks, not the scaled band.** Same paper, so raw is directly
+  comparable and much finer; the 1–9 scale would tie most of the cohort.
+- **Ties genuinely tie.** No secondary sort on time taken or submission order.
+  Two people on 14/20 did equally well, and a separator invented to break that
+  would be inventing a result.
+- **Percentile is the share who scored strictly lower, as a whole number.**
+  Said as "higher than N% of the cohort" — "Nth percentile" gets read as a
+  grade by about half the people who see it. Whole numbers because 87.3 in a
+  cohort of twenty-three is three digits of precision over four points.
+- **Results are stored, never computed on read.** The anchors are editable, so
+  a live query would let a position drift after it had been told to someone.
+- **The share card only offers above-median results** (`above_median`). The
+  student's own results page always shows the true figure; this governs what
+  gets a one-tap share button, not what they are told.
 
 ---
 

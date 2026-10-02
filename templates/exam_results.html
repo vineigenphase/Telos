@@ -46,6 +46,15 @@
     </div>
   </div>
 
+  {# The National Mock position. Hidden until results.json says there is one,
+     rather than rendered empty: this block is absent for every ordinary
+     sitting, which is most of them. #}
+  <div class="nmres hidden" id="nmres">
+    <p class="nmres-label" id="nmresLabel">—</p>
+    <p class="nmres-big" id="nmresBig">—</p>
+    <p class="nmres-note" id="nmresNote"></p>
+  </div>
+
   <p class="estnote" id="estnote">{{ disclaimer }}</p>
 
   <div class="ladder">
