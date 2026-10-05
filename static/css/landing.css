@@ -1204,3 +1204,108 @@ html { scroll-behavior: smooth; }
 @media (hover: hover) {
   .nm-results a:hover { text-decoration: underline; }
 }
+
+/* ── /practice-papers ────────────────────────────────────────────────────────
+   The public paper catalogue. Reuses this file's shell and the .nm-steps list;
+   adds a card grid and a comparison table.
+
+   Quieter than the landing page by design. Someone arriving here from a search
+   is looking for a specific test in a list, not being persuaded — so the job is
+   legibility and a table they can scan, not a hero. */
+
+.pp-hero { padding: 92px 0 36px; }
+.pp-title { margin-bottom: 20px; }
+.pp-lede { max-width: 60ch; margin-bottom: 32px; }
+.pp-cta { max-width: 52ch; }
+
+.pp-h2 {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 10px;
+  text-wrap: balance;
+}
+
+.pp-p {
+  max-width: 64ch;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--muted-2);
+  line-height: 1.75;
+}
+.pp-p strong { color: var(--text); font-weight: 600; }
+
+.pp-note {
+  max-width: 64ch;
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  line-height: 1.7;
+}
+
+/* The free mocks. One column on a phone, filling out as there is room — a
+   count the grid can actually fill rather than a fixed three that leaves one
+   card alone on the last row. */
+.pp-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 28px;
+}
+@media (min-width: 560px) { .pp-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .pp-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.pp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+.pp-card-fam {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+.pp-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+.pp-card-meta {
+  font-size: 0.78rem;
+  color: var(--muted-2);
+  font-variant-numeric: tabular-nums;
+}
+/* Pushed to the bottom edge so it lines up across cards whose titles wrap to
+   different heights. */
+.pp-card-tag {
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+/* The catalogue table. Its own scroll container, so five columns of counts
+   never make the page itself scroll sideways on a phone. */
+.pp-table-wrap {
+  margin-top: 28px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.pp-table {
+  min-width: 460px;
+  font-variant-numeric: tabular-nums;
+}
+.pp-total td { border-top: 1px solid var(--border); color: var(--text); }
+
+.pp-event { border-top: 1px solid var(--border); padding-top: 60px; }
+.pp-close { padding-bottom: 96px; }
+.pp-close .pp-p { margin-bottom: 26px; }

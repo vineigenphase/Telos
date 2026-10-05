@@ -37,10 +37,10 @@ Three questions, in order:
 | Grade boundary rows | **1,001** real published boundaries |
 | Levels | A-Level, AS-Level, Higher, Advanced Higher, admissions test |
 | Components | 219 papers, modules, parts and coursework units |
-| Routes | 73 |
+| Routes | 74 |
 | Tables | 32, under 50 numbered migrations |
 | Tests | 31 suites, ~892 assertions |
-| Code | ~42,000 lines across 246 tracked files |
+| Code | ~43,000 lines across 248 tracked files |
 
 Coverage is not approximate. `test_boundaries.py` fails the build if any
 **graded** paper the app offers lacks boundaries — a qualification a student can
@@ -62,7 +62,7 @@ every run rather than hiding it or treating it as an error.
 ## Architecture
 
 ```
-app.py            Flask routes, session, entitlement gates      (~3,500 lines)
+app.py            Flask routes, session, entitlement gates      (~3,600 lines)
 db.py             psycopg3 shim — Postgres behind a sqlite3 API
 prediction.py     grade engine        — pure, no Flask, no DB
 prescription.py   "your next 3 questions" — pure
@@ -270,7 +270,7 @@ list. Secrets live in Railway and never in the repository.
 | Front end | Server-rendered Jinja, hand-written CSS, no framework |
 
 Seven runtime dependencies. There is no JavaScript build step, no bundler and
-no CSS framework — ~4,500 lines of hand-written CSS and 1213 of vanilla JS.
+no CSS framework — ~4,700 lines of hand-written CSS and 1213 of vanilla JS.
 
 ---
 
@@ -306,7 +306,7 @@ scripts/check_stripe.py        read-only Stripe config verification
 scripts/build_source_dump.py   whole codebase as one annotated file
 scripts/upload_admissions_papers.py  push the official PDFs to the volume
 tests/               31 suites, ~892 assertions
-templates/           43 Jinja templates, including /terms and /privacy
+templates/           44 Jinja templates, including /terms and /privacy
 LICENSE              proprietary — all rights reserved
 static/              CSS, JS, fonts, PWA manifest, service worker
 TELOS_STATE.md       living handoff — infrastructure, phases, gotchas

@@ -1,6 +1,6 @@
 # Telos — where we left off
 
-**Last updated: 2026-10-02 (late).** Living handoff document. Read this first, then
+**Last updated: 2026-10-05.** Living handoff document. Read this first, then
 `TELOS_V2_SPEC.md` and `TELOS_V2_ADDENDUM.md` (the addendum reorders the
 phases and adds the mobile/PWA work).
 
@@ -100,7 +100,8 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 | 13 | Mock B — five papers, 121 questions, £1 each | `5792feb` | **live** |
 | 13 | W1 — Mock A made free, as the National Mock lead magnet | `88c3d4f` | **live** |
 | 13 | W2 — the National Mock: event row, `/nm`, `/national-mock`, first-touch attribution, the event lock | `6aa1962` | **live** |
-| 13 | W4 — cohort ranking, percentile suppression, the release script | — | **built, never run on real data** |
+| 13 | W4 — cohort ranking, percentile suppression, the release script | `02fa6af` | **built, never run on real data** |
+| 13 | `/practice-papers` — the one public, indexable page; nm1 re-dated to Sat 10 Oct | — | **live** |
 | 7, 10 | Percentile, boundary simulator | — | W4 of the launch; the National Mock is the first cohort |
 | 8 | Weekly parent report | — | **cut** (2026-08-25) |
 
@@ -111,7 +112,16 @@ Order (from the addendum): `0 → 0.4 → 0.6 → 1 → 2 → 3 → 2.5 → 5 �
 Running **Friday 2 October 2026, 10:00–22:00 UK**. One free paper, everybody
 inside the same window, a percentile afterwards.
 
-**The date moved twice, and this is why it matters.** The brief set Sunday 4
+**The date has now moved three times: Sun 4 Oct, Fri 2 Oct, and now Sat 10
+Oct 2026, 10:00–22:00 UK.** The third move was made on 5 October after the
+second event drew nobody, and the reason is in the brief's own calendar: the
+**October TMUA/ESAT sitting is Mon 12 – Fri 16 Oct**, so Saturday the 10th is
+the last weekend on which a mock is worth anything to the October cohort.
+Results Sun 11 Oct 08:00 — the day before the real test, which leaves one day
+to act on the topic breakdown. Moved with `scripts/nm_set_window.py`, no
+deploy.
+
+**The original reasoning, which still holds.** The brief set Sunday 4
 October. The owner moved it to Friday 2 October on 29 September, with the cost
 stated and accepted: no announce runway, no Saturday reminder, no beta sitters,
 and most of a school-day cohort in lessons for the first seven of the twelve
@@ -213,6 +223,48 @@ in favour of a second event row with a real runway.
 - **The share card only offers above-median results** (`above_median`). The
   student's own results page always shows the true figure; this governs what
   gets a one-tap share button, not what they are told.
+
+---
+
+## Publicising it — the actual bottleneck
+
+Three days after the failed event the database still said 16 users and **every
+single `landed` row came from the test suites**. Not one external visitor has
+ever reached the site. That is the whole problem, and it is not an engineering
+one.
+
+What was built on 5 October to make it addressable:
+
+- **`/practice-papers`** — the one public, indexable page. Everything worth
+  ranking for (the 80 papers, the tracker, Exam Mode) is behind
+  `@login_required`, which is correct and also made Telos invisible to anyone
+  searching "free TMUA practice papers". This page is the index for that
+  content without un-gating any of it. **The PDFs stay gated** — see
+  `exam.admissions_pdf`: they are third-party materials and a public URL is an
+  indexed URL. A test in `test_landing.py` asserts no PDF is ever linked from
+  it.
+- **`scripts/nm_set_window.py`** — move an event's window from the command
+  line, UK local in, UTC stored, read back in both zones. The hour is the easy
+  thing to get wrong and the window has moved three times.
+- **`scripts/nm_status.py` now reports visits before registrations.** After the
+  first event every figure below registrations was zero and only the visit
+  count explained why: nothing had been posted. A dashboard that opens on
+  "registrations: 0" invites you to go and fix the signup flow instead.
+- **`Telos-Launch/community_posts.md`** and **`schools/email_template.md`** —
+  drafts for r/6thForm, r/UniUK, The Student Room, Discord and schools, each
+  with its own `?r=` code so two days of data name the channel that works.
+
+**The order that matters, and it is not the W-numbers.** W3 (share card), W5
+(referral) and W6 (campaign mail) are all amplification for an audience that
+does not exist. One post to r/6thForm, which takes twenty minutes, is worth
+more than all three. The event is a retention tool being used as an acquisition
+tool, which is why it drew nobody — it works on people who already follow you.
+
+**Schools is the highest-leverage channel and the slowest.** One head of maths
+forwarding the email puts 20–30 candidates on the site at once, which is more
+than the entire current user base and enough to clear `min_cohort` on one
+paper. It runs on school timescales, so it is aimed at the January sitting
+(4–8 Jan 2027), not at Saturday.
 
 ---
 
