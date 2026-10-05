@@ -146,6 +146,62 @@ if _papers:
               "a paper.</strong>" in body, False)
 
 
+
+# ── /practice-papers ─────────────────────────────────────────────────────────
+#
+# The one page on the site a search engine can use. Everything worth ranking
+# for is behind @login_required, which is correct and also means Telos is
+# invisible to anyone searching "free TMUA practice papers".
+#
+# These checks are about the two things that would quietly destroy its value:
+# serving it to a crawler as a redirect, and letting the counts drift away from
+# the catalogue so the page advertises papers that are not there.
+
+import admissions_papers as _ap  # noqa: E402
+
+_pp = app.test_client().get("/practice-papers")
+check("the paper catalogue is public", _pp.status_code, 200)
+_body = _pp.get_data(as_text=True)
+
+_groups = _ap.all_official_papers()
+_total = sum(len(v) for v in _groups.values())
+_marked = sum(1 for rows in _groups.values() for r in rows
+              if _ap.answer_key(r["subject"], r["year"], r.get("part")))
+check(f"it states the real paper count ({_total})",
+      f"{_total} admissions-test papers" in _body, True)
+check(f"and the real auto-marked count ({_marked})",
+      f"{_marked} of them" in _body, True)
+
+# Every test in the catalogue has to appear, or the page is advertising a
+# subset while claiming the total.
+_names = {_ap.test_name(k) for k in _groups}
+check(f"every test is named ({len(_names)})",
+      sorted(n for n in _names if n not in _body), [])
+
+# The distinction that must never blur. A Telos mock is not a past paper and
+# not anybody's official material, and the page says so in both directions.
+check("Telos mocks are not passed off as past papers",
+      "not past papers" in _body, True)
+check("the independence line is present",
+      "not affiliated with any awarding organisation" in _body, True)
+check("nothing on the page calls a Telos paper official",
+      "official Telos" in _body.lower(), False)
+
+# The PDFs are third-party material and stay behind the login — see
+# exam.admissions_pdf. A public page that linked straight to one would undo
+# that decision silently.
+check("no past-paper PDF is linked from the public page",
+      "/admissions/paper/" in _body, False)
+
+check("it is listed in the sitemap",
+      "/practice-papers" in app.test_client().get(
+          "/sitemap.xml").get_data(as_text=True), True)
+
+# Crawlable means reachable without a redirect, for a signed-out visitor.
+check("and robots are not told to skip it",
+      "/practice-papers" in app.test_client().get(
+          "/robots.txt").get_data(as_text=True), False)
+
 print()
 print("ALL PASS" if not fails else f"FAILURES ({len(fails)}): {fails}")
 sys.exit(1 if fails else 0)

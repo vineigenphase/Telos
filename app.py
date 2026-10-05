@@ -354,7 +354,8 @@ def robots_txt():
 def sitemap_xml():
     # Public pages only — everything else is behind @login_required, so listing
     # it would just feed crawlers a wall of redirects.
-    pages = ["/", "/login", "/register", "/subscription", "/national-mock"]
+    pages = ["/", "/login", "/register", "/subscription", "/national-mock",
+             "/practice-papers"]
     urls = "".join(f"<url><loc>{canonical_url(p)}</loc></url>" for p in pages)
     body = ('<?xml version="1.0" encoding="UTF-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -3308,6 +3309,82 @@ def national_mock():
     )
 
 
+@app.route("/practice-papers")
+def practice_papers():
+    """Public, indexable catalogue of everything sittable on Telos.
+
+    The one page on the site a search engine can actually use. Everything else
+    worth ranking for — the papers themselves, the tracker, Exam Mode — sits
+    behind @login_required, which is correct and also means Telos is invisible
+    to anyone searching "free TMUA practice papers". This page is the index for
+    that content without un-gating any of it.
+
+    The PDFs stay behind the login deliberately. They are third-party
+    materials, and exam.admissions_pdf says why: a URL that works for anyone
+    who has it is a URL that gets indexed. So the page describes the
+    catalogue, and an account opens it.
+
+    Counts and prices are read from the database and the catalogue module, not
+    typed here. A page that advertises eighty papers has to stop saying eighty
+    the day one is withdrawn.
+    """
+    import admissions_papers
+
+    with get_db() as db:
+        papers = db.execute(
+            "SELECT paper_code, family, module, title, series, question_count, "
+            "       duration_sec, price_pence FROM exam_papers "
+            "WHERE is_published ORDER BY family DESC, module, paper_code"
+        ).fetchall()
+        event = _nm_event(db)
+
+    free = [p for p in papers if not p["price_pence"]]
+    paid = [p for p in papers if p["price_pence"]]
+
+    # The official catalogue, grouped by test rather than by the internal
+    # subject keys, which split a test across spec changes (ENGAA 2016-2018 and
+    # 2019-2023 are two keys and one test as far as a candidate is concerned).
+    groups = admissions_papers.all_official_papers()
+    tests = {}
+    for key, rows in groups.items():
+        name = admissions_papers.test_name(key)
+        slot = tests.setdefault(name, {"name": name, "papers": 0, "marked": 0,
+                                       "years": set(), "pdfs": False})
+        slot["papers"] += len(rows)
+        slot["pdfs"] = slot["pdfs"] or key.split(" ")[0] in \
+            admissions_papers.PUBLISHES_PAPERS
+        for row in rows:
+            if row["year"] != "SPEC":
+                slot["years"].add(row["year"])
+            if admissions_papers.answer_key(row["subject"], row["year"],
+                                            row.get("part")):
+                slot["marked"] += 1
+    catalogue = []
+    for slot in tests.values():
+        years = sorted(slot["years"])
+        slot["span"] = f"{years[0]}–{years[-1]}" if years else "specimen"
+        slot["years"] = len(years)
+        catalogue.append(slot)
+    catalogue.sort(key=lambda s: -s["papers"])
+
+    prices = {p["price_pence"] for p in paid}
+    return render_template(
+        "practice_papers.html",
+        free_papers=free,
+        paid_papers=paid,
+        catalogue=catalogue,
+        official_total=sum(s["papers"] for s in catalogue),
+        official_marked=sum(s["marked"] for s in catalogue),
+        paid_price=(f"£{min(prices) // 100}"
+                    if prices and min(prices) % 100 == 0
+                    else (f"£{min(prices) / 100:.2f}" if prices else None)),
+        event=event,
+        trial_days=TRIAL_DAYS,
+        tutoring_email=TUTORING_EMAIL,
+        tiktok_handle=TIKTOK_HANDLE,
+    )
+
+
 @app.route("/national-mock/join", methods=["POST"])
 @login_required
 def national_mock_join():
@@ -3360,7 +3437,7 @@ SETUP_EXEMPT = {
     # The National Mock pages. A visitor arriving from a video may well be
     # signed in with no subjects picked, and bouncing them from the event page
     # to the subject picker loses them; the join POST would lose its body.
-    "national_mock", "national_mock_join", "nm_short",
+    "national_mock", "national_mock_join", "nm_short", "practice_papers",
 }
 
 

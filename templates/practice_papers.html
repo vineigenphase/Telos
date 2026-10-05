@@ -1,0 +1,313 @@
+{# The public paper catalogue, at /practice-papers.
+
+   This page exists for one reason: everything on Telos worth finding is behind
+   @login_required, so a student searching "free TMUA practice papers" cannot
+   find any of it. This is the index — public, indexable, real content — and an
+   account is what opens the papers themselves.
+
+   The PDFs stay gated on purpose. See exam.admissions_pdf: they are
+   third-party materials and a public URL is an indexed URL. Nothing here links
+   straight to one.
+
+   Two kinds of paper are described, and the difference is stated every time
+   either is mentioned, because conflating them would be the one genuinely
+   dishonest thing this page could do:
+
+     * official past papers, reproduced from the publishers' own free releases;
+     * Telos mocks, written by us for this, modelled on the real format.
+
+   Never the word "official" about a Telos paper. Never any implication of
+   endorsement. Counts and prices come from the route. #}
+{% import "_icons.html" as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  {# The title carries the terms someone actually types. Specific before
+     branded: nobody searches for Telos yet. #}
+  <title>TMUA, ESAT, ENGAA and NSAA practice papers — {{ official_total }} papers, auto-marked | Telos</title>
+  <meta name="description" content="{{ official_total }} admissions-test past papers for TMUA, ESAT, ENGAA and NSAA, {{ official_marked }} of them marked automatically from the published answer keys, plus {{ free_papers|length }} free full-length Telos mocks with real timing. Free account, no card.">
+  <link rel="canonical" href="{{ canonical_url('/practice-papers') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telos.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-180.png') }}">
+  <meta property="og:title" content="TMUA, ESAT, ENGAA and NSAA practice papers — auto-marked">
+  <meta property="og:description" content="{{ official_total }} admissions-test past papers, {{ official_marked }} auto-marked, plus {{ free_papers|length }} free full-length Telos mocks with real timing.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ canonical_url('/practice-papers') }}">
+  <meta property="og:image" content="{{ canonical_url(url_for('static', filename='og-preview.png')) }}">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="Telos — the marks between you and the next grade.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TMUA, ESAT, ENGAA and NSAA practice papers">
+  <meta name="twitter:description" content="{{ official_total }} past papers, {{ official_marked }} auto-marked, plus free full-length mocks with real timing.">
+  <meta name="twitter:image" content="{{ canonical_url(url_for('static', filename='og-preview.png')) }}">
+</head>
+<body class="lp">
+
+<header class="lp-nav" id="lp-nav">
+  <div class="lp-wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(26) }}
+      <span class="lp-logo-name">Tel<span>os</span></span>
+    </a>
+    <div class="lp-nav-actions">
+      <a class="lp-tiktok" href="https://www.tiktok.com/{{ tiktok_handle }}"
+         target="_blank" rel="noopener">
+        <span class="lp-tiktok-label">TikTok:</span> {{ tiktok_handle }}
+      </a>
+      {% if current_user.is_authenticated %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('exam.index') }}">Exam Mode</a>
+      {% else %}
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('login') }}">Log in</a>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">Start free</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="pp-hero">
+    <div class="lp-wrap">
+      <p class="lp-eyebrow">TMUA · ESAT · ENGAA · NSAA</p>
+      <h1 class="lp-title pp-title">
+        {{ official_total }} admissions-test papers,<br><em>marked for you</em>.
+      </h1>
+      <p class="lp-lede pp-lede">
+        Every TMUA, ENGAA and NSAA past paper the publishers have released,
+        plus the ESAT specimen material — {{ official_marked }} of them scored
+        automatically from the published answer keys, so you enter your letters
+        and get your mark and your weak topics instead of counting by hand.
+        And {{ free_papers|length }} full-length Telos mocks, written for this
+        and timed like the real thing.
+      </p>
+      <div class="pp-cta">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">
+          Create a free account</a>
+        <p class="nm-cta-note">
+          An email and a password. No card. The
+          {{ free_papers|length }} Telos mocks and every past paper below are
+          included at no cost.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {# ── The free mocks ──────────────────────────────────────────────────────── #}
+  {% if free_papers %}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">Free, full length, properly timed</p>
+        <h2 class="pp-h2">Telos mocks</h2>
+        <p class="pp-p">
+          Written by us, modelled on the real format, timing and question
+          styles. These are <strong>not past papers and not reproductions of
+          anybody's</strong> — they exist because there are only so many real
+          papers and most candidates run out of them. The clock is
+          server-authoritative, so closing the tab does not pause it.
+        </p>
+      </div>
+      <div class="pp-grid">
+        {% for p in free_papers %}
+        <article class="pp-card">
+          <p class="pp-card-fam">{{ p.family }}{% if p.module %} · {{ p.module }}{% endif %}</p>
+          <h3 class="pp-card-title">{{ p.title }}</h3>
+          <p class="pp-card-meta">
+            {{ p.question_count }} questions · {{ p.duration_sec // 60 }} minutes
+            {%- if p.series %} · {{ p.series }}{% endif %}
+          </p>
+          <p class="pp-card-tag">Free</p>
+        </article>
+        {% endfor %}
+      </div>
+      {% if paid_papers and paid_price %}
+      <p class="pp-note">
+        A further {{ paid_papers|length }} Telos mocks are
+        {{ paid_price }} each, or included with Pro. The
+        {{ free_papers|length }} above cost nothing.
+      </p>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── The official catalogue ──────────────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">Past papers</p>
+        <h2 class="pp-h2">The official catalogue</h2>
+        <p class="pp-p">
+          Reproduced from the publishers' own free releases. You enter the
+          letters you chose; Telos marks them against the published key, scores
+          the paper, and tells you which topics the wrong ones belong to. The
+          papers themselves open once you have an account — they are
+          third-party materials and we do not serve them from public URLs.
+        </p>
+      </div>
+      <div class="pp-table-wrap">
+        <table class="data-table pp-table">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Papers</th>
+              <th>Years</th>
+              <th>Auto-marked</th>
+              <th>PDFs hosted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in catalogue %}
+            <tr>
+              <td><strong>{{ t.name }}</strong></td>
+              <td>{{ t.papers }}</td>
+              <td>{{ t.span }}</td>
+              <td>{% if t.marked %}{{ t.marked }}{% else %}—{% endif %}</td>
+              <td>{% if t.pdfs %}Yes{% else %}Keys only{% endif %}</td>
+            </tr>
+            {% endfor %}
+            <tr class="pp-total">
+              <td><strong>Total</strong></td>
+              <td><strong>{{ official_total }}</strong></td>
+              <td>—</td>
+              <td><strong>{{ official_marked }}</strong></td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="pp-note">
+        Where a paper has no published answer key, Telos still tracks the
+        sitting and your own marks — it just cannot score it for you. The ESAT
+        material is new enough that no keys have been released.
+      </p>
+    </div>
+  </section>
+
+  {# ── What the marking actually does ──────────────────────────────────────── #}
+  <section class="lp-section">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">Why bother logging them</p>
+        <h2 class="pp-h2">A score tells you less than a pattern.</h2>
+      </div>
+      <ol class="nm-steps">
+        <li>
+          <span class="nm-step-n">1</span>
+          <div>
+            <b>Enter your answers, not your total.</b>
+            Letters for a multiple-choice paper, marks per question for a
+            written one. It takes about two minutes and it is the difference
+            between knowing you got 14 and knowing which 6 you lost.
+          </div>
+        </li>
+        <li>
+          <span class="nm-step-n">2</span>
+          <div>
+            <b>Telos groups the losses by topic.</b>
+            Across every paper you have logged, not just the last one — so a
+            weakness that costs you two marks on every paper shows up as what
+            it is rather than as bad luck four times.
+          </div>
+        </li>
+        <li>
+          <span class="nm-step-n">3</span>
+          <div>
+            <b>It tells you what to do next.</b>
+            A short list, ordered by how many marks it is actually worth,
+            rather than a dashboard for you to interpret.
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {# ── The event, when one is coming up ────────────────────────────────────── #}
+  {% if event and not event.results_released_at %}
+  <section class="lp-section pp-event">
+    <div class="lp-wrap">
+      <div class="lp-section-head">
+        <p class="lp-kicker">Coming up</p>
+        <h2 class="pp-h2">{{ event.title }} — {{ event.start_local|uk_date }}</h2>
+        <p class="pp-p">
+          One free paper, sat by everyone inside the same window
+          ({{ event.start_local|uk_time }}–{{ event.end_local|uk_time }}), so
+          the mark comes with a position against everyone else who sat it.
+        </p>
+      </div>
+      <a class="btn btn-ghost btn-lg" href="{{ url_for('national_mock') }}">
+        What the National Mock is</a>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="lp-section pp-close">
+    <div class="lp-wrap">
+      <h2 class="pp-h2">Start with one paper.</h2>
+      <p class="pp-p">
+        Log a paper you have already sat and see what it says. If the topic
+        list does not tell you something you did not already know, you have
+        lost two minutes.
+      </p>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">
+        Create a free account</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lp-wrap">
+  <div class="lp-footer">
+    <a class="lp-logo" href="{{ url_for('dashboard') }}">
+      {{ icons.logo(20) }}
+      <span class="lp-logo-name" style="font-size:0.95rem;">Tel<span>os</span></span>
+    </a>
+    <nav class="lp-footer-links" aria-label="Footer">
+      <a href="{{ url_for('dashboard') }}">Telos</a>
+      <a href="{{ url_for('national_mock') }}">National Mock</a>
+      <a href="{{ url_for('login') }}">Log in</a>
+      <a href="{{ url_for('register') }}">Sign up</a>
+      <a href="{{ url_for('terms') }}">Terms</a>
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="mailto:{{ tutoring_email }}?subject=Telos">Contact</a>
+    </nav>
+    <p class="lp-footer-contact">
+      Questions, or a paper missing?
+      <a href="mailto:{{ tutoring_email }}?subject=Telos%20papers">{{ tutoring_email }}</a>
+      · TikTok <a href="https://www.tiktok.com/{{ tiktok_handle }}"
+                  target="_blank" rel="noopener">{{ tiktok_handle }}</a>
+    </p>
+    <p class="lp-footer-note">
+      Telos is not affiliated with any awarding organisation, admissions test
+      provider or university, and nothing here is an official test or an
+      official publication. Admissions-test papers are reproduced from their
+      publishers' own free releases; Telos mocks are written by Telos. Scaled
+      bands are estimates from your own logged marks, not results.
+    </p>
+  </div>
+</footer>
+
+<script>
+  /* Only the nav hairline, matching the other public pages so the three do not
+     feel like different sites. No reveal animation here: this page is a
+     reference someone scrolls looking for a specific test, and content that
+     fades in on scroll is content they have to wait for. */
+  var nav = document.getElementById('lp-nav');
+  if (nav) {
+    window.addEventListener('scroll', function () {
+      nav.classList.toggle('stuck', window.scrollY > 8);
+    }, { passive: true });
+  }
+</script>
+
+</body>
+</html>

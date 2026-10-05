@@ -4,12 +4,20 @@ Read-only. Run it as often as you like during the window:
 
     railway run --service web .venv\\Scripts\\python.exe scripts\\nm_status.py
 
-It answers the three questions the day actually turns on:
+It answers the questions the day actually turns on:
 
-  * how many people registered, and through which link;
+  * how many people the links brought, and from where — the figure that says
+    whether anything was posted at all, and which post worked;
+  * how many of those visits became accounts;
+  * how many registered for the event, and through which link;
   * how many are sitting or have sat each paper;
   * which papers are above the cohort threshold and will therefore get a
     percentile, and which will not.
+
+Visits come before registrations deliberately. After the first event every
+figure below registrations was zero, and the only one that explained why was
+the visit count: nothing had been posted. A dashboard that starts at
+"registrations: 0" invites you to fix the signup flow.
 
 That last one matters more than the headline count. The public page hides the
 registration figure below 50, and the threshold that decides whether the event
@@ -70,7 +78,33 @@ def main():
                   f"{nationalmock.COUNT_VISIBLE_FROM})")
         print()
 
-        print("where they came from")
+        # Traffic first, registrations second, because they answer different
+        # questions and the first one is the one that is usually wrong. A post
+        # that sends nobody and a post that sends people who do not sign up
+        # need opposite responses, and a registration count alone cannot tell
+        # them apart.
+        print("visits, by where the link was posted")
+        rows = db.execute(
+            "SELECT COALESCE(detail, '(none)') AS src, COUNT(*) AS n, "
+            "       MAX(created_at) AS last "
+            "FROM analytics_events WHERE event='landed' "
+            "GROUP BY 1 ORDER BY n DESC, 1").fetchall()
+        if not rows:
+            print("  no tagged visits ever — nothing has been posted, or the "
+                  "links were posted without their ?r= code")
+        for r in rows:
+            print(f"  {r['src']:<16} {r['n']:>4}   last {r['last']:%Y-%m-%d %H:%M}")
+        print()
+
+        print("accounts created, by first touch")
+        rows = db.execute(
+            "SELECT COALESCE(signup_source, '(direct)') AS src, COUNT(*) AS n "
+            "FROM users GROUP BY 1 ORDER BY n DESC, 1").fetchall()
+        for r in rows:
+            print(f"  {r['src']:<16} {r['n']:>4}")
+        print()
+
+        print("event registrations, by where they came from")
         rows = db.execute(
             "SELECT COALESCE(source, '(direct)') AS source, COUNT(*) AS n "
             "FROM mock_event_entries WHERE event_id=? "
